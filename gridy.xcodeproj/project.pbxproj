@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AD8ECB8E2ABC7CA10040A0B8 /* gridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* gridyApp.swift */; };
+		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AD8ECB8D2ABC7CA10040A0B8 /* gridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gridyApp.swift; sourceTree = "<group>"; };
+		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gridy.entitlements; sourceTree = "<group>"; };
@@ -59,7 +59,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				AD8ECB8D2ABC7CA10040A0B8 /* gridyApp.swift */,
+				AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */,
 				AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */,
 			);
 			path = Sources;
@@ -81,6 +81,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD8ECB992ABC7CA20040A0B8 /* Build configuration list for PBXNativeTarget "gridy" */;
 			buildPhases = (
+				AD8ECB9F2ABC8E6A0040A0B8 /* SwiftLint Script */,
 				AD8ECB862ABC7CA10040A0B8 /* Sources */,
 				AD8ECB872ABC7CA10040A0B8 /* Frameworks */,
 				AD8ECB882ABC7CA10040A0B8 /* Resources */,
@@ -138,13 +139,35 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AD8ECB9F2ABC8E6A0040A0B8 /* SwiftLint Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "SwiftLint Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if test -d \"/opt/homebrew/bin/\"; then\n  PATH=\"/opt/homebrew/bin/:${PATH}\"\nfi\n\nexport PATH\n\nif which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		AD8ECB862ABC7CA10040A0B8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
-				AD8ECB8E2ABC7CA10040A0B8 /* gridyApp.swift in Sources */,
+				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

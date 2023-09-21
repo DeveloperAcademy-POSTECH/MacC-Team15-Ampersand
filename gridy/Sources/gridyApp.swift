@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct gridyApp: App {
+struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
