@@ -1,7 +1,7 @@
 ---
 name: Bug template
 about: 이런 버그를 수정합니다
-title: "[FIX] 수정할 버그 내용"
+title: "[fix] 수정할 버그 내용"
 labels: ''
 assignees: ''
 
