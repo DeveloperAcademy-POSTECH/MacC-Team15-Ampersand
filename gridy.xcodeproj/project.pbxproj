@@ -19,6 +19,13 @@
 		AD8ECBAE2ABC942B0040A0B8 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBAD2ABC942B0040A0B8 /* FirebaseFirestore */; };
 		AD8ECBB02ABC942B0040A0B8 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBAF2ABC942B0040A0B8 /* FirebaseFirestoreSwift */; };
 		AD8ECBB22ABC942B0040A0B8 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBB12ABC942B0040A0B8 /* FirebaseStorage */; };
+		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
+		ADACF5FD2AC2575A008AADFA /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FC2AC2575A008AADFA /* TimelineView.swift */; };
+		ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */; };
+		ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */; };
+		ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6032AC25B0F008AADFA /* NetworkService.swift */; };
+		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		ADACF60C2AC26DAB008AADFA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ADACF60B2AC26DAB008AADFA /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +34,12 @@
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gridy.entitlements; sourceTree = "<group>"; };
+		ADACF5FC2AC2575A008AADFA /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineReducer.swift; sourceTree = "<group>"; };
+		ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtocol.swift; sourceTree = "<group>"; };
+		ADACF6032AC25B0F008AADFA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		ADACF60B2AC26DAB008AADFA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */,
 				AD8ECBAC2ABC942B0040A0B8 /* FirebaseDatabaseSwift in Frameworks */,
 				AD8ECBAA2ABC942B0040A0B8 /* FirebaseDatabase in Frameworks */,
 				AD8ECBB22ABC942B0040A0B8 /* FirebaseStorage in Frameworks */,
@@ -68,6 +82,7 @@
 		AD8ECB8C2ABC7CA10040A0B8 /* gridy */ = {
 			isa = PBXGroup;
 			children = (
+				ADACF60B2AC26DAB008AADFA /* GoogleService-Info.plist */,
 				AD8ECB9D2ABC7CC00040A0B8 /* Sources */,
 				AD8ECB9E2ABC7CC80040A0B8 /* Resources */,
 			);
@@ -77,6 +92,10 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				ADACF5FA2AC20133008AADFA /* Presentations */,
+				ADACF6002AC25AF3008AADFA /* Network */,
+				ADACF6062AC26C56008AADFA /* Utils */,
+				ADACF6052AC26C4D008AADFA /* Extensions */,
 				AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */,
 				AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */,
 			);
@@ -90,6 +109,47 @@
 				AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		ADACF5FA2AC20133008AADFA /* Presentations */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF5FB2AC2574A008AADFA /* Timeline */,
+			);
+			path = Presentations;
+			sourceTree = "<group>";
+		};
+		ADACF5FB2AC2574A008AADFA /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF5FC2AC2575A008AADFA /* TimelineView.swift */,
+				ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */,
+			);
+			path = Timeline;
+			sourceTree = "<group>";
+		};
+		ADACF6002AC25AF3008AADFA /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */,
+				ADACF6032AC25B0F008AADFA /* NetworkService.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		ADACF6052AC26C4D008AADFA /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF6092AC26CDF008AADFA /* Color+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		ADACF6062AC26C56008AADFA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +179,7 @@
 				AD8ECBAD2ABC942B0040A0B8 /* FirebaseFirestore */,
 				AD8ECBAF2ABC942B0040A0B8 /* FirebaseFirestoreSwift */,
 				AD8ECBB12ABC942B0040A0B8 /* FirebaseStorage */,
+				ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */,
 			);
 			productName = gridy;
 			productReference = AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */;
@@ -150,6 +211,7 @@
 			mainGroup = AD8ECB812ABC7CA10040A0B8;
 			packageReferences = (
 				AD8ECBA02ABC942B0040A0B8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = AD8ECB8B2ABC7CA10040A0B8 /* Products */;
 			projectDirPath = "";
@@ -166,6 +228,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */,
+				ADACF60C2AC26DAB008AADFA /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,6 +262,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
+				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
+				ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */,
+				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
+				ADACF5FD2AC2575A008AADFA /* TimelineView.swift in Sources */,
+				ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -403,6 +471,14 @@
 				minimumVersion = 9.0.0;
 			};
 		};
+		ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "http://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -450,6 +526,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AD8ECBA02ABC942B0040A0B8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
