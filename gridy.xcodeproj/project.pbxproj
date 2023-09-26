@@ -20,6 +20,10 @@
 		AD8ECBB02ABC942B0040A0B8 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBAF2ABC942B0040A0B8 /* FirebaseFirestoreSwift */; };
 		AD8ECBB22ABC942B0040A0B8 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBB12ABC942B0040A0B8 /* FirebaseStorage */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
+		ADACF5FD2AC2575A008AADFA /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FC2AC2575A008AADFA /* TimelineView.swift */; };
+		ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */; };
+		ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */; };
+		ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6032AC25B0F008AADFA /* NetworkService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +32,10 @@
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gridy.entitlements; sourceTree = "<group>"; };
+		ADACF5FC2AC2575A008AADFA /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineReducer.swift; sourceTree = "<group>"; };
+		ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtocol.swift; sourceTree = "<group>"; };
+		ADACF6032AC25B0F008AADFA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +87,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				ADACF6002AC25AF3008AADFA /* Network */,
 				ADACF5FA2AC20133008AADFA /* Presentations */,
 				AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */,
 				AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */,
@@ -98,8 +107,27 @@
 		ADACF5FA2AC20133008AADFA /* Presentations */ = {
 			isa = PBXGroup;
 			children = (
+				ADACF5FB2AC2574A008AADFA /* Timeline */,
 			);
 			path = Presentations;
+			sourceTree = "<group>";
+		};
+		ADACF5FB2AC2574A008AADFA /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF5FC2AC2575A008AADFA /* TimelineView.swift */,
+				ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */,
+			);
+			path = Timeline;
+			sourceTree = "<group>";
+		};
+		ADACF6002AC25AF3008AADFA /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */,
+				ADACF6032AC25B0F008AADFA /* NetworkService.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +239,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
+				ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */,
+				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
+				ADACF5FD2AC2575A008AADFA /* TimelineView.swift in Sources */,
+				ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
