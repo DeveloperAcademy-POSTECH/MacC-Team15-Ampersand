@@ -19,6 +19,7 @@
 		AD8ECBAE2ABC942B0040A0B8 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBAD2ABC942B0040A0B8 /* FirebaseFirestore */; };
 		AD8ECBB02ABC942B0040A0B8 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBAF2ABC942B0040A0B8 /* FirebaseFirestoreSwift */; };
 		AD8ECBB22ABC942B0040A0B8 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = AD8ECBB12ABC942B0040A0B8 /* FirebaseStorage */; };
+		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */,
 				AD8ECBAC2ABC942B0040A0B8 /* FirebaseDatabaseSwift in Frameworks */,
 				AD8ECBAA2ABC942B0040A0B8 /* FirebaseDatabase in Frameworks */,
 				AD8ECBB22ABC942B0040A0B8 /* FirebaseStorage in Frameworks */,
@@ -77,6 +79,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				ADACF5FA2AC20133008AADFA /* Presentations */,
 				AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */,
 				AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */,
 			);
@@ -90,6 +93,13 @@
 				AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		ADACF5FA2AC20133008AADFA /* Presentations */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Presentations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +129,7 @@
 				AD8ECBAD2ABC942B0040A0B8 /* FirebaseFirestore */,
 				AD8ECBAF2ABC942B0040A0B8 /* FirebaseFirestoreSwift */,
 				AD8ECBB12ABC942B0040A0B8 /* FirebaseStorage */,
+				ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */,
 			);
 			productName = gridy;
 			productReference = AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */;
@@ -150,6 +161,7 @@
 			mainGroup = AD8ECB812ABC7CA10040A0B8;
 			packageReferences = (
 				AD8ECBA02ABC942B0040A0B8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = AD8ECB8B2ABC7CA10040A0B8 /* Products */;
 			projectDirPath = "";
@@ -403,6 +415,14 @@
 				minimumVersion = 9.0.0;
 			};
 		};
+		ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "http://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -450,6 +470,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AD8ECBA02ABC942B0040A0B8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
