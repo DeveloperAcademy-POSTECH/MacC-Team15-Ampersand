@@ -24,6 +24,7 @@
 		ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */; };
 		ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */; };
 		ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6032AC25B0F008AADFA /* NetworkService.swift */; };
+		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		ADACF5FE2AC25760008AADFA /* TimelineReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineReducer.swift; sourceTree = "<group>"; };
 		ADACF6012AC25B01008AADFA /* NetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtocol.swift; sourceTree = "<group>"; };
 		ADACF6032AC25B0F008AADFA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,8 +89,10 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				ADACF6002AC25AF3008AADFA /* Network */,
 				ADACF5FA2AC20133008AADFA /* Presentations */,
+				ADACF6002AC25AF3008AADFA /* Network */,
+				ADACF6062AC26C56008AADFA /* Utils */,
+				ADACF6052AC26C4D008AADFA /* Extensions */,
 				AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */,
 				AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */,
 			);
@@ -128,6 +132,21 @@
 				ADACF6032AC25B0F008AADFA /* NetworkService.swift */,
 			);
 			path = Network;
+			sourceTree = "<group>";
+		};
+		ADACF6052AC26C4D008AADFA /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				ADACF6092AC26CDF008AADFA /* Color+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		ADACF6062AC26C56008AADFA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -239,6 +258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
+				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				ADACF5FF2AC25760008AADFA /* TimelineReducer.swift in Sources */,
 				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
 				ADACF5FD2AC2575A008AADFA /* TimelineView.swift in Sources */,
