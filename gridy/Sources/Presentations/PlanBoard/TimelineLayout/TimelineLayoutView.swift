@@ -9,7 +9,15 @@ import SwiftUI
 
 struct TimelineLayoutView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationSplitView {
+            LeftToolBarAreaView()
+                .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
+        } content: {
+            TimelineLayoutContentView()
+        } detail: {
+            RightToolBarAreaView()
+                .navigationSplitViewColumnWidth(240)
+        }
     }
 }
 

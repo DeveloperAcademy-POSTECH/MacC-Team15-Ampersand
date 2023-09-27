@@ -9,7 +9,19 @@ import SwiftUI
 
 struct LeftToolBarAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView {
+            VStack {
+                ForEach(1..<30) { thinkNumber in
+                    Rectangle()
+                        .opacity(0.1)
+                        .frame(height: 60)
+                        .cornerRadius(8)
+                        .overlay(Text("Think \(thinkNumber)"))
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 16)
+        }
     }
 }
 
