@@ -8,6 +8,7 @@
 import SwiftUI
 
 @main
+@available(macOS 14.0, *)
 struct GridyApp: App {
     var body: some Scene {
         WindowGroup {

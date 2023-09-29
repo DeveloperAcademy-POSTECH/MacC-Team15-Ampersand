@@ -9,18 +9,20 @@ import SwiftUI
 
 struct LeftToolBarAreaView: View {
     var body: some View {
-        ScrollView {
-            VStack {
-                ForEach(1..<30) { thinkNumber in
-                    Rectangle()
-                        .opacity(0.1)
-                        .frame(height: 60)
-                        .cornerRadius(8)
-                        .overlay(Text("Think \(thinkNumber)"))
+        GeometryReader { geo in
+            ScrollView {
+                VStack {
+                    ForEach(1..<30) { thinkNumber in
+                        Rectangle()
+                            .opacity(0.1)
+                            .frame(height: 60)
+                            .cornerRadius(8)
+                            .overlay(Text("Think \(thinkNumber)"))
+                    }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+            .frame(width: geo.size.width)
         }
     }
 }
