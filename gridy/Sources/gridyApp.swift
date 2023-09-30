@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct GridyApp: App {
+    static let store = Store(initialState: Authentication.State()) {
+        Authentication()
+            ._printChanges()
+    }
     var body: some Scene {
         WindowGroup {
-            ContentView()
+//            ContentView()
+            AuthenticationView(store: GridyApp.store)
         }
     }
 }

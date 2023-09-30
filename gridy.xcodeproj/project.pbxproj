@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
+		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
@@ -43,6 +45,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -91,6 +95,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AD68907B2AC707AE00539A5C /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				AD68907C2AC707D800539A5C /* AuthenticationView.swift */,
+				AD68907E2AC7F1AD00539A5C /* Authentication.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
 		AD8ECB812ABC7CA10040A0B8 = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +157,7 @@
 			children = (
 				EE909A692AC3D20D00C9AAF0 /* Common */,
 				EE909A422AC3CDEC00C9AAF0 /* PlanBoard */,
+				AD68907B2AC707AE00539A5C /* Authentication */,
 			);
 			path = Presentations;
 			sourceTree = "<group>";
@@ -423,6 +437,7 @@
 				EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */,
 				ADACF5FF2AC25760008AADFA /* TimelineLayoutReducer.swift in Sources */,
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
+				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
 				EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
@@ -435,6 +450,7 @@
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
 				EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */,
+				AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */,
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -635,8 +651,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
+				kind = exactVersion;
+				version = 10.15.0;
 			};
 		};
 		ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
