@@ -20,16 +20,13 @@ struct AuthenticationView: View {
                 Text("gridy")
                 SignInWithAppleButton(.signIn) { request in
                     request.requestedScopes = [.fullName, .email]
-                    request.nonce = viewStore.nonce
+                    request.nonce = viewStore.encrytedNonce
                 } onCompletion: { result in
                     switch result {
                     case let .success(authorization):
+                        // TODO: completion handler도 Reducer에서 처리해야 할까요? -ZEN
                         switch authorization.credential {
                         case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                            let userIdentifier = appleIDCredential.user
-                            let email = appleIDCredential.email
-                            let fullName = appleIDCredential.fullName
-                            
                             guard let appleIDToken = appleIDCredential.identityToken else {
                                 fatalError("Invalid state: A login callback was received, but no login request was sent.")
                             }
@@ -41,16 +38,19 @@ struct AuthenticationView: View {
                             let credential = OAuthProvider.credential(
                                 withProviderID: "apple.com",
                                 idToken: idTokenToString,
-                                rawNonce: viewStore.nonce)
+                                rawNonce: viewStore.rawNonce
+                            )
                             
-                            guard appleIDCredential.email != nil else {
-                                print("Already Signed in")
-                                // TODO: - Store Action when sign up
+                            guard let email = appleIDCredential.email else {
+                                /// Already signed up
+                                viewStore.send(.signInSuccessfully(credential))
                                 return
                             }
                             
-                            // TODO: Store Action when sign in
-                            
+                            /// Not yet signed up
+                            let fullName = appleIDCredential.fullName
+                            let username = "\(fullName?.givenName ?? "") \(fullName?.familyName ?? "")"
+                            viewStore.send(.notYetRegistered(email, username, credential))
                         default:
                             break
                         }
@@ -60,7 +60,7 @@ struct AuthenticationView: View {
                 }
                 .frame(width: 280, height: 60, alignment: .center)
                 .onAppear {
-                    viewStore.send(.createEncrytedNonce)
+                    viewStore.send(.onAppear)
                 }
             }
         }

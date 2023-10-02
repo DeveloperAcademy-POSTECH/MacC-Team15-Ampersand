@@ -8,28 +8,80 @@
 import SwiftUI
 import ComposableArchitecture
 import CryptoKit
+@preconcurrency import FirebaseAuth
 
 struct Authentication: Reducer {
+    
+    @Dependency(\.apiClient) var apiClient
+    
     struct State: Equatable {
-        @BindingState var nonce = ""
+        var rawNonce = ""
+        var encrytedNonce = ""
+        var successToSignIn = false
+        var authenticatedUser = User(uid: "", username: "", email: "")
+        var isProceeding = false
     }
     
-    enum Action: Equatable, Sendable {
-        case createEncrytedNonce
+    enum Action: Equatable, Sendable, BindableAction {
+        case onAppear
+        case notYetRegistered(String, String, AuthCredential) // Then sign up
+        case signInSuccessfully(AuthCredential)
+        case fetchUser
+        case fetchUserResponse(TaskResult<User?>)
+        case binding(BindingAction<State>)
+        case setProcessing(Bool)
     }
     
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
-        case .createEncrytedNonce:
-            state.nonce = encryptedNonce()
+        case .onAppear:
+            state.rawNonce = randomNonceString()
+            state.encrytedNonce = sha256(state.rawNonce)
+            return .none
+            
+        case let .notYetRegistered(email, username, credential):
+            return .run { send in
+                await send(.setProcessing(true))
+                try await apiClient.signUp(email, username, credential)
+                await send(.fetchUser)
+            }
+            
+        case let .signInSuccessfully(credential):
+            return .run { send in
+                await send(.setProcessing(true))
+                try await apiClient.signIn(credential)
+                await send(.fetchUser)
+            }
+            
+        case .fetchUser:
+            return .run { send in
+                await send(.fetchUserResponse(
+                    TaskResult {
+                        try await apiClient.fetchUser()
+                    }
+                ))
+                await send(.setProcessing(false))
+            }
+            
+        case let .fetchUserResponse(.success(response)):
+            state.authenticatedUser = response!
+            state.successToSignIn = true
+            return .none
+            
+        case .fetchUserResponse(.failure):
+            state.successToSignIn = false
+            return .none
+        
+        case .binding:
+            return .none
+            
+        case let .setProcessing(isInProcess):
+            state.isProceeding = isInProcess
             return .none
         }
     }
     
-    private func encryptedNonce() -> String {
-        return sha256(randomNonceString())
-    }
-    
+    /// Create random nonce string
     private func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)

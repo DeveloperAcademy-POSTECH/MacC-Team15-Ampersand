@@ -6,16 +6,28 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct ContentView: View {
+    let store = Store(initialState: Authentication.State()) {
+        Authentication()
+            ._printChanges()
+    }
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                if viewStore.successToSignIn {
+                    Text("\(viewStore.authenticatedUser.username), Do gridy!")
+                } else {
+                    AuthenticationView(store: store)
+                }
+                if viewStore.isProceeding {
+                    Color.black.opacity(0.7)
+                    ProgressView()
+                        .foregroundColor(.white)
+                }
+            }
         }
-        .padding()
     }
 }
 
