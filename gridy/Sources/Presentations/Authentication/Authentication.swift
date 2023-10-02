@@ -38,6 +38,9 @@ struct Authentication: Reducer {
             state.rawNonce = randomNonceString()
             state.encrytedNonce = sha256(state.rawNonce)
             return .none
+//            return .run { _ in
+//                try await apiClient.signOut()
+//            }
             
         case let .notYetRegistered(email, username, credential):
             return .run { send in

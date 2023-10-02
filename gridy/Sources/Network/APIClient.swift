@@ -19,15 +19,19 @@ struct APIClient {
         _ username: String,
         _ crendential: AuthCredential
     ) async throws -> Void
+    var signOut: () async throws -> Void?
     
     init(
         fetchUser: @escaping () async throws -> User?,
         signIn: @escaping (_: AuthCredential) async throws -> Void,
-        signUp: @escaping (_: String, _: String, _: AuthCredential) async throws -> Void) {
-            self.fetchUser = fetchUser
-            self.signIn = signIn
-            self.signUp = signUp
-        }
+        signUp: @escaping (_: String, _: String, _: AuthCredential) async throws -> Void,
+        signOut: @escaping () async throws -> Void
+    ) {
+        self.fetchUser = fetchUser
+        self.signIn = signIn
+        self.signUp = signUp
+        self.signOut = signOut
+    }
 }
 
 // MARK: - live
@@ -58,10 +62,16 @@ extension APIClient {
                 let data = ["uid": result.user.uid,
                             "username": username,
                             "email": email] as [String: Any]
-                _ = try await APIClient.clientCollection.document(result.user.uid).setData(data)
+                Task {
+                    _ = try await APIClient.clientCollection.document(result.user.uid).setData(data)
+                }
             } catch {
                 print("=== catch \(error)")
             }
+        },
+        
+        signOut: {
+            try Auth.auth().signOut()
         }
     )
 }
@@ -71,15 +81,15 @@ extension APIClient {
     static let testValue = Self(
         fetchUser: {
             return User.mock
-        }, signIn: { _ in   
+        }, signIn: { _ in
         }, signUp: { _, _, _ in
-        }
+        }, signOut: {}
     )
     static let mockValue = Self(
         fetchUser: {
             return nil
         }, signIn: { _ in
         }, signUp: { _, _, _ in
-        }
+        }, signOut: {}
     )
 }
