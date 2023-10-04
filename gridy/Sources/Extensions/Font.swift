@@ -17,6 +17,27 @@ extension String {
         static let pretendard = "Pretendard"
     }
 }
+// TODO: Protocole로 만들기
+struct FontSystem: Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var size: Float
+    var weight: Font.Weight
+    var kerning: Float
+    var color: Color
+    
+    init(name: String, size: Float, weight: Font.Weight, kerning: Float, color: Color) {
+          self.name = name
+          self.size = size
+          self.weight = weight
+          self.kerning = kerning
+          self.color = color
+      }
+}
+
+class GridyFonts: ObservableObject {
+    @Published var tabBarTitle: FontSystem = FontSystem(name: .Fonts.lexend, size: 24, weight: .bold, kerning: 1, color: .red)
+}
 
 struct FontTestView: View {
 //    @State private var font: String = "Pretendard"

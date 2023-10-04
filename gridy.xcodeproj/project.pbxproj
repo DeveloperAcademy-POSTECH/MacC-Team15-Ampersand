@@ -14,6 +14,7 @@
 		8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162472AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf */; };
 		8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */; };
 		8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A51624F2AC41D7100EEB1B4 /* Localizable.strings */; };
+		8AC07B7E2ACD4A12008CB772 /* LineAreaHenryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
@@ -58,6 +59,7 @@
 		8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
 		8A51624E2AC41D7100EEB1B4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8A5162502AC41D9800EEB1B4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaHenryView.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 			isa = PBXGroup;
 			children = (
 				EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */,
+				8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */,
 			);
 			path = LineArea;
 			sourceTree = "<group>";
@@ -457,6 +460,7 @@
 				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
+				8AC07B7E2ACD4A12008CB772 /* LineAreaHenryView.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */,
 				ADACF5FF2AC25760008AADFA /* TimelineLayoutReducer.swift in Sources */,
@@ -615,10 +619,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = gridy/Resources/gridy.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7D5PZJWQ9T;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 7D5PZJWQ9T;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -631,6 +638,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ampersand.gridy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development com.ampersand.gridy macos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -642,10 +651,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = gridy/Resources/gridy.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7D5PZJWQ9T;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 7D5PZJWQ9T;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -658,6 +670,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ampersand.gridy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development com.ampersand.gridy macos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
