@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  gridy
+
+  Created by 최민규 on 2023/09/27.
+  
+*/
+//en
+"welcome_message" = "Welcome to our app!";
+
+"Lexend" = "Lexend";
+
+"Pretendard" = "Pretendard";

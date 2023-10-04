@@ -9,7 +9,10 @@ import SwiftUI
 
 struct BlackPinkInYourAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: ListArea (하위코드삭제)
+        Text("BlackPinkInYourArea")
+            .frame(width: 140, height: 175)
+            .background(.pink)
     }
 }
 

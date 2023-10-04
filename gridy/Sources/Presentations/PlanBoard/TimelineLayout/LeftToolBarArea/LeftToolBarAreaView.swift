@@ -9,7 +9,22 @@ import SwiftUI
 
 struct LeftToolBarAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        GeometryReader { geo in
+            ScrollView {
+                VStack {
+                    // TODO: Thinking UI (하위코드삭제)
+                    ForEach(1..<30) { thinkNumber in
+                        Rectangle()
+                            .opacity(0.1)
+                            .frame(height: 60)
+                            .cornerRadius(8)
+                            .overlay(Text("Think \(thinkNumber)"))
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+            .frame(width: geo.size.width)
+        }
     }
 }
 

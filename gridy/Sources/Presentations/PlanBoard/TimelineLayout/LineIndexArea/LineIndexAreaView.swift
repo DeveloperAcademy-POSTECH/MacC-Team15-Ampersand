@@ -9,7 +9,11 @@ import SwiftUI
 
 struct LineIndexAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: LineIndexArea (하위코드삭제)
+        Text("LineIndexArea")
+            .frame(width: 35)
+            .frame(maxHeight: .infinity)
+            .background(.orange)
     }
 }
 
