@@ -8,15 +8,23 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+    
     var body: some View {
-        // TODO: TimeAxisArea (하위코드삭제)
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(1..<60) { _ in
-                    Rectangle()
-                        .foregroundColor(.blue)
-                        .frame(width: 35, height: 35)
-                }
+        HStack(alignment: .center, spacing: 0) {
+            ForEach(0..<viewModel.numOfCol) { col in
+                Rectangle()
+                    .foregroundColor(.blue)
+                    .frame(width: viewModel.gridWidth, height: 30)
+                    .overlay(
+                        ZStack {
+                            Text("\(col)")
+                                .font(.body)
+                            Rectangle()
+                                .strokeBorder(lineWidth: 0.3)
+                                .foregroundColor(.white)
+                        }
+                    )
             }
         }
     }

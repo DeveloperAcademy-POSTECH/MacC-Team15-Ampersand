@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TimelineLayoutView: View {
+    @StateObject var viewModel = TimelineLayoutViewModel()
+    
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
     
@@ -18,8 +20,10 @@ struct TimelineLayoutView: View {
         } detail: {
             HSplitView {
                 TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
+                    .environmentObject(viewModel)
                 if showingRightToolBarArea {
                     RightToolBarAreaView()
+                        .environmentObject(viewModel)
                         .frame(width: 240)
                 }
             }
@@ -45,4 +49,25 @@ struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
         TimelineLayoutView()
     }
+}
+
+class TimelineLayoutViewModel: ObservableObject {
+    @Published var numOfCol = 100
+    @Published var numOfLineAreaRow = 30
+    @Published var numOfScheduleAreaRow = 5
+    
+    let minGridSize: CGFloat = 15
+    let maxGridSize: CGFloat = 60
+    @Published var gridWidth: CGFloat = 30
+    @Published var scheduleAreaGridHeight: CGFloat = 30
+    @Published var lineAreaGridHeight: CGFloat = 30
+    @Published var horizontalMagnification: CGFloat = 1.0
+    @Published var verticalMagnification: CGFloat = 1.0
+    
+    @Published var tappedCellTopLeftPoint: CGPoint?
+    @Published var tappedCellCol: Int?
+    @Published var tappedCellRow: Int?
+
+    @Published var hoverLocation: CGPoint = .zero
+    @Published var isHovering = false
 }

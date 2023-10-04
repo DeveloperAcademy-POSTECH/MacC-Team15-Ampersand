@@ -8,20 +8,35 @@
 import SwiftUI
 
 struct ScheduleAreaView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+
     var body: some View {
-        // TODO: ScheduleArea (하위코드삭제)
-        ScrollView([.vertical, .horizontal]) {
-            HStack {
-                ForEach(1..<100) { _ in
-                    VStack {
-                        ForEach(1..<10) { _ in
+        ScrollView(.vertical) {
+        VStack(alignment: .leading, spacing: 0) {
+                ForEach(0..<viewModel.numOfScheduleAreaRow) { row in
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(0..<viewModel.numOfCol) { col in
                             Rectangle()
-                                .frame(width: 25, height: 25)
+                                .foregroundColor(.orange)
+                                .frame(width: viewModel.gridWidth, height: viewModel.scheduleAreaGridHeight)
+                                .overlay(
+                                        Rectangle()
+                                            .strokeBorder(lineWidth: 0.3)
+                                            .foregroundColor(.white)
+                                )
                         }
                     }
                 }
             }
         }
+        .gesture(
+            MagnificationGesture()
+                .onChanged { value in
+                    print(value)
+                    viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                    viewModel.scheduleAreaGridHeight = min(max(viewModel.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                }
+        )
     }
 }
 
