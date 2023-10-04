@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(macOS 14.0, *)
 struct TimelineLayoutView: View {
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
@@ -17,11 +16,13 @@ struct TimelineLayoutView: View {
             LeftToolBarAreaView()
                 .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
         } detail: {
-            TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
-                .inspector(isPresented: $showingRightToolBarArea) {
+            HSplitView {
+                TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
+                if showingRightToolBarArea {
                     RightToolBarAreaView()
-                        .inspectorColumnWidth(240)
+                        .frame(width: 240)
                 }
+            }
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -40,7 +41,6 @@ struct TimelineLayoutView: View {
     }
 }
 
-@available(macOS 14.0, *)
 struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
         TimelineLayoutView()
