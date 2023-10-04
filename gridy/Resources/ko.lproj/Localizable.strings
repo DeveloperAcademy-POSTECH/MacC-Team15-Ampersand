@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  gridy
+
+  Created by 최민규 on 2023/09/27.
+  
+*/
+//ko
+"welcome_message" = "환영합니다!";
+
+"Lexend" = "렉센드";
+
+"Pretendard" = "프리텐다드";
