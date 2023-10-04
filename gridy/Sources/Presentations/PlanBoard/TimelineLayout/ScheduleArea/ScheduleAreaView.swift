@@ -9,7 +9,19 @@ import SwiftUI
 
 struct ScheduleAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: ScheduleArea (하위코드삭제)
+        ScrollView([.vertical, .horizontal]) {
+            HStack {
+                ForEach(1..<100) { _ in
+                    VStack {
+                        ForEach(1..<10) { _ in
+                            Rectangle()
+                                .frame(width: 25, height: 25)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

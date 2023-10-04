@@ -11,6 +11,7 @@ struct RightToolBarAreaView: View {
     var body: some View {
         GeometryReader { geo in
             VStack {
+                // TODO: Detail UI (하위코드삭제)
                 ForEach(1..<10) { detailNumber in
                     Rectangle()
                         .opacity(0.1)

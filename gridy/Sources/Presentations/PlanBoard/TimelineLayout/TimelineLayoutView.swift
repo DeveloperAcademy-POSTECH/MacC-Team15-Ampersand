@@ -10,23 +10,32 @@ import SwiftUI
 @available(macOS 14.0, *)
 struct TimelineLayoutView: View {
     @State private var showingRightToolBarArea: Bool = true
+    @State var showingIndexArea: Bool = true
     
     var body: some View {
         NavigationSplitView {
             LeftToolBarAreaView()
                 .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
         } detail: {
-            TimelineLayoutContentView()
+            TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
                 .inspector(isPresented: $showingRightToolBarArea) {
                     RightToolBarAreaView()
                         .inspectorColumnWidth(240)
                 }
         }
         .toolbar {
-            Toggle(isOn: $showingRightToolBarArea) {
-                Image(systemName: "sidebar.trailing")
+            ToolbarItem(placement: .confirmationAction) {
+                Toggle(isOn: $showingRightToolBarArea) {
+                    Image(systemName: "sidebar.trailing")
+                }
+                .toggleStyle(.button)
             }
-            .toggleStyle(.button)
+            ToolbarItem(placement: .cancellationAction) {
+                Toggle(isOn: $showingIndexArea) {
+                    Image(systemName: "heart")
+                }
+                .toggleStyle(.button)
+            }
         }
     }
 }

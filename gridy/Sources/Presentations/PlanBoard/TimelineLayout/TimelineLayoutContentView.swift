@@ -8,19 +8,38 @@
 import SwiftUI
 
 struct TimelineLayoutContentView: View {
+    @Binding var showingIndexArea: Bool
+    
     var body: some View {
-        ScrollView(.vertical) {
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach(1..<10) { _ in
-                        VStack {
-                            ForEach(1..<10) { _ in
-                                Rectangle()
-                                    .frame(width: 200, height: 200)
-                            }
-                        }
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 0) {
+                if showingIndexArea {
+                    VStack(spacing: 0) {
+                        ScheduleIndexAreaView()
+                            .frame(width: 35, height: 140)
+                        Rectangle()
+                            .foregroundColor(.yellow)
+                            .frame(width: 35, height: 35)
                     }
                 }
+                BlackPinkInYourAreaView()
+                    .frame(width: 140)
+                VStack(spacing: 0) {
+                    ScheduleAreaView()
+                        .frame(height: 140)
+                    TimeAxisAreaView()
+                        .frame(height: 35)
+                }
+            }
+            .frame(height: 175)
+            HStack(alignment: .top, spacing: 0) {
+                if showingIndexArea {
+                    LineIndexAreaView()
+                        .frame(width: 35)
+                }
+                ListAreaView()
+                    .frame(width: 140)
+                LineAreaView()
             }
         }
     }
@@ -28,6 +47,6 @@ struct TimelineLayoutContentView: View {
 
 struct TimelineLayoutContentView_Previews: PreviewProvider {
     static var previews: some View {
-        TimelineLayoutContentView()
+        TimelineLayoutContentView(showingIndexArea: .constant(true))
     }
 }

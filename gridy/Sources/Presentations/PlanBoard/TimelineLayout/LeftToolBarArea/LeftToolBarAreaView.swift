@@ -12,6 +12,7 @@ struct LeftToolBarAreaView: View {
         GeometryReader { geo in
             ScrollView {
                 VStack {
+                    // TODO: Thinking UI (하위코드삭제)
                     ForEach(1..<30) { thinkNumber in
                         Rectangle()
                             .opacity(0.1)

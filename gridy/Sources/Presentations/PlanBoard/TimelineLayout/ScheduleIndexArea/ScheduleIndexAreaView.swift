@@ -9,7 +9,10 @@ import SwiftUI
 
 struct ScheduleIndexAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: ScheduleIndexArea (하위코드삭제)
+        Text("ShceduleIndexArea")
+            .frame(width: 35, height: 140)
+            .background(.red)
     }
 }
 

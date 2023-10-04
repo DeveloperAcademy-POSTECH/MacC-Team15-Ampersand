@@ -9,7 +9,19 @@ import SwiftUI
 
 struct LineAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: LineArea (하위코드삭제)
+        ScrollView([.horizontal, .vertical]) {
+            HStack {
+                ForEach(1..<60) { _ in
+                    VStack {
+                        ForEach(1..<60) { _ in
+                            Rectangle()
+                                .frame(width: 25, height: 25)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
