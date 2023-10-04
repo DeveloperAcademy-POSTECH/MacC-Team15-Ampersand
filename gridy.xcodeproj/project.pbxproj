@@ -48,6 +48,7 @@
 		EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A652AC3D10300C9AAF0 /* LeftToolBarAreaView.swift */; };
 		EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */; };
 		EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */; };
+		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -85,6 +86,7 @@
 		EE909A652AC3D10300C9AAF0 /* LeftToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftToolBarAreaView.swift; sourceTree = "<group>"; };
 		EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleIndexAreaView.swift; sourceTree = "<group>"; };
+		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +238,7 @@
 			children = (
 				ADACF5FE2AC25760008AADFA /* TimelineLayoutReducer.swift */,
 				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
+				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
 				EE909A522AC3CECD00C9AAF0 /* BlackPinkInYourArea */,
 				EE909A512AC3CEC600C9AAF0 /* ListArea */,
 				EE909A502AC3CEBE00C9AAF0 /* LineArea */,
@@ -472,6 +475,7 @@
 				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
 				ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */,
 				EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */,
+				EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */,
 				EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
@@ -705,8 +709,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
+				kind = exactVersion;
+				version = 10.15.0;
 			};
 		};
 		ADACF5F72AC1FB1D008AADFA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {

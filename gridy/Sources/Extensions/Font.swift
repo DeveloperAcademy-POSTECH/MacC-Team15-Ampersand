@@ -6,6 +6,8 @@
 //
 // MARK: - Variable fonts used in Gridy.
 
+// TODO: - 코드리뷰없이 일단 머지한 파일입니다 반드시 수정 필요~.~
+
 import SwiftUI
 
 func customFont(font: String, size: Int, weight: Font.Weight) -> Font { return Font.custom(String(font), size: CGFloat(size)).weight(weight)

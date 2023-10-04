@@ -9,7 +9,11 @@ import SwiftUI
 
 struct ListAreaView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        // TODO: ListArea (하위코드삭제)
+        Text("ListAreaView")
+            .frame(width: 140)
+            .frame(maxHeight: .infinity)
+            .background(.indigo)
     }
 }
 
