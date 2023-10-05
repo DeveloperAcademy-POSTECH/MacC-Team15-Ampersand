@@ -14,7 +14,7 @@ struct TimeAxisAreaView: View {
     
     @State private var holidays: [Date] = []
     @State var scrollOffset = CGFloat.zero
-    @State private var leftmostDate: Date = Date()
+    @State private var leftmostDate = Date()
     
     var body: some View {
         ZStack(alignment: .topLeading) {
