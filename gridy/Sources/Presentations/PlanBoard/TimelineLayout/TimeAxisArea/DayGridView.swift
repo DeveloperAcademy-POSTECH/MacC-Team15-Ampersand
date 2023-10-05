@@ -33,7 +33,6 @@ struct DayGridView: View {
                     )
             }
             .overlay(Rectangle().stroke(Color.black, lineWidth: dateInfo.dayOfWeek == "토" ? 0.5 : 0.2).frame(width: 1), alignment: .trailing)
-            
         }
     }
 }
