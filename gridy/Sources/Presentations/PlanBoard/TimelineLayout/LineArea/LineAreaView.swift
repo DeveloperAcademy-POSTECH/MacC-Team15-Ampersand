@@ -10,13 +10,14 @@ import SwiftUI
 struct LineAreaView: View {
     var body: some View {
         // TODO: LineArea (하위코드삭제)
-        ScrollView([.horizontal, .vertical]) {
-            HStack {
-                ForEach(1..<60) { _ in
-                    VStack {
+        ScrollView {
+            HStack(spacing: 0) {
+                ForEach(1..<70) { _ in
+                    VStack(spacing: 0) {
                         ForEach(1..<60) { _ in
                             Rectangle()
-                                .frame(width: 25, height: 25)
+                                .border(.green)
+                                .frame(width: 28, height: 28)
                         }
                     }
                 }
