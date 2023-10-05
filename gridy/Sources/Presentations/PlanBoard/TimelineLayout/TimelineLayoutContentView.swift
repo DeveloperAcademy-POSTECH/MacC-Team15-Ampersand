@@ -11,35 +11,31 @@ struct TimelineLayoutContentView: View {
     @Binding var showingIndexArea: Bool
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: 0) {
-                if showingIndexArea {
-                    VStack(spacing: 0) {
-                        ScheduleIndexAreaView()
-                            .frame(width: 35, height: 140)
-                        Rectangle()
-                            .foregroundColor(.yellow)
-                            .frame(width: 35, height: 35)
-                    }
-                }
-                BlackPinkInYourAreaView()
-                    .frame(width: 140)
+        HStack(spacing: 0) {
+            if showingIndexArea {
                 VStack(spacing: 0) {
+                    ScheduleIndexAreaView()
+                        .frame(height: 140)
+                    Rectangle()
+                        .frame(height: 28)
+                    LineIndexAreaView()
+                }
+                .frame(width: 35)
+            }
+            VStack(spacing: 0) {
+                BlackPinkInYourAreaView()
+                    .frame(height: 168)
+                ListAreaView()
+            }
+            .frame(width: 140)
+            ScrollView(.horizontal) {
+                VStack {
                     ScheduleAreaView()
                         .frame(height: 140)
                     TimeAxisAreaView()
-                        .frame(height: 35)
+                        .frame(height: 28)
+                    LineAreaView()
                 }
-            }
-            .frame(height: 175)
-            HStack(alignment: .top, spacing: 0) {
-                if showingIndexArea {
-                    LineIndexAreaView()
-                        .frame(width: 35)
-                }
-                ListAreaView()
-                    .frame(width: 140)
-                LineAreaView()
             }
         }
     }
