@@ -74,7 +74,7 @@ struct ContentView: View {
                                 .foregroundColor(.black)
                                 .padding()
                         } else {
-                            //                        AuthenticationView(store: store)
+                            AuthenticationView(store: store)
                         }
                         
                         Spacer()
