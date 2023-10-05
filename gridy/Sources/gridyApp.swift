@@ -11,8 +11,7 @@ import SwiftUI
 struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
-//            TimelineLayoutView()
-            TimeAxisAreaView()
+            TimelineLayoutView()
         }
     }
 }

@@ -13,19 +13,22 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value += nextValue()
         print(value)
-        print("Index == \(Int(value / 55) + 1)")
+        print("Index == \(Int(value / 50) + 1)")
     }
 }
 
 struct ObservableScrollView<Content>: View where Content: View {
     @Namespace var scrollSpace
     @Binding var scrollOffset: CGFloat
+    @Binding var leftmostDate: Date
     
     let content: (ScrollViewProxy) -> Content
     
     init(scrollOffset: Binding<CGFloat>,
+         leftmostDate: Binding<Date>,
          @ViewBuilder content: @escaping (ScrollViewProxy) -> Content) {
         _scrollOffset = scrollOffset
+        _leftmostDate = leftmostDate
         self.content = content
     }
     
@@ -44,6 +47,11 @@ struct ObservableScrollView<Content>: View where Content: View {
         .coordinateSpace(name: scrollSpace)
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
             scrollOffset = value
+            
+            let leftmostVisibleDate = Calendar.current.date(byAdding: .day, value: Int(value / 50), to: Date())
+            
+            leftmostDate = leftmostVisibleDate!
+            
         }
     }
 }
