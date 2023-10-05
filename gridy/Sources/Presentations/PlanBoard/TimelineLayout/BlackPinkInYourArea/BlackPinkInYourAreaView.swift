@@ -11,7 +11,7 @@ struct BlackPinkInYourAreaView: View {
     var body: some View {
         // TODO: ListArea (하위코드삭제)
         Text("BlackPinkInYourArea")
-            .frame(width: 140, height: 175)
+            .frame(width: 266, height: 175)
             .background(.pink)
     }
 }

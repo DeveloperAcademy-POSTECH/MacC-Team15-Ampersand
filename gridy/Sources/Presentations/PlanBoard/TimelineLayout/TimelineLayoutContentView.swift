@@ -27,7 +27,7 @@ struct TimelineLayoutContentView: View {
                     .frame(height: 168)
                 ListAreaView()
             }
-            .frame(width: 140)
+            .frame(width: 266)
             ScrollView(.horizontal) {
                 VStack {
                     ScheduleAreaView()

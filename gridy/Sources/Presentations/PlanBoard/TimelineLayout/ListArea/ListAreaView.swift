@@ -11,7 +11,7 @@ struct ListAreaView: View {
     var body: some View {
         // TODO: ListArea (하위코드삭제)
         Text("ListAreaView")
-            .frame(width: 140)
+            .frame(width: 266)
             .frame(maxHeight: .infinity)
             .background(.indigo)
     }
