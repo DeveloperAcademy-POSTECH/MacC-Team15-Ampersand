@@ -8,43 +8,40 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
-     let startDate = Date().formattedDate
-     let numberOfDays = 100
-
+    let startDate = Date().formattedDate
+    let numberOfDays = 100
+    
     @State private var holidays: [Date] = []
-         @State var scrollOffset = CGFloat.zero
-     
-     var body: some View {
-         VStack {
-             HStack {
-                 Text("월")
-                     .padding()
-                     .font(.title)
-                 Spacer()
-             }
-             
-             ObservableScrollView(scrollOffset: $scrollOffset) { _ in
-                 HStack(spacing: 1) {
-                     ForEach(0..<numberOfDays, id: \.self) { dayOffset in
-                         let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
-                         
-                         let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
-                         DayGridView(dateInfo: dateInfo)
-                     }
-                 }
-             }
-         }
-         .onAppear {
-             Task {
-                 do {
-                     let fetchedHolidays = try await fetchKoreanHolidays()
-
-                     holidays = fetchedHolidays
-                 } catch {
-                     print("오류 발생: \(error.localizedDescription)")
-                 }
-             }
-         }
+    @State var scrollOffset = CGFloat.zero
+    
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            ObservableScrollView(scrollOffset: $scrollOffset) { _ in
+                HStack(spacing: 1) {
+                    ForEach(0..<numberOfDays, id: \.self) { dayOffset in
+                        let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
+                        
+                        let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
+                        DayGridView(dateInfo: dateInfo)
+                    }
+                }
+            }
+            Text("11월")
+                .font(.title)
+                .padding(.horizontal)
+                .background(Color(.blue))
+        }
+        .onAppear {
+            Task {
+                do {
+                    let fetchedHolidays = try await fetchKoreanHolidays()
+                    
+                    holidays = fetchedHolidays
+                } catch {
+                    print("오류 발생: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }
 

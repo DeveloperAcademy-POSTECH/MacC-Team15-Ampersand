@@ -12,6 +12,10 @@ struct DayGridView: View {
 
      var body: some View {
          VStack {
+             Text("\(dateInfo.month)월")
+                 .font(.title)
+                 .opacity(dateInfo.isFirstOfMonth ? 1 : 0)
+             
              Rectangle()
                  .frame(width: 50, height: 20)
                  .overlay(
