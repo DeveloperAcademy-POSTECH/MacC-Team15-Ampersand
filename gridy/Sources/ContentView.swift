@@ -18,7 +18,7 @@ struct ContentView: View {
         ZStack {
             GeometryReader { proxy in
                 ZStack {
-                    colorScheme == .dark ? Color.black.opacity(0.2) : Color.white
+                    colorScheme == .dark ? Color.black.opacity(0.7) : Color.white
                     Image(.gridBackground)
                         .resizable()
                         .scaledToFill()
