@@ -35,13 +35,8 @@ struct AuthenticationView: View {
                         // TODO: completion handler도 Reducer에서 처리해야 할까요? -ZEN
                         switch authorization.credential {
                         case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                            guard let appleIDToken = appleIDCredential.identityToken else {
-                                fatalError("Invalid state: A login callback was received, but no login request was sent.")
-                            }
-                            guard let idTokenToString = String(data: appleIDToken, encoding: .utf8) else {
-                                print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
-                                return
-                            }
+                            guard let appleIDToken = appleIDCredential.identityToken else { return }
+                            guard let idTokenToString = String(data: appleIDToken, encoding: .utf8) else { return }
                             
                             let credential = OAuthProvider.credential(
                                 withProviderID: "apple.com",
