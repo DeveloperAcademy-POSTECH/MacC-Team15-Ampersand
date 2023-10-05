@@ -10,14 +10,13 @@ import SwiftUI
 struct ScheduleAreaView: View {
     var body: some View {
         // TODO: ScheduleArea (하위코드삭제)
-        ScrollView([.vertical, .horizontal]) {
-            HStack {
-                ForEach(1..<100) { _ in
-                    VStack {
-                        ForEach(1..<10) { _ in
-                            Rectangle()
-                                .frame(width: 25, height: 25)
-                        }
+        HStack(spacing: 0) {
+            ForEach(1..<70) { _ in
+                VStack(spacing: 0) {
+                    ForEach(1..<6) { _ in
+                        Rectangle()
+                            .border(.green)
+                            .frame(width: 28, height: 28)
                     }
                 }
             }

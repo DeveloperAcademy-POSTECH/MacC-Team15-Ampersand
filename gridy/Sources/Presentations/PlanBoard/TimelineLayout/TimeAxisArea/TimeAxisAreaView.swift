@@ -10,13 +10,12 @@ import SwiftUI
 struct TimeAxisAreaView: View {
     var body: some View {
         // TODO: TimeAxisArea (하위코드삭제)
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(1..<60) { _ in
-                    Rectangle()
-                        .foregroundColor(.blue)
-                        .frame(width: 35, height: 35)
-                }
+        HStack(spacing: 0) {
+            ForEach(1..<70) { _ in
+                Rectangle()
+                    .foregroundColor(.blue)
+                    .border(.green)
+                    .frame(width: 28, height: 28)
             }
         }
     }
