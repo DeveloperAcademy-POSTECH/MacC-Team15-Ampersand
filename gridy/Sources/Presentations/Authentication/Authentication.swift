@@ -18,12 +18,13 @@ struct Authentication: Reducer {
         var rawNonce = ""
         var encrytedNonce = ""
         var successToSignIn = false
-        var authenticatedUser = User(uid: "", username: "", email: "")
+        var authenticatedUser = User.mock
         var isProceeding = false
     }
     
     enum Action: Equatable, Sendable, BindableAction {
         case onAppear
+        case createEncrytedNone
         case notYetRegistered(String, String, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
@@ -35,12 +36,17 @@ struct Authentication: Reducer {
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .onAppear:
-            state.rawNonce = randomNonceString()
-            state.encrytedNonce = sha256(state.rawNonce)
+            return .run { send in
+                await send(.fetchUser)
+                await send(.createEncrytedNone)
+            }
+            
+        case .createEncrytedNone:
+            if !state.successToSignIn {
+                state.rawNonce = randomNonceString()
+                state.encrytedNonce = sha256(state.rawNonce)
+            }
             return .none
-//            return .run { _ in
-//                try await apiClient.signOut()
-//            }
             
         case let .notYetRegistered(email, username, credential):
             return .run { send in
@@ -58,6 +64,7 @@ struct Authentication: Reducer {
             
         case .fetchUser:
             return .run { send in
+                await send(.setProcessing(true))
                 await send(.fetchUserResponse(
                     TaskResult {
                         try await apiClient.fetchUser()
@@ -67,14 +74,14 @@ struct Authentication: Reducer {
             }
             
         case let .fetchUserResponse(.success(response)):
-            state.authenticatedUser = response!
+            state.authenticatedUser = response ?? User.mock
             state.successToSignIn = true
             return .none
             
         case .fetchUserResponse(.failure):
             state.successToSignIn = false
             return .none
-        
+            
         case .binding:
             return .none
             
