@@ -18,39 +18,12 @@ import SwiftUI
 
      init(date: Date, isHoliday: Bool) {
          self.date = date
-
          self.month = self.date.formattedMonth
-
          self.day = self.date.formattedDay
-
          self.dayOfWeek = self.date.dayOfWeek
-
          self.isHoliday = isHoliday
-
-         // 요일에 따라 다른 텍스트 색상 설정
-         if self.isHoliday || self.dayOfWeek == "일" {
-             self.fontColor = Color.red
-         } else if self.dayOfWeek == "토" {
-             self.fontColor = Color.blue
-         } else {
-             self.fontColor = Color.black
-         }
-         
          self.isFirstOfMonth = self.date.formattedDay == "1"
-     }
-     
-     init(date: Date, isHoliday: Bool, isFirstOfMonth: Bool) {
-         self.date = date
 
-         self.month = self.date.formattedMonth
-
-         self.day = self.date.formattedDay
-
-         self.dayOfWeek = self.date.dayOfWeek
-
-         self.isHoliday = isHoliday
-
-         // 요일에 따라 다른 텍스트 색상 설정
          if self.isHoliday || self.dayOfWeek == "일" {
              self.fontColor = Color.red
          } else if self.dayOfWeek == "토" {
@@ -58,7 +31,5 @@ import SwiftUI
          } else {
              self.fontColor = Color.black
          }
-         
-         self.isFirstOfMonth = isFirstOfMonth
      }
  }
