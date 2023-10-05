@@ -121,6 +121,13 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
+		975A62092ACE930500DE31AB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		AD8ECB812ABC7CA10040A0B8 = {
 			isa = PBXGroup;
 			children = (
@@ -151,6 +158,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				975A62092ACE930500DE31AB /* Models */,
 				ADACF5FA2AC20133008AADFA /* Presentations */,
 				ADACF6002AC25AF3008AADFA /* Network */,
 				EE909A3F2AC3CDBF00C9AAF0 /* Utils */,
