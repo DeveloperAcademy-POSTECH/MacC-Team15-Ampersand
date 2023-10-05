@@ -39,7 +39,20 @@ struct ContentView: View {
                         .padding(.top)
                         Spacer()
                     }
-                    .background(Color.gray.opacity(0.1))
+                    //                    .background(Color.gray.opacity(0.1))
+                    .background {
+                        Rectangle()
+                            .foregroundColor(.gray.opacity(0.1))
+                            .clipShape(
+                                .rect(
+                                    topLeadingRadius: 30,
+                                    bottomLeadingRadius: 0,
+                                    bottomTrailingRadius: 0,
+                                    topTrailingRadius: 30,
+                                    style: .continuous
+                                )
+                            )
+                    }
                     
                     Spacer()
                     
@@ -52,7 +65,7 @@ struct ContentView: View {
                             .foregroundColor(.black)
                             .padding()
                     } else {
-                        AuthenticationView(store: store)
+                        //                        AuthenticationView(store: store)
                     }
                     
                     Spacer()
