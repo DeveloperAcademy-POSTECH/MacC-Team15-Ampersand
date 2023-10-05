@@ -38,6 +38,7 @@
 		ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6032AC25B0F008AADFA /* NetworkService.swift */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
 		ADACF60C2AC26DAB008AADFA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ADACF60B2AC26DAB008AADFA /* GoogleService-Info.plist */; };
+		D1115A102ACEE73A00DBE5D4 /* LineAreaRoyceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1115A0F2ACEE73A00DBE5D4 /* LineAreaRoyceView.swift */; };
 		EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A402AC3CDC700C9AAF0 /* Utils.swift */; };
 		EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */; };
 		EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */; };
@@ -81,6 +82,7 @@
 		ADACF6032AC25B0F008AADFA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 		ADACF60B2AC26DAB008AADFA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D1115A0F2ACEE73A00DBE5D4 /* LineAreaRoyceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaRoyceView.swift; sourceTree = "<group>"; };
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarLayoutTemp.swift; sourceTree = "<group>"; };
 		EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkingLayoutTemp.swift; sourceTree = "<group>"; };
@@ -328,6 +330,7 @@
 			children = (
 				EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */,
 				8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */,
+				D1115A0F2ACEE73A00DBE5D4 /* LineAreaRoyceView.swift */,
 			);
 			path = LineArea;
 			sourceTree = "<group>";
@@ -482,6 +485,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
+				D1115A102ACEE73A00DBE5D4 /* LineAreaRoyceView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
