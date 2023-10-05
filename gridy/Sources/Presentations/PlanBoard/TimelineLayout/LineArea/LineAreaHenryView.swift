@@ -12,23 +12,19 @@ struct LineAreaHenryView: View {
     let colors: [Color] = [.red, .purple, .yellow, .green, .blue]
     
     var body: some View {
-        VStack { 
-            ScrollView(.vertical) {
-                let numOfGridCol = viewModel.numOfCol
-                let numOfGridRow = viewModel.numOfLineAreaRow
-                HStack(spacing: 0) {
-                    ForEach(0..<numOfGridCol, id: \.self) { col in
-                        VStack(spacing: 0) { // Remove spacing between rows
-                            ForEach(0..<numOfGridRow, id: \.self) { row in
-                                Rectangle()
-                                    .foregroundColor(colors[(row + col) % colors.count])
-                                    .frame(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight)
-                                    .onTapGesture { _ in
-                                        let rectTopLeft = CGPoint(x: CGFloat(col) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
-                                        viewModel.tappedCellTopLeftPoint = rectTopLeft
-                                        print("Top-left corner of the rectangle at column \(col), row \(row): \(viewModel.tappedCellTopLeftPoint.debugDescription)")
-                                    }
-                            }
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                ForEach(0..<viewModel.numOfLineAreaRow, id: \.self) { row in
+                    LazyHStack(spacing: 0) {
+                        ForEach(0..<viewModel.numOfCol, id: \.self) { col in
+                            Rectangle()
+                                .foregroundColor(colors[(row + col) % colors.count])
+                                .frame(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight)
+                                .onTapGesture { _ in
+                                    let rectTopLeft = CGPoint(x: CGFloat(col) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
+                                    viewModel.tappedCellTopLeftPoint = rectTopLeft
+                                    print("Top-left corner of the rectangle at column \(col), row \(row): \(viewModel.tappedCellTopLeftPoint.debugDescription)")
+                                }
                         }
                     }
                 }

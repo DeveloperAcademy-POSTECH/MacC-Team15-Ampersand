@@ -11,7 +11,7 @@ struct TimeAxisAreaView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
+        LazyHStack(alignment: .center, spacing: 0) {
             ForEach(0..<viewModel.numOfCol) { col in
                 Rectangle()
                     .foregroundColor(.blue)

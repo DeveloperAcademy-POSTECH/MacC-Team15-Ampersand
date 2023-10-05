@@ -81,8 +81,8 @@ struct GridSizeControler: View {
                 VStack {
                     Text("RESET")
                     Button(action: {
-                        viewModel.lineAreaGridHeight = 30
-                        viewModel.gridWidth = 30
+                        viewModel.lineAreaGridHeight = 45
+                        viewModel.gridWidth = 45
                         viewModel.horizontalMagnification = 1.0
                         viewModel.verticalMagnification = 1.0
                     }) {

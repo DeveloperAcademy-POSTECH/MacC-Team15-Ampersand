@@ -12,9 +12,9 @@ struct ScheduleAreaView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(0..<viewModel.numOfScheduleAreaRow) { row in
-                    HStack(alignment: .top, spacing: 0) {
+                    LazyHStack(alignment: .top, spacing: 0) {
                         ForEach(0..<viewModel.numOfCol) { col in
                             Rectangle()
                                 .foregroundColor(.orange)
