@@ -49,6 +49,7 @@
 		EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */; };
 		EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
+		EEBDE4002ACED7ED00B52C98 /* ListElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,6 +88,7 @@
 		EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleIndexAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
+		EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListElementView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,6 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */,
+				EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */,
 			);
 			path = ListArea;
 			sourceTree = "<group>";
@@ -470,6 +473,7 @@
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
 				EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */,
+				EEBDE4002ACED7ED00B52C98 /* ListElementView.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,
 				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
