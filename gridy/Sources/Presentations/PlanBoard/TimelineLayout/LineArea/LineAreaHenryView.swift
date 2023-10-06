@@ -13,9 +13,9 @@ struct LineAreaHenryView: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(0..<viewModel.numOfLineAreaRow, id: \.self) { row in
-                    LazyHStack(spacing: 0) {
+                    LazyHStack(alignment: .top, spacing: 0) {
                         ForEach(0..<viewModel.numOfCol, id: \.self) { col in
                             Rectangle()
                                 .foregroundColor(colors[(row + col) % colors.count])
@@ -23,24 +23,19 @@ struct LineAreaHenryView: View {
                                 .onTapGesture { _ in
                                     let rectTopLeft = CGPoint(x: CGFloat(col) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
                                     viewModel.tappedCellTopLeftPoint = rectTopLeft
-                                    print("Top-left corner of the rectangle at column \(col), row \(row): \(viewModel.tappedCellTopLeftPoint.debugDescription)")
+                                    viewModel.tappedCellCol = col
+                                    viewModel.tappedCellRow = row
                                 }
                         }
                     }
                 }
             }
-            .gesture(
-                MagnificationGesture()
-                    .onChanged { value in
-                        print(value)
-                        viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
-                        viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
-                    }
-            )
             .onContinuousHover { phase in
                 switch phase {
                 case .active(let location):
                     viewModel.hoverLocation = location
+                    viewModel.hoveringCellCol = Int(viewModel.hoverLocation.x / viewModel.gridWidth)
+                    viewModel.hoveringCellRow = Int(viewModel.hoverLocation.y / viewModel.lineAreaGridHeight)
                     viewModel.isHovering = true
                 case .ended:
                     viewModel.isHovering = false
@@ -55,6 +50,16 @@ struct LineAreaHenryView: View {
                         .position(x: viewModel.hoverLocation.x, y: viewModel.hoverLocation.y)
                 }
             }
+            .gesture(
+                MagnificationGesture()
+                    .onChanged { value in
+                        print(value)
+                        DispatchQueue.main.async {
+                                viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                                viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                        }
+                    }
+            )
         }
     }
 }

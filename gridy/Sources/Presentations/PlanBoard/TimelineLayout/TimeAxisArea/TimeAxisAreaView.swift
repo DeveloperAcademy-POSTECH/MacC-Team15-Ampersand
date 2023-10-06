@@ -9,13 +9,14 @@ import SwiftUI
 
 struct TimeAxisAreaView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
+    var proxy: ScrollViewProxy
     
     var body: some View {
-        LazyHStack(alignment: .center, spacing: 0) {
+        LazyHStack(alignment: .top, spacing: 0) {
             ForEach(0..<viewModel.numOfCol) { col in
                 Rectangle()
                     .foregroundColor(.blue)
-                    .frame(width: viewModel.gridWidth, height: 30)
+                    .frame(width: viewModel.gridWidth)
                     .overlay(
                         ZStack {
                             Text("\(col)")
@@ -25,13 +26,19 @@ struct TimeAxisAreaView: View {
                                 .foregroundColor(.white)
                         }
                     )
+                    .id(col)
+                    .onTapGesture {
+                        withAnimation {
+                            proxy.scrollTo(col, anchor: .leading)
+                        }
+                    }
             }
         }
     }
 }
-
-struct TimeAxisAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimeAxisAreaView()
-    }
-}
+//
+//struct TimeAxisAreaView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        TimeAxisAreaView()
+//    }
+//}

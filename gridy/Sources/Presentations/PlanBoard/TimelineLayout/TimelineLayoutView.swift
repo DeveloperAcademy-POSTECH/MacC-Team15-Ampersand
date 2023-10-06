@@ -53,7 +53,7 @@ struct TimelineLayoutView_Previews: PreviewProvider {
 
 class TimelineLayoutViewModel: ObservableObject {
     @Published var numOfCol = 60
-    @Published var numOfLineAreaRow = 20
+    @Published var numOfLineAreaRow = 3
     @Published var numOfScheduleAreaRow = 5
     
     let minGridSize: CGFloat = 20
@@ -69,5 +69,7 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var tappedCellRow: Int?
 
     @Published var hoverLocation: CGPoint = .zero
+    @Published var hoveringCellCol: Int?
+    @Published var hoveringCellRow: Int?
     @Published var isHovering = false
 }

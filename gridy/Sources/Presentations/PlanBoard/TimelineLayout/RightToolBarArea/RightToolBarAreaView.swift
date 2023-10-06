@@ -40,14 +40,22 @@ struct GridSizeControler: View {
                 VStack {
                     Text("all")
                     Button(action: {
-                        viewModel.gridWidth += 1
-                        viewModel.lineAreaGridHeight += 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.gridWidth += 2
+                                viewModel.lineAreaGridHeight += 2
+                            }
+                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        viewModel.gridWidth -= 1
-                        viewModel.lineAreaGridHeight -= 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.gridWidth -= 2
+                                viewModel.lineAreaGridHeight -= 2
+                            }
+                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -55,12 +63,20 @@ struct GridSizeControler: View {
                 VStack {
                     Text("width")
                     Button(action: {
-                        viewModel.gridWidth += 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.gridWidth += 2
+                            }
+                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        viewModel.gridWidth -= 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.gridWidth -= 2
+                            }
+                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -68,12 +84,20 @@ struct GridSizeControler: View {
                 VStack {
                     Text("height")
                     Button(action: {
-                        viewModel.lineAreaGridHeight += 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.lineAreaGridHeight += 2
+                            }
+                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        viewModel.lineAreaGridHeight -= 1
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.lineAreaGridHeight -= 2
+                            }
+                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -81,10 +105,14 @@ struct GridSizeControler: View {
                 VStack {
                     Text("RESET")
                     Button(action: {
-                        viewModel.lineAreaGridHeight = 45
-                        viewModel.gridWidth = 45
-                        viewModel.horizontalMagnification = 1.0
-                        viewModel.verticalMagnification = 1.0
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                viewModel.lineAreaGridHeight = 45
+                                viewModel.gridWidth = 45
+                                viewModel.horizontalMagnification = 1.0
+                                viewModel.verticalMagnification = 1.0
+                            }
+                        }
                     }) {
                         Image(systemName: "gobackward")
                     }
@@ -102,7 +130,13 @@ struct GridSizeControler: View {
                 .background(Color.white.opacity(0.8))
                 .cornerRadius(10)
             
-            Text("Mouse on Grid\ncolumn \(Int(viewModel.hoverLocation.x / viewModel.gridWidth)), row \(Int(viewModel.hoverLocation.y / viewModel.lineAreaGridHeight))")
+            Text("Mouse on Cell\ncolumn \(viewModel.hoveringCellCol ?? 0), row \(viewModel.hoveringCellRow ?? 0)")
+                .foregroundColor(.black)
+                .padding(8)
+                .background(Color.white.opacity(0.8))
+                .cornerRadius(10)
+            
+            Text("Selected Cell\ncolumn \(viewModel.tappedCellCol ?? 0), row \(viewModel.tappedCellRow ?? 0)")
                 .foregroundColor(.black)
                 .padding(8)
                 .background(Color.white.opacity(0.8))

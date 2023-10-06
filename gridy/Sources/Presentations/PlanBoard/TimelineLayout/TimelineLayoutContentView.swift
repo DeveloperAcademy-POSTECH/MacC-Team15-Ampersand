@@ -8,43 +8,42 @@
 import SwiftUI
 
 struct TimelineLayoutContentView: View {
+    @Namespace var topID
+    @Namespace var bottomID
+    
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @Binding var showingIndexArea: Bool
     
     var body: some View {
-        ScrollView(.horizontal) {
+        HStack(alignment: .top, spacing: 0) {
+            if showingIndexArea {
+                VStack(spacing: 0) {
+                    ScheduleIndexAreaView()
+                        .frame(height: 140)
+                    Rectangle()
+                        .frame(height: 28)
+                    LineIndexAreaView()
+                }
+                .frame(width: 35)
+            }
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .top, spacing: 0) {
-                    if showingIndexArea {
-                        VStack(spacing: 0) {
-                            ScheduleIndexAreaView()
-                                .frame(width: 35, height: 140)
-                            Rectangle()
-                                .foregroundColor(.yellow)
-                                .frame(width: 35, height: 35)
-                        }
-                    }
-                    BlackPinkInYourAreaView()
-                        .frame(width: 140)
+                BlackPinkInYourAreaView()
+                    .frame(height: 168)
+                ListAreaView()
+            }
+            .frame(width: 140)
+            ScrollViewReader { proxy in
+                 ScrollView(.horizontal) {
                     VStack(alignment: .leading, spacing: 0) {
                         ScheduleAreaView()
-                            .environmentObject(viewModel)
                             .frame(height: 140)
-                        TimeAxisAreaView()
+                        
+                        TimeAxisAreaView(proxy: proxy)
+                        .frame(height: 28)
+                        
+                        LineAreaHenryView()
                             .environmentObject(viewModel)
-                            .frame(height: 35)
                     }
-                }
-                .frame(height: 175)
-                HStack(alignment: .top, spacing: 0) {
-                    if showingIndexArea {
-                        LineIndexAreaView()
-                            .frame(width: 35)
-                    }
-                    ListAreaView()
-                        .frame(width: 140)
-                    LineAreaHenryView()
-                        .environmentObject(viewModel)
                 }
             }
         }
