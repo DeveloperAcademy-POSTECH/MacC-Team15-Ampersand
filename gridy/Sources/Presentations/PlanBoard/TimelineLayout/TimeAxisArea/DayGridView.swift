@@ -20,7 +20,7 @@ struct DayGridView: View {
                 Rectangle()
                     .frame(width: 50, height: 20)
                     .overlay(
-                        Text("\(dateInfo.dayOfWeek)")
+                        Text("\(dateInfo.dayOfWeek.rawValue)")
                             .foregroundColor(dateInfo.fontColor)
                     )
                     .overlay(Rectangle().stroke(Color.black, lineWidth: 0.3).frame(height: 1), alignment: .bottom)
@@ -34,7 +34,7 @@ struct DayGridView: View {
             }
             .overlay(
                 Rectangle()
-                    .stroke(Color.black, lineWidth: dateInfo.dayOfWeek == "토" ? 0.5 : 0.2)
+                    .stroke(Color.black, lineWidth: dateInfo.dayOfWeek == DayOfWeek.saturday ? 0.5 : 0.2)
                     .frame(width: 1), alignment: .trailing
             )
         }

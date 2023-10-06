@@ -22,7 +22,7 @@ extension Date {
 
     var dayOfWeek: String {
         Date.dateFormatter.dateFormat = "E"
-        Date.dateFormatter.locale = Locale(identifier: "ko_KR")
+//        Date.dateFormatter.locale = Locale(identifier: "ko_KR")
         return Date.dateFormatter.string(from: self)
     }
 
