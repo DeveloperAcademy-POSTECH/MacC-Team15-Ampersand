@@ -15,6 +15,11 @@
 		8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */; };
 		8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A51624F2AC41D7100EEB1B4 /* Localizable.strings */; };
 		8AC07B7E2ACD4A12008CB772 /* LineAreaHenryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */; };
+		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
+		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
+		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
+		975A62112ACE95A800DE31AB /* ObservableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62102ACE95A800DE31AB /* ObservableScrollView.swift */; };
+		975A62132ACE970800DE31AB /* DayGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62122ACE970800DE31AB /* DayGridView.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
@@ -62,6 +67,11 @@
 		8A51624E2AC41D7100EEB1B4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8A5162502AC41D9800EEB1B4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8AC07B7D2ACD4A12008CB772 /* LineAreaHenryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaHenryView.swift; sourceTree = "<group>"; };
+		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
+		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
+		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
+		975A62102ACE95A800DE31AB /* ObservableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableScrollView.swift; sourceTree = "<group>"; };
+		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -123,6 +133,14 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
+		975A62092ACE930500DE31AB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				975A620A2ACE939900DE31AB /* DateInfo.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		AD8ECB812ABC7CA10040A0B8 = {
 			isa = PBXGroup;
 			children = (
@@ -153,6 +171,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				975A62092ACE930500DE31AB /* Models */,
 				ADACF5FA2AC20133008AADFA /* Presentations */,
 				ADACF6002AC25AF3008AADFA /* Network */,
 				EE909A3F2AC3CDBF00C9AAF0 /* Utils */,
@@ -197,6 +216,7 @@
 			children = (
 				ADACF6092AC26CDF008AADFA /* Color+Extension.swift */,
 				8A1D0C4F2AC3F79300C7FCF8 /* Font.swift */,
+				975A620C2ACE946A00DE31AB /* Date+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -205,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				EE909A402AC3CDC700C9AAF0 /* Utils.swift */,
+				975A620E2ACE950200DE31AB /* HolidayUtil.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -290,6 +311,8 @@
 			isa = PBXGroup;
 			children = (
 				EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */,
+				975A62102ACE95A800DE31AB /* ObservableScrollView.swift */,
+				975A62122ACE970800DE31AB /* DayGridView.swift */,
 			);
 			path = TimeAxisArea;
 			sourceTree = "<group>";
@@ -477,15 +500,20 @@
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,
 				ADACF6022AC25B01008AADFA /* NetworkProtocol.swift in Sources */,
+				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
 				ADACF6042AC25B0F008AADFA /* NetworkService.swift in Sources */,
 				EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */,
+				975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */,
 				EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */,
+				975A62112ACE95A800DE31AB /* ObservableScrollView.swift in Sources */,
 				EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
+				975A62132ACE970800DE31AB /* DayGridView.swift in Sources */,
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
 				EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */,
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
+				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,6 +666,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = gridy/Info.plist;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -670,6 +699,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = gridy/Info.plist;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
