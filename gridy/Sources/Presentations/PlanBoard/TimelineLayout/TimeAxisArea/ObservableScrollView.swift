@@ -36,7 +36,8 @@ struct ObservableScrollView<Content>: View where Content: View {
         ScrollView(.horizontal) {
             ScrollViewReader { proxy in
                 content(proxy)
-                    .background(GeometryReader { geo in
+                    .background(
+                        GeometryReader { geo in
                         let offset = -geo.frame(in: .named(scrollSpace)).minX
                         Color.clear
                             .preference(key: ScrollViewOffsetPreferenceKey.self,
