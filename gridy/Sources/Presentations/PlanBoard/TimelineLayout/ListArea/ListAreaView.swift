@@ -13,6 +13,7 @@ struct ListAreaView: View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(0..<30) { _ in
                     ListElementView()
+                        .frame(width: 266, height: 48)
                 }
             }
         }
