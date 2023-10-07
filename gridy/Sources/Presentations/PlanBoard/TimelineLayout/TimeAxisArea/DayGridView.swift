@@ -33,6 +33,11 @@ struct DayGridView: View {
                     .stroke(Color.black, lineWidth: dateInfo.dayOfWeek == DayOfWeek.saturday ? 0.5 : 0.2)
                     .frame(width: 1), alignment: .trailing
             )
+            .overlay(
+                Rectangle()
+                    .stroke(Color.red, lineWidth: dateInfo.date.formattedDate == Date().formattedDate ? 0.5 : 0)
+                    .frame(width: 1.1), alignment: .trailing
+            )
         }
     }
 }

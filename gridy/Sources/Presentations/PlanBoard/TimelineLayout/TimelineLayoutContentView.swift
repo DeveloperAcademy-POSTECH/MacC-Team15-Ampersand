@@ -36,9 +36,9 @@ struct TimelineLayoutContentView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         ScheduleAreaView()
                             .frame(height: 140)
+                        
                         TimeAxisAreaView(leftmostDate: $leftmostDate)
                             .frame(height: 60)
-                            .border(.red)
                             .background(
                                 GeometryReader { geo in
                                     let offset = -geo.frame(in: .named(scrollSpace)).minX

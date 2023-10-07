@@ -20,6 +20,7 @@
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
 		975A62112ACE95A800DE31AB /* ObservableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62102ACE95A800DE31AB /* ObservableScrollView.swift */; };
 		975A62132ACE970800DE31AB /* DayGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62122ACE970800DE31AB /* DayGridView.swift */; };
+		97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
@@ -72,6 +73,7 @@
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
 		975A62102ACE95A800DE31AB /* ObservableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableScrollView.swift; sourceTree = "<group>"; };
 		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
+		97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDatePickerView.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
 		AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 			isa = PBXGroup;
 			children = (
 				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
+				97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */,
 			);
 			path = RightToolBarArea;
 			sourceTree = "<group>";
@@ -507,6 +510,7 @@
 				EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */,
 				975A62112ACE95A800DE31AB /* ObservableScrollView.swift in Sources */,
 				EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */,
+				97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
 				975A62132ACE970800DE31AB /* DayGridView.swift in Sources */,
