@@ -33,11 +33,11 @@ struct TimelineLayoutContentView: View {
             .frame(width: 140)
             ScrollView(.horizontal) {
                 ScrollViewReader { _ in
-                    VStack {
+                    VStack(alignment: .leading, spacing: 0) {
                         ScheduleAreaView()
                             .frame(height: 140)
                         TimeAxisAreaView(leftmostDate: $leftmostDate)
-                            .frame(height: 50)
+                            .frame(height: 60)
                             .border(.red)
                             .background(
                                 GeometryReader { geo in
