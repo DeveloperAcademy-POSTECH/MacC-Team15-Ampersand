@@ -25,7 +25,7 @@ struct AuthenticationView: View {
                     .foregroundColor(.gray)
                 SignInWithAppleButton(.signIn) { request in
                     request.requestedScopes = [.fullName, .email]
-                    request.nonce = viewStore.encrytedNonce
+                    request.nonce = viewStore.encryptedNonce
                 } onCompletion: { result in
                     switch result {
                     case let .success(authorization):
@@ -70,8 +70,11 @@ struct AuthenticationView: View {
 
 struct AuthenticationView_Previews: PreviewProvider {
     static var previews: some View {
-        AuthenticationView(store: Store(initialState: Authentication.State(), reducer: {
-            Authentication()
-        }))
+        AuthenticationView(
+            store: Store(
+                initialState: Authentication.State(),
+                reducer: { Authentication() }
+            )
+        )
     }
 }

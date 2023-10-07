@@ -19,4 +19,15 @@ extension DependencyValues {
         static let testValue = APIClient.testValue
         static let previewValue = APIClient.mockValue
     }
+    
+    var apiService: APIService {
+        get { self[APIServiceKey.self] }
+        set { self[APIServiceKey.self] = newValue }
+    }
+    
+    private enum APIServiceKey: DependencyKey {
+        static let liveValue = APIService.liveValue
+        static let testValue = APIService.testValue
+        static let previewValue = APIService.mockValue
+    }
 }
