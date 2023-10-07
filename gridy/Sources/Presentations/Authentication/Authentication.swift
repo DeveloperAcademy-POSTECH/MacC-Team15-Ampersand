@@ -16,7 +16,7 @@ struct Authentication: Reducer {
     
     struct State: Equatable {
         var rawNonce = ""
-        var encrytedNonce = ""
+        var encryptedNonce = ""
         var successToSignIn = false
         var authenticatedUser = User.mock
         var isProceeding = false
@@ -24,7 +24,7 @@ struct Authentication: Reducer {
     
     enum Action: Equatable, Sendable, BindableAction {
         case onAppear
-        case createEncrytedNonce
+        case createEncryptedNonce
         case notYetRegistered(String, String, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
@@ -38,13 +38,13 @@ struct Authentication: Reducer {
         case .onAppear:
             return .run { send in
                 await send(.fetchUser)
-                await send(.createEncrytedNonce)
+                await send(.createEncryptedNonce)
             }
             
-        case .createEncrytedNonce:
+        case .createEncryptedNonce:
             if !state.successToSignIn {
                 state.rawNonce = randomNonceString()
-                state.encrytedNonce = sha256(state.rawNonce)
+                state.encryptedNonce = sha256(state.rawNonce)
             }
             return .none
             

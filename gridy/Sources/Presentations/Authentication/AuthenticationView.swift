@@ -25,7 +25,7 @@ struct AuthenticationView: View {
                     .foregroundColor(.gray)
                 SignInWithAppleButton(.signIn) { request in
                     request.requestedScopes = [.fullName, .email]
-                    request.nonce = viewStore.encrytedNonce
+                    request.nonce = viewStore.encryptedNonce
                 } onCompletion: { result in
                     switch result {
                     case let .success(authorization):
