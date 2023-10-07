@@ -52,16 +52,15 @@ struct ContentView: View {
                         .background {
                             Rectangle()
                                 .foregroundColor(.gray.opacity(0.1))
-                            // TODO: - Shape.rect() supported on Xcode 15+
-//                                .clipShape(
-//                                    .rect(
-//                                        topLeadingRadius: 30,
-//                                        bottomLeadingRadius: 0,
-//                                        bottomTrailingRadius: 0,
-//                                        topTrailingRadius: 30,
-//                                        style: .continuous
-//                                    )
-//                                )
+                                .clipShape(
+                                    .rect(
+                                        topLeadingRadius: 30,
+                                        bottomLeadingRadius: 0,
+                                        bottomTrailingRadius: 0,
+                                        topTrailingRadius: 30,
+                                        style: .continuous
+                                    )
+                                )
                         }
                         
                         Spacer()
