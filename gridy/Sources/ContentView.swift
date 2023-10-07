@@ -32,8 +32,8 @@ struct ContentView: View {
                 if viewStore.successToSignIn {
                     ProjectBoardView(
                         store: Store(
-                            initialState: ProjectBoard.State(),
-                            reducer: { ProjectBoard() }
+                            initialState: ProjectBoard.State(projects: []),
+                            reducer: { ProjectBoard()._printChanges() }
                         )
                     )
                 } else {

@@ -15,41 +15,62 @@ struct ProjectBoard: Reducer {
     @Dependency(\.apiClient) var apiClient
     
     struct State: Equatable {
-        var projects = [Project]()
+        var projects: IdentifiedArrayOf<ProjectItem.State> = []
     }
     
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
         case createNewProjectButtonTapped
         case readAllProjectsButtonTapped
-        case fetchProject
-        case fetchProjectsResponse(TaskResult<[Project]?>)
+        case fetchAllProject
+        case fetchAllProjectsResponse(TaskResult<[Project]?>)
+        
+        case binding(BindingAction<State>)
+        case titleChanged(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
     
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case .createNewProjectButtonTapped:
-            return .run { _ in
-                try await apiService.create()
+    var body: some Reducer<State, Action> {
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .createNewProjectButtonTapped:
+                return .run { _ in
+                    try await apiService.create()
+                }
+                
+            case .readAllProjectsButtonTapped:
+                return .send(.fetchAllProject)
+                
+            case .fetchAllProject:
+                return .run { send in
+                    await send(.fetchAllProjectsResponse(
+                        TaskResult {
+                            try await apiService.readAllProjects()
+                        }
+                    ))
+                }
+                
+            case let .fetchAllProjectsResponse(.success(response)):
+                guard let response = response else { return .none }
+                for project in response {
+                    state.projects.insert(ProjectItem.State(project: project), at: state.projects.count)
+                }
+                return .none
+                
+            case .fetchAllProjectsResponse(.failure):
+                return .none
+                
+            case .binding:
+                return .none
+                
+            case .titleChanged(id: _, action: .binding(\.$project)):
+                return .none
+                
+            case .titleChanged:
+                return .none
             }
-            
-        case .readAllProjectsButtonTapped:
-            return .send(.fetchProject)
-            
-        case .fetchProject:
-            return .run { send in
-                await send(.fetchProjectsResponse(
-                    TaskResult {
-                        try await apiService.readAllProjects()
-                    }
-                ))
-            }
-            
-        case let .fetchProjectsResponse(.success(response)):
-            state.projects = response ?? [Project.mock]
-            return .none
-            
-        case .fetchProjectsResponse(.failure):
-            return .none
+        }
+        .forEach(\.projects, action: /Action.titleChanged(id:action:)) {
+            ProjectItem()
         }
     }
 }

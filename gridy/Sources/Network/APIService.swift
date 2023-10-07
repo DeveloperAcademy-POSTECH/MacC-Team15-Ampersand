@@ -14,18 +14,18 @@ import FirebaseFirestoreSwift
 struct APIService {
     var create: () async throws -> Void
     var readAllProjects: () async throws -> [Project]
-    var update: @Sendable (_ project: Project) async throws -> Void
+    var updateProjectTitle: @Sendable (_ pid: String, _ newTitle: String) async throws -> Void
     var delete: @Sendable (_ pid: String) async throws -> Void
     
     init(
         create: @escaping () async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
-        update: @escaping @Sendable (Project) async throws -> Void,
+        updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         delete: @escaping @Sendable (String) async throws -> Void
     ) {
         self.create = create
         self.readAllProjects = readAllProjects
-        self.update = update
+        self.updateProjectTitle = updateProjectTitle
         self.delete = delete
     }
 }
@@ -50,10 +50,12 @@ extension APIService {
             } catch {
                 throw APIError.noResponse
             }
-        }, update: { project in
-            
+        }, updateProjectTitle: { pid, newTitle in
+            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
+            let firestorePath = firestore.document(uid).collection("Projects").document(pid)
+            firestorePath.updateData(["title": newTitle])
         }, delete: { pid in
-            
+            // TODO: - 구현
         }
     )
 }
@@ -66,7 +68,7 @@ extension APIService {
         readAllProjects: {
             [Project.mock]
         },
-        update: { _ in
+        updateProjectTitle: { _, title in
             
         }, delete: { _ in
         }
@@ -77,7 +79,7 @@ extension APIService {
         readAllProjects: {
             [Project.mock]
         },
-        update: { _ in
+        updateProjectTitle: { _, title in
             
         }, delete: { _ in
         }

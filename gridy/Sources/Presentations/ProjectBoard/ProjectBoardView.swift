@@ -21,15 +21,10 @@ struct ProjectBoardView: View {
                 Button("read all project") {
                     viewStore.send(.readAllProjectsButtonTapped)
                 }
-                
-                ForEach(viewStore.projects) { project in
-                    VStack {
-                        Text(project.title)
-                        Text(project.pid)
-                        Text(project.ownerUid)
-                    }
-                    .padding()
-                    .border(.white)
+                ForEachStore(
+                    store.scope(state: \.projects, action: { .titleChanged(id: $0, action: $1) })
+                ) {
+                    ProjectItemView(store: $0)
                 }
             }
         }
