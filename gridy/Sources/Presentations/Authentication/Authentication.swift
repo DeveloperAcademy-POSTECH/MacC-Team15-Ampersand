@@ -24,7 +24,7 @@ struct Authentication: Reducer {
     
     enum Action: Equatable, Sendable, BindableAction {
         case onAppear
-        case createEncrytedNone
+        case createEncrytedNonce
         case notYetRegistered(String, String, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
@@ -38,10 +38,10 @@ struct Authentication: Reducer {
         case .onAppear:
             return .run { send in
                 await send(.fetchUser)
-                await send(.createEncrytedNone)
+                await send(.createEncrytedNonce)
             }
             
-        case .createEncrytedNone:
+        case .createEncrytedNonce:
             if !state.successToSignIn {
                 state.rawNonce = randomNonceString()
                 state.encrytedNonce = sha256(state.rawNonce)
