@@ -16,16 +16,13 @@ struct AuthenticationView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 30) {
-                VStack(spacing: 8) {
-                    Text("Glad to meet you :)")
-                        .font(.title2.bold())
-                        .foregroundColor(.black)
-                    Text("Some Text Message ...")
-                        .font(.callout)
-                        .foregroundColor(.gray)
-                }
-                
+            VStack(spacing: 10) {
+                Text("Glad to meet you :)")
+                    .font(.title2.bold())
+                    .foregroundColor(.black)
+                Text("Some Text Message ...")
+                    .font(.callout)
+                    .foregroundColor(.gray)
                 SignInWithAppleButton(.signIn) { request in
                     request.requestedScopes = [.fullName, .email]
                     request.nonce = viewStore.encrytedNonce
@@ -61,7 +58,8 @@ struct AuthenticationView: View {
                         print("\(error.localizedDescription)")
                     }
                 }
-                .frame(width: 220)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 200, height: 100)
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
