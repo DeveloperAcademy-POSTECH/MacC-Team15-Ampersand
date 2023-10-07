@@ -38,7 +38,7 @@ struct TimelineLayoutContentView: View {
                         ScheduleAreaView()
                             .frame(height: 140)
                         
-                        TimeAxisAreaView(proxy: proxy)
+                        TimeAxisAreaView()
                         .frame(height: 28)
                         
                         LineAreaHenryView()
