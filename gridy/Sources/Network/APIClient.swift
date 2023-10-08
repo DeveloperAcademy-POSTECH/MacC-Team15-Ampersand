@@ -11,11 +11,6 @@ import FirebaseFirestore
 import FirebaseAuthCombineSwift
 import ComposableArchitecture
 
-enum APIError: Error {
-    case noResponse
-    case noAuthenticatedUser
-}
-
 /// Client
 struct APIClient {
     var fetchUser: () async throws -> User?
@@ -48,7 +43,7 @@ extension APIClient {
     static let liveValue = Self(
         fetchUser: {
             let currentUser = Auth.auth().currentUser
-            guard let currentUser = currentUser else { throw APIError.noResponse }
+            guard let currentUser = currentUser else { throw APIError.noResponseResult }
             let result = try await APIClient.clientCollection.document(currentUser.uid).getDocument()
             let data = try? JSONSerialization.data(withJSONObject: result.data() as Any)
             let decoded = try? JSONDecoder().decode(User.self, from: data!)

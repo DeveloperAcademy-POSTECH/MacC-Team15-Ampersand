@@ -31,32 +31,43 @@ struct APIService {
 }
 
 extension APIService {
-    static let firestore = Firestore.firestore().collection("ProjectCollection")
+    /// Currently authenticated user
+    static var uid: String {
+        get throws {
+            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
+            return uid
+        }
+    }
+    
+    /// Base firestore path for API Service
+    static var basePath: CollectionReference {
+        get throws {
+            let firestore = Firestore.firestore().collection("ProjectCollection")
+            return firestore.document(try uid).collection("Projects")
+        }
+    }
+    
     static let liveValue = Self(
         create: {
-            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
-            let firestorePath = firestore.document(uid).collection("Projects")
-            let pid = firestorePath.document().documentID
+            let pid = try basePath.document().documentID
             let data = ["pid": pid,
                         "title": "제목 없음",
-                        "ownerUid": uid] as [String: Any]
-            firestorePath.document(pid).setData(data)
+                        "ownerUid": try uid] as [String: Any]
+            try basePath.document(pid).setData(data)
+            
         }, readAllProjects: {
-            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
-            let firestorePath = firestore.document(uid).collection("Projects")
             do {
-                let snapshots = try await firestorePath.getDocuments().documents.map { try $0.data(as: Project.self) }
+                let snapshots = try await basePath.getDocuments().documents.map { try $0.data(as: Project.self) }
                 return snapshots
             } catch {
-                throw APIError.noResponse
+                throw APIError.noResponseResult
             }
+            
         }, updateProjectTitle: { pid, newTitle in
-            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
-            let firestorePath = firestore.document(uid).collection("Projects").document(pid)
-            firestorePath.updateData(["title": newTitle])
+            try basePath.document(pid).updateData(["title": newTitle])
+            
         }, delete: { pid in
-            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
-            firestore.document(uid).collection("Projects").document(pid).delete()
+            try basePath.document(pid).delete()
         }
     )
 }
