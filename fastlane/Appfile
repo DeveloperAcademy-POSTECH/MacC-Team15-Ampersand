@@ -1,0 +1,10 @@
+app_identifier("com.ampersand.gridy") # The bundle identifier of your app
+apple_id("0217dayun@naver.com") # Your Apple Developer Portal username
+
+itc_team_id("125977022") # App Store Connect Team ID
+team_id("7D5PZJWQ9T") # Developer Portal Team ID
+itc_team_id("125977022") # App Store Connect Team ID
+team_id("7D5PZJWQ9T") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

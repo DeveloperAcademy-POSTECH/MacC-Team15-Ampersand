@@ -6,12 +6,21 @@
 //
 
 import SwiftUI
+import Firebase
+import ComposableArchitecture
 
 @main
 struct GridyApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            TimelineLayoutView()
+            ContentView()
         }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        FirebaseApp.configure()
     }
 }
