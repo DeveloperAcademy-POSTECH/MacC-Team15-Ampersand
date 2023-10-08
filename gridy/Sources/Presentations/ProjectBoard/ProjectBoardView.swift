@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct ProjectBoardView: View {
     
     let store: StoreOf<ProjectBoard>
+    @State private var onAppearProceeding = true
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -18,11 +19,14 @@ struct ProjectBoardView: View {
                 Button("create new project") {
                     viewStore.send(.createNewProjectButtonTapped)
                 }
-                Button("read all project") {
-                    viewStore.send(.readAllProjectsButtonTapped)
+                Button("read all projects") {
+                    viewStore.send(.readAllButtonTapped)
                 }
                 ForEachStore(
-                    store.scope(state: \.projects, action: { .titleChanged(id: $0, action: $1) })
+                    store.scope(
+                        state: \.projects,
+                        action: { .deleteProjectButtonTapped(id: $0, action: $1) }
+                    )
                 ) {
                     ProjectItemView(store: $0)
                 }

@@ -15,6 +15,7 @@ struct ProjectItem: Reducer {
     struct State: Equatable, Identifiable {
         @BindingState var project = Project.mock
         var id: String { project.pid }
+        @BindingState var delete = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -32,7 +33,6 @@ struct ProjectItem: Reducer {
                 return .run { _ in
                     try await apiService.updateProjectTitle(pid, newTitle)
                 }
-                
             case .binding:
                 return .none
             }

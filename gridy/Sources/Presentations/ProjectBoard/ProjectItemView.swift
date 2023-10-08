@@ -24,6 +24,10 @@ struct ProjectItemView: View {
                 )
                 Text(viewStore.project.pid)
                 Text(viewStore.project.ownerUid)
+                Button("프로젝트 삭제") {
+                    viewStore.$delete.wrappedValue.toggle()
+                }
+                .keyboardShortcut(.delete)
             }
             .padding()
             .border(.white)

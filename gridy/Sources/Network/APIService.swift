@@ -55,7 +55,8 @@ extension APIService {
             let firestorePath = firestore.document(uid).collection("Projects").document(pid)
             firestorePath.updateData(["title": newTitle])
         }, delete: { pid in
-            // TODO: - 구현
+            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
+            firestore.document(uid).collection("Projects").document(pid).delete()
         }
     )
 }
@@ -63,25 +64,17 @@ extension APIService {
 // MARK: - test, mock
 extension APIService {
     static let testValue = Self(
-        create: {
-        },
+        create: { },
         readAllProjects: {
-            [Project.mock]
-        },
-        updateProjectTitle: { _, title in
-            
-        }, delete: { _ in
-        }
+            [Project.mock] },
+        updateProjectTitle: { _, _ in },
+        delete: { _ in }
     )
     static let mockValue = Self(
-        create: {
-        },
+        create: { },
         readAllProjects: {
-            [Project.mock]
-        },
-        updateProjectTitle: { _, title in
-            
-        }, delete: { _ in
-        }
+            [Project.mock] },
+        updateProjectTitle: { _, _ in },
+        delete: { _ in }
     )
 }

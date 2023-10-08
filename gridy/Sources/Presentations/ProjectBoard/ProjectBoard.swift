@@ -13,6 +13,7 @@ struct ProjectBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
     @Dependency(\.apiClient) var apiClient
+    @Dependency(\.continuousClock) var continuousClock
     
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
@@ -20,12 +21,12 @@ struct ProjectBoard: Reducer {
     
     enum Action: BindableAction, Equatable {
         case createNewProjectButtonTapped
-        case readAllProjectsButtonTapped
-        case fetchAllProject
+        case readAllButtonTapped
+        case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         
         case binding(BindingAction<State>)
-        case titleChanged(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
     
     var body: some Reducer<State, Action> {
@@ -33,24 +34,28 @@ struct ProjectBoard: Reducer {
         Reduce { state, action in
             switch action {
             case .createNewProjectButtonTapped:
-                return .run { _ in
+                return .run { send in
                     try await apiService.create()
+                    await send(.fetchAllProjects)
                 }
                 
-            case .readAllProjectsButtonTapped:
-                return .send(.fetchAllProject)
+            case .readAllButtonTapped:
+                return .run(operation: { send in
+                    await send(.fetchAllProjects)
+                })
                 
-            case .fetchAllProject:
+            case .fetchAllProjects:
                 return .run { send in
                     await send(.fetchAllProjectsResponse(
                         TaskResult {
                             try await apiService.readAllProjects()
                         }
-                    ))
+                    ), animation: .spring)
                 }
                 
             case let .fetchAllProjectsResponse(.success(response)):
                 guard let response = response else { return .none }
+                state.projects = []
                 for project in response {
                     state.projects.insert(ProjectItem.State(project: project), at: state.projects.count)
                 }
@@ -62,15 +67,19 @@ struct ProjectBoard: Reducer {
             case .binding:
                 return .none
                 
-            case .titleChanged(id: _, action: .binding(\.$project)):
-                return .none
+            case let .deleteProjectButtonTapped(id: pid, action: .binding(\.$delete)):
+                return .run { send in
+                    try await apiService.delete(pid)
+                    await send(.fetchAllProjects)
+                }
                 
-            case .titleChanged:
+            case .deleteProjectButtonTapped:
                 return .none
             }
         }
-        .forEach(\.projects, action: /Action.titleChanged(id:action:)) {
+        .forEach(\.projects, action: /Action.deleteProjectButtonTapped(id:action:)) {
             ProjectItem()
         }
     }
 }
+
