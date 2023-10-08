@@ -8,9 +8,26 @@
 import SwiftUI
 
 struct ScrollDatePickerView: View {
+    @State private var selectedDate = Date()
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            Text("선택날짜: \(selectedDate, formatter: dateFormatter)")
+                            .padding()
+            Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                Text("이동")
+            })
+        }
     }
+    var dateFormatter: DateFormatter {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .long
+            return formatter
+        }
 }
 
 #Preview {
