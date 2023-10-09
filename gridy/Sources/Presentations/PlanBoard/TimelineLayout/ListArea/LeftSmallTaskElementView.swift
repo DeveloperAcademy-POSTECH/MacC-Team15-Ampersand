@@ -101,5 +101,5 @@ struct LeftSmallTaskElementView: View {
 }
 
 #Preview {
-    LeftSmallTaskElementView(numbersOfGroupCell: .constant(2))
+    LeftSmallTaskElementView(numbersOfGroupCell: .constant(1))
 }

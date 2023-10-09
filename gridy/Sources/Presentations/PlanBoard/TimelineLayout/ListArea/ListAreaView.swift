@@ -12,9 +12,13 @@ struct ListAreaView: View {
     @State var isRightButtonClicked = false
     @State var isTopButtonClicked = false
     @State var isBottomButtonClicked = false
+    @State var numbersOfGroupCell = 1
     
     var body: some View {
-        Text("Hello")
+        ScrollView(showsIndicators: false) {
+            
+        }
+        .frame(width: 266)
     }
 }
 
