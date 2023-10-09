@@ -1,22 +1,22 @@
 //
-//  ListElementView.swift
+//  ListElementRightView.swift
 //  gridy
 //
-//  Created by xnoag on 10/5/23.
+//  Created by xnoag on 10/8/23.
 //
 
 import SwiftUI
 
-struct ListElementView: View {
+struct ListElementRightView: View {
     @State private var isHovering = false
     @State private var isEditing = false
     @State private var listElementText = ""
     @State private var isEnterShorCut = false
-    @State private var isLeftButtonOpening = false
-    @State var isLeftButtonClicking = false
-    @Binding var isRightButtonClicking: Bool
-    @State private var isRightButtonOpening = false
     @FocusState private var isTextFieldFocused: Bool
+    @State private var isTopButtonOpening = false
+    @State private var isBottomButtonOpening = false
+    @State private var isTopButtonClicking = false
+    @State private var isBottomButtonClicking = false
     
     var body: some View {
         Rectangle()
@@ -41,7 +41,7 @@ struct ListElementView: View {
                         Rectangle()
                             .foregroundStyle(Color.gray.opacity(0.2))
                             .cornerRadius(6)
-                            .frame(width: isRightButtonClicking ? 132 : 264, height: 44)
+                            .frame(width: 132, height: 44)
                             .overlay {
                                 Text("New Task")
                                     .foregroundStyle(.gray)
@@ -50,17 +50,17 @@ struct ListElementView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 } else if isHovering && !listElementText.isEmpty {
-                    HStack(spacing: 0) {
+                    VStack(spacing: 0) {
                         Button(action: {
-                            isLeftButtonClicking = true
+                            isTopButtonClicking = true
                         }) {
                             Rectangle()
-                                .foregroundStyle(isLeftButtonOpening ? .red : .clear)
-                                .frame(width: 24, height: 48)
+                                .foregroundStyle(isTopButtonOpening ? .pink : .clear)
+                                .frame(width: 132, height: 8)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isLeftButtonOpening = proxy
+                            isTopButtonOpening = proxy
                         }
                         Button(action: {
                             isEditing = true
@@ -70,23 +70,23 @@ struct ListElementView: View {
                         }) {
                             Rectangle()
                                 .foregroundColor(.white.opacity(0.1))
-                                .frame(width: isRightButtonClicking ? 108 : 216, height: 48)
+                                .frame(width: 132, height: 32)
                         }
                         .buttonStyle(PlainButtonStyle())
                         Button(action: {
-                            isRightButtonClicking = true
+                            isBottomButtonClicking = true
                         }) {
                             Rectangle()
-                                .foregroundStyle(isRightButtonOpening ? .blue : .clear)
-                                .frame(width: 24, height: 48)
+                                .foregroundStyle(isBottomButtonOpening ? .pink : .clear)
+                                .frame(width: 132, height: 8)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isRightButtonOpening = proxy
+                            isBottomButtonOpening = proxy
                         }
                     }
-                    .border(isHovering && !isLeftButtonOpening && !isRightButtonOpening ? .blue : .clear)
-                } else if isEditing {
+                    .border(isHovering && !isTopButtonOpening && !isBottomButtonOpening ? .blue : .clear)
+                }else if isEditing {
                     TextField("", text: $listElementText, onCommit: {
                         isEditing = false
                         isTextFieldFocused = false
@@ -97,7 +97,7 @@ struct ListElementView: View {
                     .textFieldStyle(.plain)
                     .foregroundStyle(.black)
                     .lineLimit(2)
-                    .frame(width: isRightButtonClicking ? 132 : 264, height: 44)
+                    .frame(width: 132, height: 44)
                     .cornerRadius(6)
                     .focused($isTextFieldFocused)
                     .overlay {
@@ -123,5 +123,5 @@ struct ListElementView: View {
 }
 
 #Preview {
-    ListElementView(isRightButtonClicking: .constant(false))
+    ListElementRightView()
 }

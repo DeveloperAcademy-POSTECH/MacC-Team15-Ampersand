@@ -8,12 +8,23 @@
 import SwiftUI
 
 struct ListAreaView: View {
+    @State var isRightButtonClicking: Bool = false
+    
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(0..<30) { _ in
-                    ListElementView()
-                        .frame(width: 266, height: 48)
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(0..<30) { _ in
+                        ListElementView(isRightButtonClicking: $isRightButtonClicking)
+                            .frame(width: isRightButtonClicking ? 133 : 266, height: 48)
+                    }
+                }
+                if isRightButtonClicking {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(0..<30) { _ in
+                            ListElementRightView()
+                        }
+                    }
                 }
             }
         }

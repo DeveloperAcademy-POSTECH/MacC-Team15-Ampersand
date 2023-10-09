@@ -1,114 +1,119 @@
 //
-//  ListElementView.swift
+//  LargeTaskElementView.swift
 //  gridy
 //
-//  Created by xnoag on 10/5/23.
+//  Created by xnoag on 10/9/23.
 //
 
 import SwiftUI
 
-struct ListElementView: View {
-    @State private var isHovering = false
-    @State private var isEditing = false
-    @State private var listElementText = ""
-    @State private var isEnterShorCut = false
-    @State private var isLeftButtonOpening = false
-    @State var isLeftButtonClicking = false
-    @Binding var isRightButtonClicking: Bool
-    @State private var isRightButtonOpening = false
+struct LargeTaskElementView: View {
+    @State private var isTaskElementHovering = false
+    @State private var isLeftButtonHovering = false
+    @State private var isRightButtonHovering = false
+    @Binding var isLeftButtonClicked: Bool
+    @Binding var isRightButtonClicked: Bool
+    @State private var isPressedReturnKey = false
     @FocusState private var isTextFieldFocused: Bool
+    @State private var largeTaskElementTextField = ""
+    @State private var isEditing = false
     
     var body: some View {
+        var largeTaskElementText: String {
+            if isPressedReturnKey {
+                return largeTaskElementTextField
+            } else {
+                return ""
+            }
+        }
+        
         Rectangle()
+            .frame(minWidth: 266, idealWidth: 266, maxWidth: 532)
+            .frame(height: 48)
             .foregroundStyle(.white)
-            .border(Color.gray, width: 0.3)
+            .border(.gray, width: 0.2)
             .overlay {
-                if isEnterShorCut {
-                    Text(listElementText)
+                if !isEditing {
+                    Text(largeTaskElementText)
+                        .lineLimit(2)
                         .foregroundStyle(.black)
                         .font(.custom("Pretendard-Regular", size: 16))
                         .padding(.horizontal, 8)
                 }
             }
             .overlay {
-                if isHovering && listElementText.isEmpty {
+                if isTaskElementHovering && largeTaskElementText.isEmpty {
                     Button(action: {
                         isEditing = true
-                        isHovering = false
+                        isTaskElementHovering = false
                         isTextFieldFocused = true
-                        isEnterShorCut = false
                     }) {
                         Rectangle()
-                            .foregroundStyle(Color.gray.opacity(0.2))
+                            .foregroundStyle(.gray.opacity(0.2))
                             .cornerRadius(6)
-                            .frame(width: isRightButtonClicking ? 132 : 264, height: 44)
                             .overlay {
                                 Text("New Task")
                                     .foregroundStyle(.gray)
                                     .font(.custom("Pretendard-Regular", size: 16))
                             }
+                            .padding(2)
                     }
                     .buttonStyle(PlainButtonStyle())
-                } else if isHovering && !listElementText.isEmpty {
+                } else if isTaskElementHovering && !largeTaskElementText.isEmpty {
                     HStack(spacing: 0) {
                         Button(action: {
-                            isLeftButtonClicking = true
+                            isLeftButtonClicked = true
                         }) {
                             Rectangle()
-                                .foregroundStyle(isLeftButtonOpening ? .red : .clear)
+                                .foregroundStyle(isLeftButtonHovering ? .red : .clear)
                                 .frame(width: 24, height: 48)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isLeftButtonOpening = proxy
+                            isLeftButtonHovering = proxy
                         }
                         Button(action: {
                             isEditing = true
-                            isHovering = false
                             isTextFieldFocused = true
-                            isEnterShorCut = false
+                            isTaskElementHovering = false
                         }) {
                             Rectangle()
-                                .foregroundColor(.white.opacity(0.1))
-                                .frame(width: isRightButtonClicking ? 108 : 216, height: 48)
+                                .foregroundStyle(.white.opacity(0.1))
+                                .frame(minWidth: 266-48, idealWidth: 266-48, maxWidth: 532-48)
+                                .frame(height: 48)
                         }
                         .buttonStyle(PlainButtonStyle())
                         Button(action: {
-                            isRightButtonClicking = true
+                            isRightButtonClicked = true
                         }) {
                             Rectangle()
-                                .foregroundStyle(isRightButtonOpening ? .blue : .clear)
+                                .foregroundStyle(isRightButtonHovering ? .blue : .clear)
                                 .frame(width: 24, height: 48)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isRightButtonOpening = proxy
+                            isRightButtonHovering = proxy
                         }
                     }
-                    .border(isHovering && !isLeftButtonOpening && !isRightButtonOpening ? .blue : .clear)
-                } else if isEditing {
-                    TextField("", text: $listElementText, onCommit: {
+                    .border(isTaskElementHovering && !isLeftButtonHovering && !isRightButtonHovering ? .blue : .clear)
+                }
+            }
+            .overlay {
+                if isEditing {
+                    TextField("Editing", text: $largeTaskElementTextField, onCommit: {
                         isEditing = false
-                        isTextFieldFocused = false
-                        isEnterShorCut = true
+                        isPressedReturnKey = true
                     })
                     .multilineTextAlignment(.center)
                     .font(.custom("Pretendard-Regular", size: 16))
                     .textFieldStyle(.plain)
                     .foregroundStyle(.black)
-                    .lineLimit(2)
-                    .frame(width: isRightButtonClicking ? 132 : 264, height: 44)
+                    .padding(.horizontal, 1)
+                    .padding(.vertical, 2)
                     .cornerRadius(6)
                     .focused($isTextFieldFocused)
-                    .overlay {
-                        if listElementText.isEmpty {
-                            Text("Editing")
-                                .font(.custom("Pretendard-Bold", size: 16))
-                                .foregroundStyle(.gray)
-                        }
-                    }
                     .onExitCommand(perform: {
-                        listElementText = ""
+                        largeTaskElementTextField = ""
                         isEditing = false
                         isTextFieldFocused = false
                     })
@@ -116,12 +121,12 @@ struct ListElementView: View {
             }
             .onHover { phase in
                 if !isEditing {
-                    isHovering = phase
+                    isTaskElementHovering = phase
                 }
             }
     }
 }
 
 #Preview {
-    ListElementView(isRightButtonClicking: .constant(false))
+    LargeTaskElementView(isLeftButtonClicked: .constant(false), isRightButtonClicked: .constant(false))
 }
