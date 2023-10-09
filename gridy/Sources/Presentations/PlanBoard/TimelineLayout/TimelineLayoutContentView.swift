@@ -31,13 +31,13 @@ struct TimelineLayoutContentView: View {
                 ListAreaView()
             }
             .frame(width: 140)
-            ScrollView(.horizontal) {
-                ScrollViewReader { _ in
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
                     VStack(alignment: .leading, spacing: 0) {
                         ScheduleAreaView()
                             .frame(height: 140)
                         
-                        TimeAxisAreaView(leftmostDate: $leftmostDate)
+                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: proxy)
                             .frame(height: 60)
                             .background(
                                 GeometryReader { geo in

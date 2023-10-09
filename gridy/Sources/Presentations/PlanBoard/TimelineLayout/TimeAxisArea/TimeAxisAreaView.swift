@@ -14,6 +14,7 @@ struct TimeAxisAreaView: View {
     
     @State private var holidays: [Date] = []
     @Binding var leftmostDate: Date
+    var proxy: ScrollViewProxy
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -34,6 +35,12 @@ struct TimeAxisAreaView: View {
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     
                     DayGridView(dateInfo: dateInfo)
+                        .id(dayOffset)
+                        .onTapGesture {
+                            withAnimation {
+                                proxy.scrollTo(dayOffset, anchor: .leading)
+                            }
+                        }
                 }
             }
         }
@@ -51,11 +58,11 @@ struct TimeAxisAreaView: View {
     }
 }
 
-struct TimeAxisAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimeAxisAreaView(leftmostDate: .constant(Date()))
-    }
-}
+//struct TimeAxisAreaView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        TimeAxisAreaView(leftmostDate: .constant(Date()))
+//    }
+//}
 
 struct MonthView: View {
     var month: String
