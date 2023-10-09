@@ -49,8 +49,6 @@
 		EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */; };
 		EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
-		EEBDE4002ACED7ED00B52C98 /* ListElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */; };
-		EEBDE4042AD2910000B52C98 /* ListElementRightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE4032AD2910000B52C98 /* ListElementRightView.swift */; };
 		EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */; };
 		EEBDE40C2AD3F29100B52C98 /* LeftSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */; };
 		EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */; };
@@ -92,8 +90,6 @@
 		EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleIndexAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
-		EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListElementView.swift; sourceTree = "<group>"; };
-		EEBDE4032AD2910000B52C98 /* ListElementRightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListElementRightView.swift; sourceTree = "<group>"; };
 		EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeTaskElementView.swift; sourceTree = "<group>"; };
 		EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftSmallTaskElementView.swift; sourceTree = "<group>"; };
 		EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightSmallTaskElementView.swift; sourceTree = "<group>"; };
@@ -323,11 +319,9 @@
 			isa = PBXGroup;
 			children = (
 				EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */,
-				EEBDE3FF2ACED7ED00B52C98 /* ListElementView.swift */,
 				EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */,
 				EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */,
 				EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */,
-				EEBDE4032AD2910000B52C98 /* ListElementRightView.swift */,
 			);
 			path = ListArea;
 			sourceTree = "<group>";
@@ -476,7 +470,6 @@
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
 				EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
-				EEBDE4042AD2910000B52C98 /* ListElementRightView.swift in Sources */,
 				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
@@ -487,7 +480,6 @@
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
 				EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */,
-				EEBDE4002ACED7ED00B52C98 /* ListElementView.swift in Sources */,
 				EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,

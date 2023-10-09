@@ -57,17 +57,17 @@ struct LeftSmallTaskElementView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 } else if isTaskElementHovering && !leftSmallTaskElementText.isEmpty {
-                        Button(action: {
-                            isEditing = true
-                            isTextFieldFocused = true
-                            isTaskElementHovering = false
-                        }) {
-                            Rectangle()
-                                .foregroundStyle(.white.opacity(0.1))
-                                .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
-                                .frame(height: 48 * CGFloat(numbersOfGroupCell))
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                    Button(action: {
+                        isEditing = true
+                        isTextFieldFocused = true
+                        isTaskElementHovering = false
+                    }) {
+                        Rectangle()
+                            .foregroundStyle(.white.opacity(0.1))
+                            .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
+                            .frame(height: 48 * CGFloat(numbersOfGroupCell))
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     .border(isTaskElementHovering ? .blue : .clear)
                 }
             }
