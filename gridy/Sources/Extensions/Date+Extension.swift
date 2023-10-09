@@ -29,4 +29,8 @@ extension Date {
     var formattedDate: Date {
         return Calendar.current.startOfDay(for: self)
     }
+    
+    var integerDate: Int {
+        return Int(self.timeIntervalSince1970)
+    }
 }

@@ -32,14 +32,13 @@ struct TimeAxisAreaView: View {
             LazyHStack(spacing: 0) {
                 ForEach(0..<numberOfDays, id: \.self) { dayOffset in
                     let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
+                    let scrollID = date.integerDate
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     
                     DayGridView(dateInfo: dateInfo)
-                        .id(dayOffset)
+                        .id(scrollID)
                         .onTapGesture {
-                            withAnimation {
-                                proxy.scrollTo(dayOffset, anchor: .leading)
-                            }
+                            proxy.scrollTo(scrollID, anchor: .leading)
                         }
                 }
             }

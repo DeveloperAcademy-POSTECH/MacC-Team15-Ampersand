@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScrollDatePickerView: View {
     @State private var selectedDate = Date()
+    var proxy: ScrollViewProxy
     var body: some View {
         VStack {
             DatePicker(
@@ -18,7 +19,12 @@ struct ScrollDatePickerView: View {
             )
             Text("선택날짜: \(selectedDate, formatter: dateFormatter)")
                             .padding()
-            Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+            Button(action: {
+                withAnimation {
+                    let scrollIndex = selectedDate.integerDate
+                    proxy.scrollTo(scrollIndex, anchor: .leading)
+                }
+            }, label: {
                 Text("이동")
             })
         }
@@ -30,6 +36,6 @@ struct ScrollDatePickerView: View {
         }
 }
 
-#Preview {
-    ScrollDatePickerView()
-}
+//#Preview {
+//    ScrollDatePickerView()
+//}
