@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
-    // TODO: TimeAxisAreaView (날짜 및 공휴일 전역 선언)
-    let startDate = Date().formattedDate
+    // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
+    let startDate = Date()
     let numberOfDays = 200
     
     @State private var holidays: [Date] = []
     @Binding var leftmostDate: Date
-    var proxy: ScrollViewProxy
+    @Binding var proxy: ScrollViewProxy?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,7 +25,8 @@ struct TimeAxisAreaView: View {
                         let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                         
                         MonthView(month: dateInfo.month)
-                        .opacity(dateInfo.isFirstOfMonth ? 1 : 0)                    }
+                            .opacity(dateInfo.isFirstOfMonth ? 1 : 0)
+                    }
                 }
             }
             
@@ -38,7 +39,7 @@ struct TimeAxisAreaView: View {
                     DayGridView(dateInfo: dateInfo)
                         .id(scrollID)
                         .onTapGesture {
-                            proxy.scrollTo(scrollID, anchor: .leading)
+                            proxy?.scrollTo(scrollID, anchor: .leading)
                         }
                 }
             }
@@ -56,12 +57,6 @@ struct TimeAxisAreaView: View {
         }
     }
 }
-
-//struct TimeAxisAreaView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        TimeAxisAreaView(leftmostDate: .constant(Date()))
-//    }
-//}
 
 struct MonthView: View {
     var month: String

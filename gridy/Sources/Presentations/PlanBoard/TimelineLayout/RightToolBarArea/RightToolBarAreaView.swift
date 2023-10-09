@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct RightToolBarAreaView: View {
+    @Binding var proxy: ScrollViewProxy?
+    
     var body: some View {
-        GeometryReader { geo in
+        GeometryReader { _ in
             VStack {
                 // TODO: Detail UI (하위코드삭제)
                 ForEach(1..<10) { detailNumber in
@@ -20,16 +22,10 @@ struct RightToolBarAreaView: View {
                         .overlay(Text("Think \(detailNumber)"))
                 }
                 
-                ScrollDatePickerView()
+                ScrollDatePickerView(proxy: $proxy)
             }
             .padding(.horizontal, 16)
 //            .frame(width: geo.size.width)
         }
-    }
-}
-
-struct RightToolBarAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        RightToolBarAreaView()
     }
 }

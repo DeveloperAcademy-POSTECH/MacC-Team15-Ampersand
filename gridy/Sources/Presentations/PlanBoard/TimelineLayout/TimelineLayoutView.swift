@@ -10,6 +10,7 @@ import SwiftUI
 struct TimelineLayoutView: View {
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
+    @State var proxy: ScrollViewProxy?
     
     var body: some View {
         NavigationSplitView {
@@ -17,9 +18,9 @@ struct TimelineLayoutView: View {
                 .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
         } detail: {
             HSplitView {
-                TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
+                TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
                 if showingRightToolBarArea {
-                    RightToolBarAreaView()
+                    RightToolBarAreaView(proxy: $proxy)
                         .frame(width: 240)
                 }
             }
