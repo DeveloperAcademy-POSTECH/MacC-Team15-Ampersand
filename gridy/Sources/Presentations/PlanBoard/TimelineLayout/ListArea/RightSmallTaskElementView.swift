@@ -9,13 +9,17 @@ import SwiftUI
 
 struct RightSmallTaskElementView: View {
     @State private var isTaskElementHovering = false
+    @FocusState private var isTextFieldFocused: Bool
+    @State private var isEditing = false
     @State private var isTopButtonHovering = false
     @State private var isBottomButtonHovering = false
+    @Binding var rightSmallTaskTuple: (Int, String)
     @Binding var isTopButtonClicked: Bool
     @Binding var isBottomButtonClicked: Bool
-    @FocusState private var isTextFieldFocused: Bool
-    @Binding var rightSmallTaskElementTextField: String
-    @State private var isEditing = false
+    @Binding var clickedIndex: Int
+    var myIndex: Int
+    
+    //    @Binding var rightSmallTaskTuple.1: String
     
     var body: some View {
         Rectangle()
@@ -25,7 +29,7 @@ struct RightSmallTaskElementView: View {
             .border(.gray, width: 0.5)
             .overlay {
                 if !isEditing {
-                    Text(rightSmallTaskElementTextField)
+                    Text(rightSmallTaskTuple.1)
                         .lineLimit(2)
                         .foregroundStyle(.black)
                         .font(.custom("Pretendard-Regular", size: 16))
@@ -33,7 +37,7 @@ struct RightSmallTaskElementView: View {
                 }
             }
             .overlay {
-                if isTaskElementHovering && rightSmallTaskElementTextField.isEmpty {
+                if isTaskElementHovering && rightSmallTaskTuple.1.isEmpty {
                     Button(action: {
                         isEditing = true
                         isTaskElementHovering = false
@@ -50,10 +54,11 @@ struct RightSmallTaskElementView: View {
                             .padding(2)
                     }
                     .buttonStyle(PlainButtonStyle())
-                } else if isTaskElementHovering && !rightSmallTaskElementTextField.isEmpty {
+                } else if isTaskElementHovering && !rightSmallTaskTuple.1.isEmpty {
                     VStack(spacing: 0) {
                         Button(action: {
                             isTopButtonClicked = true
+                            clickedIndex = myIndex
                         }) {
                             Rectangle()
                                 .foregroundStyle(isTopButtonHovering ? .pink : .clear)
@@ -77,6 +82,7 @@ struct RightSmallTaskElementView: View {
                         .buttonStyle(PlainButtonStyle())
                         Button(action: {
                             isBottomButtonClicked = true
+                            clickedIndex = myIndex
                         }) {
                             Rectangle()
                                 .foregroundStyle(isBottomButtonHovering ? .pink : .clear)
@@ -93,22 +99,23 @@ struct RightSmallTaskElementView: View {
             }
             .overlay {
                 if isEditing {
-                    TextField("Editing", text: $rightSmallTaskElementTextField, onCommit: {
-                        isEditing = false
-                    })
-                    .multilineTextAlignment(.center)
-                    .font(.custom("Pretendard-Regular", size: 16))
-                    .textFieldStyle(.plain)
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 1)
-                    .padding(.vertical, 2)
-                    .cornerRadius(6)
-                    .focused($isTextFieldFocused)
-                    .onExitCommand(perform: {
-                        rightSmallTaskElementTextField = ""
-                        isEditing = false
-                        isTextFieldFocused = false
-                    })
+                    TextField("Editing", text: $rightSmallTaskTuple.1, axis: .vertical)
+                        .onSubmit {
+                            isEditing = false
+                        }
+                        .multilineTextAlignment(.center)
+                        .font(.custom("Pretendard-Regular", size: 16))
+                        .textFieldStyle(.plain)
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 1)
+                        .padding(.vertical, 2)
+                        .cornerRadius(6)
+                        .focused($isTextFieldFocused)
+                        .onExitCommand(perform: {
+                            rightSmallTaskTuple.1 = ""
+                            isEditing = false
+                            isTextFieldFocused = false
+                        })
                 }
             }
             .onHover { phase in
@@ -117,8 +124,4 @@ struct RightSmallTaskElementView: View {
                 }
             }
     }
-}
-
-#Preview {
-    RightSmallTaskElementView(isTopButtonClicked: .constant(false), isBottomButtonClicked: .constant(false), rightSmallTaskElementTextField: .constant(""))
 }

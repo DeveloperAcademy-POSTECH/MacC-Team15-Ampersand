@@ -13,7 +13,6 @@ struct LargeTaskElementView: View {
     @State private var isRightButtonHovering = false
     @Binding var isLeftButtonClicked: Bool
     @Binding var isRightButtonClicked: Bool
-    @State private var isPressedReturnKey = false
     @FocusState private var isTextFieldFocused: Bool
     @Binding var largeTaskElementTextField: String
     @State private var isEditing = false
@@ -92,23 +91,23 @@ struct LargeTaskElementView: View {
             }
             .overlay {
                 if isEditing {
-                    TextField("Editing", text: $largeTaskElementTextField, onCommit: {
-                        isEditing = false
-                        isPressedReturnKey = true
-                    })
-                    .multilineTextAlignment(.center)
-                    .font(.custom("Pretendard-Regular", size: 16))
-                    .textFieldStyle(.plain)
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 1)
-                    .padding(.vertical, 2)
-                    .cornerRadius(6)
-                    .focused($isTextFieldFocused)
-                    .onExitCommand(perform: {
-                        largeTaskElementTextField = ""
-                        isEditing = false
-                        isTextFieldFocused = false
-                    })
+                    TextField("Editing", text: $largeTaskElementTextField, axis: .vertical)
+                        .onSubmit {
+                            isEditing = false
+                        }
+                        .multilineTextAlignment(.center)
+                        .font(.custom("Pretendard-Regular", size: 16))
+                        .textFieldStyle(.plain)
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 1)
+                        .padding(.vertical, 2)
+                        .cornerRadius(6)
+                        .focused($isTextFieldFocused)
+                        .onExitCommand(perform: {
+                            largeTaskElementTextField = ""
+                            isEditing = false
+                            isTextFieldFocused = false
+                        })
                 }
             }
             .onHover { phase in
@@ -117,8 +116,4 @@ struct LargeTaskElementView: View {
                 }
             }
     }
-}
-
-#Preview {
-    LargeTaskElementView(isLeftButtonClicked: .constant(false), isRightButtonClicked: .constant(false), largeTaskElementTextField: .constant(""))
 }

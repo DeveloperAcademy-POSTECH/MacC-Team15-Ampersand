@@ -12,10 +12,10 @@ struct ListAreaView: View {
     @State var isRightButtonClicked = false
     @State var isTopButtonClicked = false
     @State var isBottomButtonClicked = false
-    @State var numbersOfGroupCell = 1
     @State var largeTaskTexts: [String] = Array(repeating: "", count: 20)
-    @State var leftSmallTaskTexts: [String] = Array(repeating: "", count: 20)
-    @State var rightSmallTaskTexts: [String] = Array(repeating: "", count: 20)
+    @State var leftSmallTaskTuples: [(Int, String)] = []
+    @State var rightSmallTaskTuples: [(Int, String)] = []
+    @State var clickedIndex = -1
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -28,27 +28,53 @@ struct ListAreaView: View {
             } else {
                 HStack(alignment: .top, spacing: 0) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(0..<leftSmallTaskTexts.count, id: \.self) { index in
-                            LeftSmallTaskElementView(leftSmallTaskElementTextField: $leftSmallTaskTexts[index], numbersOfGroupCell: $numbersOfGroupCell)
+                        ForEach(0..<leftSmallTaskTuples.count, id: \.self) { index in
+                            LeftSmallTaskElementView(leftSmallTaskTuple: $leftSmallTaskTuples[index])
                         }
                     }
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(0..<rightSmallTaskTexts.count, id: \.self) { index in
-                            RightSmallTaskElementView(isTopButtonClicked: $isTopButtonClicked, isBottomButtonClicked: $isBottomButtonClicked, rightSmallTaskElementTextField: $rightSmallTaskTexts[index])
+                        ForEach(0..<rightSmallTaskTuples.count, id: \.self) { index in
+                            RightSmallTaskElementView(rightSmallTaskTuple: $rightSmallTaskTuples[index], isTopButtonClicked: $isTopButtonClicked, isBottomButtonClicked: $isBottomButtonClicked, clickedIndex: $clickedIndex, myIndex: index)
                         }
                     }
                 }
             }
         }
         .frame(width: 266)
+        .onAppear {
+            leftSmallTaskTuples = (0..<20).map { index in
+                return (1, "")
+            }
+            rightSmallTaskTuples = (0..<20).map { index in
+                return (index, "")
+            }
+        }
         .onChange(of: isRightButtonClicked) { newValue in
             if newValue {
-                leftSmallTaskTexts = largeTaskTexts
+                leftSmallTaskTuples = largeTaskTexts.enumerated().map { _, stringValues in
+                    return(1, stringValues)
+                }
             }
         }
         .onChange(of: isLeftButtonClicked) { newValue in
             if newValue {
-                rightSmallTaskTexts = largeTaskTexts
+                rightSmallTaskTuples = largeTaskTexts.enumerated().map { index, stringValues in
+                    return(index, stringValues)
+                }
+            }
+        }
+        .onChange(of: isTopButtonClicked) { newValue in
+            if newValue {
+                rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex)
+                leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
+                isTopButtonClicked = false
+            }
+        }
+        .onChange(of: isBottomButtonClicked) { newValue in
+            if newValue {
+                rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex + 1)
+                leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
+                isBottomButtonClicked = false
             }
         }
     }
