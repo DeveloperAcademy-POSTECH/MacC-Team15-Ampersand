@@ -22,14 +22,13 @@ struct Authentication: Reducer {
         var isProceeding = false
     }
     
-    enum Action: Equatable, Sendable, BindableAction {
+    enum Action: Equatable, Sendable {
         case onAppear
         case createEncryptedNonce
         case notYetRegistered(String, String, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
         case fetchUserResponse(TaskResult<User?>)
-        case binding(BindingAction<State>)
         case setProcessing(Bool)
     }
     
@@ -80,9 +79,6 @@ struct Authentication: Reducer {
             
         case .fetchUserResponse(.failure):
             state.successToSignIn = false
-            return .none
-            
-        case .binding:
             return .none
             
         case let .setProcessing(isInProcess):
