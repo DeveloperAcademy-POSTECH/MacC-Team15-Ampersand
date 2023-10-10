@@ -13,28 +13,19 @@ struct RightSmallTaskElementView: View {
     @State private var isBottomButtonHovering = false
     @Binding var isTopButtonClicked: Bool
     @Binding var isBottomButtonClicked: Bool
-    @State private var isPressedReturnKey = false
     @FocusState private var isTextFieldFocused: Bool
-    @State private var rightSmallTaskElementTextField = ""
+    @Binding var rightSmallTaskElementTextField: String
     @State private var isEditing = false
     
     var body: some View {
-        var rightSmallTaskElementText: String {
-            if isPressedReturnKey {
-                return rightSmallTaskElementTextField
-            } else {
-                return ""
-            }
-        }
-        
         Rectangle()
             .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
             .frame(height: 48)
             .foregroundStyle(.white)
-            .border(.gray, width: 0.2)
+            .border(.gray, width: 0.5)
             .overlay {
                 if !isEditing {
-                    Text(rightSmallTaskElementText)
+                    Text(rightSmallTaskElementTextField)
                         .lineLimit(2)
                         .foregroundStyle(.black)
                         .font(.custom("Pretendard-Regular", size: 16))
@@ -42,7 +33,7 @@ struct RightSmallTaskElementView: View {
                 }
             }
             .overlay {
-                if isTaskElementHovering && rightSmallTaskElementText.isEmpty {
+                if isTaskElementHovering && rightSmallTaskElementTextField.isEmpty {
                     Button(action: {
                         isEditing = true
                         isTaskElementHovering = false
@@ -59,7 +50,7 @@ struct RightSmallTaskElementView: View {
                             .padding(2)
                     }
                     .buttonStyle(PlainButtonStyle())
-                } else if isTaskElementHovering && !rightSmallTaskElementText.isEmpty {
+                } else if isTaskElementHovering && !rightSmallTaskElementTextField.isEmpty {
                     VStack(spacing: 0) {
                         Button(action: {
                             isTopButtonClicked = true
@@ -104,7 +95,6 @@ struct RightSmallTaskElementView: View {
                 if isEditing {
                     TextField("Editing", text: $rightSmallTaskElementTextField, onCommit: {
                         isEditing = false
-                        isPressedReturnKey = true
                     })
                     .multilineTextAlignment(.center)
                     .font(.custom("Pretendard-Regular", size: 16))
@@ -130,5 +120,5 @@ struct RightSmallTaskElementView: View {
 }
 
 #Preview {
-    RightSmallTaskElementView(isTopButtonClicked: .constant(false), isBottomButtonClicked: .constant(false))
+    RightSmallTaskElementView(isTopButtonClicked: .constant(false), isBottomButtonClicked: .constant(false), rightSmallTaskElementTextField: .constant(""))
 }

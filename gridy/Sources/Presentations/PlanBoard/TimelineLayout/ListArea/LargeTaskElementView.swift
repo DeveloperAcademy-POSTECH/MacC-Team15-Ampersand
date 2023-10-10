@@ -15,26 +15,18 @@ struct LargeTaskElementView: View {
     @Binding var isRightButtonClicked: Bool
     @State private var isPressedReturnKey = false
     @FocusState private var isTextFieldFocused: Bool
-    @State private var largeTaskElementTextField = ""
+    @Binding var largeTaskElementTextField: String
     @State private var isEditing = false
     
     var body: some View {
-        var largeTaskElementText: String {
-            if isPressedReturnKey {
-                return largeTaskElementTextField
-            } else {
-                return ""
-            }
-        }
-        
         Rectangle()
             .frame(minWidth: 266, idealWidth: 266, maxWidth: 532)
             .frame(height: 48)
             .foregroundStyle(.white)
-            .border(.gray, width: 0.2)
+            .border(.gray, width: 0.5)
             .overlay {
                 if !isEditing {
-                    Text(largeTaskElementText)
+                    Text(largeTaskElementTextField)
                         .lineLimit(2)
                         .foregroundStyle(.black)
                         .font(.custom("Pretendard-Regular", size: 16))
@@ -42,7 +34,7 @@ struct LargeTaskElementView: View {
                 }
             }
             .overlay {
-                if isTaskElementHovering && largeTaskElementText.isEmpty {
+                if isTaskElementHovering && largeTaskElementTextField.isEmpty {
                     Button(action: {
                         isEditing = true
                         isTaskElementHovering = false
@@ -59,7 +51,7 @@ struct LargeTaskElementView: View {
                             .padding(2)
                     }
                     .buttonStyle(PlainButtonStyle())
-                } else if isTaskElementHovering && !largeTaskElementText.isEmpty {
+                } else if isTaskElementHovering && !largeTaskElementTextField.isEmpty {
                     HStack(spacing: 0) {
                         Button(action: {
                             isLeftButtonClicked = true
@@ -128,5 +120,5 @@ struct LargeTaskElementView: View {
 }
 
 #Preview {
-    LargeTaskElementView(isLeftButtonClicked: .constant(false), isRightButtonClicked: .constant(false))
+    LargeTaskElementView(isLeftButtonClicked: .constant(false), isRightButtonClicked: .constant(false), largeTaskElementTextField: .constant(""))
 }
