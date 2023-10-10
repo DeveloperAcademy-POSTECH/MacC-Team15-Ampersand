@@ -14,32 +14,36 @@ struct ProjectBoardView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            if viewStore.successToFetchData {
-                VStack {
-                    Button("create new project") {
-                        viewStore.send(.createNewProjectButtonTapped)
+            ZStack {
+                BackgroundView()
+                if viewStore.successToFetchData {
+                    VStack {
+                        Button("create new project") {
+                            viewStore.send(.createNewProjectButtonTapped)
+                        }
+                        Button("read all projects") {
+                            viewStore.send(.readAllButtonTapped)
+                        }
+                        ForEachStore(
+                            store.scope(
+                                state: \.projects,
+                                action: { .deleteProjectButtonTapped(id: $0, action: $1) }
+                            )
+                        ) {
+                            ProjectItemView(store: $0)
+                        }
                     }
-                    Button("read all projects") {
-                        viewStore.send(.readAllButtonTapped)
+                } else {
+                    ZStack {
+                        if viewStore.isInProgress {
+                            ProgressView()
+                        }
                     }
-                    ForEachStore(
-                        store.scope(
-                            state: \.projects,
-                            action: { .deleteProjectButtonTapped(id: $0, action: $1) }
-                        )
-                    ) {
-                        ProjectItemView(store: $0)
-                    }
+
                 }
-            } else {
-                ZStack {
-                    if viewStore.isInProgress {
-                        ProgressView()
-                    }
-                }
-                .onAppear {
-                    viewStore.send(.onAppear)
-                }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }

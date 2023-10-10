@@ -105,7 +105,7 @@ struct Authentication: Reducer {
                 state.isNavigationActive = true
                 return .run { send in
                     try await continuousClock.sleep(for: .seconds(1))
-                    await send(.setNavigationIsActiveDelayCompleted)
+                    await send(.setNavigationIsActiveDelayCompleted, animation: .spring)
                 }
                 .cancellable(id: CancelID.load)
                 
