@@ -54,15 +54,47 @@ struct AuthenticationView: View {
                             )
                     }
                     
-                    VStack(spacing: 10) {
+                    VStack(spacing: 20) {
                         Spacer()
                         Text("Glad to meet you :)")
                             .font(.title2.bold())
                             .foregroundColor(.black)
-                        Text("Some Text Message ...")
-                            .font(.callout)
-                            .foregroundColor(.gray)
-                        SignInWithAppleButtonView(store: store)
+                        if viewStore.successToSignIn {
+                            Text("\(viewStore.authenticatedUser.username), Do gridy!")
+                                .font(.subheadline)
+                                .foregroundStyle(.black)
+                            NavigationLink(isActive: viewStore.binding(
+                                get: \.isNavigationActive,
+                                send: { .setNavigation(isActive: $0) }
+                            )) {
+                                IfLetStore(
+                                    self.store.scope(
+                                        state: \.optionalProjectBoard,
+                                        action: { .optionalProjectBoard($0) }
+                                    )
+                                ) {
+                                    ProjectBoardView(store: $0)
+                                } else: {
+                                    ZStack {
+                                        BackgroundView()
+                                        ProgressView()
+                                    }
+                                }
+                            } label: {
+                                Text("프로젝트 보드로 가기")
+                                    .foregroundStyle(.white)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 50)
+                            .background(Color.black)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                        } else {
+                            Text("Some Text Message ...")
+                                .font(.callout)
+                                .foregroundStyle(.gray)
+                            SignInWithAppleButtonView(store: store)
+                        }
                         Spacer()
                     }
                 }
@@ -74,14 +106,11 @@ struct AuthenticationView: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.2), radius: 24)
             )
-            
             /// Navigation to Project Board View
-            NavigationLink(
-                "", isActive: viewStore.binding(
-                    get: \.isNavigationActive,
-                    send: { .setNavigation(isActive: $0) }
-                )
-            ) {
+            .navigationDestination(isPresented: viewStore.binding(
+                get: \.isNavigationActive,
+                send: { .setNavigation(isActive: $0) }
+            )) {
                 IfLetStore(
                     self.store.scope(
                         state: \.optionalProjectBoard,
@@ -96,7 +125,6 @@ struct AuthenticationView: View {
                     }
                 }
             }
-            .opacity(0.0)
         }
     }
 }
