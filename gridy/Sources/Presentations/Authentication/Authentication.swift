@@ -13,6 +13,9 @@ import CryptoKit
 struct Authentication: Reducer {
     
     @Dependency(\.apiClient) var apiClient
+    @Dependency(\.continuousClock) var continuousClock
+    
+    private enum CancelID { case load }
     
     struct State: Equatable {
         var rawNonce = ""
@@ -20,6 +23,10 @@ struct Authentication: Reducer {
         var successToSignIn = false
         var authenticatedUser = User.mock
         var isProceeding = false
+        
+        /// Navigation
+        var isNavigationActive = false
+        var optionalProjectBoard: ProjectBoard.State?
     }
     
     enum Action: Equatable, Sendable {
@@ -30,60 +37,93 @@ struct Authentication: Reducer {
         case fetchUser
         case fetchUserResponse(TaskResult<User?>)
         case setProcessing(Bool)
+        
+        /// Navigation
+        case optionalProjectBoard(ProjectBoard.Action)
+        case setNavigation(isActive: Bool)
+        case setNavigationIsActiveDelayCompleted
     }
     
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case .onAppear:
-            return .run { send in
-                await send(.fetchUser)
-                await send(.createEncryptedNonce)
+    var body: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case .onAppear:
+                return .run { send in
+                    await send(.fetchUser)
+                    await send(.createEncryptedNonce)
+                }
+                
+            case .createEncryptedNonce:
+                if !state.successToSignIn {
+                    state.rawNonce = randomNonceString()
+                    state.encryptedNonce = sha256(state.rawNonce)
+                }
+                return .none
+                
+            case let .notYetRegistered(email, username, credential):
+                return .run { send in
+                    await send(.setProcessing(true))
+                    try await apiClient.signUp(email, username, credential)
+                    await send(.fetchUser)
+                }
+                
+            case let .signInSuccessfully(credential):
+                return .run { send in
+                    await send(.setProcessing(true))
+                    try await apiClient.signIn(credential)
+                    await send(.fetchUser)
+                }
+                
+            case .fetchUser:
+                return .run { send in
+                    await send(.setProcessing(true))
+                    await send(.fetchUserResponse(
+                        TaskResult {
+                            try await apiClient.fetchUser()
+                        }
+                    ))
+                    await send(.setProcessing(false))
+                }
+                
+            case let .fetchUserResponse(.success(response)):
+                state.authenticatedUser = response ?? User.mock
+                state.successToSignIn = true
+                return .run { send in
+                    await send(.setNavigation(isActive: true))
+                }
+                
+            case .fetchUserResponse(.failure):
+                state.successToSignIn = false
+                return .none
+                
+            case let .setProcessing(isInProcess):
+                state.isProceeding = isInProcess
+                return .none
+                
+                /// Navigation
+            case .setNavigation(isActive: true):
+                state.isNavigationActive = true
+                return .run { send in
+                    try await continuousClock.sleep(for: .seconds(1))
+                    await send(.setNavigationIsActiveDelayCompleted)
+                }
+                .cancellable(id: CancelID.load)
+                
+            case .setNavigation(isActive: false):
+                state.isNavigationActive = false
+                state.optionalProjectBoard = nil
+                return .cancel(id: CancelID.load)
+                
+            case .setNavigationIsActiveDelayCompleted:
+                state.optionalProjectBoard = ProjectBoard.State()
+                return .none
+                
+            case .optionalProjectBoard:
+                return .none
             }
-            
-        case .createEncryptedNonce:
-            if !state.successToSignIn {
-                state.rawNonce = randomNonceString()
-                state.encryptedNonce = sha256(state.rawNonce)
-            }
-            return .none
-            
-        case let .notYetRegistered(email, username, credential):
-            return .run { send in
-                await send(.setProcessing(true))
-                try await apiClient.signUp(email, username, credential)
-                await send(.fetchUser)
-            }
-            
-        case let .signInSuccessfully(credential):
-            return .run { send in
-                await send(.setProcessing(true))
-                try await apiClient.signIn(credential)
-                await send(.fetchUser)
-            }
-            
-        case .fetchUser:
-            return .run { send in
-                await send(.setProcessing(true))
-                await send(.fetchUserResponse(
-                    TaskResult {
-                        try await apiClient.fetchUser()
-                    }
-                ))
-                await send(.setProcessing(false))
-            }
-            
-        case let .fetchUserResponse(.success(response)):
-            state.authenticatedUser = response ?? User.mock
-            state.successToSignIn = true
-            return .none
-            
-        case .fetchUserResponse(.failure):
-            state.successToSignIn = false
-            return .none
-            
-        case let .setProcessing(isInProcess):
-            state.isProceeding = isInProcess
-            return .none
+        }
+        .ifLet(\.optionalProjectBoard, action: /Action.optionalProjectBoard) {
+            ProjectBoard()
         }
     }
     

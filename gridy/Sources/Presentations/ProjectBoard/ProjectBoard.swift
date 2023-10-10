@@ -17,22 +17,31 @@ struct ProjectBoard: Reducer {
     
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
+        var successToFetchData = false
+        var isInProgress = false
     }
     
     enum Action: BindableAction, Equatable {
+        case onAppear
         case createNewProjectButtonTapped
         case readAllButtonTapped
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
+        case setProcessing(Bool)
         
         case binding(BindingAction<State>)
         case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
-    
+     
     var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                return .run { send in
+                    await send(.fetchAllProjects)
+                }
+                
             case .createNewProjectButtonTapped:
                 return .run { send in
                     try await apiService.create()
@@ -40,28 +49,38 @@ struct ProjectBoard: Reducer {
                 }
                 
             case .readAllButtonTapped:
-                return .run(operation: { send in
+                return .run { send in
                     await send(.fetchAllProjects)
-                })
+                }
                 
             case .fetchAllProjects:
                 return .run { send in
+                    await send(.setProcessing(true))
                     await send(.fetchAllProjectsResponse(
                         TaskResult {
                             try await apiService.readAllProjects()
                         }
                     ), animation: .spring)
+                    await send(.setProcessing(false))
                 }
                 
             case let .fetchAllProjectsResponse(.success(response)):
                 guard let response = response else { return .none }
                 state.projects = []
                 for project in response {
-                    state.projects.insert(ProjectItem.State(project: project), at: state.projects.count)
+                    state.projects.insert(
+                        ProjectItem.State(project: project),
+                        at: state.projects.count
+                    )
                 }
+                state.successToFetchData = true
                 return .none
                 
             case .fetchAllProjectsResponse(.failure):
+                return .none
+                
+            case let .setProcessing(isInProgress):
+                state.isInProgress = isInProgress
                 return .none
                 
             case .binding:
