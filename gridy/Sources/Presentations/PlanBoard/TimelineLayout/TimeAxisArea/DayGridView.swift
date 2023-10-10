@@ -11,7 +11,6 @@ struct DayGridView: View {
     let dateInfo: DateInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 Rectangle()
                     .frame(width: 50, height: 15)
@@ -35,9 +34,7 @@ struct DayGridView: View {
             )
             .overlay(
                 Rectangle()
-                    .stroke(Color.red, lineWidth: dateInfo.date.formattedDate == Date().formattedDate ? 0.5 : 0)
-                    .frame(width: 1.1), alignment: .trailing
+                    .strokeBorder(Color.red, lineWidth: dateInfo.date.formattedDate == Date().formattedDate ? 1.5 : 0)
             )
         }
-    }
 }
