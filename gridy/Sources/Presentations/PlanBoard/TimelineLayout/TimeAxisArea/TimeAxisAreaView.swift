@@ -12,7 +12,7 @@ struct TimeAxisAreaView: View {
     let startDate = Date()
     let numberOfDays = 200
     
-    @State private var holidays: [Date] = []
+    @State private var holidays = [Date]()
     @Binding var leftmostDate: Date
     @Binding var proxy: ScrollViewProxy?
     
