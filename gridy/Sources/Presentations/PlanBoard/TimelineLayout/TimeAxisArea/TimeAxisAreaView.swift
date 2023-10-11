@@ -8,31 +8,41 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
-    // TODO: TimeAxisAreaView (날짜 및 공휴일 전역 선언, ObservableScrollView 해체, ZStack 월 Scroll 안되게)
-    let startDate = Date().formattedDate
+    // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
+    let startDate = Date()
     let numberOfDays = 200
     
-    @State private var holidays: [Date] = []
-    @State var scrollOffset = CGFloat.zero
-    @State private var leftmostDate = Date()
+    @State private var holidays = [Date]()
+    @Binding var leftmostDate: Date
+    @Binding var proxy: ScrollViewProxy?
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            ObservableScrollView(scrollOffset: $scrollOffset, leftmostDate: $leftmostDate) { _ in
-                HStack(spacing: 0) {
-                    ForEach(0..<numberOfDays, id: \.self) { dayOffset in
+        VStack(alignment: .leading, spacing: 0) {
+            LazyHStack(spacing: 0, pinnedViews: .sectionHeaders) {
+                Section(header: MonthView(month: leftmostDate.formattedMonth).background(.gray)) {
+                    ForEach(1..<numberOfDays, id: \.self) { dayOffset in
                         let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
-                        
                         let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
-                        DayGridView(dateInfo: dateInfo)
+                        
+                        MonthView(month: dateInfo.month)
+                            .opacity(dateInfo.isFirstOfMonth ? 1 : 0)
                     }
                 }
             }
-        
-            Text("\(leftmostDate.formattedMonth)월")
-                .font(.title)
-                .padding(.horizontal)
-                .background(Color(.blue))
+            
+            LazyHStack(spacing: 0) {
+                ForEach(0..<numberOfDays, id: \.self) { dayOffset in
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
+                    let scrollID = date.integerDate
+                    let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
+                    
+                    DayGridView(dateInfo: dateInfo)
+                        .id(scrollID)
+                        .onTapGesture {
+                            proxy?.scrollTo(scrollID, anchor: .leading)
+                        }
+                }
+            }
         }
         .onAppear {
             Task {
@@ -48,8 +58,19 @@ struct TimeAxisAreaView: View {
     }
 }
 
-struct TimeAxisAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimeAxisAreaView()
+struct MonthView: View {
+    var month: String
+    
+    var body: some View {
+        Text("\(month)월")
+            .frame(width: 50)
+    }
+}
+
+struct ScrollViewOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue = CGFloat.zero
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
     }
 }
