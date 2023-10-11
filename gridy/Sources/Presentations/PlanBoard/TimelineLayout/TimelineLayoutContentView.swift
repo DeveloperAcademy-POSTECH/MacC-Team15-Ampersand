@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct TimelineLayoutContentView: View {
+    @Namespace var scrollSpace
+    @State var scrollOffset = CGFloat.zero
+    @State var leftmostDate = Date()
     @Binding var showingIndexArea: Bool
-    
+    @Binding var proxy: ScrollViewProxy?
+
     var body: some View {
         HStack(spacing: 0) {
             if showingIndexArea {
@@ -28,21 +32,41 @@ struct TimelineLayoutContentView: View {
                 ListAreaView()
             }
             .frame(width: 140)
-            ScrollView(.horizontal) {
-                VStack {
-                    ScheduleAreaView()
-                        .frame(height: 140)
-                    TimeAxisAreaView()
-                        .frame(height: 28)
-                    LineAreaView()
+            ScrollViewReader { scrollViewProxy in
+                ScrollView(.horizontal) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ScheduleAreaView()
+                            .frame(height: 140)
+                        
+                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
+                            .frame(height: 60)
+                            .background(
+                                GeometryReader { geo in
+                                    let offset = -geo.frame(in: .named(scrollSpace)).minX
+                                    Color.clear
+                                        .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                                }
+                            )
+                        
+                        LineAreaView()
+                    }
+                    .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+                        scrollOffset = value
+                        let leftmostVisibleDate = Calendar.current.date(byAdding: .day, value: Int(value/50), to: Date())
+                        leftmostDate = leftmostVisibleDate!
+                    }
+                }
+                .onAppear {
+                    proxy = scrollViewProxy
                 }
             }
+            .coordinateSpace(name: scrollSpace)
         }
     }
 }
 
-struct TimelineLayoutContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimelineLayoutContentView(showingIndexArea: .constant(true))
-    }
-}
+//struct TimelineLayoutContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        TimelineLayoutContentView(showingIndexArea: .constant(true))
+//    }
+//}
