@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct LineAreaRoyceView: View {
-    @State private var gridItems: [[GridItemModel]] = Array(repeating: Array(repeating: GridItemModel(), count: 30), count: 30)
+    @State private var gridItems: [[GridItemModel]] = Array(repeating: Array(repeating: GridItemModel(), count: 12), count: 2)
     @State private var selectedCells: [(row: Int, col: Int)] = []
     @State private var startCell: (row: Int, col: Int)?
     
@@ -33,7 +33,7 @@ struct LineAreaRoyceView: View {
         //        ScrollView(.horizontal){
         ScrollView(.vertical){
             ZStack(alignment: .topLeading){
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(80), spacing: 0), count: 30), alignment: .leading, spacing: 0) {
+                LazyHGrid(rows: Array(repeating: GridItem(.fixed(80), spacing: 0), count: 2), alignment: .top, spacing: 0) {
                     ForEach(0..<gridItems.count, id: \.self) { row in
                         ForEach(0..<gridItems[row].count, id: \.self) { col in
                             DraggableGridItemView(gridItem: $gridItems[row][col], selectedCell: $selectedCells, row: row, col: col, dragStart: $dragStart, dragEnd: $dragEnd, startRow: $startRow, endRow: $endRow, startCol: $startCol, endCol: $endCol)

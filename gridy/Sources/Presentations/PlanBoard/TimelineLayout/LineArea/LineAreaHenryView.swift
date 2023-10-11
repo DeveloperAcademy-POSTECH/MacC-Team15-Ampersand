@@ -8,27 +8,42 @@
 import SwiftUI
 
 struct LineAreaHenryView: View {
+    @EnvironmentObject var dataModel: DataModel
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
-    let colors: [Color] = [.red, .purple, .yellow, .green, .blue]
+    
+    private let colors: [Color] = [.red, .purple, .yellow, .green, .blue]
+    private let initialRows = 10
+    
+    //TODO: 나중에 @State Property Wrapper로된 property로 교체할 것
+    var gridRows: Array<GridItem> { return Array(repeating: GridItem(.fixed(viewModel.gridWidth)), count: 1) }
+    var gridColumns: Array<GridItem> { return Array(repeating: GridItem(.fixed(viewModel.gridWidth)), count: 1) }
     
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(0..<viewModel.numOfLineAreaRow, id: \.self) { row in
-                    LazyHStack(alignment: .top, spacing: 0) {
-                        ForEach(0..<viewModel.numOfCol, id: \.self) { col in
-                            Rectangle()
-                                .foregroundColor(colors[(row + col) % colors.count])
-                                .frame(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight)
-                                .onTapGesture { _ in
-                                    let rectTopLeft = CGPoint(x: CGFloat(col) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
-                                    viewModel.tappedCellTopLeftPoint = rectTopLeft
-                                    viewModel.tappedCellCol = col
-                                    viewModel.tappedCellRow = row
-                                }
-                        }
+            HStack(alignment: .top, spacing: 0) {
+                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 0) {
+                    ForEach(Item.sampleItems) { item in
+                        GridItemView(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight, item: item)
                     }
                 }
+                .fixedSize()
+                .border(.red)
+                LazyVStack(alignment: .leading, spacing: 0) {
+//                    ForEach(0..<30, id: \.self) { row in
+                        LazyHGrid(rows: gridRows, alignment: .top, spacing: 0) {
+                            ForEach(Item.sampleItems) { item in
+                                GridItemView(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight, item: item)
+//                                    .onTapGesture { _ in
+//                                        let rectTopLeft = CGPoint(x: CGFloat(row) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
+//                                        viewModel.tappedCellTopLeftPoint = rectTopLeft
+//                                        viewModel.tappedCellCol = row
+//                                        viewModel.tappedCellRow = row
+//                                    }
+                            }
+//                        }
+                    }
+                }
+                .border(.blue)
             }
             .onContinuousHover { phase in
                 switch phase {
@@ -55,8 +70,8 @@ struct LineAreaHenryView: View {
                     .onChanged { value in
                         print(value)
                         DispatchQueue.main.async {
-                                viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
-                                viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                            viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                            viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
                         }
                     }
             )
