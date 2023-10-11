@@ -5,16 +5,18 @@
 //  Created by Jin Sang woo on 2023/10/05.
 //
 
-
 import SwiftUI
 
 
 
 
-struct ContentView: View {
+struct LineAreaRoyceView: View {
     @State private var gridItems: [[GridItemModel]] = Array(repeating: Array(repeating: GridItemModel(), count: 30), count: 30)
     @State private var selectedCells: [(row: Int, col: Int)] = []
     @State private var startCell: (row: Int, col: Int)?
+    
+    @State private var cellWidth: CGFloat = 70
+    @State private var cellHeight: CGFloat = 70
     
     @State private var dragStart: CGPoint?
     @State private var dragEnd: CGPoint?
@@ -42,11 +44,11 @@ struct ContentView: View {
         ScrollView(.horizontal){
             ScrollView(.vertical){
                 ZStack(alignment: .topLeading){
-                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(80), spacing: 0), count: 30), alignment: .leading, spacing: 0) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(cellWidth), spacing: 0), count: 30), alignment: .leading, spacing: 0) {
                         ForEach(0..<gridItems.count, id: \.self) { row in
                             ForEach(0..<gridItems[row].count, id: \.self) { col in
-                                DraggableGridItemView(gridItem: $gridItems[row][col], selectedCell: $selectedCells, row: row, col: col, dragStart: $dragStart, dragEnd: $dragEnd, startRow: $startRow, endRow: $endRow, startCol: $startCol, endCol: $endCol)
-                                    .frame(width: 80, height: 30)
+                                DraggableGridItemView(gridItem: $gridItems[row][col], selectedCell: $selectedCells, row: row, col: col, dragStart: $dragStart, dragEnd: $dragEnd, startRow: $startRow, endRow: $endRow, startCol: $startCol, endCol: $endCol, cellWidth: $cellWidth, cellHeight: $cellHeight)
+                                    .frame(width: cellWidth, height: cellHeight)
                                     .border(Color.gray, width: 1)
                                     .id("\(row)-\(col)")
                             }
@@ -68,18 +70,18 @@ struct ContentView: View {
                             }
                             // 시작 CGRect와 끝 CGRect를 생성합니다.
                             var startRect = CGRect(origin:
-                                                    dragStart!, size: CGSize(width: 80, height: 30))
-                            let endRect = CGRect(origin: dragEnd!, size: CGSize(width: 80, height: 30))
+                                                    dragStart!, size: CGSize(width: cellWidth, height: cellHeight))
+                            let endRect = CGRect(origin: dragEnd!, size: CGSize(width: cellWidth, height: cellHeight))
                             // 드래그 중인 영역을 선택합니다.
                             selectCellsInDragRange(startRect: startRect, endRect: endRect)
                             
                             isDrawing = false
                             
                             if let dragStart = dragStart, let dragEnd = dragEnd {
-                                startRow = min(Int(dragStart.y / 30), Int(dragEnd.y / 30))
-                                endRow = max(Int(dragStart.y / 30), Int(dragEnd.y / 30))
-                                startCol = min(Int(dragStart.x / 80), Int(dragEnd.x / 80))
-                                endCol = max(Int(dragStart.x / 80), Int(dragEnd.x / 80))
+                                startRow = min(Int(dragStart.y / cellHeight), Int(dragEnd.y / cellHeight))
+                                endRow = max(Int(dragStart.y / cellHeight), Int(dragEnd.y / cellHeight))
+                                startCol = min(Int(dragStart.x / cellWidth), Int(dragEnd.x / cellWidth))
+                                endCol = max(Int(dragStart.x / cellWidth), Int(dragEnd.x / cellWidth))
                                 
                             }
                         }
@@ -211,7 +213,7 @@ struct ContentView: View {
         
         for row in 0..<self.gridItems.count { // self를 사용하여 ContentView 내의 gridItems 변수를 참조합니다.
             for col in 0..<self.gridItems[row].count {
-                let cellRect = CGRect(x: CGFloat(col) * 80, y: CGFloat(row) * 30, width: 80, height: 30)
+                let cellRect = CGRect(x: CGFloat(col) * cellWidth, y: CGFloat(row) * cellHeight, width: cellWidth, height: cellHeight)
                 if cellRect.intersects(startRect) || cellRect.intersects(endRect) {
                     selectedCells.append((row, col))
                 }
@@ -229,11 +231,13 @@ struct DraggableGridItemView: View {
     @Binding var dragStart: CGPoint?
     @Binding var dragEnd: CGPoint?
     
-    //    @State private var colorBlue: Bool = false // @State로 선언
     @Binding var startRow: Int
     @Binding var endRow: Int
     @Binding var startCol: Int
     @Binding var endCol: Int
+    
+    @Binding var cellWidth: CGFloat
+        @Binding var cellHeight: CGFloat
     
     var colorBlue: Bool {
         return (startCol <= col) && (endCol >= col) && (startRow <= row) && (endRow >= row)
@@ -245,7 +249,7 @@ struct DraggableGridItemView: View {
         
         Rectangle()
             .fill(gridItem.isSelected ? Color.cyan.opacity(0.3) : Color.white) // 선택된 경우 배경색을 시안색으로, 아닌 경우 흰색으로 변경
-            .frame(width: 80, height: 30)
+            .frame(width: cellWidth, height: cellHeight)
             .border(Color.gray, width: 1)
         
         
@@ -274,4 +278,3 @@ struct GridItemModel: Identifiable {
 struct GridState {
     var gridItems: [[GridItemModel]]
 }
-
