@@ -31,11 +31,11 @@ struct LeftSmallTaskElementView: View {
             }
             .overlay {
                 if isTaskElementHovering && leftSmallTaskTuple.1.isEmpty {
-                    Button(action: {
+                    Button {
                         isEditing = true
                         isTaskElementHovering = false
                         isTextFieldFocused = true
-                    }) {
+                    } label: {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.2))
                             .cornerRadius(6)
@@ -48,11 +48,11 @@ struct LeftSmallTaskElementView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 } else if isTaskElementHovering && !leftSmallTaskTuple.1.isEmpty {
-                    Button(action: {
+                    Button {
                         isEditing = true
                         isTextFieldFocused = true
                         isTaskElementHovering = false
-                    }) {
+                    } label: {
                         Rectangle()
                             .foregroundStyle(.white.opacity(0.1))
                             .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)

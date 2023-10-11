@@ -38,11 +38,11 @@ struct RightSmallTaskElementView: View {
             }
             .overlay {
                 if isTaskElementHovering && rightSmallTaskTuple.1.isEmpty {
-                    Button(action: {
+                    Button {
                         isEditing = true
                         isTaskElementHovering = false
                         isTextFieldFocused = true
-                    }) {
+                    } label: {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.2))
                             .cornerRadius(6)
@@ -56,10 +56,10 @@ struct RightSmallTaskElementView: View {
                     .buttonStyle(PlainButtonStyle())
                 } else if isTaskElementHovering && !rightSmallTaskTuple.1.isEmpty {
                     VStack(spacing: 0) {
-                        Button(action: {
+                        Button {
                             isTopButtonClicked = true
                             clickedIndex = myIndex
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(isTopButtonHovering ? .pink : .clear)
                                 .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
@@ -69,21 +69,21 @@ struct RightSmallTaskElementView: View {
                         .onHover { proxy in
                             isTopButtonHovering = proxy
                         }
-                        Button(action: {
+                        Button {
                             isEditing = true
                             isTextFieldFocused = true
                             isTaskElementHovering = false
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(.white.opacity(0.1))
                                 .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
                                 .frame(height: 48-8-8)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        Button(action: {
+                        Button {
                             isBottomButtonClicked = true
                             clickedIndex = myIndex
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(isBottomButtonHovering ? .pink : .clear)
                                 .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)

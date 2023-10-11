@@ -34,11 +34,11 @@ struct LargeTaskElementView: View {
             }
             .overlay {
                 if isTaskElementHovering && largeTaskElementTextField.isEmpty {
-                    Button(action: {
+                    Button {
                         isEditing = true
                         isTaskElementHovering = false
                         isTextFieldFocused = true
-                    }) {
+                    } label: {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.2))
                             .cornerRadius(6)
@@ -52,9 +52,9 @@ struct LargeTaskElementView: View {
                     .buttonStyle(PlainButtonStyle())
                 } else if isTaskElementHovering && !largeTaskElementTextField.isEmpty {
                     HStack(spacing: 0) {
-                        Button(action: {
+                        Button {
                             isLeftButtonClicked = true
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(isLeftButtonHovering ? .red : .clear)
                                 .frame(width: 24, height: 48)
@@ -63,20 +63,20 @@ struct LargeTaskElementView: View {
                         .onHover { proxy in
                             isLeftButtonHovering = proxy
                         }
-                        Button(action: {
+                        Button {
                             isEditing = true
                             isTextFieldFocused = true
                             isTaskElementHovering = false
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(.white.opacity(0.1))
                                 .frame(minWidth: 266-48, idealWidth: 266-48, maxWidth: 532-48)
                                 .frame(height: 48)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        Button(action: {
+                        Button {
                             isRightButtonClicked = true
-                        }) {
+                        } label: {
                             Rectangle()
                                 .foregroundStyle(isRightButtonHovering ? .blue : .clear)
                                 .frame(width: 24, height: 48)
