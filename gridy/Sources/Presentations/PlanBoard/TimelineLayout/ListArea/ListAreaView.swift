@@ -52,12 +52,8 @@ struct ListAreaView: View {
         }
         .frame(width: 266)
         .onAppear {
-            leftSmallTaskTuples = (0..<20).map { index in
-                return (1, "")
-            }
-            rightSmallTaskTuples = (0..<20).map { index in
-                return (index, "")
-            }
+            leftSmallTaskTuples = Array(repeating: (1, ""), count: 20)
+            rightSmallTaskTuples = (0..<20).map { ($0, "") }
         }
         .onChange(of: isRightButtonClicked) { newValue in
             if newValue {
