@@ -12,8 +12,6 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value += nextValue()
-        print(value)
-        print("Index == \(Int(value / 50) + 1)")
     }
 }
 
@@ -45,7 +43,7 @@ struct ObservableScrollView<Content>: View where Content: View {
                     })
             }
         }
-        .coordinateSpace(name: scrollSpace)
+//        .coordinateSpace(name: scrollSpace)
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
             scrollOffset = value
             
