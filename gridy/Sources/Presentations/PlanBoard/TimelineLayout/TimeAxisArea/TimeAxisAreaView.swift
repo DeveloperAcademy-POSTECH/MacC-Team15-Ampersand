@@ -66,3 +66,11 @@ struct MonthView: View {
             .frame(width: 50)
     }
 }
+
+struct ScrollViewOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue = CGFloat.zero
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
+    }
+}
