@@ -22,7 +22,11 @@ struct ListAreaView: View {
             if !isRightButtonClicked && !isLeftButtonClicked {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(0..<largeTaskTexts.count, id: \.self) { index in
-                        LargeTaskElementView(isLeftButtonClicked: $isLeftButtonClicked, isRightButtonClicked: $isRightButtonClicked, largeTaskElementTextField: $largeTaskTexts[index])
+                        LargeTaskElementView(
+                            isLeftButtonClicked: $isLeftButtonClicked,
+                            isRightButtonClicked: $isRightButtonClicked,
+                            largeTaskElementTextField: $largeTaskTexts[index]
+                        )
                     }
                 }
             } else {
@@ -34,7 +38,13 @@ struct ListAreaView: View {
                     }
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(0..<rightSmallTaskTuples.count, id: \.self) { index in
-                            RightSmallTaskElementView(rightSmallTaskTuple: $rightSmallTaskTuples[index], isTopButtonClicked: $isTopButtonClicked, isBottomButtonClicked: $isBottomButtonClicked, clickedIndex: $clickedIndex, myIndex: index)
+                            RightSmallTaskElementView(
+                                rightSmallTaskTuple: $rightSmallTaskTuples[index],
+                                isTopButtonClicked: $isTopButtonClicked,
+                                isBottomButtonClicked: $isBottomButtonClicked,
+                                clickedIndex: $clickedIndex,
+                                myIndex: index
+                            )
                         }
                     }
                 }
