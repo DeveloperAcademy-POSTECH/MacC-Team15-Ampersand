@@ -5,12 +5,13 @@
 //  Created by Jin Sang woo on 2023/10/05.
 //
 
+
 import SwiftUI
 
 
 
 
-struct LineAreaRoyceView: View {
+struct ContentView: View {
     @State private var gridItems: [[GridItemModel]] = Array(repeating: Array(repeating: GridItemModel(), count: 30), count: 30)
     @State private var selectedCells: [(row: Int, col: Int)] = []
     @State private var startCell: (row: Int, col: Int)?
@@ -104,17 +105,6 @@ struct LineAreaRoyceView: View {
                     
                     
                 )
-                
-                if let dragStartTmp = dragStartTmp, let dragEndTmp = dragEndTmp {
-                    Rectangle()
-                        .stroke(Color.black, lineWidth: 2)
-                        .background(Color.blue.opacity(0.3))
-                        .frame(width: startRect.width, height: startRect.height)
-                        .offset(x: ((dragStartTmp.x) + (dragEndTmp.x))/2, y: ((dragStartTmp.y) + (dragEndTmp.y))/2) // dragStart를 기준으로 설정
-                        .opacity(isDrawing ? 1.0 : 0.0)
-                }
-                
-                
                 
                 
             }
@@ -284,3 +274,4 @@ struct GridItemModel: Identifiable {
 struct GridState {
     var gridItems: [[GridItemModel]]
 }
+
