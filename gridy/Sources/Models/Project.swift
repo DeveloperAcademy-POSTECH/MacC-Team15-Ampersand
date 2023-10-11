@@ -11,7 +11,6 @@ struct Project: Decodable {
     var pid: String
     var title: String
     var ownerUid: String
-//    var layerItems: 
     
     static let mock = Project(
         pid: "",
