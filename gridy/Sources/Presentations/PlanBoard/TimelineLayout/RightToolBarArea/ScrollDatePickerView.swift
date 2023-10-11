@@ -19,13 +19,17 @@ struct ScrollDatePickerView: View {
             )
             
             Button(action: {
-                withAnimation {
-                    let scrollIndex = selectedDate.integerDate
-                    proxy?.scrollTo(scrollIndex, anchor: .leading)
-                }
+                moveButtonAction() 
             }, label: {
                 Text("이동")
             })
+        }
+    }
+    
+    private func moveButtonAction() {
+        withAnimation {
+            let scrollIndex = selectedDate.integerDate
+            proxy?.scrollTo(scrollIndex, anchor: .leading)
         }
     }
 }
