@@ -111,11 +111,11 @@ struct RightSmallTaskElementView: View {
                         .padding(.vertical, 2)
                         .cornerRadius(6)
                         .focused($isTextFieldFocused)
-                        .onExitCommand(perform: {
+                        .onExitCommand {
                             rightSmallTaskTuple.1 = ""
                             isEditing = false
                             isTextFieldFocused = false
-                        })
+                        }
                 }
             }
             .onHover { phase in

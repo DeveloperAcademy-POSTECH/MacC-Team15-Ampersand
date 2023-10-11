@@ -103,11 +103,11 @@ struct LargeTaskElementView: View {
                         .padding(.vertical, 2)
                         .cornerRadius(6)
                         .focused($isTextFieldFocused)
-                        .onExitCommand(perform: {
+                        .onExitCommand {
                             largeTaskElementTextField = ""
                             isEditing = false
                             isTextFieldFocused = false
-                        })
+                        }
                 }
             }
             .onHover { phase in
