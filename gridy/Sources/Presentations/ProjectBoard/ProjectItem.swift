@@ -14,7 +14,7 @@ struct ProjectItem: Reducer {
     
     struct State: Equatable, Identifiable {
         @BindingState var project = Project.mock
-        var id: String { project.pid }
+        var id: String { project.id }
         @BindingState var delete = false
     }
     
@@ -28,10 +28,10 @@ struct ProjectItem: Reducer {
         Reduce { state, action in
             switch action {
             case let .titleChanged(newTitle):
-                let pid = state.project.pid
+                let id = state.project.id
                 state.project.title = newTitle
                 return .run { _ in
-                    try await apiService.updateProjectTitle(pid, newTitle)
+                    try await apiService.updateProjectTitle(id, newTitle)
                 }
             case .binding:
                 return .none

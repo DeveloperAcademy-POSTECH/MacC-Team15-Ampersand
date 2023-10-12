@@ -7,24 +7,20 @@
 
 import Foundation
 
-struct Project: Decodable {
-    var pid: String
+struct Project: Identifiable, Decodable {
+    var id: String
     var title: String
     var ownerUid: String
     let createdDate: Date
     var lastModifiedDate: Date
     
     static let mock = Project(
-        pid: "",
+        id: "",
         title: "",
         ownerUid: "",
         createdDate: Date(),
         lastModifiedDate: Date()
     )
-}
-
-extension Project: Identifiable {
-    var id: String { pid }
 }
 
 extension Project: Equatable { }

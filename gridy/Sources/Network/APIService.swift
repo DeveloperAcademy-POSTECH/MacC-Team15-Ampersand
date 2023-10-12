@@ -14,8 +14,8 @@ import FirebaseFirestoreSwift
 struct APIService {
     var create: () async throws -> Void
     var readAllProjects: () async throws -> [Project]
-    var updateProjectTitle: @Sendable (_ pid: String, _ newTitle: String) async throws -> Void
-    var delete: @Sendable (_ pid: String) async throws -> Void
+    var updateProjectTitle: @Sendable (_ id: String, _ newTitle: String) async throws -> Void
+    var delete: @Sendable (_ id: String) async throws -> Void
     
     init(
         create: @escaping () async throws -> Void,
@@ -49,13 +49,13 @@ extension APIService {
     
     static let liveValue = Self(
         create: {
-            let pid = try basePath.document().documentID
-            let data = ["pid": pid,
+            let id = try basePath.document().documentID
+            let data = ["id": id,
                         "title": "제목 없음",
                         "ownerUid": try uid,
                         "createdDate": Date(),
                         "lastModifiedDate": Date()] as [String: Any]
-            try basePath.document(pid).setData(data)
+            try basePath.document(id).setData(data)
             
         }, readAllProjects: {
             do {
@@ -65,12 +65,12 @@ extension APIService {
                 throw APIError.noResponseResult
             }
             
-        }, updateProjectTitle: { pid, newTitle in
-            try basePath.document(pid).updateData(["title": newTitle])
-            try basePath.document(pid).updateData(["lastModifiedDate": Date()])
+        }, updateProjectTitle: { id, newTitle in
+            try basePath.document(id).updateData(["title": newTitle])
+            try basePath.document(id).updateData(["lastModifiedDate": Date()])
             
-        }, delete: { pid in
-            try basePath.document(pid).delete()
+        }, delete: { id in
+            try basePath.document(id).delete()
         }
     )
 }
