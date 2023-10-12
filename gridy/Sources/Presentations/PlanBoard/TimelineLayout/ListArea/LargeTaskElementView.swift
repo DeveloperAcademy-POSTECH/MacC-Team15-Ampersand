@@ -92,7 +92,7 @@ struct LargeTaskElementView: View {
                             }
                         }
                     }
-                    .border(isTaskElementHovering && !isLeftButtonHovering && !isRightButtonHovering ? .blue : .clear)
+                    .border(isTaskElementHovering ? .blue : .clear)
                 }
             }
             .overlay {
