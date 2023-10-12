@@ -9,8 +9,6 @@ import SwiftUI
 
 struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
-    @EnvironmentObject var dataModel: DataModel
-
     @Binding var showingIndexArea: Bool
     
     var body: some View {
@@ -42,7 +40,6 @@ struct TimelineLayoutContentView: View {
                     
                     LineAreaSampleView(geometry: geometry)
                         .environmentObject(viewModel)
-                        .environmentObject(dataModel)
                 }
             }
         }

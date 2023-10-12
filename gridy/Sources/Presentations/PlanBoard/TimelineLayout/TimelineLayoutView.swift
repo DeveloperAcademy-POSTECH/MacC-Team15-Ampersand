@@ -9,7 +9,6 @@ import SwiftUI
 
 struct TimelineLayoutView: View {
     @StateObject var viewModel = TimelineLayoutViewModel()
-    @StateObject var dataModel = DataModel()
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
     
@@ -21,12 +20,10 @@ struct TimelineLayoutView: View {
             HSplitView {
                 TimelineLayoutContentView(showingIndexArea: $showingIndexArea)
                     .environmentObject(viewModel)
-                    .environmentObject(dataModel)
 
                 if showingRightToolBarArea {
                     RightToolBarAreaView()
                         .environmentObject(viewModel)
-                        .environmentObject(dataModel)
                         .frame(width: 240)
                 }
             }

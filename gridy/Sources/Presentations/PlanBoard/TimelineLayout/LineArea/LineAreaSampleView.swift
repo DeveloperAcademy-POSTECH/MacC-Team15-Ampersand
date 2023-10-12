@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct LineAreaSampleView: View {
-    @EnvironmentObject var dataModel: DataModel
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
     private let colors: [Color] = [.red, .purple, .yellow, .green, .blue]
@@ -37,7 +36,7 @@ struct LineAreaSampleView: View {
                     path.move(to: CGPoint(x: 0, y: yLocation))
                     path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                 }
-            }
+            } 
             .stroke(Color.red, lineWidth: rowStroke)
             
             if viewModel.isHovering {
@@ -106,6 +105,11 @@ struct LineAreaSampleView: View {
                 }
         )
     }
+//    func moveSelectedCell(dx: Int, dy: Int) {
+//        if let firstSelectedCell = (viewModel.selectedRanges.last.start.0, viewModel.selectedRanges.last.start.1) {
+//            
+//        }
+//    }
 }
 //struct LineAreaSampleView_Previews: PreviewProvider {
 //    static var previews: some View {
