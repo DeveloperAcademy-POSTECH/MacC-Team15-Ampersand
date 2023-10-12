@@ -62,7 +62,6 @@ struct RightSmallTaskElementView: View {
                         } label: {
                             Rectangle()
                                 .foregroundStyle(isTopButtonHovering ? .pink : .clear)
-                                .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
                                 .frame(height: 8)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -76,7 +75,6 @@ struct RightSmallTaskElementView: View {
                         } label: {
                             Rectangle()
                                 .foregroundStyle(.white.opacity(0.1))
-                                .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
                                 .frame(height: 48-8-8)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -86,7 +84,6 @@ struct RightSmallTaskElementView: View {
                         } label: {
                             Rectangle()
                                 .foregroundStyle(isBottomButtonHovering ? .pink : .clear)
-                                .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
                                 .frame(height: 8)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -94,6 +91,7 @@ struct RightSmallTaskElementView: View {
                             isBottomButtonHovering = proxy
                         }
                     }
+                    .frame(minWidth: 133, idealWidth: 133, maxWidth: 266)
                     .border(isTaskElementHovering && !isTopButtonHovering && !isBottomButtonHovering ? .blue : .clear)
                 }
             }

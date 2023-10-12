@@ -57,7 +57,7 @@ struct LargeTaskElementView: View {
                         } label: {
                             Rectangle()
                                 .foregroundStyle(.red)
-                                .frame(width: 24, height: 48)
+                                .frame(width: 24)
                                 .offset(x: isLeftButtonHovering ? 0 : -24)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -74,7 +74,6 @@ struct LargeTaskElementView: View {
                             Rectangle()
                                 .foregroundStyle(.white.opacity(0.1))
                                 .frame(minWidth: 266-48, idealWidth: 266-48, maxWidth: 532-48)
-                                .frame(height: 48)
                         }
                         .buttonStyle(PlainButtonStyle())
                         Button {
@@ -82,7 +81,7 @@ struct LargeTaskElementView: View {
                         } label: {
                             Rectangle()
                                 .foregroundStyle(.blue)
-                                .frame(width: 24, height: 48)
+                                .frame(width: 24)
                                 .offset(x: isRightButtonHovering ? 0 : 24)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -92,6 +91,7 @@ struct LargeTaskElementView: View {
                             }
                         }
                     }
+                    .frame(height: 48)
                     .border(isTaskElementHovering ? .blue : .clear)
                 }
             }
