@@ -6,62 +6,129 @@
 //
 
 import SwiftUI
-import FirebaseAuth
-import AuthenticationServices
 import ComposableArchitecture
 
 struct AuthenticationView: View {
     
-    let store: StoreOf<Authentication>
+    let store = Store(initialState: Authentication.State()) {
+        Authentication()
+            ._printChanges()
+    }
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 10) {
-                Text("Glad to meet you :)")
-                    .font(.title2.bold())
-                    .foregroundColor(.black)
-                Text("Some Text Message ...")
-                    .font(.callout)
-                    .foregroundColor(.gray)
-                SignInWithAppleButton(.signIn) { request in
-                    request.requestedScopes = [.fullName, .email]
-                    request.nonce = viewStore.encryptedNonce
-                } onCompletion: { result in
-                    switch result {
-                    case let .success(authorization):
-                        // TODO: completion handler도 Reducer에서 처리해야 할까요? -ZEN
-                        switch authorization.credential {
-                        case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                            guard let appleIDToken = appleIDCredential.identityToken else { return }
-                            guard let idTokenToString = String(data: appleIDToken, encoding: .utf8) else { return }
-                            
-                            let credential = OAuthProvider.credential(
-                                withProviderID: "apple.com",
-                                idToken: idTokenToString,
-                                rawNonce: viewStore.rawNonce
-                            )
-                            
-                            guard let email = appleIDCredential.email else {
-                                /// Already signed up
-                                viewStore.send(.signInSuccessfully(credential))
-                                return
+            ZStack {
+                if viewStore.isProceeding {
+                    ProgressView()
+                } else {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            VStack(spacing: 16) {
+                                Image(.gridGreetingLogo)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60)
+                                Text("Alpha Version")
+                                    .font(.caption.bold())
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .foregroundStyle(.gray.opacity(0.5))
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 5)
+                                            .foregroundStyle(.gray.opacity(0.1))
+                                    )
                             }
-                            
-                            /// Not yet signed up
-                            let fullName = appleIDCredential.fullName
-                            let username = "\(fullName?.givenName ?? "") \(fullName?.familyName ?? "")"
-                            viewStore.send(.notYetRegistered(email, username, credential))
-                        default:
-                            break
+                            .padding(.vertical)
+                            .padding(.top)
+                            Spacer()
                         }
-                    case let .failure(error):
-                        print("\(error.localizedDescription)")
+                        .background {
+                            Rectangle()
+                                .foregroundStyle(.gray.opacity(0.1))
+                                .clipShape(
+                                    .rect(
+                                        topLeadingRadius: 30,
+                                        bottomLeadingRadius: 0,
+                                        bottomTrailingRadius: 0,
+                                        topTrailingRadius: 30,
+                                        style: .continuous
+                                    )
+                                )
+                        }
+                        
+                        VStack(spacing: 20) {
+                            Spacer()
+                            Text("Glad to meet you :)")
+                                .font(.title2.bold())
+                                .foregroundStyle(.black)
+                            if viewStore.successToSignIn {
+                                Text("\(viewStore.authenticatedUser.username), Do gridy!")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.black)
+                                NavigationLink(
+                                    isActive: viewStore.binding(
+                                        get: \.isNavigationActive,
+                                        send: { .setNavigation(isActive: $0) }
+                                    )
+                                ) {
+                                    IfLetStore(
+                                        self.store.scope(
+                                            state: \.optionalProjectBoard,
+                                            action: { .optionalProjectBoard($0) }
+                                        )
+                                    ) {
+                                        ProjectBoardView(store: $0)
+                                    } else: {
+                                        ZStack {
+                                            BackgroundView()
+                                            ProgressView()
+                                        }
+                                    }
+                                } label: {
+                                    Text("프로젝트 보드로 가기")
+                                        .foregroundStyle(.white)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 50)
+                                .background(Color.black)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                            } else {
+                                Text("Some Text Message ...")
+                                    .font(.callout)
+                                    .foregroundStyle(.gray)
+                                SignInWithAppleButtonView(store: store)
+                            }
+                            Spacer()
+                        }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .frame(width: 200, height: 100)
-                .onAppear {
-                    viewStore.send(.onAppear)
+            }
+            .frame(width: 350, height: 350)
+            .padding(.bottom)
+            .background(
+                RoundedRectangle(cornerRadius: 30)
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.2), radius: 24)
+            )
+            /// Navigation to Project Board View
+            .navigationDestination(isPresented: viewStore.binding(
+                get: \.isNavigationActive,
+                send: { .setNavigation(isActive: $0) }
+            )) {
+                IfLetStore(
+                    self.store.scope(
+                        state: \.optionalProjectBoard,
+                        action: { .optionalProjectBoard($0) }
+                    )
+                ) {
+                    ProjectBoardView(store: $0)
+                } else: {
+                    ZStack {
+                        BackgroundView()
+                        ProgressView()
+                    }
                 }
             }
         }
@@ -70,8 +137,6 @@ struct AuthenticationView: View {
 
 struct AuthenticationView_Previews: PreviewProvider {
     static var previews: some View {
-        AuthenticationView(store: Store(initialState: Authentication.State(), reducer: {
-            Authentication()
-        }))
+        AuthenticationView()
     }
 }

@@ -11,24 +11,21 @@ import FirebaseFirestore
 import FirebaseAuthCombineSwift
 import ComposableArchitecture
 
-enum ResponseError: Error {
-    case noResponse
-}
-
+/// Client
 struct APIClient {
     var fetchUser: () async throws -> User?
-    var signIn: (_ credential: AuthCredential) async throws -> Void
-    var signUp: (
+    var signIn: @Sendable (_ credential: AuthCredential) async throws -> Void
+    var signUp: @Sendable (
         _ email: String,
         _ username: String,
         _ crendential: AuthCredential
     ) async throws -> Void
-    var signOut: () async throws -> Void?
+    var signOut: () async throws -> Void
     
     init(
         fetchUser: @escaping () async throws -> User?,
-        signIn: @escaping (_: AuthCredential) async throws -> Void,
-        signUp: @escaping (_: String, _: String, _: AuthCredential) async throws -> Void,
+        signIn: @escaping @Sendable (AuthCredential) async throws -> Void,
+        signUp: @escaping @Sendable (String, String, AuthCredential) async throws -> Void,
         signOut: @escaping () async throws -> Void
     ) {
         self.fetchUser = fetchUser
@@ -46,7 +43,7 @@ extension APIClient {
     static let liveValue = Self(
         fetchUser: {
             let currentUser = Auth.auth().currentUser
-            guard let currentUser = currentUser else { throw ResponseError.noResponse }
+            guard let currentUser = currentUser else { throw APIError.noResponseResult }
             let result = try await APIClient.clientCollection.document(currentUser.uid).getDocument()
             let data = try? JSONSerialization.data(withJSONObject: result.data() as Any)
             let decoded = try? JSONDecoder().decode(User.self, from: data!)

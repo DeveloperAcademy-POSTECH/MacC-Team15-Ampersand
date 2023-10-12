@@ -11,11 +11,15 @@ import ComposableArchitecture
 
 @main
 struct GridyApp: App {
+    
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-            TimelineLayoutView()
+            NavigationStack {
+                ContentView()
+//                TimelineLayoutView()
+            }
         }
     }
 }
