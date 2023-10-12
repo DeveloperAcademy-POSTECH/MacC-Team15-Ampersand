@@ -64,15 +64,14 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var horizontalMagnification: CGFloat = 1.0
     @Published var verticalMagnification: CGFloat = 1.0
     
-    @Published var tappedCellTopLeftPoint: CGPoint?
-    @Published var tappedCellCol: Int?
-    @Published var tappedCellRow: Int?
-
     @Published var hoverLocation: CGPoint = .zero
     @Published var hoveringCellCol: Int = 0
     @Published var hoveringCellRow: Int = 0
     @Published var isHovering = false
 
     @Published var selectedRanges: [SelectedRange] = []
+    
+    @Published var exceededCol: Int = 0
+    @Published var exceededRow: Int = 0
 }
 

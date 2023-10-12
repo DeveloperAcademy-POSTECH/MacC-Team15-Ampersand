@@ -10,6 +10,8 @@ import SwiftUI
 struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @Binding var showingIndexArea: Bool
+    @State private var visibleCol: Int = 0
+    @State private var visibleLineAreaRow: Int = 0
     
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -29,16 +31,16 @@ struct TimelineLayoutContentView: View {
                 ListAreaView()
             }
             .frame(width: 140)
-            GeometryReader { geometry in
+            GeometryReader { _ in
                 VStack(alignment: .leading, spacing: 0) {
                     ScheduleAreaView()
                         .frame(height: 140)
                     
-                    TimeAxisAreaView(geometry: geometry)
+                    TimeAxisAreaView()
                         .environmentObject(viewModel)
-                    .frame(height: 28)
+                        .frame(height: 80)
                     
-                    LineAreaSampleView(geometry: geometry)
+                    LineAreaSampleView()
                         .environmentObject(viewModel)
                 }
             }

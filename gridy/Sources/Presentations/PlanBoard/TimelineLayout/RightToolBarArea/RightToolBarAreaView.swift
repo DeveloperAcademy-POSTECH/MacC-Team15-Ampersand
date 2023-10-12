@@ -102,17 +102,31 @@ struct GridSizeControler: View {
                 .background(Color.white.opacity(0.8))
                 .cornerRadius(10)
             
-            Text("Mouse on Cell\ncolumn \(viewModel.hoveringCellCol ?? 0), row \(viewModel.hoveringCellRow ?? 0)")
+            Text("Mouse on Cell\ncolumn \(viewModel.hoveringCellCol), row \(viewModel.hoveringCellRow)")
                 .foregroundColor(.black)
                 .padding(8)
                 .background(Color.white.opacity(0.8))
                 .cornerRadius(10)
             
-            Text("Selected Cell\ncolumn \(viewModel.tappedCellCol ?? 0), row \(viewModel.tappedCellRow ?? 0)")
-                .foregroundColor(.black)
-                .padding(8)
-                .background(Color.white.opacity(0.8))
-                .cornerRadius(10)
+            if !viewModel.selectedRanges.isEmpty {
+                Text("SelectedRange Start\ncolumn \(viewModel.selectedRanges.last!.start.0), row \(viewModel.selectedRanges.first!.start.1)")
+                    .foregroundColor(.black)
+                    .padding(8)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                
+                Text("SelectedRange Start\ncolumn \(viewModel.selectedRanges.last!.end.0), row \(viewModel.selectedRanges.last!.end.1)")
+                    .foregroundColor(.black)
+                    .padding(8)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                Text("exceeded (col, row)\ncolumn \(viewModel.exceededCol), row \(viewModel.exceededRow)")
+                    .foregroundColor(.black)
+                    .padding(8)
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                
+            }
         }
     }
 }

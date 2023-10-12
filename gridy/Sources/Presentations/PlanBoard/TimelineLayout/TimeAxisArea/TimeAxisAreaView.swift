@@ -18,11 +18,10 @@ struct TimeAxisAreaView: View {
     @State var scrollOffset = CGFloat.zero
     @State private var leftmostDate = Date()
     
-    @State var geometry: GeometryProxy
-
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            let visibleCol = Int(geometry.size.width / viewModel.gridWidth)
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                let visibleCol = Int(geometry.size.width / viewModel.gridWidth)
                 HStack(spacing: 0) {
                     ForEach(0..<visibleCol, id: \.self) { dayOffset in
                         let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
@@ -31,21 +30,22 @@ struct TimeAxisAreaView: View {
                         DayGridView(dateInfo: dateInfo)
                             .frame(width: viewModel.gridWidth)
                     }
+                }
+                
+                Text("\(leftmostDate.formattedMonth)월")
+                    .font(.title)
+                    .padding(.horizontal)
+                    .background(Color(.blue))
             }
-        
-            Text("\(leftmostDate.formattedMonth)월")
-                .font(.title)
-                .padding(.horizontal)
-                .background(Color(.blue))
-        }
-        .onAppear {
-            Task {
-                do {
-                    let fetchedHolidays = try await fetchKoreanHolidays()
-                    
-                    holidays = fetchedHolidays
-                } catch {
-                    print("오류 발생: \(error.localizedDescription)")
+            .onAppear {
+                Task {
+                    do {
+                        let fetchedHolidays = try await fetchKoreanHolidays()
+                        
+                        holidays = fetchedHolidays
+                    } catch {
+                        print("오류 발생: \(error.localizedDescription)")
+                    }
                 }
             }
         }
