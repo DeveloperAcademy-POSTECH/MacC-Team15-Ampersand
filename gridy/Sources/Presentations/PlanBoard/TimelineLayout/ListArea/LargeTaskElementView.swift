@@ -56,12 +56,15 @@ struct LargeTaskElementView: View {
                             isLeftButtonClicked = true
                         } label: {
                             Rectangle()
-                                .foregroundStyle(isLeftButtonHovering ? .red : .clear)
+                                .foregroundStyle(.red)
                                 .frame(width: 24, height: 48)
+                                .offset(x: isLeftButtonHovering ? 0 : -24)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isLeftButtonHovering = proxy
+                            withAnimation {
+                                isLeftButtonHovering = proxy
+                            }
                         }
                         Button {
                             isEditing = true
@@ -78,12 +81,15 @@ struct LargeTaskElementView: View {
                             isRightButtonClicked = true
                         } label: {
                             Rectangle()
-                                .foregroundStyle(isRightButtonHovering ? .blue : .clear)
+                                .foregroundStyle(.blue)
                                 .frame(width: 24, height: 48)
+                                .offset(x: isRightButtonHovering ? 0 : 24)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .onHover { proxy in
-                            isRightButtonHovering = proxy
+                            withAnimation {
+                                isRightButtonHovering = proxy
+                            }
                         }
                     }
                     .border(isTaskElementHovering && !isLeftButtonHovering && !isRightButtonHovering ? .blue : .clear)
