@@ -9,22 +9,37 @@ import SwiftUI
 
 struct RightToolBarAreaView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
+    @Binding var proxy: ScrollViewProxy?
+    
     var body: some View {
-        VStack {
-            GridSizeControler()
-                .environmentObject(viewModel)
-                .padding(.top)
-            Spacer()
+        GeometryReader { _ in
+            VStack {
+                GridSizeControler()
+                    .environmentObject(viewModel)
+                    .padding(.top)
+                // TODO: Detail UI (하위코드삭제)
+                ForEach(1..<10) { detailNumber in
+                    Rectangle()
+                        .opacity(0.1)
+                        .frame(height: 60)
+                        .cornerRadius(8)
+                        .overlay(Text("Think \(detailNumber)"))
+                }
+                
+                ScrollDatePickerView(proxy: $proxy)
+            }
+            .padding(.horizontal, 16)
+//            .frame(width: geo.size.width)
         }
         .padding(.horizontal, 16)
     }
 }
 
-struct RightToolBarAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        RightToolBarAreaView()
-    }
-}
+//struct RightToolBarAreaView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RightToolBarAreaView()
+//    }
+//}
 
 struct GridSizeControler: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel

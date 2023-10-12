@@ -9,10 +9,12 @@ import SwiftUI
 
 struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
+    @Namespace var scrollSpace
+    @State var scrollOffset = CGFloat.zero
+    @State var leftmostDate = Date()
     @Binding var showingIndexArea: Bool
-    @State private var visibleCol: Int = 0
-    @State private var visibleLineAreaRow: Int = 0
-    
+    @Binding var proxy: ScrollViewProxy?
+
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             if showingIndexArea {
@@ -31,25 +33,41 @@ struct TimelineLayoutContentView: View {
                 ListAreaView()
             }
             .frame(width: 140)
-            GeometryReader { _ in
-                VStack(alignment: .leading, spacing: 0) {
-                    ScheduleAreaView()
-                        .frame(height: 140)
-                    
-                    TimeAxisAreaView()
-                        .environmentObject(viewModel)
-                        .frame(height: 80)
-                    
-                    LineAreaSampleView()
-                        .environmentObject(viewModel)
+            ScrollViewReader { scrollViewProxy in
+                ScrollView(.horizontal) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ScheduleAreaView()
+                            .frame(height: 140)
+                        
+                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
+                            .frame(height: 60)
+                            .background(
+                                GeometryReader { geo in
+                                    let offset = -geo.frame(in: .named(scrollSpace)).minX
+                                    Color.clear
+                                        .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                                }
+                            )
+                        
+                        LineAreaSampleView()
+                    }
+                    .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+                        scrollOffset = value
+                        let leftmostVisibleDate = Calendar.current.date(byAdding: .day, value: Int(value/50), to: Date())
+                        leftmostDate = leftmostVisibleDate!
+                    }
+                }
+                .onAppear {
+                    proxy = scrollViewProxy
                 }
             }
+            .coordinateSpace(name: scrollSpace)
         }
     }
 }
 
-struct TimelineLayoutContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimelineLayoutContentView(showingIndexArea: .constant(true))
-    }
-}
+//struct TimelineLayoutContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        TimelineLayoutContentView(showingIndexArea: .constant(true))
+//    }
+//}
