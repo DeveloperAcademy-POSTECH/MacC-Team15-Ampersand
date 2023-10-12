@@ -1,3 +1,35 @@
+import SwiftUI
+
+struct RoyceView: View {
+    @State private var isShiftKeyPressed = false
+
+    var body: some View {
+        Text("Click me with Shift")
+            .padding()
+            .background(isShiftKeyPressed ? Color.blue : Color.clear)
+            .cornerRadius(10)
+            .gesture(
+                DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                    .onChanged { value in
+                        if isShiftKeyPressed {
+                            // Handle the drag event with Shift key pressed
+                            // You can perform your custom action here
+                            print("jo")
+                        }
+                    }
+            )
+            .onAppear {
+                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                    if event.modifierFlags.contains(.command) {
+                        isShiftKeyPressed = true
+                    } else {
+                        isShiftKeyPressed = false
+                    }
+                    return event
+                }
+            }
+    }
+}
 //import SwiftUI
 //
 //

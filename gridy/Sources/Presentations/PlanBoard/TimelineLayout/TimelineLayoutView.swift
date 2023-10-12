@@ -20,6 +20,8 @@ struct TimelineLayoutView: View {
         } detail: {
             HSplitView {
                 TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
+                    .environmentObject(viewModel)
+
                 if showingRightToolBarArea {
                     RightToolBarAreaView(proxy: $proxy)
                         .environmentObject(viewModel)
@@ -39,6 +41,24 @@ struct TimelineLayoutView: View {
                     Image(systemName: "heart")
                 }
                 .toggleStyle(.button)
+            }
+        }
+        .onAppear {
+            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                if event.modifierFlags.contains(.shift) {
+                    viewModel.isShiftKeyPressed = true
+                } else {
+                    viewModel.isShiftKeyPressed = false
+                }
+                return event
+            }
+            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                if event.modifierFlags.contains(.command) {
+                    viewModel.isCommandKeyPressed = true
+                } else {
+                    viewModel.isCommandKeyPressed = false
+                }
+                return event
             }
         }
     }
@@ -72,5 +92,8 @@ class TimelineLayoutViewModel: ObservableObject {
     
     @Published var exceededCol: Int = 0
     @Published var exceededRow: Int = 0
+    
+    @Published var isShiftKeyPressed = false
+    @Published var isCommandKeyPressed = false
 }
 

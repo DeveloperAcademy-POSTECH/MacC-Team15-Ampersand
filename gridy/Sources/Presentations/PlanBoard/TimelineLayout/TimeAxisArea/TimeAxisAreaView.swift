@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+
     // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
     let startDate = Date()
     let numberOfDays = 200
@@ -37,6 +39,7 @@ struct TimeAxisAreaView: View {
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     
                     DayGridView(dateInfo: dateInfo)
+                        .frame(width: viewModel.gridWidth)
                         .id(scrollID)
                         .onTapGesture {
                             proxy?.scrollTo(scrollID, anchor: .leading)

@@ -22,17 +22,19 @@ struct TimelineLayoutContentView: View {
                     ScheduleIndexAreaView()
                         .frame(height: 140)
                     Rectangle()
-                        .frame(height: 28)
+                        .frame(height: 60)
                     LineIndexAreaView()
                 }
                 .frame(width: 35)
             }
             VStack(alignment: .leading, spacing: 0) {
                 BlackPinkInYourAreaView()
-                    .frame(height: 168)
+                    .frame(height: 200)
                 ListAreaView()
+                    .environmentObject(viewModel)
             }
-            .frame(width: 140)
+            .frame(width: 266)
+
             ScrollViewReader { scrollViewProxy in
                 ScrollView(.horizontal) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -48,8 +50,11 @@ struct TimelineLayoutContentView: View {
                                         .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
                                 }
                             )
+                            .environmentObject(viewModel)
                         
                         LineAreaSampleView()
+                            .environmentObject(viewModel)
+
                     }
                     .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
                         scrollOffset = value
