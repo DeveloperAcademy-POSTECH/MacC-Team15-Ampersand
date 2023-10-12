@@ -8,30 +8,8 @@
 import SwiftUI
 
 struct TimeAxisAreaView: View {
-//    @EnvironmentObject var viewModel: TimelineLayoutViewModel
-//    var proxy: ScrollViewProxy
-//    
-//    var body: some View {
-//        LazyHStack(alignment: .top, spacing: 0) {
-//            ForEach(0..<viewModel.numOfCol) { col in
-//                Rectangle()
-//                    .foregroundColor(.blue)
-//                    .frame(width: viewModel.gridWidth)
-//                    .overlay(
-//                        ZStack {
-//                            Text("\(col)")
-//                                .font(.body)
-//                            Rectangle()
-//                                .strokeBorder(lineWidth: 0.3)
-//                                .foregroundColor(.white)
-//                        }
-//                    )
-//                    .id(col)
-//                    .onTapGesture {
-//                        withAnimation {
-//                            proxy.scrollTo(col, anchor: .leading)
-//                        }
-//                    }
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+
     // TODO: TimeAxisAreaView (날짜 및 공휴일 전역 선언, ObservableScrollView 해체, ZStack 월 Scroll 안되게)
     let startDate = Date().formattedDate
     let numberOfDays = 200
@@ -40,17 +18,19 @@ struct TimeAxisAreaView: View {
     @State var scrollOffset = CGFloat.zero
     @State private var leftmostDate = Date()
     
+    @State var geometry: GeometryProxy
+
     var body: some View {
         ZStack(alignment: .topLeading) {
-            ObservableScrollView(scrollOffset: $scrollOffset, leftmostDate: $leftmostDate) { _ in
+            let visibleCol = Int(geometry.size.width / viewModel.gridWidth)
                 HStack(spacing: 0) {
-                    ForEach(0..<numberOfDays, id: \.self) { dayOffset in
+                    ForEach(0..<visibleCol, id: \.self) { dayOffset in
                         let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
                         
                         let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                         DayGridView(dateInfo: dateInfo)
+                            .frame(width: viewModel.gridWidth)
                     }
-                }
             }
         
             Text("\(leftmostDate.formattedMonth)월")

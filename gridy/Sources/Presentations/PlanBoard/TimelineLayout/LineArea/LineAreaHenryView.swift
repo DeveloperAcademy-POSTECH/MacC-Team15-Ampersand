@@ -28,22 +28,21 @@ struct LineAreaHenryView: View {
                 }
                 .fixedSize()
                 .border(.red)
-                LazyVStack(alignment: .leading, spacing: 0) {
-//                    ForEach(0..<30, id: \.self) { row in
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Item.sampleItems) {_ in
                         LazyHGrid(rows: gridRows, alignment: .top, spacing: 0) {
                             ForEach(Item.sampleItems) { item in
                                 GridItemView(width: viewModel.gridWidth, height: viewModel.lineAreaGridHeight, item: item)
-//                                    .onTapGesture { _ in
-//                                        let rectTopLeft = CGPoint(x: CGFloat(row) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
-//                                        viewModel.tappedCellTopLeftPoint = rectTopLeft
-//                                        viewModel.tappedCellCol = row
-//                                        viewModel.tappedCellRow = row
-//                                    }
+                                //                        .onTapGesture { _ in
+                                //                            let rectTopLeft = CGPoint(x: CGFloat(col) * viewModel.gridWidth, y: CGFloat(row) * viewModel.lineAreaGridHeight)
+                                //                            viewModel.tappedCellTopLeftPoint = rectTopLeft
+                                //                            viewModel.tappedCellCol = col
+                                //                            viewModel.tappedCellRow = row
+                                //                        }
                             }
-//                        }
+                        }
                     }
                 }
-                .border(.blue)
             }
             .onContinuousHover { phase in
                 switch phase {

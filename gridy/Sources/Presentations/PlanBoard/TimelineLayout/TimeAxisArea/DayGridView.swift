@@ -18,7 +18,7 @@ struct DayGridView: View {
             
             VStack(alignment: .leading, spacing: 0) {
                 Rectangle()
-                    .frame(width: 50, height: 20)
+                    .frame(height: 20)
                     .overlay(
                         Text("\(dateInfo.dayOfWeek.rawValue)")
                             .foregroundColor(dateInfo.fontColor)
@@ -26,7 +26,7 @@ struct DayGridView: View {
                     .overlay(Rectangle().stroke(Color.black, lineWidth: 0.3).frame(height: 1), alignment: .bottom)
                 
                 Rectangle()
-                    .frame(width: 50, height: 30)
+                    .frame(height: 30)
                     .overlay(
                         Text("\(dateInfo.day)일")
                             .foregroundColor(dateInfo.fontColor)
