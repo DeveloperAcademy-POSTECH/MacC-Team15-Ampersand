@@ -52,12 +52,14 @@ extension APIService {
             let pid = try basePath.document().documentID
             let data = ["pid": pid,
                         "title": "제목 없음",
-                        "ownerUid": try uid] as [String: Any]
+                        "ownerUid": try uid,
+                        "createdDate": Date(),
+                        "lastModifiedDate": Date()] as [String: Any]
             try basePath.document(pid).setData(data)
             
         }, readAllProjects: {
             do {
-                let snapshots = try await basePath.getDocuments().documents.map { try $0.data(as: Project.self) }
+                let snapshots = try await basePath.getDocuments().documents.map { try $0.data(as: Project.self) }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                 return snapshots
             } catch {
                 throw APIError.noResponseResult
@@ -65,6 +67,7 @@ extension APIService {
             
         }, updateProjectTitle: { pid, newTitle in
             try basePath.document(pid).updateData(["title": newTitle])
+            try basePath.document(pid).updateData(["lastModifiedDate": Date()])
             
         }, delete: { pid in
             try basePath.document(pid).delete()

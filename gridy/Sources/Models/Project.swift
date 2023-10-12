@@ -11,11 +11,15 @@ struct Project: Decodable {
     var pid: String
     var title: String
     var ownerUid: String
+    let createdDate: Date
+    var lastModifiedDate: Date
     
     static let mock = Project(
         pid: "",
         title: "",
-        ownerUid: ""
+        ownerUid: "",
+        createdDate: Date(),
+        lastModifiedDate: Date()
     )
 }
 
