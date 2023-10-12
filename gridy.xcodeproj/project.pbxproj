@@ -72,6 +72,9 @@
 		EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */; };
 		EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
+		EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */; };
+		EEBDE40C2AD3F29100B52C98 /* LeftSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */; };
+		EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -131,6 +134,9 @@
 		EE909A6A2AC3D21E00C9AAF0 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleIndexAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
+		EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeTaskElementView.swift; sourceTree = "<group>"; };
+		EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftSmallTaskElementView.swift; sourceTree = "<group>"; };
+		EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightSmallTaskElementView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -404,6 +410,9 @@
 			isa = PBXGroup;
 			children = (
 				EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */,
+				EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */,
+				EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */,
+				EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */,
 			);
 			path = ListArea;
 			sourceTree = "<group>";
@@ -555,6 +564,7 @@
 				AD52FE9F2AC965EF00AA001F /* User.swift in Sources */,
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
+				EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */,
 				D1115A102ACEE73A00DBE5D4 /* LineAreaRoyceView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
@@ -571,6 +581,7 @@
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
 				EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */,
+				EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */,
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				AD96ED402AD1BC17005D197B /* ProjectItemView.swift in Sources */,
@@ -590,6 +601,7 @@
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
 				975A62132ACE970800DE31AB /* DayGridView.swift in Sources */,
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
+				EEBDE40C2AD3F29100B52C98 /* LeftSmallTaskElementView.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				EE909A6B2AC3D21E00C9AAF0 /* GridView.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
