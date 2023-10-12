@@ -131,6 +131,9 @@ struct AuthenticationView: View {
                     }
                 }
             }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
     }
 }

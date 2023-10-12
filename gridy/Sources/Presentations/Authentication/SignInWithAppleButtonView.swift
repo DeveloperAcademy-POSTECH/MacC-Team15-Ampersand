@@ -53,9 +53,9 @@ struct SignInWithAppleButtonView: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .frame(width: 200, height: 100)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
+//            .onAppear {
+//                viewStore.send(.onAppear)
+//            }
         }
     }
 }
