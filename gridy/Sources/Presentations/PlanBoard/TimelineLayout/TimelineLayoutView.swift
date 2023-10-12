@@ -72,7 +72,10 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var tappedCellRow: Int?
 
     @Published var hoverLocation: CGPoint = .zero
-    @Published var hoveringCellCol: Int?
-    @Published var hoveringCellRow: Int?
+    @Published var hoveringCellCol: Int = 0
+    @Published var hoveringCellRow: Int = 0
     @Published var isHovering = false
+
+    @Published var selectedRanges: [SelectedRange] = []
 }
+

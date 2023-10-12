@@ -40,22 +40,14 @@ struct GridSizeControler: View {
                 VStack {
                     Text("all")
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.gridWidth += 2
                                 viewModel.lineAreaGridHeight += 2
-                            }
-                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.gridWidth -= 2
                                 viewModel.lineAreaGridHeight -= 2
-                            }
-                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -63,20 +55,12 @@ struct GridSizeControler: View {
                 VStack {
                     Text("width")
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.gridWidth += 2
-                            }
-                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.gridWidth -= 2
-                            }
-                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -84,20 +68,12 @@ struct GridSizeControler: View {
                 VStack {
                     Text("height")
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.lineAreaGridHeight += 2
-                            }
-                        }
                     }) {
                         Image(systemName: "plus")
                     }
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.lineAreaGridHeight -= 2
-                            }
-                        }
                     }) {
                         Image(systemName: "minus")
                     }
@@ -105,14 +81,10 @@ struct GridSizeControler: View {
                 VStack {
                     Text("RESET")
                     Button(action: {
-                        DispatchQueue.main.async {
-                            withAnimation {
                                 viewModel.lineAreaGridHeight = 45
                                 viewModel.gridWidth = 45
                                 viewModel.horizontalMagnification = 1.0
                                 viewModel.verticalMagnification = 1.0
-                            }
-                        }
                     }) {
                         Image(systemName: "gobackward")
                     }
