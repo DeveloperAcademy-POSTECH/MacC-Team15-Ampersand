@@ -16,6 +16,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+**/Package.resolved
 
 # Icon must end with two \r
 Icon
