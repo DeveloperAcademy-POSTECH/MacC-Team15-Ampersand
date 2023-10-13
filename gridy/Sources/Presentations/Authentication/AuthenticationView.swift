@@ -113,12 +113,14 @@ struct AuthenticationView: View {
                     .shadow(color: .black.opacity(0.2), radius: 24)
             )
             /// Navigation to Project Board View
-            .navigationDestination(isPresented: viewStore.binding(
-                get: \.isNavigationActive,
-                send: { .setNavigation(isActive: $0) }
-            )) {
+            .navigationDestination(
+                isPresented: viewStore.binding(
+                    get: \.isNavigationActive,
+                    send: { .setNavigation(isActive: $0) }
+                )
+            ) {
                 IfLetStore(
-                    self.store.scope(
+                    store.scope(
                         state: \.optionalProjectBoard,
                         action: { .optionalProjectBoard($0) }
                     )

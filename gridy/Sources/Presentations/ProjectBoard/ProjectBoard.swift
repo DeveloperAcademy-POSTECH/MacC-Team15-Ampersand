@@ -15,13 +15,15 @@ struct ProjectBoard: Reducer {
     @Dependency(\.apiClient) var apiClient
     @Dependency(\.continuousClock) var continuousClock
     
+    private enum CancelID { case load }
+    
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var successToFetchData = false
         var isInProgress = false
     }
     
-    enum Action: BindableAction, Equatable {
+    enum Action: BindableAction, Equatable, Sendable {
         case onAppear
         case createNewProjectButtonTapped
         case readAllButtonTapped
@@ -32,7 +34,7 @@ struct ProjectBoard: Reducer {
         case binding(BindingAction<State>)
         case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
-     
+    
     var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -101,4 +103,3 @@ struct ProjectBoard: Reducer {
         }
     }
 }
-

@@ -122,7 +122,10 @@ struct Authentication: Reducer {
                 return .none
             }
         }
-        .ifLet(\.optionalProjectBoard, action: /Action.optionalProjectBoard) {
+        .ifLet(
+            \.optionalProjectBoard,
+             action: /Action.optionalProjectBoard
+        ) {
             ProjectBoard()
         }
     }

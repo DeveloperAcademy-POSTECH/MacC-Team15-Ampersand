@@ -14,23 +14,32 @@ struct ProjectItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                TextField(
-                    viewStore.project.title,
-                    text: viewStore.binding(
-                        get: \.project.title,
-                        send: ProjectItem.Action.titleChanged
+            NavigationLink {
+                PlanBoardView(
+                    store: store.scope(
+                        state: \.optionalPlanBoard,
+                        action: { .optionalPlanBoard($0) }
                     )
                 )
-                Text(viewStore.project.pid)
-                Text(viewStore.project.ownerUid)
-                Button("프로젝트 삭제") {
-                    viewStore.$delete.wrappedValue.toggle()
+            } label: {
+                VStack {
+                    TextField(
+                        viewStore.project.title,
+                        text: viewStore.binding(
+                            get: \.project.title,
+                            send: ProjectItem.Action.titleChanged
+                        )
+                    )
+                    Text(viewStore.project.pid)
+                    Text(viewStore.project.ownerUid)
+                    Button("프로젝트 삭제") {
+                        viewStore.$delete.wrappedValue.toggle()
+                    }
+                    .keyboardShortcut(.delete)
                 }
-                .keyboardShortcut(.delete)
+                .padding()
+                .border(.white)
             }
-            .padding()
-            .border(.white)
         }
     }
 }
