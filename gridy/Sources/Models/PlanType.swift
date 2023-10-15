@@ -7,8 +7,10 @@
 
 import Foundation
 
-struct PlanType: Identifiable {
+struct PlanType: Identifiable, Equatable, Decodable {
     var id: String
     var title: String
     var colorCode: UInt
+    
+    static let mock = PlanType(id: "", title: "", colorCode: 0x000000)
 }

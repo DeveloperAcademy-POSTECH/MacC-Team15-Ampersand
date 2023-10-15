@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import AppKit
 
 extension Color {
     init(
@@ -22,5 +23,25 @@ extension Color {
             blue: blue,
             opacity: alpha
         )
+    }
+    
+    func getUIntCode() -> UInt {
+        let nsColor = NSColor(self)
+        let cgColor = nsColor.cgColor
+        let colorSpace = cgColor.colorSpace
+        guard let components = cgColor.components else { return 0x000000 }
+        
+        if let colorSpaceModel = colorSpace?.model {
+            switch colorSpaceModel {
+            case .rgb:
+                let red = UInt(components[0] * 255)
+                let green = UInt(components[1] * 255)
+                let blue = UInt(components[2] * 255)
+                return (red << 16) + (green << 8) + blue
+            default:
+                return 0x000000
+            }
+        }
+        return 0x000000
     }
 }

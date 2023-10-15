@@ -19,7 +19,12 @@ struct APIService {
     var updateProjectTitle: @Sendable (_ id: String, _ newTitle: String) async throws -> Void
     var deleteProject: @Sendable (_ id: String) async throws -> Void
     
+    /// Plan Type
+    var existingPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
+    var createPlanType: @Sendable (_ target: PlanType) async throws -> Void
+    
     /// Plan
+    var createPlan: @Sendable (_ target: Plan) async throws -> Plan
     var readAllPlans: @Sendable (_ planIDs: [String]?) async throws -> [Plan]
     
     init(
@@ -28,13 +33,21 @@ struct APIService {
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         deleteProject: @escaping @Sendable (String) async throws -> Void,
         
-        readAllPlans: @escaping @Sendable (_ planIDs: [String]?) async throws -> [Plan]
+        existingPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
+        createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> Void,
+        
+        createPlan: @escaping @Sendable (Plan) async throws -> Plan,
+        readAllPlans: @escaping @Sendable ([String]?) async throws -> [Plan]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
         self.updateProjectTitle = updateProjectTitle
         self.deleteProject = deleteProject
         
+        self.existingPlanTypes = existingPlanTypes
+        self.createPlanType = createPlanType
+        
+        self.createPlan = createPlan
         self.readAllPlans = readAllPlans
     }
 }
@@ -68,6 +81,12 @@ extension APIService {
         }
     }
     
+    static var planTypeCollectionPath: CollectionReference {
+        get throws {
+            return try basePath.collection("PlanTypes")
+        }
+    }
+    
     static let liveValue = Self(
         createProject: {
             let id = try projectCollectionPath.document().documentID
@@ -75,8 +94,9 @@ extension APIService {
                         "title": "제목 없음",
                         "ownerUid": try uid,
                         "createdDate": Date(),
-                        "lastModifiedDate": Date()] as [String: Any]
-            try projectCollectionPath.document(id).setData(data)
+                        "lastModifiedDate": Date(),
+                        "planIDs": nil] as [String: Any?]
+            try projectCollectionPath.document(id).setData(data as [String: Any])
             
         }, readAllProjects: {
             do {
@@ -92,6 +112,37 @@ extension APIService {
             
         }, deleteProject: { id in
             try projectCollectionPath.document(id).delete()
+            
+        }, existingPlanTypes: { keyword in
+            do {
+                return try await planTypeCollectionPath
+                    .getDocuments()
+                    .documents
+                    .map { try $0.data(as: PlanType.self) }
+                    .filter { $0.title.contains(keyword) }
+            } catch {
+                throw APIError.noResponseResult
+            }
+            
+        }, createPlanType: { target in
+            let id = try planTypeCollectionPath.document().documentID
+            let data = ["id": id, 
+                        "title": target.title,
+                        "colorCode": target.colorCode] as [String: Any]
+            try planTypeCollectionPath.document(id).setData(data)
+            
+        }, createPlan: { target in
+            let id = try planCollectionPath.document().documentID
+            let data = ["id": id,
+                        "planTypeID": target.planTypeID,
+                        "parentID": target.parentID,
+                        "startDate": target.startDate ?? nil,
+                        "endDate": target.endDate ?? nil,
+                        "description": ""] as [String: Any?]
+            try planCollectionPath.document(id).setData(data as [String: Any])
+            var createdPlan = target
+            createdPlan.id = id
+            return createdPlan
             
         }, readAllPlans: { planIDs in
             var results = [Plan]()
@@ -116,6 +167,9 @@ extension APIService {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
+        existingPlanTypes: { _ in [PlanType.mock] },
+        createPlanType: { _ in },
+        createPlan: { _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
     )
     static let mockValue = Self(
@@ -124,6 +178,9 @@ extension APIService {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
+        existingPlanTypes: { _ in [PlanType.mock] },
+        createPlanType: { _ in },
+        createPlan: { _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
     )
 }
