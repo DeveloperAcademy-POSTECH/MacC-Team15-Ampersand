@@ -20,7 +20,8 @@ struct APIService {
     var deleteProject: @Sendable (_ id: String) async throws -> Void
     
     /// Plan Type
-    var existingPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
+    var readAllPlanTypes: () async throws -> [PlanType]
+    var searchPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
     var createPlanType: @Sendable (_ target: PlanType) async throws -> String
     
     /// Plan
@@ -33,7 +34,8 @@ struct APIService {
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         deleteProject: @escaping @Sendable (String) async throws -> Void,
         
-        existingPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
+        readAllPlanTypes: @escaping () async throws -> [PlanType],
+        searchPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
         createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
         
         createPlan: @escaping @Sendable (Plan, String) async throws -> Plan,
@@ -44,7 +46,8 @@ struct APIService {
         self.updateProjectTitle = updateProjectTitle
         self.deleteProject = deleteProject
         
-        self.existingPlanTypes = existingPlanTypes
+        self.readAllPlanTypes = readAllPlanTypes
+        self.searchPlanTypes = searchPlanTypes
         self.createPlanType = createPlanType
         
         self.createPlan = createPlan
@@ -115,7 +118,13 @@ extension APIService {
             try projectCollectionPath.document(id).delete()
             
             // MARK: - Plan type
-        }, existingPlanTypes: { keyword in
+        }, readAllPlanTypes: {
+            return try await planTypeCollectionPath
+                .getDocuments()
+                .documents
+                .map { try $0.data(as: PlanType.self) }
+            
+        }, searchPlanTypes: { keyword in
             do {
                 return try await planTypeCollectionPath
                     .getDocuments()
@@ -128,7 +137,7 @@ extension APIService {
             
         }, createPlanType: { target in
             let id = try planTypeCollectionPath.document().documentID
-            let data = ["id": id, 
+            let data = ["id": id,
                         "title": target.title,
                         "colorCode": target.colorCode] as [String: Any]
             try planTypeCollectionPath.document(id).setData(data)
@@ -173,7 +182,8 @@ extension APIService {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
-        existingPlanTypes: { _ in [PlanType.mock] },
+        readAllPlanTypes: { [PlanType.mock] },
+        searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         createPlan: { _, _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
@@ -184,9 +194,11 @@ extension APIService {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
-        existingPlanTypes: { _ in [PlanType.mock] },
+        readAllPlanTypes: { [PlanType.mock] },
+        searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         createPlan: { _, _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
     )
 }
+
