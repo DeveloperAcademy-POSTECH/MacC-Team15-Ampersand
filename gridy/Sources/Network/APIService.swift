@@ -12,23 +12,29 @@ import FirebaseFirestoreSwift
 
 /// Service CRUD
 struct APIService {
-    var create: () async throws -> Void
+    
+    /// Project
+    var createProject: () async throws -> Void
     var readAllProjects: () async throws -> [Project]
     var updateProjectTitle: @Sendable (_ id: String, _ newTitle: String) async throws -> Void
-    var delete: @Sendable (_ id: String) async throws -> Void
+    var deleteProject: @Sendable (_ id: String) async throws -> Void
+    
+    /// Plan
     var readAllPlans: @Sendable (_ planIDs: [String]?) async throws -> [Plan]
     
     init(
-        create: @escaping () async throws -> Void,
+        createProject: @escaping () async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
-        delete: @escaping @Sendable (String) async throws -> Void,
+        deleteProject: @escaping @Sendable (String) async throws -> Void,
+        
         readAllPlans: @escaping @Sendable (_ planIDs: [String]?) async throws -> [Plan]
     ) {
-        self.create = create
+        self.createProject = createProject
         self.readAllProjects = readAllProjects
         self.updateProjectTitle = updateProjectTitle
-        self.delete = delete
+        self.deleteProject = deleteProject
+        
         self.readAllPlans = readAllPlans
     }
 }
@@ -63,7 +69,7 @@ extension APIService {
     }
     
     static let liveValue = Self(
-        create: {
+        createProject: {
             let id = try projectCollectionPath.document().documentID
             let data = ["id": id,
                         "title": "제목 없음",
@@ -84,7 +90,7 @@ extension APIService {
             try projectCollectionPath.document(id).updateData(["title": newTitle])
             try projectCollectionPath.document(id).updateData(["lastModifiedDate": Date()])
             
-        }, delete: { id in
+        }, deleteProject: { id in
             try projectCollectionPath.document(id).delete()
             
         }, readAllPlans: { planIDs in
@@ -105,19 +111,19 @@ extension APIService {
 // MARK: - test, mock
 extension APIService {
     static let testValue = Self(
-        create: { },
+        createProject: { },
         readAllProjects: {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
-        delete: { _ in },
+        deleteProject: { _ in },
         readAllPlans: { _ in return [Plan.mock] }
     )
     static let mockValue = Self(
-        create: { },
+        createProject: { },
         readAllProjects: {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
-        delete: { _ in },
+        deleteProject: { _ in },
         readAllPlans: { _ in return [Plan.mock] }
     )
 }
