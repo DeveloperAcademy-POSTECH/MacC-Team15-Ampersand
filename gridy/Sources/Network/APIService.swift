@@ -23,10 +23,13 @@ struct APIService {
     var readAllPlanTypes: () async throws -> [PlanType]
     var searchPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
     var createPlanType: @Sendable (_ target: PlanType) async throws -> String
+    var deletePlanType: @Sendable (_ typeID: String) async throws -> Void
     
     /// Plan
     var createPlan: @Sendable (_ target: Plan, _ projectID: String) async throws -> Plan
     var readAllPlans: @Sendable (_ projectID: String) async throws -> [Plan]
+    var deletePlan: @Sendable (_ planID: String) async throws -> Void
+    var deletePlansByParent: @Sendable (_ parentID: String) async throws -> Void
     
     init(
         createProject: @escaping () async throws -> Void,
@@ -37,9 +40,12 @@ struct APIService {
         readAllPlanTypes: @escaping () async throws -> [PlanType],
         searchPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
         createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
+        deletePlanType: @escaping @Sendable (_ typeID: String) async throws -> Void,
         
         createPlan: @escaping @Sendable (Plan, String) async throws -> Plan,
-        readAllPlans: @escaping @Sendable (String) async throws -> [Plan]
+        readAllPlans: @escaping @Sendable (String) async throws -> [Plan],
+        deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
+        deletePlansByParent: @escaping @Sendable (_ parentID: String) async throws -> Void
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -49,9 +55,12 @@ struct APIService {
         self.readAllPlanTypes = readAllPlanTypes
         self.searchPlanTypes = searchPlanTypes
         self.createPlanType = createPlanType
+        self.deletePlanType = deletePlanType
         
         self.createPlan = createPlan
         self.readAllPlans = readAllPlans
+        self.deletePlan = deletePlan
+        self.deletePlansByParent = deletePlansByParent
     }
 }
 
@@ -144,6 +153,8 @@ extension APIService {
             return id
             
             // MARK: - Plan
+        }, deletePlanType: { typeID in
+            
         }, createPlan: { target, projectID in
             let id = try planCollectionPath.document().documentID
             let data = ["id": id,
@@ -170,6 +181,8 @@ extension APIService {
                 throw APIError.noResponseResult
             }
             return results
+        }, deletePlan: { planID in
+        }, deletePlansByParent: { parentID in
         }
     )
 }
@@ -185,8 +198,11 @@ extension APIService {
         readAllPlanTypes: { [PlanType.mock] },
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
+        deletePlanType: { _ in },
         createPlan: { _, _ in Plan.mock },
-        readAllPlans: { _ in return [Plan.mock] }
+        readAllPlans: { _ in return [Plan.mock] },
+        deletePlan: { _ in },
+        deletePlansByParent: { parentID in }
     )
     static let mockValue = Self(
         createProject: { },
@@ -197,8 +213,11 @@ extension APIService {
         readAllPlanTypes: { [PlanType.mock] },
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
+        deletePlanType: { _ in },
         createPlan: { _, _ in Plan.mock },
-        readAllPlans: { _ in return [Plan.mock] }
+        readAllPlans: { _ in return [Plan.mock] },
+        deletePlan: { _ in },
+        deletePlansByParent: { parentID in }
     )
 }
 
