@@ -162,7 +162,8 @@ extension APIService {
                         "parentID": target.parentID,
                         "startDate": target.startDate ?? nil,
                         "endDate": target.endDate ?? nil,
-                        "description": ""] as [String: Any?]
+                        "description": "",
+                        "childIDs": target.childIDs ?? nil] as [String: Any?]
             try planCollectionPath.document(id).setData(data as [String: Any])
             try projectCollectionPath.document(projectID).updateData(["planIDs": FieldValue.arrayUnion([id])]) { _ in }
             var createdPlan = target
