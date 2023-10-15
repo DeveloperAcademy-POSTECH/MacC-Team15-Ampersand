@@ -24,28 +24,38 @@ struct PlanBoardView: View {
                             viewStore.keyword,
                             text: viewStore.binding(
                                 get: \.keyword,
-                                send: PlanBoard.Action.fetchExistingPlanTypes
+                                send: PlanBoard.Action.searchExistingPlanTypes
                             )
                         )
                         ColorPicker(
-                            "color",
+                            "",
                             selection: viewStore.binding(
                                 get: \.selectedColorCode,
                                 send: PlanBoard.Action.selectColorCode
                             )
                         )
-                        Button("create new type") {
-                            viewStore.send(.createPlanType)
+                        Button("create new plan with new type") {
+                            viewStore.send(.createPlanType(parentID: "", description: ""))
                         }
                     }
                     ZStack {
                         VStack {
-                            ForEach(viewStore.existingPlanTypesResult) { result in
-                                HStack {
-                                    Text(result.title)
-                                    Rectangle()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundStyle(Color(hex: result.colorCode))
+                            ForEach(viewStore.searchPlanTypesResult) { result in
+                                Button {
+                                    // TODO: - layer 위치 파악에서 parent id 찾아야 함
+                                    // TODO: - description은 어디서 어떻게 보이는건지 확인, right tool bar에서만 보이는지? 피그마상 플랜보드에는 보이지 않음
+                                    viewStore.send(.createPlan(
+                                        selectedPlanTypeID: result.id,
+                                        parentID: "",
+                                        description: "")
+                                    )
+                                } label: {
+                                    HStack {
+                                        Text(result.title)
+                                        Rectangle()
+                                            .frame(width: 20, height: 20)
+                                            .foregroundStyle(Color(hex: result.colorCode))
+                                    }
                                 }
                             }
                         }

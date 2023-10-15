@@ -15,7 +15,7 @@ struct PlanBoard: Reducer {
     struct State: Equatable {
         var rootProject: Project
         var plans = [Plan]()
-        var existingPlanTypesResult = [PlanType]()
+        var searchPlanTypesResult = [PlanType]()
         
         var keyword = ""
         var selectedColorCode = Color.red
@@ -26,13 +26,13 @@ struct PlanBoard: Reducer {
         case onAppear
         
         // MARK: - plan type
-        case fetchExistingPlanTypes(with: String)
-        case fetchExistingPlanTypesResponse(TaskResult<[PlanType]>)
+        case searchExistingPlanTypes(with: String)
+        case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
         case selectColorCode(Color)
-        case createPlanType
+        case createPlanType(parentID: String, description: String)
         
         // MARK: - plan
-        case createPlan(String, String, String)
+        case createPlan(selectedPlanTypeID: String, parentID: String, description: String)
         case createPlanResponse(TaskResult<Plan>)
         case fetchAllPlans
         case fetchAllPlansResponse(TaskResult<[Plan]>)
@@ -47,49 +47,54 @@ struct PlanBoard: Reducer {
                 }
                 
             case .fetchAllPlans:
-                let planIDs = state.rootProject.planIDs
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlansResponse(
                         TaskResult {
-                            try await apiService.readAllPlans(planIDs)
+                            try await apiService.readAllPlans(projectID)
                         }
-                    ))
+                    ), animation: .easeIn)
                 }
                 
             case let .fetchAllPlansResponse(.success(response)):
                 state.plans = response
                 return .none
                 
-            case let .fetchExistingPlanTypes(with: keyword):
+            case let .searchExistingPlanTypes(with: keyword):
                 state.keyword = keyword
                 return .run { send in
-                    await send(.fetchExistingPlanTypesResponse(
+                    await send(.searchExistingPlanTypesResponse(
                         TaskResult {
                             try await apiService.existingPlanTypes(keyword)
                         }
                     ))
                 }
                 
-            case let .fetchExistingPlanTypesResponse(.success(response)):
-                state.existingPlanTypesResult = response
+            case let .searchExistingPlanTypesResponse(.success(response)):
+                state.searchPlanTypesResult = response
                 return .none
                 
             case let .selectColorCode(selectedColor):
                 state.selectedColorCode = selectedColor
                 return .none
                 
-            case .createPlanType:
+            case let .createPlanType(parentID, description):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 print("=== colorCode: \(colorCode)")
                 state.keyword = ""
                 return .run { send in
-                    try await apiService.createPlanType(
+                    let createdID = try await apiService.createPlanType(
                         PlanType(
                             id: "", // APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
                         )
+                    )
+                    await send(.createPlan(
+                        selectedPlanTypeID: createdID,
+                        parentID: parentID,
+                        description: description)
                     )
                 }
                 
@@ -98,12 +103,13 @@ struct PlanBoard: Reducer {
                                    planTypeID: selectedPlanTypeID,
                                    parentID: parentID,
                                    description: description)
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(newPlan)
+                            try await apiService.createPlan(newPlan, projectID)
                         }
-                    ))
+                    ), animation: .easeIn)
                 }
                 
             case let .createPlanResponse(.success(response)):

@@ -21,11 +21,11 @@ struct APIService {
     
     /// Plan Type
     var existingPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
-    var createPlanType: @Sendable (_ target: PlanType) async throws -> Void
+    var createPlanType: @Sendable (_ target: PlanType) async throws -> String
     
     /// Plan
-    var createPlan: @Sendable (_ target: Plan) async throws -> Plan
-    var readAllPlans: @Sendable (_ planIDs: [String]?) async throws -> [Plan]
+    var createPlan: @Sendable (_ target: Plan, _ projectID: String) async throws -> Plan
+    var readAllPlans: @Sendable (_ projectID: String) async throws -> [Plan]
     
     init(
         createProject: @escaping () async throws -> Void,
@@ -34,10 +34,10 @@ struct APIService {
         deleteProject: @escaping @Sendable (String) async throws -> Void,
         
         existingPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
-        createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> Void,
+        createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
         
-        createPlan: @escaping @Sendable (Plan) async throws -> Plan,
-        readAllPlans: @escaping @Sendable ([String]?) async throws -> [Plan]
+        createPlan: @escaping @Sendable (Plan, String) async throws -> Plan,
+        readAllPlans: @escaping @Sendable (String) async throws -> [Plan]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -88,6 +88,7 @@ extension APIService {
     }
     
     static let liveValue = Self(
+        // MARK: - Project
         createProject: {
             let id = try projectCollectionPath.document().documentID
             let data = ["id": id,
@@ -113,6 +114,7 @@ extension APIService {
         }, deleteProject: { id in
             try projectCollectionPath.document(id).delete()
             
+            // MARK: - Plan type
         }, existingPlanTypes: { keyword in
             do {
                 return try await planTypeCollectionPath
@@ -130,8 +132,10 @@ extension APIService {
                         "title": target.title,
                         "colorCode": target.colorCode] as [String: Any]
             try planTypeCollectionPath.document(id).setData(data)
+            return id
             
-        }, createPlan: { target in
+            // MARK: - Plan
+        }, createPlan: { target, projectID in
             let id = try planCollectionPath.document().documentID
             let data = ["id": id,
                         "planTypeID": target.planTypeID,
@@ -140,11 +144,13 @@ extension APIService {
                         "endDate": target.endDate ?? nil,
                         "description": ""] as [String: Any?]
             try planCollectionPath.document(id).setData(data as [String: Any])
+            try projectCollectionPath.document(projectID).updateData(["planIDs": FieldValue.arrayUnion([id])]) { _ in }
             var createdPlan = target
             createdPlan.id = id
             return createdPlan
             
-        }, readAllPlans: { planIDs in
+        }, readAllPlans: { projectID in
+            let planIDs = try await projectCollectionPath.document(projectID).getDocument().data(as: Project.self).planIDs
             var results = [Plan]()
             if let planIDs = planIDs {
                 for planID in planIDs {
@@ -168,8 +174,8 @@ extension APIService {
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
         existingPlanTypes: { _ in [PlanType.mock] },
-        createPlanType: { _ in },
-        createPlan: { _ in Plan.mock },
+        createPlanType: { _ in ""},
+        createPlan: { _, _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
     )
     static let mockValue = Self(
@@ -179,8 +185,8 @@ extension APIService {
         updateProjectTitle: { _, _ in },
         deleteProject: { _ in },
         existingPlanTypes: { _ in [PlanType.mock] },
-        createPlanType: { _ in },
-        createPlan: { _ in Plan.mock },
+        createPlanType: { _ in ""},
+        createPlan: { _, _ in Plan.mock },
         readAllPlans: { _ in return [Plan.mock] }
     )
 }
