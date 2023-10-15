@@ -17,22 +17,20 @@ struct ProjectBoardView: View {
             ZStack {
                 BackgroundView()
                 if viewStore.successToFetchData {
-                    Form {
-                        VStack {
-                            Button("create new project") {
-                                viewStore.send(.createNewProjectButtonTapped)
-                            }
-                            Button("read all projects") {
-                                viewStore.send(.readAllButtonTapped)
-                            }
-                            ForEachStore(
-                                store.scope(
-                                    state: \.projects,
-                                    action: { .deleteProjectButtonTapped(id: $0, action: $1) }
-                                )
-                            ) {
-                                ProjectItemView(store: $0)
-                            }
+                    VStack {
+                        Button("create new project") {
+                            viewStore.send(.createNewProjectButtonTapped)
+                        }
+                        Button("read all projects") {
+                            viewStore.send(.readAllButtonTapped)
+                        }
+                        ForEachStore(
+                            store.scope(
+                                state: \.projects,
+                                action: { .deleteProjectButtonTapped(id: $0, action: $1) }
+                            )
+                        ) {
+                            ProjectItemView(store: $0)
                         }
                     }
                 } else {

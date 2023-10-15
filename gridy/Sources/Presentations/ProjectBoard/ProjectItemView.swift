@@ -35,8 +35,10 @@ struct ProjectItemView: View {
                             send: ProjectItem.Action.titleChanged
                         )
                     )
-                    Text(viewStore.project.pid)
+                    Text(viewStore.project.id)
                     Text(viewStore.project.ownerUid)
+                    Text("생성일 \(viewStore.project.createdDate.description)")
+                    Text("수정일 \(viewStore.project.lastModifiedDate.description)")
                     Button("프로젝트 삭제") {
                         viewStore.$delete.wrappedValue.toggle()
                     }

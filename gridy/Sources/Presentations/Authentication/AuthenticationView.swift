@@ -33,10 +33,10 @@ struct AuthenticationView: View {
                                     .font(.caption.bold())
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .foregroundColor(.gray.opacity(0.5))
+                                    .foregroundStyle(.gray.opacity(0.5))
                                     .background(
                                         RoundedRectangle(cornerRadius: 5)
-                                            .foregroundColor(.gray.opacity(0.1))
+                                            .foregroundStyle(.gray.opacity(0.1))
                                     )
                             }
                             .padding(.vertical)
@@ -45,7 +45,7 @@ struct AuthenticationView: View {
                         }
                         .background {
                             Rectangle()
-                                .foregroundColor(.gray.opacity(0.1))
+                                .foregroundStyle(.gray.opacity(0.1))
                                 .clipShape(
                                     .rect(
                                         topLeadingRadius: 30,
@@ -61,7 +61,7 @@ struct AuthenticationView: View {
                             Spacer()
                             Text("Glad to meet you :)")
                                 .font(.title2.bold())
-                                .foregroundColor(.black)
+                                .foregroundStyle(.black)
                             if viewStore.successToSignIn {
                                 Text("\(viewStore.authenticatedUser.username), Do gridy!")
                                     .font(.subheadline)
@@ -96,9 +96,12 @@ struct AuthenticationView: View {
             .padding(.bottom)
             .background(
                 RoundedRectangle(cornerRadius: 30)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.2), radius: 24)
             )
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
     }
 }
