@@ -14,13 +14,34 @@ struct PlanBoardView: View {
     var body: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
             ZStack {
-                Color.black.opacity(0.4)
-                Text("hi this is planboard")
+                BackgroundView()
+                VStack {
+                    Text(viewStore.rootProject.title)
+                    Text(viewStore.plans.count.description)
+                    ForEach(viewStore.plans) { plan in
+                        VStack {
+                            Text(plan.id)
+                            Text(plan.description)
+                            Text(plan.parentID)
+                            Text(plan.planTypeID)
+                            Text("\(plan.startDate ?? Date())")
+                            Text("\(plan.endDate ?? Date())")
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }
 }
 
 #Preview {
-    PlanBoardView(store: Store(initialState: PlanBoard.State(), reducer: { PlanBoard() }))
+    PlanBoardView(
+        store: Store(
+            initialState: PlanBoard.State(rootProject: Project.mock),
+            reducer: { PlanBoard() }
+        )
+    )
 }

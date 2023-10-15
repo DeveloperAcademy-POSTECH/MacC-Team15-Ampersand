@@ -63,7 +63,7 @@ struct ProjectItem: Reducer {
                 return .cancel(id: CancelID.load)
                 
             case .setNavigationIsActiveDelayCompleted:
-                state.optionalPlanBoard = PlanBoard.State()
+                state.optionalPlanBoard = PlanBoard.State(rootProject: state.project)
                 return .none
                 
             case .optionalPlanBoard:

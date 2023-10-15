@@ -25,6 +25,11 @@ struct ProjectItemView: View {
                     )
                 ) {
                    PlanBoardView(store: $0)
+                } else: {
+                    ZStack {
+                        BackgroundView()
+                        ProgressView()
+                    }
                 }
             } label: {
                 VStack {

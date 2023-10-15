@@ -13,6 +13,7 @@ struct Project: Identifiable, Decodable {
     var ownerUid: String
     let createdDate: Date
     var lastModifiedDate: Date
+    var planIDs: [String]?
     
     static let mock = Project(
         id: "",
