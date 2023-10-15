@@ -154,6 +154,7 @@ extension APIService {
             
             // MARK: - Plan
         }, deletePlanType: { typeID in
+            try planTypeCollectionPath.document(typeID).delete()
             
         }, createPlan: { target, projectID in
             let id = try planCollectionPath.document().documentID
@@ -183,7 +184,16 @@ extension APIService {
             }
             return results
         }, deletePlan: { planID in
+            try planCollectionPath.document(planID).delete()
+            
         }, deletePlansByParent: { parentID in
+            let childIDs = try await planCollectionPath.document(parentID).getDocument().data(as: Plan.self).childIDs
+            if let childIDs = childIDs {
+                try childIDs.forEach { childID in
+                    try planCollectionPath.document(childID).delete()
+                }
+            }
+            try await planCollectionPath.document(parentID).delete()
         }
     )
 }
