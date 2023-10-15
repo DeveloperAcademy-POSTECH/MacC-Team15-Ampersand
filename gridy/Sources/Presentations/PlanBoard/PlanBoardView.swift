@@ -13,7 +13,10 @@ struct PlanBoardView: View {
     let store: StoreOf<PlanBoard>
     var body: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
-            Text("hi this is planboard")
+            ZStack {
+                Color.black.opacity(0.4)
+                Text("hi this is planboard")
+            }
         }
     }
 }

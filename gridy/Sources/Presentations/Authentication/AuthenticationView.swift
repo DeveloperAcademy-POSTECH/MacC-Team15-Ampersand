@@ -66,28 +66,15 @@ struct AuthenticationView: View {
                                 Text("\(viewStore.authenticatedUser.username), Do gridy!")
                                     .font(.subheadline)
                                     .foregroundStyle(.black)
-                                NavigationLink(
-                                    isActive: viewStore.binding(
-                                        get: \.isNavigationActive,
-                                        send: { .setNavigation(isActive: $0) }
-                                    )
-                                ) {
-                                    IfLetStore(
-                                        self.store.scope(
+                                
+                                /// Navige to Project Board View
+                                NavigationLink("프로젝트 보드로 가기") {
+                                    ProjectBoardView(
+                                        store: store.scope(
                                             state: \.optionalProjectBoard,
                                             action: { .optionalProjectBoard($0) }
                                         )
-                                    ) {
-                                        ProjectBoardView(store: $0)
-                                    } else: {
-                                        ZStack {
-                                            BackgroundView()
-                                            ProgressView()
-                                        }
-                                    }
-                                } label: {
-                                    Text("프로젝트 보드로 가기")
-                                        .foregroundStyle(.white)
+                                    )
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.vertical, 10)
@@ -112,27 +99,6 @@ struct AuthenticationView: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.2), radius: 24)
             )
-            /// Navigation to Project Board View
-            .navigationDestination(
-                isPresented: viewStore.binding(
-                    get: \.isNavigationActive,
-                    send: { .setNavigation(isActive: $0) }
-                )
-            ) {
-                IfLetStore(
-                    store.scope(
-                        state: \.optionalProjectBoard,
-                        action: { .optionalProjectBoard($0) }
-                    )
-                ) {
-                    ProjectBoardView(store: $0)
-                } else: {
-                    ZStack {
-                        BackgroundView()
-                        ProgressView()
-                    }
-                }
-            }
         }
     }
 }

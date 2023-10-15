@@ -22,7 +22,7 @@ struct ProjectItem: Reducer {
         
         /// Navigation
         var isNavigationActive = false
-        var optionalPlanBoard = PlanBoard.State()
+        var optionalPlanBoard: PlanBoard.State?
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -30,7 +30,6 @@ struct ProjectItem: Reducer {
         case binding(BindingAction<State>)
         
         /// Navigation
-        case projectItemAreaTapped
         case optionalPlanBoard(PlanBoard.Action)
         case setNavigation(isActive: Bool)
         case setNavigationIsActiveDelayCompleted
@@ -49,11 +48,6 @@ struct ProjectItem: Reducer {
             case .binding:
                 return .none
                 
-            case .projectItemAreaTapped:
-                return .run { send in
-                    await send(.setNavigation(isActive: true))
-                }
-                
                 /// Navigation
             case .setNavigation(isActive: true):
                 state.isNavigationActive = true
@@ -65,7 +59,7 @@ struct ProjectItem: Reducer {
                 
             case .setNavigation(isActive: false):
                 state.isNavigationActive = false
-//                state.optionalPlanBoard = nil
+                state.optionalPlanBoard = nil
                 return .cancel(id: CancelID.load)
                 
             case .setNavigationIsActiveDelayCompleted:
@@ -76,7 +70,7 @@ struct ProjectItem: Reducer {
                 return .none
             }
         }
-        Scope(state: \.optionalPlanBoard, action: /Action.optionalPlanBoard) {
+        .ifLet(\.optionalPlanBoard, action: /Action.optionalPlanBoard) {
             PlanBoard()
         }
     }

@@ -14,13 +14,18 @@ struct ProjectItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationLink {
-                PlanBoardView(
-                    store: store.scope(
+            NavigationLink(isActive: viewStore.binding(
+                get: \.isNavigationActive,
+                send: { .setNavigation(isActive: $0 ) }
+            )) {
+                IfLetStore(
+                    store.scope(
                         state: \.optionalPlanBoard,
                         action: { .optionalPlanBoard($0) }
                     )
-                )
+                ) {
+                   PlanBoardView(store: $0)
+                }
             } label: {
                 VStack {
                     TextField(
@@ -52,3 +57,4 @@ struct ProjectItemView: View {
         )
     )
 }
+
