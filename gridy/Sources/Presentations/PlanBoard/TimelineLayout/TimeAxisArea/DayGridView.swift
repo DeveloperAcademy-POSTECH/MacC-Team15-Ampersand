@@ -11,23 +11,38 @@ struct DayGridView: View {
     let dateInfo: DateInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        ZStack {
             Rectangle()
-                .foregroundStyle(.white)
-                .overlay(
-                    VStack(alignment: .center, spacing: 0) {
-                        Text("\(dateInfo.dayOfWeek.rawValue)")
-                            .foregroundColor(dateInfo.fontColor)
-                        Rectangle().stroke(Color.black, lineWidth: 0.3).frame(height: 1)
-                        Text("\(dateInfo.day)일")
-                            .foregroundColor(dateInfo.fontColor)
-                    }
-                )
-                .overlay(
+                .foregroundStyle(.gray.opacity(0.3))
+            HStack(alignment: .top, spacing: 0) {
+                Spacer()
+                    .frame(width: 0.5)
+                VStack(alignment: .center, spacing: 0) {
+                    Spacer()
+                        .frame(height: 3)
                     Rectangle()
-                        .stroke(Color.black, lineWidth: dateInfo.dayOfWeek == DayOfWeek.saturday ? 0.5 : 0.2)
-                        .frame(width: 1), alignment: .trailing
-                )
+                        .foregroundStyle(.white)
+                        .overlay(
+                            Text("\(dateInfo.day)")
+                                .foregroundColor(dateInfo.fontColor)
+                        )
+                    Spacer()
+                        .frame(height: 1)
+                    Rectangle()
+                        .foregroundStyle(.white.opacity(0.5))
+                        .overlay(
+                            Text("\(dateInfo.dayOfWeek.rawValue)")
+                                .foregroundColor(dateInfo.fontColor)
+                        )
+                    Spacer()
+                        .frame(height: 3)
+                    
+                }
+                Spacer()
+                    .frame(width: 0.5)
+              
+            }
         }
     }
 }
+

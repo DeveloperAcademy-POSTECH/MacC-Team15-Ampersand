@@ -20,8 +20,9 @@ struct LineAreaSampleView: View {
             ZStack {
                 HStack {
                     Button(action: {
-                        moveSelectedCell(rowOffset: -1, colOffset: 0)}) {
-                            Text("UP")
+                        moveSelectedCell(rowOffset: -1, colOffset: 0)
+                    }) {
+                        Text("UP")
                         }
                         .keyboardShortcut(.upArrow, modifiers: [])
                     
@@ -46,31 +47,28 @@ struct LineAreaSampleView: View {
                        temporarySelectedRange = nil
                         viewModel.selectedRanges = []
                     }) {
-                        
                     }
                     .keyboardShortcut(.escape, modifiers: [])
                 }
                 
                 Color.white
                 
-                let visibleRow = Int(geometry.size.height / viewModel.lineAreaGridHeight) + 1
-                let visibleCol = Int(geometry.size.width / viewModel.gridWidth) + 1
                 Path { path in
-                    for rowIndex in 0..<visibleRow {
+                    for rowIndex in 0..<viewModel.maxLineAreaRow {
                         let yLocation = CGFloat(rowIndex) * viewModel.lineAreaGridHeight - rowStroke
                         path.move(to: CGPoint(x: 0, y: yLocation))
                         path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                     }
                 }
-                .stroke(Color.red, lineWidth: rowStroke)
+                .stroke(Color.gray, lineWidth: rowStroke)
                 Path { path in
-                    for columnIndex in 0..<visibleCol {
+                    for columnIndex in 0..<viewModel.maxCol {
                         let xLocation = CGFloat(columnIndex) * viewModel.gridWidth - columnStroke
                         path.move(to: CGPoint(x: xLocation, y: 0))
                         path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                     }
                 }
-                .stroke(Color.blue, lineWidth: columnStroke)
+                .stroke(Color.gray, lineWidth: columnStroke)
                 
                     ZStack {
                         if !viewModel.selectedRanges.isEmpty {
@@ -98,8 +96,11 @@ struct LineAreaSampleView: View {
                         }
                 }
             }
-            .border(.blue)
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .onChange(of: geometry.size) { newSize in
+                viewModel.maxLineAreaRow = Int(newSize.height / viewModel.lineAreaGridHeight) + 1
+                viewModel.maxCol = Int(newSize.width / viewModel.gridWidth) + 1
+            }
             .onContinuousHover { phase in
                 switch phase {
                 case .active(let location):
@@ -116,7 +117,7 @@ struct LineAreaSampleView: View {
                     .onChanged { gesture in
                         let dragEnd = gesture.location
                         let dragStart = gesture.startLocation
-                        
+
                         let startRow = Int(dragStart.y / viewModel.lineAreaGridHeight)
                         let endRow = Int(dragEnd.y / viewModel.lineAreaGridHeight)
                         let startCol = Int(dragStart.x / viewModel.gridWidth)
@@ -145,6 +146,15 @@ struct LineAreaSampleView: View {
                                 }
                             }
                         }
+                        
+//                        if dragEnd.x > geometry.size.width {
+//                            let offset = Int((dragEnd.x - geometry.size.width) / viewModel.gridWidth)
+//                            if let temporaryRange = temporarySelectedRange {
+//                                self.temporarySelectedRange = SelectedRange(start: (row: startRow, col: startCol - offset), end: (row: endRow, col: endCol))
+//                                print(Int((dragEnd.x - geometry.size.width) / viewModel.gridWidth))
+//                                print(temporarySelectedRange!.start.col)
+//                            }
+//                        }
                     }
                     .onEnded { _ in
                         if let newRange = temporarySelectedRange {
@@ -156,10 +166,10 @@ struct LineAreaSampleView: View {
             .gesture(
                 MagnificationGesture()
                     .onChanged { value in
-                        DispatchQueue.main.async {
                             viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
                             viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
-                        }
+                        viewModel.maxLineAreaRow = Int(geometry.size.height / viewModel.lineAreaGridHeight) + 1
+                        viewModel.maxCol = Int(geometry.size.width / viewModel.gridWidth) + 1
                     }
             )
         }
@@ -168,8 +178,8 @@ struct LineAreaSampleView: View {
     func moveSelectedCell(rowOffset: Int, colOffset: Int) {
         if !viewModel.selectedRanges.isEmpty {
             if !viewModel.isShiftKeyPressed {
-                let startRow = Int(viewModel.selectedRanges.last!.start.row) + rowOffset
-                let startCol = Int(viewModel.selectedRanges.last!.start.col) + colOffset
+                let startRow = min(max(Int(viewModel.selectedRanges.last!.start.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
+                let startCol = min(max(Int(viewModel.selectedRanges.last!.start.col) + colOffset, 0), viewModel.maxCol - 2)
                 viewModel.selectedRanges = [SelectedRange(start: (row: startRow, col: startCol), end: (row: startRow, col: startCol))]
             } else {
                 let startRow = Int(viewModel.selectedRanges.last!.start.row)
@@ -181,10 +191,3 @@ struct LineAreaSampleView: View {
         }
     }
 }
-
-//struct LineAreaSampleView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        LineAreaSampleView()
-//            .previewLayout(.fixed(width: 1000, height: 500))
-//    }
-//}

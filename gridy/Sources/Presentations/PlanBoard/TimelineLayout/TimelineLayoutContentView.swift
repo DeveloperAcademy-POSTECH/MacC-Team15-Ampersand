@@ -14,7 +14,7 @@ struct TimelineLayoutContentView: View {
     @State var leftmostDate = Date()
     @Binding var showingIndexArea: Bool
     @Binding var proxy: ScrollViewProxy?
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             if showingIndexArea {
@@ -26,6 +26,7 @@ struct TimelineLayoutContentView: View {
                     LineIndexAreaView()
                 }
                 .frame(width: 35)
+                .zIndex(1)
             }
             VStack(alignment: .leading, spacing: 0) {
                 BlackPinkInYourAreaView()
@@ -34,38 +35,29 @@ struct TimelineLayoutContentView: View {
                     .environmentObject(viewModel)
             }
             .frame(width: 266)
-
-                    GeometryReader { geometry in
-                        let maxCol = Int(geometry.size.width / viewModel.gridWidth + 1)
-                        let maxScheduleAreaRow = Int(140 / viewModel.scheduleAreaGridHeight + 1)
-                        let maxLineAreaRow = Int((geometry.size.height - 200) / viewModel.lineAreaGridHeight + 1)
-                        
-                        VStack(alignment: .leading, spacing: 0) {
-                            ScheduleAreaView()
-                                .frame(height: 140)
-                            
-                            TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
-                                .frame(height: 60)
-                                .background(
-                                    GeometryReader { geo in
-                                        let offset = -geo.frame(in: .named(scrollSpace)).minX
-                                        Color.clear
-                                            .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                                    }
-                                )
-                                .environmentObject(viewModel)
-                            
-                            LineAreaSampleView()
-                                .environmentObject(viewModel)
-                            
-                        }
+            .zIndex(1)
+            GeometryReader { geometry in
+                let maxCol = Int(geometry.size.width / viewModel.gridWidth + 1)
+                let maxScheduleAreaRow = Int(140 / viewModel.scheduleAreaGridHeight + 1)
+                let maxLineAreaRow = Int((geometry.size.height - 200) / viewModel.lineAreaGridHeight + 1)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    ZStack(alignment: .bottom) {
+                        ScheduleAreaView()
+                            .environmentObject(viewModel)
+                            .frame(height: 200)
+            
+                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
+                            .environmentObject(viewModel)
+                            .frame(height: 80)
                     }
+                    .zIndex(1)
+                    
+                    LineAreaSampleView()
+                        .environmentObject(viewModel)
+                        .zIndex(0)
+                }
+            }
         }
     }
 }
-
-//struct TimelineLayoutContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        TimelineLayoutContentView(showingIndexArea: .constant(true))
-//    }
-//}

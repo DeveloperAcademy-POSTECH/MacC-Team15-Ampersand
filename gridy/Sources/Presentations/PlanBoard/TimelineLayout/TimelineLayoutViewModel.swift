@@ -8,7 +8,6 @@
 import SwiftUI
 
 class TimelineLayoutViewModel: ObservableObject {
-    @Published var numOfLineAreaRow = 3
     @Published var numOfScheduleAreaRow = 5
     @Published var numOfCol = 30
     
