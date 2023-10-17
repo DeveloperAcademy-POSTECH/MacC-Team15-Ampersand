@@ -16,6 +16,7 @@
 		8A84F13B2AD2C8150070EC72 /* SelectedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F13A2AD2C8150070EC72 /* SelectedRange.swift */; };
 		8A84F1412AD6A1DD0070EC72 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F1402AD6A1DD0070EC72 /* Plan.swift */; };
 		8A84F1432AD76C190070EC72 /* LineAreaSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F1422AD76C190070EC72 /* LineAreaSampleView.swift */; };
+		8A8AA07C2ADE4C6200DEDE9F /* TimelineLayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8AA07B2ADE4C6200DEDE9F /* TimelineLayoutViewModel.swift */; };
 		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
@@ -88,6 +89,7 @@
 		8A84F13A2AD2C8150070EC72 /* SelectedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRange.swift; sourceTree = "<group>"; };
 		8A84F1402AD6A1DD0070EC72 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
 		8A84F1422AD76C190070EC72 /* LineAreaSampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaSampleView.swift; sourceTree = "<group>"; };
+		8A8AA07B2ADE4C6200DEDE9F /* TimelineLayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewModel.swift; sourceTree = "<group>"; };
 		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
@@ -328,6 +330,7 @@
 			isa = PBXGroup;
 			children = (
 				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
+				8A8AA07B2ADE4C6200DEDE9F /* TimelineLayoutViewModel.swift */,
 				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
 				EE909A522AC3CECD00C9AAF0 /* BlackPinkInYourArea */,
 				EE909A512AC3CEC600C9AAF0 /* ListArea */,
@@ -583,6 +586,7 @@
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				AD96ED402AD1BC17005D197B /* ProjectItemView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,
+				8A8AA07C2ADE4C6200DEDE9F /* TimelineLayoutViewModel.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
 				8A84F1432AD76C190070EC72 /* LineAreaSampleView.swift in Sources */,
 				EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */,

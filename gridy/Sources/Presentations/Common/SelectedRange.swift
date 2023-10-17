@@ -9,8 +9,8 @@ import SwiftUI
 
 struct SelectedRange: Identifiable, Hashable {
     let id = UUID()
-    let start: (Int, Int)
-    let end: (Int, Int)
+    var start: (row: Int, col: Int)
+    var end: (row: Int, col: Int)
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

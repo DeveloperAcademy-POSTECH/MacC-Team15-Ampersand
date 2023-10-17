@@ -12,7 +12,7 @@ struct TimeAxisAreaView: View {
 
     // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
     let startDate = Date()
-    let numberOfDays = 200
+    let numberOfDays = 30
     
     @State private var holidays = [Date]()
     @Binding var leftmostDate: Date
@@ -39,7 +39,7 @@ struct TimeAxisAreaView: View {
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     
                     DayGridView(dateInfo: dateInfo)
-                        .frame(width: viewModel.gridWidth)
+                        .frame(width: viewModel.gridWidth, height: 30)
                         .id(scrollID)
                         .onTapGesture {
                             proxy?.scrollTo(scrollID, anchor: .leading)

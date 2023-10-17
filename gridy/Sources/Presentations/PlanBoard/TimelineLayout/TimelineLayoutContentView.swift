@@ -35,38 +35,31 @@ struct TimelineLayoutContentView: View {
             }
             .frame(width: 266)
 
-            ScrollViewReader { scrollViewProxy in
-                ScrollView(.horizontal) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ScheduleAreaView()
-                            .frame(height: 140)
+                    GeometryReader { geometry in
+                        let maxCol = Int(geometry.size.width / viewModel.gridWidth + 1)
+                        let maxScheduleAreaRow = Int(140 / viewModel.scheduleAreaGridHeight + 1)
+                        let maxLineAreaRow = Int((geometry.size.height - 200) / viewModel.lineAreaGridHeight + 1)
                         
-                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
-                            .frame(height: 60)
-                            .background(
-                                GeometryReader { geo in
-                                    let offset = -geo.frame(in: .named(scrollSpace)).minX
-                                    Color.clear
-                                        .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                                }
-                            )
-                            .environmentObject(viewModel)
-                        
-                        LineAreaSampleView()
-                            .environmentObject(viewModel)
-
+                        VStack(alignment: .leading, spacing: 0) {
+                            ScheduleAreaView()
+                                .frame(height: 140)
+                            
+                            TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
+                                .frame(height: 60)
+                                .background(
+                                    GeometryReader { geo in
+                                        let offset = -geo.frame(in: .named(scrollSpace)).minX
+                                        Color.clear
+                                            .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                                    }
+                                )
+                                .environmentObject(viewModel)
+                            
+                            LineAreaSampleView()
+                                .environmentObject(viewModel)
+                            
+                        }
                     }
-                    .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-                        scrollOffset = value
-                        let leftmostVisibleDate = Calendar.current.date(byAdding: .day, value: Int(value/50), to: Date())
-                        leftmostDate = leftmostVisibleDate!
-                    }
-                }
-                .onAppear {
-                    proxy = scrollViewProxy
-                }
-            }
-            .coordinateSpace(name: scrollSpace)
         }
     }
 }
