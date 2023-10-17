@@ -26,8 +26,8 @@ struct APIService {
     var deletePlanType: @Sendable (_ typeID: String) async throws -> Void
     
     /// Plan
-    var createPlan: @Sendable (_ target: Plan, _ projectID: String) async throws -> Plan
-    var readAllPlans: @Sendable (_ projectID: String) async throws -> [Plan]
+    var createPlan: @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> Plan
+    var readAllPlans: @Sendable (_ projectID: String) async throws -> [[Plan]]
     var deletePlan: @Sendable (_ planID: String) async throws -> Void
     var deletePlansByParent: @Sendable (_ parentID: String) async throws -> Void
     
@@ -42,8 +42,8 @@ struct APIService {
         createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
         deletePlanType: @escaping @Sendable (_ typeID: String) async throws -> Void,
         
-        createPlan: @escaping @Sendable (Plan, String) async throws -> Plan,
-        readAllPlans: @escaping @Sendable (String) async throws -> [Plan],
+        createPlan: @escaping @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> Plan,
+        readAllPlans: @escaping @Sendable (String) async throws -> [[Plan]],
         deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
         deletePlansByParent: @escaping @Sendable (_ parentID: String) async throws -> Void
     ) {
@@ -104,14 +104,15 @@ extension APIService {
         createProject: {
             let id = try projectCollectionPath.document().documentID
             let data = ["id": id,
-                        "title": "제목 없음",
+                        "title": "제목없음",
                         "ownerUid": try uid,
                         "createdDate": Date(),
                         "lastModifiedDate": Date(),
                         "planIDs": nil] as [String: Any?]
             try projectCollectionPath.document(id).setData(data as [String: Any])
             
-        }, readAllProjects: {
+        },
+        readAllProjects: {
             do {
                 let snapshots = try await projectCollectionPath.getDocuments().documents.map { try $0.data(as: Project.self) }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                 return snapshots
@@ -119,21 +120,26 @@ extension APIService {
                 throw APIError.noResponseResult
             }
             
-        }, updateProjectTitle: { id, newTitle in
+        },
+        updateProjectTitle: { id, newTitle in
             try projectCollectionPath.document(id).updateData(["title": newTitle])
             try projectCollectionPath.document(id).updateData(["lastModifiedDate": Date()])
             
-        }, deleteProject: { id in
+        },
+        deleteProject: { id in
             try projectCollectionPath.document(id).delete()
             
-            // MARK: - Plan type
-        }, readAllPlanTypes: {
+        },
+        
+        // MARK: - Plan type
+        readAllPlanTypes: {
             return try await planTypeCollectionPath
                 .getDocuments()
                 .documents
                 .map { try $0.data(as: PlanType.self) }
             
-        }, searchPlanTypes: { keyword in
+        },
+        searchPlanTypes: { keyword in
             do {
                 return try await planTypeCollectionPath
                     .getDocuments()
@@ -144,7 +150,8 @@ extension APIService {
                 throw APIError.noResponseResult
             }
             
-        }, createPlanType: { target in
+        },
+        createPlanType: { target in
             let id = try planTypeCollectionPath.document().documentID
             let data = ["id": id,
                         "title": target.title,
@@ -152,48 +159,65 @@ extension APIService {
             try planTypeCollectionPath.document(id).setData(data)
             return id
             
-            // MARK: - Plan
-        }, deletePlanType: { typeID in
+        },
+        deletePlanType: { typeID in
             try planTypeCollectionPath.document(typeID).delete()
-            
-        }, createPlan: { target, projectID in
-            let id = try planCollectionPath.document().documentID
-            let data = ["id": id,
+        },
+        
+        // MARK: - Plan
+        createPlan: { target, layerIndex, indexFromLane, projectID in
+            let data = ["id": target.id,
                         "planTypeID": target.planTypeID,
                         "parentID": target.parentID,
-                        "startDate": target.startDate ?? nil,
-                        "endDate": target.endDate ?? nil,
-                        "description": "",
-                        "childIDs": target.childIDs ?? nil] as [String: Any?]
-            try planCollectionPath.document(id).setData(data as [String: Any])
-            try projectCollectionPath.document(projectID).updateData(["planIDs": FieldValue.arrayUnion([id])]) { _ in }
-            var createdPlan = target
-            createdPlan.id = id
-            return createdPlan
+                        "periods": target.periods,
+                        "description": target.description,
+                        "laneIDs": target.laneIDs] as [String: Any?]
+            try await planCollectionPath.document(target.id).setData(data as [String: Any])
             
-        }, readAllPlans: { projectID in
-            let planIDs = try await projectCollectionPath.document(projectID).getDocument().data(as: Project.self).planIDs
-            var results = [Plan]()
-            if let planIDs = planIDs {
-                for planID in planIDs {
-                    let snapshot = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self)
-                    results.append(snapshot)
+            if let parentID = target.parentID {
+                var newLaneIDs = try await planCollectionPath.document(parentID).getDocument(as: Plan.self).laneIDs
+                if var newLaneIDs = newLaneIDs {
+                    newLaneIDs.insert(target.id, at: indexFromLane)
+                    try await planCollectionPath.document(parentID).setData(["laneIDs": newLaneIDs])
+                }
+                
+                var newPlanIDs = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).planIDs
+                if var newPlanIDs = newPlanIDs {
+                    newPlanIDs[layerIndex].insert(target.id, at: indexFromLane)
+                    try await projectCollectionPath.document(projectID).setData(["planIDs": newPlanIDs])
+                }
+            }
+            return target
+        },
+        readAllPlans: { projectID in
+            let planLayers = try await projectCollectionPath.document(projectID).getDocument().data(as: Project.self).planIDs
+            var results = [[Plan]]()
+            if let planLayers = planLayers {
+                for layer in planLayers {
+                    var layerResults = [Plan]()
+                    for planID in layer {
+                        let snapshot = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self)
+                        layerResults.append(snapshot)
+                    }
+                    results.append(layerResults)
                 }
             } else {
                 throw APIError.noResponseResult
             }
             return results
         }, deletePlan: { planID in
-            try planCollectionPath.document(planID).delete()
+            try planCollectionPath.document(planID).updateData(["laneIDs": []])
+            try planCollectionPath.document(planID).updateData(["periods": [[]]])
             
-        }, deletePlansByParent: { parentID in
-            let childIDs = try await planCollectionPath.document(parentID).getDocument().data(as: Plan.self).childIDs
-            if let childIDs = childIDs {
-                try childIDs.forEach { childID in
-                    try planCollectionPath.document(childID).delete()
+        }, deletePlansByParent: { planID in
+            // TODO: -
+            let laneIDs = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self).laneIDs
+            if let laneIDs = laneIDs {
+                try laneIDs.forEach { laneID in
+                    //                    try planCollectionPath.document(laneID).delete()
                 }
             }
-            try await planCollectionPath.document(parentID).delete()
+            //            try await planCollectionPath.document(planID).delete()
         }
     )
 }
@@ -210,10 +234,10 @@ extension APIService {
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         deletePlanType: { _ in },
-        createPlan: { _, _ in Plan.mock },
-        readAllPlans: { _ in return [Plan.mock] },
+        createPlan: { _, _, _, _ in Plan.mock },
+        readAllPlans: { _ in return [[Plan.mock]] },
         deletePlan: { _ in },
-        deletePlansByParent: { parentID in }
+        deletePlansByParent: { _ in }
     )
     static let mockValue = Self(
         createProject: { },
@@ -225,10 +249,10 @@ extension APIService {
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         deletePlanType: { _ in },
-        createPlan: { _, _ in Plan.mock },
-        readAllPlans: { _ in return [Plan.mock] },
+        createPlan: { _, _, _, _ in  Plan.mock },
+        readAllPlans: { _ in return [[Plan.mock]] },
         deletePlan: { _ in },
-        deletePlansByParent: { parentID in }
+        deletePlansByParent: { _ in }
     )
 }
 

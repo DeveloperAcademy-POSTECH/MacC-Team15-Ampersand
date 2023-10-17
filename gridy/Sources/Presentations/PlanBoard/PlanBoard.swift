@@ -14,7 +14,7 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var plans = [Plan]()
+        var plans = [[Plan]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         
@@ -28,7 +28,7 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(parentID: String, description: String)
+        case createPlanType
         case createPlanTypeResponse(TaskResult<PlanType>)
         case searchExistingPlanTypes(with: String)
         case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
@@ -36,10 +36,11 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(selectedPlanTypeID: String, parentID: String, description: String)
-        case createPlanResponse(TaskResult<Plan>)
+        case creat
+        case createPlan(layer: Int, row: Int, selectedPlanTypeID: String, description: String)
+        case createPlanResponse(Int, Int, TaskResult<Plan>)
         case fetchAllPlans
-        case fetchAllPlansResponse(TaskResult<[Plan]>)
+        case fetchAllPlansResponse(TaskResult<[[Plan]]>)
     }
     
     var body: some Reducer<State, Action> {
@@ -57,7 +58,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(parentID, description):
+            case .createPlanType:
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 state.keyword = ""
@@ -78,11 +79,6 @@ struct PlanBoard: Reducer {
                             )
                         }
                     ))
-                    await send(.createPlan(
-                        selectedPlanTypeID: createdID,
-                        parentID: parentID,
-                        description: description)
-                    )
                 }
                 
             case let .createPlanTypeResponse(.success(response)):
@@ -119,22 +115,25 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
-            case let .createPlan(selectedPlanTypeID, parentID, description):
+            case let .createPlan(layer, row, selectedPlanTypeID, description):
+                let projectID = state.rootProject.id
+                let createdPlanID = UUID().uuidString
+                
                 let newPlan = Plan(id: "", // APIService에서 자동 생성
                                    planTypeID: selectedPlanTypeID,
-                                   parentID: parentID,
+                                   parentID: "",
                                    description: description)
-                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.createPlanResponse(
+                        layer, row,
                         TaskResult {
-                            try await apiService.createPlan(newPlan, projectID)
+                            try await apiService.createPlan(Plan(id: createdPlanID), layer, row, projectID)
                         }
                     ), animation: .easeIn)
                 }
                 
-            case let .createPlanResponse(.success(response)):
-                state.plans.append(response)
+            case let .createPlanResponse(layer, row, .success(response)):
+                state.plans[layer].insert(response, at: row)
                 return .none
                 
             case .fetchAllPlans:

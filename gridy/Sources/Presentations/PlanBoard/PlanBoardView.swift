@@ -36,7 +36,7 @@ struct PlanBoardView: View {
                                 )
                             )
                             Button("create new plan with new type") {
-                                viewStore.send(.createPlanType(parentID: "", description: ""))
+                                viewStore.send(.createPlanType)
                             }
                         }
                         ZStack {
@@ -46,8 +46,9 @@ struct PlanBoardView: View {
                                         // TODO: - layer 위치 파악에서 parent id 찾아야 함
                                         // TODO: - description은 어디서 어떻게 보이는건지 확인, right tool bar에서만 보이는지? 피그마상 플랜보드에는 보이지 않음
                                         viewStore.send(.createPlan(
+                                            layer: 0,
+                                            row: 0,
                                             selectedPlanTypeID: result.id,
-                                            parentID: "",
                                             description: "")
                                         )
                                     } label: {
@@ -70,18 +71,15 @@ struct PlanBoardView: View {
                         }
                         .frame(width: 500)
                         .padding()
-                        ForEach(viewStore.plans) { plan in
+                        ForEach(viewStore.plans.flatMap{ $0 }) { plan in
                             HStack(spacing: 250) {
                                 VStack {
                                     Text(plan.id)
-                                    Text(plan.description)
-                                    Text(plan.parentID)
-                                    Text(plan.planTypeID)
-                                    Text("\(plan.startDate ?? Date())")
-                                    Text("\(plan.endDate ?? Date())")
+                                    Text(plan.planTypeID ?? "")
                                 }
                                 VStack {
-                                    if let typeData = viewStore.existingPlanTypes[plan.planTypeID] {
+                                    if let planTypeID = plan.planTypeID,
+                                        let typeData = viewStore.existingPlanTypes[planTypeID] {
                                         Text(typeData.id)
                                         Text(typeData.title)
                                         Rectangle()

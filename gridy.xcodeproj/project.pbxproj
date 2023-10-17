@@ -23,6 +23,7 @@
 		AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BD2AD7766200E3CC07 /* PlanType.swift */; };
 		AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BF2AD7767700E3CC07 /* Plan.swift */; };
 		AD06C4C22AD7836600E3CC07 /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4C12AD7836600E3CC07 /* PlanBoardView.swift */; };
+		AD2F7A092ADD5BD2006201AB /* Lane.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2F7A082ADD5BD2006201AB /* Lane.swift */; };
 		AD3DF48D2ACD8F8C00F619DE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AD3DF48C2ACD8F8C00F619DE /* FirebaseAnalytics */; };
 		AD3DF48F2ACD8F8C00F619DE /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AD3DF48E2ACD8F8C00F619DE /* FirebaseAnalyticsSwift */; };
 		AD3DF4912ACD8F8C00F619DE /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AD3DF4902ACD8F8C00F619DE /* FirebaseAuth */; };
@@ -98,6 +99,7 @@
 		AD06C4BD2AD7766200E3CC07 /* PlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanType.swift; sourceTree = "<group>"; };
 		AD06C4BF2AD7767700E3CC07 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
 		AD06C4C12AD7836600E3CC07 /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
+		AD2F7A082ADD5BD2006201AB /* Lane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lane.swift; sourceTree = "<group>"; };
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				AD96ED3B2AD1183A005D197B /* Project.swift */,
 				AD06C4BF2AD7767700E3CC07 /* Plan.swift */,
 				AD06C4BD2AD7766200E3CC07 /* PlanType.swift */,
+				AD2F7A082ADD5BD2006201AB /* Lane.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -569,6 +572,7 @@
 			files = (
 				AD52FE9F2AC965EF00AA001F /* User.swift in Sources */,
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
+				AD2F7A092ADD5BD2006201AB /* Lane.swift in Sources */,
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
 				EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */,
 				D1115A102ACEE73A00DBE5D4 /* LineAreaRoyceView.swift in Sources */,
