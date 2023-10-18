@@ -9,41 +9,21 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    
+    @State var isCreateNewProjectSheet = false
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            ZStack {
-                BackgroundView()
-                if viewStore.successToFetchData {
-                    VStack {
-                        Button("create new project") {
-                            viewStore.send(.createNewProjectButtonTapped)
-                        }
-                        Button("read all projects") {
-                            viewStore.send(.readAllButtonTapped)
-                        }
-                        ForEachStore(
-                            store.scope(
-                                state: \.projects,
-                                action: { .deleteProjectButtonTapped(id: $0, action: $1) }
-                            )
-                        ) {
-                            ProjectItemView(store: $0)
-                        }
-                    }
-                } else {
-                    ZStack {
-                        if viewStore.isInProgress {
-                            ProgressView()
-                        }
-                    }
-
+                HStack(spacing: 0) {
+                    ProjectBoardSideView()
+                        .frame(width: 306)
+                    ProjectBoardMainView(store: store, isCreateNewProjectSheet: $isCreateNewProjectSheet)
                 }
-            }
-            .onAppear {
-                viewStore.send(.onAppear)
+            .sheet(isPresented: viewStore.binding(
+                get: \.isSheetPresented,
+                send: ProjectBoard.Action.setSheet(isPresented:)
+            )) {
+                ProjectCreationView(store: store)
             }
         }
     }
@@ -57,4 +37,3 @@ struct ProjectBoardView: View {
         )
     )
 }
-

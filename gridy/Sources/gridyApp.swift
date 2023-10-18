@@ -17,7 +17,12 @@ struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                ProjectBoardMainView()
+                ProjectBoardView(
+                    store: Store(
+                        initialState: ProjectBoard.State(),
+                        reducer: { ProjectBoard() }
+                    )
+                )
 //                ContentView()
 //                TimelineLayoutView()
             }

@@ -43,7 +43,7 @@
 		AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD8ECB912ABC7CA20040A0B8 /* Assets.xcassets */; };
 		AD96ED3C2AD1183A005D197B /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED3B2AD1183A005D197B /* Project.swift */; };
 		AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED3D2AD13AE4005D197B /* ProjectBoardView.swift */; };
-		AD96ED402AD1BC17005D197B /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED3F2AD1BC17005D197B /* ProjectItemView.swift */; };
+		AD96ED402AD1BC17005D197B /* ProjectCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED3F2AD1BC17005D197B /* ProjectCreationView.swift */; };
 		AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED412AD1BCAD005D197B /* ProjectItem.swift */; };
 		AD96ED442AD30312005D197B /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED432AD30312005D197B /* APIError.swift */; };
 		AD96ED622AD5B005005D197B /* BackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED612AD5B005005D197B /* BackgroundView.swift */; };
@@ -54,6 +54,7 @@
 		ADACF5FF2AC25760008AADFA /* PlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF5FE2AC25760008AADFA /* PlanItem.swift */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
 		D1115A102ACEE73A00DBE5D4 /* LineAreaRoyceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1115A0F2ACEE73A00DBE5D4 /* LineAreaRoyceView.swift */; };
+		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
 		EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
 		EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A402AC3CDC700C9AAF0 /* Utils.swift */; };
@@ -106,7 +107,7 @@
 		AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gridy.entitlements; sourceTree = "<group>"; };
 		AD96ED3B2AD1183A005D197B /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		AD96ED3D2AD13AE4005D197B /* ProjectBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardView.swift; sourceTree = "<group>"; };
-		AD96ED3F2AD1BC17005D197B /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
+		AD96ED3F2AD1BC17005D197B /* ProjectCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCreationView.swift; sourceTree = "<group>"; };
 		AD96ED412AD1BCAD005D197B /* ProjectItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItem.swift; sourceTree = "<group>"; };
 		AD96ED432AD30312005D197B /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		AD96ED612AD5B005005D197B /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
@@ -116,6 +117,7 @@
 		ADACF5FE2AC25760008AADFA /* PlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanItem.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 		D1115A0F2ACEE73A00DBE5D4 /* LineAreaRoyceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaRoyceView.swift; sourceTree = "<group>"; };
+		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
 		EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardSideView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -252,7 +254,8 @@
 				ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */,
 				AD96ED3D2AD13AE4005D197B /* ProjectBoardView.swift */,
 				AD96ED412AD1BCAD005D197B /* ProjectItem.swift */,
-				AD96ED3F2AD1BC17005D197B /* ProjectItemView.swift */,
+				EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */,
+				AD96ED3F2AD1BC17005D197B /* ProjectCreationView.swift */,
 				EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */,
 				EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */,
 			);
@@ -584,8 +587,9 @@
 				EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */,
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
-				AD96ED402AD1BC17005D197B /* ProjectItemView.swift in Sources */,
+				AD96ED402AD1BC17005D197B /* ProjectCreationView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,
+				EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
 				EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */,
 				AD96ED622AD5B005005D197B /* BackgroundView.swift in Sources */,
