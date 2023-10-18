@@ -12,7 +12,6 @@ import FirebaseFirestoreSwift
 
 /// Service CRUD
 struct APIService {
-    
     /// Project
     var createProject: () async throws -> Void
     var readAllProjects: () async throws -> [Project]
@@ -31,7 +30,7 @@ struct APIService {
     var deletePlansByParent: @Sendable (_ parentLaneID: String) async throws -> Void
     
     /// Lane
-//    var newLaneCreated: @Sendable (_ layerIndex: Int, )
+    var newLaneCreated: @Sendable (_ layerIdnex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
     
     init(
         createProject: @escaping () async throws -> Void,
@@ -46,7 +45,9 @@ struct APIService {
         
         createPlan: @escaping @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> [String: [String]],
         deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
-        deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void
+        deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void,
+        
+        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -61,6 +62,8 @@ struct APIService {
         self.createPlan = createPlan
         self.deletePlan = deletePlan
         self.deletePlansByParent = deletePlansByParent
+        
+        self.newLaneCreated = newLaneCreated
     }
 }
 
@@ -234,7 +237,8 @@ extension APIService {
             try planCollectionPath.document(planID).updateData(["laneIDs": []])
             try planCollectionPath.document(planID).updateData(["periods": [[]]])
             
-        }, deletePlansByParent: { planID in
+        }
+        , deletePlansByParent: { planID in
             // TODO: -
             let laneIDs = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self).laneIDs
             if let laneIDs = laneIDs {
@@ -243,6 +247,34 @@ extension APIService {
                 }
             }
             //            try await planCollectionPath.document(planID).delete()
+        },
+        newLaneCreated: { layerIndex, createOnTop, planID, projectID in
+            var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
+            let maximumDepth = projectMap.count
+            var targetPlanID = planID
+            /// 최하위 레이어까지 해당 위치에 새 레인 생성
+            for currentLayerIndex in layerIndex..<maximumDepth {
+                let planData = try await planCollectionPath.document(targetPlanID).getDocument(as: Plan.self)
+                if var parentLaneID = planData.parentLaneID {
+                    let parentLane = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self)
+                    if var childIDsInLane = parentLane.childIDs {
+                        let newPlanID = UUID().uuidString
+                        try await planCollectionPath.document(newPlanID).setData(["id": newPlanID])
+                        let newChildIndex = childIDsInLane.firstIndex(of: targetPlanID)! + (createOnTop ? 0 : 1)
+                        childIDsInLane.insert(
+                            newPlanID,
+                            at: newChildIndex
+                        )
+                        try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": childIDsInLane])
+                        /// update project map
+                        projectMap[currentLayerIndex.description]?.insert(targetPlanID, at: newChildIndex)
+                        targetPlanID = planData.laneIDs![createOnTop ? 0 : planData.laneIDs!.count - 1]![0]
+                    }
+                } else {
+                    // TODO: - 레인에 아무것도 없는데 레인을 나누는 경우
+                }
+            }
+            return projectMap
         }
     )
 }
@@ -261,7 +293,8 @@ extension APIService {
         deletePlanType: { _ in },
         createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
-        deletePlansByParent: { _ in }
+        deletePlansByParent: { _ in },
+        newLaneCreated: {_, _, _, _ in ["": [""]] }
     )
     static let mockValue = Self(
         createProject: { },
@@ -275,7 +308,8 @@ extension APIService {
         deletePlanType: { _ in },
         createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
-        deletePlansByParent: { _ in }
+        deletePlansByParent: { _ in },
+        newLaneCreated: { _, _, _, _ in ["": [""]] }
     )
 }
 
