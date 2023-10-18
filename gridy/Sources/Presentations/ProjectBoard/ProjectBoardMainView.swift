@@ -54,7 +54,7 @@ struct ProjectBoardMainView: View {
                                         .font(.custom("Pretendard-Bold", size: 12))
                                 )
                             LazyVGrid(columns: columnsFolders, alignment: .leading, spacing: 20) {
-                                ForEach(1...8, id: \.self) { _ in
+                                ForEach(1...2, id: \.self) { _ in
                                     RoundedRectangle(cornerRadius: 6)
                                         .frame(height: 65)
                                         .foregroundStyle(.white)

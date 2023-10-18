@@ -22,12 +22,13 @@ struct ProjectBoardView: View {
                     }
                     if viewStore.isSheetPresented {
                         ZStack {
-                            Color.black.opacity(0.5)
+                            Color.black.opacity(0.6)
                                 .frame(width: geometry.size.width, height: geometry.size.height)
                                 .onTapGesture {
                                     viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
                                 }
                             ProjectCreationView(store: store)
+                                .offset(y: viewStore.isSheetPresented ? 0 : -50)
                         }
                     }
                 }
