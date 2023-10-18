@@ -10,8 +10,8 @@ import ComposableArchitecture
 
 struct ProjectCreationView: View {
     let store: StoreOf<ProjectBoard>
-    @State private var text = ""
     @FocusState private var isTextFieldFocused: Bool
+    @State var tag: Int? = nil
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -58,7 +58,10 @@ struct ProjectCreationView: View {
                                 )
                                 .focused($isTextFieldFocused)
                                 .onSubmit {
-                                    viewStore.send(.createNewProjectButtonTapped)
+                                    if !viewStore.title.isEmpty {
+                                        viewStore.send(.createNewProjectButtonTapped)
+                                        self.tag = 1
+                                    }
                                 }
                                 .font(.custom("Pretendard-Medium", size: 14))
                                 .padding(.leading, 12)
@@ -142,21 +145,27 @@ struct ProjectCreationView: View {
                             .padding(.bottom, 24)
                         Divider()
                             .padding(.bottom, 20)
-                        Button {
-                            viewStore.send(.createNewProjectButtonTapped)
-                        } label: {
-                            RoundedRectangle(cornerRadius: 12)
-                                .frame(width: 328, height: 48)
-                                .foregroundStyle(viewStore.title.isEmpty ? .gray : .blue)
-                                .overlay {
-                                    Text("Go Ahead !")
-                                        .font(.custom("Pretendard-Medium", size: 16))
-                                        .foregroundStyle(viewStore.title.isEmpty ? .black : .white)
-                                }
+                        ZStack {
+                            NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
+                                EmptyView()
+                            }
+                            Button {
+                                viewStore.send(.createNewProjectButtonTapped)
+                                self.tag = 1
+                            } label: {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .frame(width: 328, height: 48)
+                                    .foregroundStyle(viewStore.title.isEmpty ? .gray : .blue)
+                                    .overlay {
+                                        Text("Go Ahead !")
+                                            .font(.custom("Pretendard-Medium", size: 16))
+                                            .foregroundStyle(viewStore.title.isEmpty ? .black : .white)
+                                    }
+                            }
+                            .disabled(viewStore.title.isEmpty)
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.bottom, 9)
                         }
-                        .disabled(viewStore.title.isEmpty)
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.bottom, 9)
                         HStack(alignment: .center, spacing: 5) {
                             RoundedRectangle(cornerRadius: 4)
                                 .frame(width: 55, height: 22)
