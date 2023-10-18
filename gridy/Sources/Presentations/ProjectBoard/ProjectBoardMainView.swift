@@ -12,6 +12,7 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
+    @State var tag: Int? = nil
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -112,6 +113,9 @@ struct ProjectBoardMainView: View {
                                     )
                                 ) {
                                     ProjectItemView(store: $0)
+                                        .onTapGesture {
+                                            self.tag = 2
+                                        }
                                 }
                             }
                         }
@@ -120,6 +124,9 @@ struct ProjectBoardMainView: View {
                         .padding(.horizontal, 24)
                     }
                     .frame(width: proxy.size.width)
+                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
+                        EmptyView()
+                    }
                 }
                 .onAppear {
                     viewStore.send(
