@@ -12,7 +12,6 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
-    @Binding var isCreateNewProjectSheet: Bool
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -41,7 +40,7 @@ struct ProjectBoardMainView: View {
                                             .font(.custom("Pretendard-SemiBold", size: 14))
                                     }
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .buttonStyle(.plain)
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 16)

@@ -9,21 +9,28 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State var isCreateNewProjectSheet = false
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-                HStack(spacing: 0) {
-                    ProjectBoardSideView()
-                        .frame(width: 306)
-                    ProjectBoardMainView(store: store, isCreateNewProjectSheet: $isCreateNewProjectSheet)
+            GeometryReader { geometry in
+                ZStack {
+                    HStack(spacing: 0) {
+                        ProjectBoardSideView()
+                            .frame(width: 306)
+                        ProjectBoardMainView(store: store)
+                    }
+                    if viewStore.isSheetPresented {
+                        ZStack {
+                            Color.black.opacity(0.5)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                                .onTapGesture {
+                                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                                }
+                            ProjectCreationView(store: store)
+                        }
+                    }
                 }
-            .sheet(isPresented: viewStore.binding(
-                get: \.isSheetPresented,
-                send: ProjectBoard.Action.setSheet(isPresented:)
-            )) {
-                ProjectCreationView(store: store)
             }
         }
     }

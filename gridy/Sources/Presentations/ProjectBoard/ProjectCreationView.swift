@@ -9,8 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectCreationView: View {
-    
-    //    let store: StoreOf<ProjectItem>
     let store: StoreOf<ProjectBoard>
     @State private var text = ""
     
