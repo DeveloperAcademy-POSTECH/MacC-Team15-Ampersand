@@ -19,7 +19,7 @@ struct PlanBoardView: View {
                 ScrollView {
                     VStack {
                         Text(viewStore.rootProject.title)
-                        Text(viewStore.plans.count.description)
+                        Text(viewStore.map.count.description)
                         HStack {
                             TextField(
                                 viewStore.keyword,
@@ -36,7 +36,7 @@ struct PlanBoardView: View {
                                 )
                             )
                             Button("create new plan with new type") {
-                                viewStore.send(.createPlanType)
+                                viewStore.send(.createPlanType(layer: 0, row: 0, target: Plan(id: "", planTypeID: "")))
                             }
                         }
                         ZStack {
@@ -45,11 +45,14 @@ struct PlanBoardView: View {
                                     Button {
                                         // TODO: - layer 위치 파악에서 parent id 찾아야 함
                                         // TODO: - description은 어디서 어떻게 보이는건지 확인, right tool bar에서만 보이는지? 피그마상 플랜보드에는 보이지 않음
-                                        viewStore.send(.createPlan(
-                                            layer: 0,
-                                            row: 0,
-                                            selectedPlanTypeID: result.id,
-                                            description: "")
+                                        viewStore.send(
+                                            .createPlan(
+                                                layer: 3,
+                                                row: 0,
+                                                target: Plan(
+                                                    id: "",
+                                                    planTypeID: result.id)
+                                            )
                                         )
                                     } label: {
                                         HStack {
@@ -62,38 +65,13 @@ struct PlanBoardView: View {
                                 }
                             }
                         }
-                        HStack {
-                            Text("PLAN 데이터")
-                                .font(.headline)
-                            Spacer()
-                            Text("TYPE 데이터")
-                                .font(.headline)
-                        }
-                        .frame(width: 500)
-                        .padding()
-                        ForEach(viewStore.plans.flatMap{ $0 }) { plan in
-                            HStack(spacing: 250) {
-                                VStack {
-                                    Text(plan.id)
-                                    Text(plan.planTypeID ?? "")
-                                }
-                                VStack {
-                                    if let planTypeID = plan.planTypeID,
-                                        let typeData = viewStore.existingPlanTypes[planTypeID] {
-                                        Text(typeData.id)
-                                        Text(typeData.title)
-                                        Rectangle()
-                                            .frame(width: 20, height: 20)
-                                            .foregroundStyle(Color(hex: typeData.colorCode))
-
-                                    } else {
-                                        Text("데이터 로딩 실패")
-                                    }
+                        
+                        ForEach(viewStore.map.keys.sorted(), id: \.self) { layerIndex in
+                            Section(header: Text("layer: \(layerIndex)")) {
+                                ForEach(viewStore.map[layerIndex]!.indices, id: \.self) { laneIndex in
+                                    Text(viewStore.map[layerIndex]![laneIndex])
                                 }
                             }
-                            .padding()
-                            .frame(width: 800)
-                            .border(.gray)
                         }
                     }
                 }

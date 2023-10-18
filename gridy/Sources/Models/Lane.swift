@@ -10,6 +10,7 @@ import Foundation
 struct Lane: Identifiable, Decodable {
     var id: String
     var childIDs: [String]?
+    var ownerID: String
     
     /// Computed property by child's (minimum designated Date, maximum designated Date)
     var period: [[Date]]?

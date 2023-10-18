@@ -26,10 +26,12 @@ struct APIService {
     var deletePlanType: @Sendable (_ typeID: String) async throws -> Void
     
     /// Plan
-    var createPlan: @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> Plan
-    var readAllPlans: @Sendable (_ projectID: String) async throws -> [[Plan]]
+    var createPlan: @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> [String: [String]]
     var deletePlan: @Sendable (_ planID: String) async throws -> Void
-    var deletePlansByParent: @Sendable (_ parentID: String) async throws -> Void
+    var deletePlansByParent: @Sendable (_ parentLaneID: String) async throws -> Void
+    
+    /// Lane
+//    var newLaneCreated: @Sendable (_ layerIndex: Int, )
     
     init(
         createProject: @escaping () async throws -> Void,
@@ -42,10 +44,9 @@ struct APIService {
         createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
         deletePlanType: @escaping @Sendable (_ typeID: String) async throws -> Void,
         
-        createPlan: @escaping @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> Plan,
-        readAllPlans: @escaping @Sendable (String) async throws -> [[Plan]],
+        createPlan: @escaping @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> [String: [String]],
         deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
-        deletePlansByParent: @escaping @Sendable (_ parentID: String) async throws -> Void
+        deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -58,7 +59,6 @@ struct APIService {
         self.deletePlanType = deletePlanType
         
         self.createPlan = createPlan
-        self.readAllPlans = readAllPlans
         self.deletePlan = deletePlan
         self.deletePlansByParent = deletePlansByParent
     }
@@ -99,6 +99,12 @@ extension APIService {
         }
     }
     
+    static var laneCollectionPath: CollectionReference {
+        get throws {
+            return try basePath.collection("Lanes")
+        }
+    }
+    
     static let liveValue = Self(
         // MARK: - Project
         createProject: {
@@ -108,14 +114,22 @@ extension APIService {
                         "ownerUid": try uid,
                         "createdDate": Date(),
                         "lastModifiedDate": Date(),
-                        "planIDs": nil] as [String: Any?]
+                        "map": ["0": [],
+                                "1": [],
+                                "2": []]] as [String: Any?]
             try projectCollectionPath.document(id).setData(data as [String: Any])
             
         },
         readAllProjects: {
             do {
-                let snapshots = try await projectCollectionPath.getDocuments().documents.map { try $0.data(as: Project.self) }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                return snapshots
+                let snapshots = try await projectCollectionPath
+                    .getDocuments()
+                    .documents
+                print(snapshots)
+                let test = try snapshots
+                    .map { try $0.data(as: Project.self) }
+                    .sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                return test
             } catch {
                 throw APIError.noResponseResult
             }
@@ -166,46 +180,57 @@ extension APIService {
         
         // MARK: - Plan
         createPlan: { target, layerIndex, indexFromLane, projectID in
-            let data = ["id": target.id,
+            /// lane 생성
+            let newLaneID = try laneCollectionPath.document().documentID
+            var data = ["id": newLaneID,
+                    "childIDs": [],
+                    "ownerID": target.id,
+                    "periods": nil] as [String: Any?]
+            try await laneCollectionPath.document(newLaneID).setData(data as [String: Any])
+            
+            /// plan 생성
+            data = ["id": target.id,
                         "planTypeID": target.planTypeID,
-                        "parentID": target.parentID,
+                        "parentLaneID": target.parentLaneID,
                         "periods": target.periods,
                         "description": target.description,
-                        "laneIDs": target.laneIDs] as [String: Any?]
+                        "laneIDs": [newLaneID]] as [String: Any?]
             try await planCollectionPath.document(target.id).setData(data as [String: Any])
             
-            if let parentID = target.parentID {
-                var newLaneIDs = try await planCollectionPath.document(parentID).getDocument(as: Plan.self).laneIDs
-                if var newLaneIDs = newLaneIDs {
-                    newLaneIDs.insert(target.id, at: indexFromLane)
-                    try await planCollectionPath.document(parentID).setData(["laneIDs": newLaneIDs])
+            /// lane에 생성된 id를 추가
+            if let parentLaneID = target.parentLaneID {
+                try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
+                /// lane은 이미 존재한다는 전제 하에: lane을 추가하려 했으면 lane 추가 액션에서 이미 생성되어 있어야 함
+            }
+            
+            /// map 업데이트
+            var map = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
+            /// 레이어를 생성해야 하는 경우인지 확인
+            let currentLayerCount = map.count
+            if layerIndex >= currentLayerCount {
+                for newLayer in currentLayerCount..<layerIndex {
+                    map["\(currentLayerCount+1)"] = []
+                }
+            }
+            
+            if let layerLanes = map[layerIndex.description] {
+                /// 빈 아이템을 생성해야 하는 경우인지 확인
+                if indexFromLane >= layerLanes.count {
+                    for dummy in layerLanes.count...indexFromLane {
+                        let dummyPlan = Plan(id: UUID().uuidString)
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id])
+                        map[layerIndex.description]!.append(dummyPlan.id)
+                    }
                 }
                 
-                var newPlanIDs = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).planIDs
-                if var newPlanIDs = newPlanIDs {
-                    newPlanIDs[layerIndex].insert(target.id, at: indexFromLane)
-                    try await projectCollectionPath.document(projectID).setData(["planIDs": newPlanIDs])
-                }
+                /// 생성된 플랜이 들어갈 위치에 이미 빈 아이템이 있는 상태
+                try await planCollectionPath.document(map[layerIndex.description]![indexFromLane]).delete()
+                map[layerIndex.description]![indexFromLane] = target.id
+                try await projectCollectionPath.document(projectID).updateData(["map": map])
             }
-            return target
+            return map
         },
-        readAllPlans: { projectID in
-            let planLayers = try await projectCollectionPath.document(projectID).getDocument().data(as: Project.self).planIDs
-            var results = [[Plan]]()
-            if let planLayers = planLayers {
-                for layer in planLayers {
-                    var layerResults = [Plan]()
-                    for planID in layer {
-                        let snapshot = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self)
-                        layerResults.append(snapshot)
-                    }
-                    results.append(layerResults)
-                }
-            } else {
-                throw APIError.noResponseResult
-            }
-            return results
-        }, deletePlan: { planID in
+        deletePlan: { planID in
             try planCollectionPath.document(planID).updateData(["laneIDs": []])
             try planCollectionPath.document(planID).updateData(["periods": [[]]])
             
@@ -234,8 +259,7 @@ extension APIService {
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         deletePlanType: { _ in },
-        createPlan: { _, _, _, _ in Plan.mock },
-        readAllPlans: { _ in return [[Plan.mock]] },
+        createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
         deletePlansByParent: { _ in }
     )
@@ -249,8 +273,7 @@ extension APIService {
         searchPlanTypes: { _ in [PlanType.mock] },
         createPlanType: { _ in ""},
         deletePlanType: { _ in },
-        createPlan: { _, _, _, _ in  Plan.mock },
-        readAllPlans: { _ in return [[Plan.mock]] },
+        createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
         deletePlansByParent: { _ in }
     )
