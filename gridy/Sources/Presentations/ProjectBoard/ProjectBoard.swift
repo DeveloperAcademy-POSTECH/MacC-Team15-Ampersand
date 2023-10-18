@@ -49,6 +49,7 @@ struct ProjectBoard: Reducer {
                 let title = state.title
                 return .run { send in
                     try await apiService.create(title)
+                    await send(.fetchAllProjects)
                     await send(.setSheet(isPresented: false))
                 }
                 

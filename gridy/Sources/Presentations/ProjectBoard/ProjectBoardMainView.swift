@@ -105,13 +105,13 @@ struct ProjectBoardMainView: View {
                                         .font(.custom("Pretendard-Bold", size: 12))
                                 )
                             LazyVGrid(columns: columnsProjects, alignment: .leading, spacing: 20) {
-                                ForEach(0..<15) { _ in
-                                    ProjectItemView(
-                                        store: Store(
-                                            initialState: ProjectItem.State(),
-                                            reducer: { ProjectItem() }
-                                        )
+                                ForEachStore(
+                                    store.scope(
+                                        state: \.projects,
+                                        action: { .deleteProjectButtonTapped(id: $0, action: $1) }
                                     )
+                                ) {
+                                    ProjectItemView(store: $0)
                                 }
                             }
                         }
@@ -120,6 +120,11 @@ struct ProjectBoardMainView: View {
                         .padding(.horizontal, 24)
                     }
                     .frame(width: proxy.size.width)
+                }
+                .onAppear {
+                    viewStore.send(
+                        .onAppear
+                    )
                 }
             }
         }

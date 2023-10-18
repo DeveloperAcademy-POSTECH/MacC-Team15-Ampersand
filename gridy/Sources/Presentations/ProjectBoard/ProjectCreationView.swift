@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct ProjectCreationView: View {
     let store: StoreOf<ProjectBoard>
     @State private var text = ""
+    @FocusState private var isTextFieldFocused: Bool
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -55,6 +56,7 @@ struct ProjectCreationView: View {
                                         send: { .titleChanged($0) }
                                     )
                                 )
+                                .focused($isTextFieldFocused)
                                 .onSubmit {
                                     viewStore.send(.createNewProjectButtonTapped)
                                 }
@@ -145,13 +147,14 @@ struct ProjectCreationView: View {
                         } label: {
                             RoundedRectangle(cornerRadius: 12)
                                 .frame(width: 328, height: 48)
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(viewStore.title.isEmpty ? .gray : .blue)
                                 .overlay {
                                     Text("Go Ahead !")
                                         .font(.custom("Pretendard-Medium", size: 16))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(viewStore.title.isEmpty ? .black : .white)
                                 }
                         }
+                        .disabled(viewStore.title.isEmpty)
                         .buttonStyle(PlainButtonStyle())
                         .padding(.bottom, 9)
                         HStack(alignment: .center, spacing: 5) {
@@ -174,6 +177,9 @@ struct ProjectCreationView: View {
                                 .foregroundStyle(.gray)
                         }
                     }
+                }
+                .onAppear {
+                    isTextFieldFocused = true
                 }
         }
     }

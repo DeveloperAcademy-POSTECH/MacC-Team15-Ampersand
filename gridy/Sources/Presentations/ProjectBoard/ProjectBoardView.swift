@@ -29,8 +29,14 @@ struct ProjectBoardView: View {
                                 }
                             ProjectCreationView(store: store)
                                 .offset(y: viewStore.isSheetPresented ? 0 : -50)
+                                .onExitCommand {
+                                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                                }
                         }
                     }
+                }
+                .onExitCommand {
+                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
                 }
             }
         }
