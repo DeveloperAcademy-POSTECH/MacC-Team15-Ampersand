@@ -30,7 +30,7 @@ struct APIService {
     var deletePlansByParent: @Sendable (_ parentLaneID: String) async throws -> Void
     
     /// Lane
-    var newLaneCreated: @Sendable (_ layerIdnex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
+    var newLaneCreated: @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
     
     init(
         createProject: @escaping () async throws -> Void,
@@ -47,7 +47,7 @@ struct APIService {
         deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
         deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void,
         
-        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
+        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -212,7 +212,7 @@ extension APIService {
             let currentLayerCount = map.count
             if layerIndex >= currentLayerCount {
                 for newLayer in currentLayerCount..<layerIndex {
-                    map["\(currentLayerCount+1)"] = []
+                    map["\(newLayer)"] = []
                 }
             }
             
@@ -248,7 +248,7 @@ extension APIService {
             }
             //            try await planCollectionPath.document(planID).delete()
         },
-        newLaneCreated: { layerIndex, createOnTop, planID, projectID in
+        newLaneCreated: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let maximumDepth = projectMap.count
             var targetPlanID = planID
@@ -272,6 +272,14 @@ extension APIService {
                     }
                 } else {
                     // TODO: - 레인에 아무것도 없는데 레인을 나누는 경우
+                    /// map 업데이트
+                    var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
+                    projectMap[layerIndex.description] = []
+                    for dummy in 0...laneIndex {
+                        let dummyPlan = Plan(id: UUID().uuidString)
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id])
+                        projectMap[layerIndex.description]!.append(dummyPlan.id)
+                    }
                 }
             }
             return projectMap
@@ -294,7 +302,7 @@ extension APIService {
         createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
         deletePlansByParent: { _ in },
-        newLaneCreated: {_, _, _, _ in ["": [""]] }
+        newLaneCreated: { _, _, _, _, _ in ["": [""]] }
     )
     static let mockValue = Self(
         createProject: { },
@@ -309,7 +317,6 @@ extension APIService {
         createPlan: { _, _, _, _ in ["0": [""]] },
         deletePlan: { _ in },
         deletePlansByParent: { _ in },
-        newLaneCreated: { _, _, _, _ in ["": [""]] }
+        newLaneCreated: { _, _, _, _, _ in ["": [""]] }
     )
 }
-
