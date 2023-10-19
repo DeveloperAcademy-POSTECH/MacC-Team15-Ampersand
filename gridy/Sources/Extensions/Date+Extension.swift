@@ -25,8 +25,13 @@ extension Date {
 //        Date.dateFormatter.locale = Locale(identifier: "ko_KR")
         return Date.dateFormatter.string(from: self)
     }
+    
+    var formattedDate: String {
+        Date.dateFormatter.dateFormat = "yyyy.MM.dd"
+        return Date.dateFormatter.string(from: self)
+    }
 
-    var formattedDate: Date {
+    var filteredDate: Date {
         Calendar.current.startOfDay(for: self)
     }
     
