@@ -35,5 +35,7 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
     
+    @Published var columnStroke: CGFloat = 0.1
+    @Published var rowStroke: CGFloat = 0.5
 }
 

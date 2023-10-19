@@ -9,8 +9,6 @@ import SwiftUI
 
 struct ScheduleAreaView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
-    @State private var columnStroke: CGFloat = 0.1
-    @State private var rowStroke: CGFloat = 0.5
     
     var body: some View {
         GeometryReader { geometry in
@@ -18,20 +16,20 @@ struct ScheduleAreaView: View {
                 Color.white
                 Path { path in
                     for rowIndex in 0..<viewModel.numOfScheduleAreaRow {
-                        let yLocation = CGFloat(rowIndex) * viewModel.scheduleAreaGridHeight - rowStroke
+                        let yLocation = CGFloat(rowIndex) * viewModel.scheduleAreaGridHeight - viewModel.rowStroke
                         path.move(to: CGPoint(x: 0, y: yLocation))
                         path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                     }
                 }
-                .stroke(Color.gray, lineWidth: rowStroke)
+                .stroke(Color.gray, lineWidth: viewModel.rowStroke)
                 Path { path in
                     for columnIndex in 0..<viewModel.maxCol {
-                        let xLocation = CGFloat(columnIndex) * viewModel.gridWidth - columnStroke
+                        let xLocation = CGFloat(columnIndex) * viewModel.gridWidth - viewModel.columnStroke
                         path.move(to: CGPoint(x: xLocation, y: 0))
                         path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                     }
                 }
-                .stroke(Color.gray, lineWidth: columnStroke)
+                .stroke(Color.gray, lineWidth: viewModel.columnStroke)
             }
             .gesture(
                 MagnificationGesture()

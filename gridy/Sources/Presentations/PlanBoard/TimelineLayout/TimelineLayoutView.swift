@@ -21,7 +21,7 @@ struct TimelineLayoutView: View {
             HSplitView {
                 TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
                     .environmentObject(viewModel)
-
+                
                 if showingRightToolBarArea {
                     RightToolBarAreaView(proxy: $proxy)
                         .environmentObject(viewModel)
@@ -45,19 +45,11 @@ struct TimelineLayoutView: View {
         }
         .onAppear {
             NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                if event.modifierFlags.contains(.shift) {
-                    viewModel.isShiftKeyPressed = true
-                } else {
-                    viewModel.isShiftKeyPressed = false
-                }
+                viewModel.isShiftKeyPressed = event.modifierFlags.contains(.shift)
                 return event
             }
             NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                if event.modifierFlags.contains(.command) {
-                    viewModel.isCommandKeyPressed = true
-                } else {
-                    viewModel.isCommandKeyPressed = false
-                }
+                viewModel.isCommandKeyPressed = event.modifierFlags.contains(.command)
                 return event
             }
         }

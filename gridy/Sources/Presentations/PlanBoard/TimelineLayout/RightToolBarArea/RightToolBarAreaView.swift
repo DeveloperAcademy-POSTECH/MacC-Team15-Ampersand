@@ -20,12 +20,6 @@ struct RightToolBarAreaView: View {
     }
 }
 
-//struct RightToolBarAreaView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RightToolBarAreaView()
-//    }
-//}
-
 struct GridSizeControler: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
