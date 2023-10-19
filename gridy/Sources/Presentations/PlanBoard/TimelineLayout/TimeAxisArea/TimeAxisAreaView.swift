@@ -14,7 +14,6 @@ struct TimeAxisAreaView: View {
     let startDate = Date()
 
     @State private var holidays = [Date]()
-    @Binding var leftmostDate: Date
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

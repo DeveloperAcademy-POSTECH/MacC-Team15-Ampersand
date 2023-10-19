@@ -11,7 +11,6 @@ struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @Namespace var scrollSpace
     @State var scrollOffset = CGFloat.zero
-    @State var leftmostDate = Date()
     @Binding var showingIndexArea: Bool
     @Binding var proxy: ScrollViewProxy?
     
@@ -49,7 +48,7 @@ struct TimelineLayoutContentView: View {
                             .environmentObject(viewModel)
                             .frame(height: 200)
             
-                        TimeAxisAreaView(leftmostDate: $leftmostDate)
+                        TimeAxisAreaView()
                             .environmentObject(viewModel)
                             .frame(height: 80)
                     }
