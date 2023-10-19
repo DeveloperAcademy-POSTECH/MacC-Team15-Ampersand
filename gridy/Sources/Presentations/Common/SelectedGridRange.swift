@@ -1,5 +1,5 @@
 //
-//  SelectedRange.swift
+//  SelectedGridRange.swift
 //  gridy
 //
 //  Created by 최민규 on 10/8/23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SelectedRange: Identifiable, Hashable {
+struct SelectedGridRange: Identifiable, Hashable {
     let id = UUID()
     var start: (row: Int, col: Int)
     var end: (row: Int, col: Int)
@@ -16,7 +16,7 @@ struct SelectedRange: Identifiable, Hashable {
         hasher.combine(id)
     }
 
-    static func == (lhs: SelectedRange, rhs: SelectedRange) -> Bool {
+    static func == (lhs: SelectedGridRange, rhs: SelectedGridRange) -> Bool {
         return lhs.id == rhs.id
     }
 }

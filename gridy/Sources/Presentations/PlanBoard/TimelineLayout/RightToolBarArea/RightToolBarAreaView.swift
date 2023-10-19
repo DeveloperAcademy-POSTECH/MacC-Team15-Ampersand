@@ -12,26 +12,11 @@ struct RightToolBarAreaView: View {
     @Binding var proxy: ScrollViewProxy?
     
     var body: some View {
-        GeometryReader { _ in
-            VStack {
-                GridSizeControler()
-                    .environmentObject(viewModel)
-                    .padding(.top)
-                // TODO: Detail UI (하위코드삭제)
-                ForEach(1..<10) { detailNumber in
-                    Rectangle()
-                        .opacity(0.1)
-                        .frame(height: 60)
-                        .cornerRadius(8)
-                        .overlay(Text("Think \(detailNumber)"))
-                }
-                
-                ScrollDatePickerView(proxy: $proxy)
-            }
-            .padding(.horizontal, 16)
-//            .frame(width: geo.size.width)
+        GeometryReader { geometry in
+            GridSizeControler()
+                .environmentObject(viewModel)
+                .padding(.top)
         }
-        .padding(.horizontal, 16)
     }
 }
 
@@ -123,14 +108,14 @@ struct GridSizeControler: View {
                 .background(Color.white.opacity(0.8))
                 .cornerRadius(10)
             
-            if !viewModel.selectedRanges.isEmpty {
-                Text("SelectedRange Start\ncolumn \(viewModel.selectedRanges.last!.start.0), row \(viewModel.selectedRanges.last!.start.1)")
+            if !viewModel.selectedGridRanges.isEmpty {
+                Text("SelectedRange Start\ncolumn \(viewModel.selectedGridRanges.last!.start.0), row \(viewModel.selectedGridRanges.last!.start.1)")
                     .foregroundColor(.black)
                     .padding(8)
                     .background(Color.white.opacity(0.8))
                     .cornerRadius(10)
                 
-                Text("SelectedRange End\ncolumn \(viewModel.selectedRanges.last!.end.0), row \(viewModel.selectedRanges.last!.end.1)")
+                Text("SelectedRange End\ncolumn \(viewModel.selectedGridRanges.last!.end.0), row \(viewModel.selectedGridRanges.last!.end.1)")
                     .foregroundColor(.black)
                     .padding(8)
                     .background(Color.white.opacity(0.8))
@@ -140,7 +125,13 @@ struct GridSizeControler: View {
                     .padding(8)
                     .background(Color.white.opacity(0.8))
                     .cornerRadius(10)
-                
+                if !viewModel.selectedDateRanges.isEmpty {
+                    Text("Selected Dates \(viewModel.selectedDateRanges.last!.start.formattedMonth)/\(viewModel.selectedDateRanges.last!.start.formattedDay)~ \(viewModel.selectedDateRanges.last!.end.formattedMonth)/\(viewModel.selectedDateRanges.last!.end.formattedDay)")
+                        .foregroundColor(.black)
+                        .padding(8)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                }
             }
         }
     }

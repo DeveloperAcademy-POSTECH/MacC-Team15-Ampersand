@@ -24,7 +24,8 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var hoveringCellCol: Int = 0
     @Published var isHovering = false
 
-    @Published var selectedRanges: [SelectedRange] = []
+    @Published var selectedGridRanges: [SelectedGridRange] = []
+    @Published var selectedDateRanges: [SelectedDateRange] = []
     
     @Published var maxLineAreaRow: Int = 0
     @Published var maxCol: Int = 0
@@ -33,5 +34,6 @@ class TimelineLayoutViewModel: ObservableObject {
     
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
+    
 }
 

@@ -22,6 +22,8 @@ struct TimelineLayoutContentView: View {
                     ScheduleIndexAreaView()
                         .frame(height: 140)
                     Rectangle()
+                        .foregroundStyle(.white)
+                        .border(.black)
                         .frame(height: 60)
                     LineIndexAreaView()
                 }
@@ -47,7 +49,7 @@ struct TimelineLayoutContentView: View {
                             .environmentObject(viewModel)
                             .frame(height: 200)
             
-                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
+                        TimeAxisAreaView(leftmostDate: $leftmostDate)
                             .environmentObject(viewModel)
                             .frame(height: 80)
                     }

@@ -18,7 +18,7 @@ struct ScheduleAreaView: View {
                 Color.white
                 Path { path in
                     for rowIndex in 0..<viewModel.numOfScheduleAreaRow {
-                        let yLocation = CGFloat(rowIndex) * viewModel.lineAreaGridHeight - rowStroke
+                        let yLocation = CGFloat(rowIndex) * viewModel.scheduleAreaGridHeight - rowStroke
                         path.move(to: CGPoint(x: 0, y: yLocation))
                         path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                     }

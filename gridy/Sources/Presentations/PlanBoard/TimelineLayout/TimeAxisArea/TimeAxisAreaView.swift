@@ -12,16 +12,15 @@ struct TimeAxisAreaView: View {
     
     // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
     let startDate = Date()
-    
+
     @State private var holidays = [Date]()
     @Binding var leftmostDate: Date
-    @Binding var proxy: ScrollViewProxy?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom, spacing: 0) {
                 ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.exceededCol, to: startDate)!
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     Rectangle()
                         .foregroundStyle(.clear)
@@ -35,7 +34,7 @@ struct TimeAxisAreaView: View {
             }
             HStack(spacing: 0) {
                 ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: startDate)!
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.exceededCol, to: startDate)!
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     DayGridView(dateInfo: dateInfo)
                         .frame(width: viewModel.gridWidth)
@@ -63,6 +62,7 @@ struct MonthView: View {
             Spacer()
             HStack(alignment: .bottom, spacing: 0) {
                 Text("\(month)월")
+                    .foregroundStyle(.black)
                     .font(.title2)
                     .padding(.horizontal, 3)
                 Spacer()

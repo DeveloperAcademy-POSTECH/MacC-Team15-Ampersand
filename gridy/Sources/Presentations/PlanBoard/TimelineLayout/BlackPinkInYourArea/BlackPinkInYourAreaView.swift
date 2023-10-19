@@ -10,7 +10,9 @@ import SwiftUI
 struct BlackPinkInYourAreaView: View {
     var body: some View {
         ZStack {
-            Color.pink
+        Rectangle()
+            .foregroundStyle(.white)
+            .border(.black)
             Text("BlackPinkInYourArea")
         }
     }

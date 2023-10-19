@@ -12,7 +12,12 @@ struct LineAreaSampleView: View {
     
     @State private var columnStroke: CGFloat = 0.1
     @State private var rowStroke: CGFloat = 0.5
-    @State private var temporarySelectedRange: SelectedRange?
+    @State private var temporarySelectedGridRange: SelectedGridRange?
+    @State private var isExceededLeft: Bool = false
+    @State private var isExceededRight: Bool = false
+    @State private var isExceededTop: Bool = false
+    @State private var isExceededBottom: Bool = false
+    @State private var timer: Timer?
     
     var body: some View {
         
@@ -20,32 +25,75 @@ struct LineAreaSampleView: View {
             ZStack {
                 HStack {
                     Button(action: {
+                        if !viewModel.selectedGridRanges.isEmpty {
+                            print(viewModel.selectedGridRanges.last as Any)
+                            let today = Date()
+                            let startDate = min(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col + viewModel.exceededCol, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col + viewModel.exceededCol, to: today)!)
+                            let endDate = max(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col + viewModel.exceededCol, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col + viewModel.exceededCol, to: today)!)
+                            viewModel.selectedDateRanges = [SelectedDateRange(start: startDate, end: endDate)]
+                        }
+                    }) {
+                        Text("create Plan")
+                    }
+                    .keyboardShortcut(.return, modifiers: [])
+                    Button(action: {
+                        viewModel.exceededCol = 0
+                        viewModel.exceededRow = 0
+                    }) {
+                        Text("today")
+                    }
+                    .keyboardShortcut(.return, modifiers: [.command])
+                    Button(action: {
                         moveSelectedCell(rowOffset: -1, colOffset: 0)
                     }) {
-                        Text("UP")
-                        }
-                        .keyboardShortcut(.upArrow, modifiers: [])
+                        Text("Up")
+                    }
+                    .keyboardShortcut(.upArrow, modifiers: [])
                     
                     Button(action: {
                         moveSelectedCell(rowOffset: 1, colOffset: 0)}) {
-                            Text("DOWN")
+                            Text("Down")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [])
                     
                     Button(action: {
                         moveSelectedCell(rowOffset: 0, colOffset: -1)}) {
-                            Text("LEFT")
+                            Text("Left")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [])
                     
                     Button(action: {
                         moveSelectedCell(rowOffset: 0, colOffset: 1)}) {
-                            Text("RIGHT")
+                            Text("Right")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [])
                     Button(action: {
-                       temporarySelectedRange = nil
-                        viewModel.selectedRanges = []
+                        moveSelectedCellToEnd(rowOffset: -1, colOffset: 0)
+                    }) {
+                        Text("Top")
+                    }
+                    .keyboardShortcut(.upArrow, modifiers: [.command])
+                    
+                    Button(action: {
+                        moveSelectedCellToEnd(rowOffset: 1, colOffset: 0)}) {
+                            Text("Bottom")
+                        }
+                        .keyboardShortcut(.downArrow, modifiers: [.command])
+                    
+                    Button(action: {
+                        moveSelectedCellToEnd(rowOffset: 0, colOffset: -1)}) {
+                            Text("Lead")
+                        }
+                        .keyboardShortcut(.leftArrow, modifiers: [.command])
+                    
+                    Button(action: {
+                        moveSelectedCellToEnd(rowOffset: 0, colOffset: 1)}) {
+                            Text("Trail")
+                        }
+                        .keyboardShortcut(.rightArrow, modifiers: [.command])
+                    Button(action: {
+                        temporarySelectedGridRange = nil
+                        viewModel.selectedGridRanges = []
                     }) {
                     }
                     .keyboardShortcut(.escape, modifiers: [])
@@ -70,36 +118,48 @@ struct LineAreaSampleView: View {
                 }
                 .stroke(Color.gray, lineWidth: columnStroke)
                 
-                    ZStack {
-                        if !viewModel.selectedRanges.isEmpty {
-                            ForEach(viewModel.selectedRanges, id: \.self) { selectedRange in
-                                let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
-                                let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewModel.gridWidth
-                                let isStartRowSmaller: Bool = selectedRange.start.row <= selectedRange.end.row
-                                let isStartColSmaller: Bool = selectedRange.start.col <= selectedRange.end.col
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.05))
-                                    .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
-                                    .frame(width: width, height: height)
-                                    .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(selectedRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
-                            }
-                        }
-                        if let temporaryRange = temporarySelectedRange {
-                            let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
-                            let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewModel.gridWidth
-                            let isStartRowSmaller: Bool = temporaryRange.start.row <= temporaryRange.end.row
-                            let isStartColSmaller: Bool = temporaryRange.start.col <= temporaryRange.end.col
+                ZStack {
+                    if !viewModel.selectedGridRanges.isEmpty {
+                        ForEach(viewModel.selectedGridRanges, id: \.self) { selectedRange in
+                            let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
+                            let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewModel.gridWidth
+                            let isStartRowSmaller: Bool = selectedRange.start.row <= selectedRange.end.row
+                            let isStartColSmaller: Bool = selectedRange.start.col <= selectedRange.end.col
                             Rectangle()
                                 .fill(Color.gray.opacity(0.05))
+                                .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
                                 .frame(width: width, height: height)
-                                .position(x: isStartColSmaller ? CGFloat(temporaryRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(temporaryRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(selectedRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                         }
+                    }
+                    if let temporaryRange = temporarySelectedGridRange {
+                        let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
+                        let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewModel.gridWidth
+                        let isStartRowSmaller: Bool = temporaryRange.start.row <= temporaryRange.end.row
+                        let isStartColSmaller: Bool = temporaryRange.start.col <= temporaryRange.end.col
+                        Rectangle()
+                            .fill(Color.red.opacity(0.05))
+                            .frame(width: width, height: height)
+                            .position(x: isStartColSmaller ? CGFloat(temporaryRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(temporaryRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                    }
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .onChange(of: geometry.size) { newSize in
                 viewModel.maxLineAreaRow = Int(newSize.height / viewModel.lineAreaGridHeight) + 1
                 viewModel.maxCol = Int(newSize.width / viewModel.gridWidth) + 1
+            }
+            .onChange(of: [viewModel.gridWidth, viewModel.lineAreaGridHeight]) { newSize in
+                    viewModel.maxLineAreaRow = Int(geometry.size.height / newSize[1]) + 1
+                    viewModel.maxCol = Int(geometry.size.width / newSize[0]) + 1
+            }
+            .onChange(of: [isExceededLeft, isExceededRight, isExceededTop, isExceededBottom]) { exceeded in
+                self.timer?.invalidate()
+                self.timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
+                    viewModel.exceededCol += (exceeded[0] ? -1 : 0) + (exceeded[1] ? 1 : 0)
+                    viewModel.exceededRow += (exceeded[2] ? -1 : 0) + (exceeded[3] ? 1 : 0)
+                }
+                print(viewModel.exceededCol)
             }
             .onContinuousHover { phase in
                 switch phase {
@@ -117,77 +177,130 @@ struct LineAreaSampleView: View {
                     .onChanged { gesture in
                         let dragEnd = gesture.location
                         let dragStart = gesture.startLocation
-
+                        
                         let startRow = Int(dragStart.y / viewModel.lineAreaGridHeight)
                         let endRow = Int(dragEnd.y / viewModel.lineAreaGridHeight)
                         let startCol = Int(dragStart.x / viewModel.gridWidth)
                         let endCol = Int(dragEnd.x / viewModel.gridWidth)
+                        self.isExceededLeft = dragEnd.x < 0
+                        self.isExceededRight = dragEnd.x > geometry.size.width
+                        self.isExceededTop = dragEnd.y < 0
+                        self.isExceededBottom = dragEnd.y > geometry.size.height
                         if !viewModel.isCommandKeyPressed {
                             if !viewModel.isShiftKeyPressed {
-                                viewModel.selectedRanges = []
-                                self.temporarySelectedRange = SelectedRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))
+                                viewModel.selectedGridRanges = []
+                                self.temporarySelectedGridRange = SelectedGridRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))
                             } else {
-                                if let lastIndex = viewModel.selectedRanges.indices.last {
-                                    var updatedRange = viewModel.selectedRanges[lastIndex]
+                                if let lastIndex = viewModel.selectedGridRanges.indices.last {
+                                    var updatedRange = viewModel.selectedGridRanges[lastIndex]
                                     updatedRange.end.row = endRow
                                     updatedRange.end.col = endCol
-                                    viewModel.selectedRanges[lastIndex] = updatedRange
+                                    viewModel.selectedGridRanges[lastIndex] = updatedRange
                                 }
                             }
                         } else {
                             if !viewModel.isShiftKeyPressed {
-                                self.temporarySelectedRange = SelectedRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))
+                                self.temporarySelectedGridRange = SelectedGridRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))
                             } else {
-                                if let lastIndex = viewModel.selectedRanges.indices.last {
-                                    var updatedRange = viewModel.selectedRanges[lastIndex]
+                                if let lastIndex = viewModel.selectedGridRanges.indices.last {
+                                    var updatedRange = viewModel.selectedGridRanges[lastIndex]
                                     updatedRange.end.row = endRow
                                     updatedRange.end.col = endCol
-                                    viewModel.selectedRanges[lastIndex] = updatedRange
+                                    viewModel.selectedGridRanges[lastIndex] = updatedRange
                                 }
                             }
                         }
-                        
-//                        if dragEnd.x > geometry.size.width {
-//                            let offset = Int((dragEnd.x - geometry.size.width) / viewModel.gridWidth)
-//                            if let temporaryRange = temporarySelectedRange {
-//                                self.temporarySelectedRange = SelectedRange(start: (row: startRow, col: startCol - offset), end: (row: endRow, col: endCol))
-//                                print(Int((dragEnd.x - geometry.size.width) / viewModel.gridWidth))
-//                                print(temporarySelectedRange!.start.col)
-//                            }
-//                        }
                     }
                     .onEnded { _ in
-                        if let newRange = temporarySelectedRange {
-                            viewModel.selectedRanges.append(newRange)
-                            temporarySelectedRange = nil
+                        if let newRange = temporarySelectedGridRange {
+                            viewModel.selectedGridRanges.append(newRange)
+                            temporarySelectedGridRange = nil
                         }
+                        self.isExceededLeft = false
+                        self.isExceededRight = false
+                        self.isExceededTop = false
+                        self.isExceededBottom = false
                     }
             )
             .gesture(
                 MagnificationGesture()
                     .onChanged { value in
-                            viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
-                            viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                        viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                        viewModel.lineAreaGridHeight = min(max(viewModel.lineAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
                         viewModel.maxLineAreaRow = Int(geometry.size.height / viewModel.lineAreaGridHeight) + 1
                         viewModel.maxCol = Int(geometry.size.width / viewModel.gridWidth) + 1
                     }
             )
+           
+        }
+    }
+    func moveSelectedCell(rowOffset: Int, colOffset: Int) {
+        if !viewModel.selectedGridRanges.isEmpty {
+            if Int(viewModel.selectedGridRanges.last!.end.col) + colOffset < 0 {
+                viewModel.exceededCol -= 1
+            } else if Int(viewModel.selectedGridRanges.last!.end.col) + colOffset > viewModel.maxCol - 2 {
+                viewModel.exceededCol += 1
+            }
+                if !viewModel.isShiftKeyPressed {
+                    let movedRow = min(max(Int(viewModel.selectedGridRanges.last!.start.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
+                    let movedCol = min(max(Int(viewModel.selectedGridRanges.last!.start.col) + colOffset, 0), viewModel.maxCol - 2)
+                    viewModel.selectedGridRanges = [SelectedGridRange(start: (row: movedRow, col: movedCol), end: (row: movedRow, col: movedCol))]
+                } else {
+                    let startRow = Int(viewModel.selectedGridRanges.last!.start.row)
+                    let movedEndRow = Int(viewModel.selectedGridRanges.last!.end.row) + rowOffset
+                    let startCol = Int(viewModel.selectedGridRanges.last!.start.col)
+                    let movedEndCol = Int(viewModel.selectedGridRanges.last!.end.col) + colOffset
+                    viewModel.selectedGridRanges = [SelectedGridRange(start: (row: startRow, col: startCol), end: (row: movedEndRow, col: movedEndCol))]
+                }
         }
     }
     
-    func moveSelectedCell(rowOffset: Int, colOffset: Int) {
-        if !viewModel.selectedRanges.isEmpty {
-            if !viewModel.isShiftKeyPressed {
-                let startRow = min(max(Int(viewModel.selectedRanges.last!.start.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
-                let startCol = min(max(Int(viewModel.selectedRanges.last!.start.col) + colOffset, 0), viewModel.maxCol - 2)
-                viewModel.selectedRanges = [SelectedRange(start: (row: startRow, col: startCol), end: (row: startRow, col: startCol))]
-            } else {
-                let startRow = Int(viewModel.selectedRanges.last!.start.row)
-                let endRow = Int(viewModel.selectedRanges.last!.end.row) + rowOffset
-                let startCol = Int(viewModel.selectedRanges.last!.start.col)
-                let endCol = Int(viewModel.selectedRanges.last!.end.col) + colOffset
-                viewModel.selectedRanges = [SelectedRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))]
+    func moveSelectedCellToEnd(rowOffset: Int, colOffset: Int) {
+        if !viewModel.selectedGridRanges.isEmpty {
+            if Int(viewModel.selectedGridRanges.last!.end.col) + colOffset < 0 {
+                viewModel.exceededCol -= 7
+            } else if Int(viewModel.selectedGridRanges.last!.end.col) + colOffset > viewModel.maxCol - 2 {
+                viewModel.exceededCol += 7
             }
+                if !viewModel.isShiftKeyPressed {
+                    var movedRow: Int = 0
+                    var movedCol: Int = 0
+                    if rowOffset < 0 {
+                       movedRow = 0
+                       movedCol = min(max(Int(viewModel.selectedGridRanges.last!.start.col) + colOffset, 0), viewModel.maxCol - 2)
+                    } else if rowOffset > 0 {
+                        movedRow = viewModel.maxLineAreaRow - 2
+                        movedCol = min(max(Int(viewModel.selectedGridRanges.last!.start.col) + colOffset, 0), viewModel.maxCol - 2)
+                    }
+                    if colOffset < 0 {
+                            movedRow = min(Int(viewModel.selectedGridRanges.last!.start.row) + rowOffset, viewModel.maxLineAreaRow - 2)
+                            movedCol = 0
+                    } else if colOffset > 0 {
+                        movedRow = min(max(Int(viewModel.selectedGridRanges.last!.start.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
+                        movedCol = viewModel.maxCol - 2
+                    }
+                    viewModel.selectedGridRanges = [SelectedGridRange(start: (row: movedRow, col: movedCol), end: (row: movedRow, col: movedCol))]
+                } else {
+                    var movedEndRow: Int = 0
+                    var movedEndCol: Int = 0
+                    if rowOffset < 0 {
+                       movedEndRow = 0
+                       movedEndCol = min(max(Int(viewModel.selectedGridRanges.last!.end.col) + colOffset, 0), viewModel.maxCol - 2)
+                    } else if rowOffset > 0 {
+                        movedEndRow = viewModel.maxLineAreaRow - 2
+                        movedEndCol = min(max(Int(viewModel.selectedGridRanges.last!.end.col) + colOffset, 0), viewModel.maxCol - 2)
+                    }
+                    if colOffset < 0 {
+                       movedEndRow = min(max(Int(viewModel.selectedGridRanges.last!.end.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
+                       movedEndCol = 0
+                    } else if colOffset > 0 {
+                        movedEndRow = min(max(Int(viewModel.selectedGridRanges.last!.end.row) + rowOffset, 0), viewModel.maxLineAreaRow - 2)
+                        movedEndCol = viewModel.maxCol - 2
+                    }
+                    let startRow = Int(viewModel.selectedGridRanges.last!.start.row)
+                    let startCol = Int(viewModel.selectedGridRanges.last!.start.col)
+                    viewModel.selectedGridRanges = [SelectedGridRange(start: (row: startRow, col: startCol), end: (row: movedEndRow, col: movedEndCol))]
+                }
         }
     }
 }
