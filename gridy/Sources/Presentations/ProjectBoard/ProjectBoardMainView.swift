@@ -12,13 +12,13 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
-    @State var tag: Int? = nil
+    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
-                    //TODO: NavigationLink 방식은 Store 이용하기
+                    // TODO: NavigationLink 방식은 Store 이용하기
                     NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
                         EmptyView()
                     }
@@ -81,7 +81,7 @@ struct ProjectBoardMainView: View {
                                                 .padding(.leading, 12)
                                                 Spacer()
                                                 Button {
-                                                    //TODO: 더보기 버튼
+                                                    // TODO: 더보기 버튼
                                                 } label: {
                                                     RoundedRectangle(cornerRadius: 6)
                                                         .frame(width: 20, height: 20)
