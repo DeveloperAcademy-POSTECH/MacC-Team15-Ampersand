@@ -320,7 +320,6 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
-				ADACF5FE2AC25760008AADFA /* PlanItem.swift */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				AD06C4C12AD7836600E3CC07 /* PlanBoardView.swift */,
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
@@ -594,7 +593,6 @@
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */,
-				ADACF5FF2AC25760008AADFA /* PlanItem.swift in Sources */,
 				AD06C4C22AD7836600E3CC07 /* PlanBoardView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
@@ -791,13 +789,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = gridy/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Gridy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ampersand.gridy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -824,13 +824,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = gridy/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Gridy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ampersand.gridy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

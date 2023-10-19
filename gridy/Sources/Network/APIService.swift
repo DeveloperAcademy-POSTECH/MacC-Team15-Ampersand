@@ -54,8 +54,8 @@ struct APIService {
         
         /**
          - Parameters:
-            - layerIndex: 새 레이어를 추가하려는 인덱스. layerIndex와 layerIndex+1사이에 새 레이어가 추가. 즉 생성되는 레이어의 인덱스는 layerIndex + 1
-            - projectID: 프로젝트 ID
+         - layerIndex: 새 레이어를 추가하려는 인덱스. layerIndex와 layerIndex+1사이에 새 레이어가 추가. 즉 생성되는 레이어의 인덱스는 layerIndex + 1
+         - projectID: 프로젝트 ID
          */
         newLayerCreated: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     ) {
@@ -198,9 +198,9 @@ extension APIService {
             /// plane에 대한  lane 생성
             let newLaneID = try laneCollectionPath.document().documentID
             var data = ["id": newLaneID,
-                    "childIDs": [],
-                    "ownerID": target.id,
-                    "periods": []] as [String: Any?]
+                        "childIDs": [],
+                        "ownerID": target.id,
+                        "periods": []] as [String: Any?]
             try await laneCollectionPath.document(newLaneID).setData(data as [String: Any])
             
             /// lane에 생성된 id를 추가
@@ -228,11 +228,11 @@ extension APIService {
             if !identicalTypeExist {
                 /// plan 생성
                 data = ["id": target.id,
-                            "planTypeID": target.planTypeID,
-                            "parentLaneID": target.parentLaneID,
-                            "periods": target.periods,
-                            "description": target.description,
-                            "laneIDs": [newLaneID]] as [String: Any?]
+                        "planTypeID": target.planTypeID,
+                        "parentLaneID": target.parentLaneID,
+                        "periods": target.periods,
+                        "description": target.description,
+                        "laneIDs": [newLaneID]] as [String: Any?]
                 try await planCollectionPath.document(target.id).setData(data as [String: Any])
             }
             /// map 업데이트
