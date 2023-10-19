@@ -12,15 +12,15 @@ struct RightToolBarAreaView: View {
     @Binding var proxy: ScrollViewProxy?
     
     var body: some View {
-        GeometryReader { geometry in
-            GridSizeControler()
+        GeometryReader { _ in
+            GridSizeController()
                 .environmentObject(viewModel)
                 .padding(.top)
         }
     }
 }
 
-struct GridSizeControler: View {
+struct GridSizeController: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
     var body: some View {
