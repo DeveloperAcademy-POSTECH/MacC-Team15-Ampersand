@@ -18,8 +18,13 @@ struct ProjectBoardMainView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
+                    //TODO: NavigationLink 방식은 Store 이용하기
+                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
+                        EmptyView()
+                    }
+                    .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
-                        // RightTopBarArea
+                        
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.1))
                             .frame(height: 36)
@@ -76,7 +81,7 @@ struct ProjectBoardMainView: View {
                                                 .padding(.leading, 12)
                                                 Spacer()
                                                 Button {
-                                                    // 더보기 버튼
+                                                    //TODO: 더보기 버튼
                                                 } label: {
                                                     RoundedRectangle(cornerRadius: 6)
                                                         .frame(width: 20, height: 20)
@@ -124,9 +129,6 @@ struct ProjectBoardMainView: View {
                         .padding(.horizontal, 24)
                     }
                     .frame(width: proxy.size.width)
-                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
-                        EmptyView()
-                    }
                 }
                 .onAppear {
                     viewStore.send(

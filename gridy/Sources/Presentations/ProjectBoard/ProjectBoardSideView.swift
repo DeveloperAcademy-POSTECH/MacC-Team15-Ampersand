@@ -13,7 +13,6 @@ struct ProjectBoardSideView: View {
     var body: some View {
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: 0) {
-                // LeftTopBarArea
                 HStack(alignment: .center, spacing: 0) {
                     Circle()
                         .foregroundStyle(.gray)
@@ -25,7 +24,7 @@ struct ProjectBoardSideView: View {
                     Spacer()
                 }
                 .frame(height: 36)
-                // ProjectSearchArea
+                
                 Rectangle()
                     .frame(height: 52)
                     .foregroundStyle(.white)
@@ -40,7 +39,7 @@ struct ProjectBoardSideView: View {
                                     .padding(.leading, 12)
                             }
                     }
-                // ProjectMenuArea
+                
                 VStack(alignment: .center, spacing: 0) {
                     Button {
                         print("New Folder")
@@ -86,7 +85,7 @@ struct ProjectBoardSideView: View {
                         Spacer()
                     }
                     List {
-                        
+                        //TODO: Project Name List
                     }
                     .frame(height: proxy.size.height)
                 }
