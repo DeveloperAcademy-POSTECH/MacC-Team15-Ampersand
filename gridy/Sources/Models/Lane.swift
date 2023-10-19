@@ -13,5 +13,5 @@ struct Lane: Identifiable, Decodable {
     var ownerID: String
     
     /// Computed property by child's (minimum designated Date, maximum designated Date)
-    var period: [[Date]]?
+    var period: [Int: [Date]]?
 }

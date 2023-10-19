@@ -183,29 +183,46 @@ extension APIService {
         
         // MARK: - Plan
         createPlan: { target, layerIndex, indexFromLane, projectID in
-            /// lane 생성
+            /// plane에 대한  lane 생성
             let newLaneID = try laneCollectionPath.document().documentID
             var data = ["id": newLaneID,
                     "childIDs": [],
                     "ownerID": target.id,
-                    "periods": nil] as [String: Any?]
+                    "periods": []] as [String: Any?]
             try await laneCollectionPath.document(newLaneID).setData(data as [String: Any])
             
-            /// plan 생성
-            data = ["id": target.id,
-                        "planTypeID": target.planTypeID,
-                        "parentLaneID": target.parentLaneID,
-                        "periods": target.periods,
-                        "description": target.description,
-                        "laneIDs": [newLaneID]] as [String: Any?]
-            try await planCollectionPath.document(target.id).setData(data as [String: Any])
-            
             /// lane에 생성된 id를 추가
+            /// 이 동작은 lane이 이미 존재한다는 전제 하에 있음: lane을 추가하려 했으면 lane 추가 액션에서 이미 생성되어 있어야 함
+            var identicalTypeExist = false
             if let parentLaneID = target.parentLaneID {
-                try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
-                /// lane은 이미 존재한다는 전제 하에: lane을 추가하려 했으면 lane 추가 액션에서 이미 생성되어 있어야 함
+                /// 이미 같은 lane에 동일한 type의 플랜이 존재하면 해당 플랜에 플랜을 따로 생성하지 않고 periods를 추가
+                
+                if let originLane = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self).childIDs {
+                    for childID in originLane {
+                        let childPlan = try await planCollectionPath.document(childID).getDocument(as: Plan.self)
+                        if target.planTypeID == childPlan.planTypeID {
+                            identicalTypeExist = true
+                            try await planCollectionPath.document(childPlan.id).updateData(["periods": [childPlan.periods.count: [target.periods[0], target.periods[1]]]])
+                        }
+                    }
+                    
+                    /// lane 업데이트
+                    try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
+                    try await laneCollectionPath.document(parentLaneID).updateData(["periods": [originLane.count: [target.periods[0], target.periods[1]]]])
+                    
+                }
             }
             
+            if !identicalTypeExist {
+                /// plan 생성
+                data = ["id": target.id,
+                            "planTypeID": target.planTypeID,
+                            "parentLaneID": target.parentLaneID,
+                            "periods": target.periods,
+                            "description": target.description,
+                            "laneIDs": [newLaneID]] as [String: Any?]
+                try await planCollectionPath.document(target.id).setData(data as [String: Any])
+            }
             /// map 업데이트
             var map = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             /// 레이어를 생성해야 하는 경우인지 확인
@@ -220,8 +237,8 @@ extension APIService {
                 /// 빈 아이템을 생성해야 하는 경우인지 확인
                 if indexFromLane >= layerLanes.count {
                     for dummy in layerLanes.count...indexFromLane {
-                        let dummyPlan = Plan(id: UUID().uuidString)
-                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id])
+                        let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": []])
                         map[layerIndex.description]!.append(dummyPlan.id)
                     }
                 }
@@ -276,47 +293,13 @@ extension APIService {
                     var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
                     projectMap[layerIndex.description] = []
                     for dummy in 0...laneIndex {
-                        let dummyPlan = Plan(id: UUID().uuidString)
-                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id])
+                        let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": []])
                         projectMap[layerIndex.description]!.append(dummyPlan.id)
                     }
                 }
             }
             return projectMap
         }
-    )
-}
-
-// MARK: - test, mock
-extension APIService {
-    static let testValue = Self(
-        createProject: { },
-        readAllProjects: {
-            [Project.mock] },
-        updateProjectTitle: { _, _ in },
-        deleteProject: { _ in },
-        readAllPlanTypes: { [PlanType.mock] },
-        searchPlanTypes: { _ in [PlanType.mock] },
-        createPlanType: { _ in ""},
-        deletePlanType: { _ in },
-        createPlan: { _, _, _, _ in ["0": [""]] },
-        deletePlan: { _ in },
-        deletePlansByParent: { _ in },
-        newLaneCreated: { _, _, _, _, _ in ["": [""]] }
-    )
-    static let mockValue = Self(
-        createProject: { },
-        readAllProjects: {
-            [Project.mock] },
-        updateProjectTitle: { _, _ in },
-        deleteProject: { _ in },
-        readAllPlanTypes: { [PlanType.mock] },
-        searchPlanTypes: { _ in [PlanType.mock] },
-        createPlanType: { _ in ""},
-        deletePlanType: { _ in },
-        createPlan: { _, _, _, _ in ["0": [""]] },
-        deletePlan: { _ in },
-        deletePlansByParent: { _ in },
-        newLaneCreated: { _, _, _, _, _ in ["": [""]] }
     )
 }

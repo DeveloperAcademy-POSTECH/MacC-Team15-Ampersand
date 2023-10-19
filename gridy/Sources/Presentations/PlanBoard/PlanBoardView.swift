@@ -36,7 +36,7 @@ struct PlanBoardView: View {
                                 )
                             )
                             Button("create new plan with new type") {
-                                viewStore.send(.createPlanType(layer: 0, row: 0, target: Plan(id: "", planTypeID: "")))
+                                viewStore.send(.createPlanType(layer: 0, row: 0, target: Plan(id: "", planTypeID: "", periods: [:])))
                             }
                         }
                         ZStack {
@@ -51,7 +51,9 @@ struct PlanBoardView: View {
                                                 row: 0,
                                                 target: Plan(
                                                     id: "",
-                                                    planTypeID: result.id)
+                                                    planTypeID: result.id,
+                                                    periods: [:]
+                                                )
                                             )
                                         )
                                     } label: {

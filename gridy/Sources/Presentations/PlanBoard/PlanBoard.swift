@@ -134,6 +134,7 @@ struct PlanBoard: Reducer {
                 let newPlan = Plan(id: createdPlanID, // APIService에서 자동 생성
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
+                                   periods: [0: [Date(), Date()]],
                                    description: target.description)
                 return .run { send in
                     await send(.createPlanResponse(

@@ -13,9 +13,9 @@ struct Plan: Identifiable, Equatable, Decodable {
     
     /// If parentLaneID is nil, this plan data must be on root layer
     var parentLaneID: String?
-    var periods: [[Date]]?
+    var periods: [Int: [Date]] /// [index: [startDate, endDate]]
     var description: String?
     var laneIDs: [Int: [String]]?
     
-    static let mock = Plan(id: "", planTypeID: "", parentLaneID: "", description: "", laneIDs: [0: [""]])
+    static let mock = Plan(id: "", planTypeID: "", parentLaneID: "", periods: [:], description: "", laneIDs: [0: [""]])
 }
