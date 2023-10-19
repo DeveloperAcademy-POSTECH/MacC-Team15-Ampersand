@@ -85,7 +85,7 @@ struct ProjectBoardSideView: View {
                         Spacer()
                     }
                     List {
-                        //TODO: Project Name List
+                        // TODO: Project Name List
                     }
                     .frame(height: proxy.size.height)
                 }

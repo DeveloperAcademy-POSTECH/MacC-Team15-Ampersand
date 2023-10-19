@@ -267,15 +267,8 @@ extension APIService {
             try planCollectionPath.document(planID).updateData(["periods": [[]]])
             
         },
-        deletePlansByParent: { planID in
-            // TODO: -
-            let laneIDs = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self).laneIDs
-            if let laneIDs = laneIDs {
-                try laneIDs.forEach { laneID in
-                    //                    try planCollectionPath.document(laneID).delete()
-                }
-            }
-            //            try await planCollectionPath.document(planID).delete()
+        deletePlansByParent: { _ in
+            // TODO: - delete
         },
         newLaneCreated: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
