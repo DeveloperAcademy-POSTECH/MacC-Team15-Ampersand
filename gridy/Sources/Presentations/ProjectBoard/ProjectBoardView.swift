@@ -16,7 +16,7 @@ struct ProjectBoardView: View {
             GeometryReader { geometry in
                 ZStack {
                     HStack(spacing: 0) {
-                        ProjectBoardSideView()
+                        ProjectBoardSideView(store: store)
                             .frame(width: 306)
                         ProjectBoardMainView(store: store)
                     }
