@@ -28,8 +28,8 @@ struct LineAreaSampleView: View {
                         if !viewModel.selectedGridRanges.isEmpty {
                             print(viewModel.selectedGridRanges.last as Any)
                             let today = Date()
-                            let startDate = min(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col + viewModel.exceededCol, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col + viewModel.exceededCol, to: today)!)
-                            let endDate = max(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col + viewModel.exceededCol, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col + viewModel.exceededCol, to: today)!)
+                            let startDate = min(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
+                            let endDate = max(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
                             viewModel.selectedDateRanges = [SelectedDateRange(start: startDate, end: endDate)]
                         }
                     }) {
@@ -129,7 +129,7 @@ struct LineAreaSampleView: View {
                                 .fill(Color.gray.opacity(0.05))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
                                 .frame(width: width, height: height)
-                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(selectedRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2 : CGFloat(selectedRange.end.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                         }
                     }
                     if let temporaryRange = temporarySelectedGridRange {
@@ -140,7 +140,7 @@ struct LineAreaSampleView: View {
                         Rectangle()
                             .fill(Color.red.opacity(0.05))
                             .frame(width: width, height: height)
-                            .position(x: isStartColSmaller ? CGFloat(temporaryRange.start.col) * viewModel.gridWidth + width / 2 : CGFloat(temporaryRange.end.col) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                            .position(x: isStartColSmaller ? CGFloat(temporaryRange.start.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2 : CGFloat(temporaryRange.end.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                     }
                 }
             }
@@ -155,11 +155,10 @@ struct LineAreaSampleView: View {
             }
             .onChange(of: [isExceededLeft, isExceededRight, isExceededTop, isExceededBottom]) { exceeded in
                 self.timer?.invalidate()
-                self.timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
+                self.timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
                     viewModel.exceededCol += (exceeded[0] ? -1 : 0) + (exceeded[1] ? 1 : 0)
                     viewModel.exceededRow += (exceeded[2] ? -1 : 0) + (exceeded[3] ? 1 : 0)
                 }
-                print(viewModel.exceededCol)
             }
             .onContinuousHover { phase in
                 switch phase {
@@ -189,7 +188,7 @@ struct LineAreaSampleView: View {
                         if !viewModel.isCommandKeyPressed {
                             if !viewModel.isShiftKeyPressed {
                                 viewModel.selectedGridRanges = []
-                                self.temporarySelectedGridRange = SelectedGridRange(start: (row: startRow, col: startCol), end: (row: endRow, col: endCol))
+                                self.temporarySelectedGridRange = SelectedGridRange(start: (row: startRow, col: startCol), end: (row: endRow, col: isExceededRight ? endCol + viewModel.exceededCol : endCol))
                             } else {
                                 if let lastIndex = viewModel.selectedGridRanges.indices.last {
                                     var updatedRange = viewModel.selectedGridRanges[lastIndex]
