@@ -32,6 +32,9 @@ struct APIService {
     /// Lane
     var newLaneCreated: @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
     
+    /// Layer
+    var newLayerCreated: @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
+    
     init(
         createProject: @escaping () async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
@@ -47,7 +50,14 @@ struct APIService {
         deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
         deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void,
         
-        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
+        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]],
+        
+        /**
+         - Parameters:
+            - layerIndex: 새 레이어를 추가하려는 인덱스. layerIndex와 layerIndex+1사이에 새 레이어가 추가. 즉 생성되는 레이어의 인덱스는 layerIndex + 1
+            - projectID: 프로젝트 ID
+         */
+        newLayerCreated: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -64,6 +74,8 @@ struct APIService {
         self.deletePlansByParent = deletePlansByParent
         
         self.newLaneCreated = newLaneCreated
+        
+        self.newLayerCreated = newLayerCreated
     }
 }
 
@@ -238,7 +250,7 @@ extension APIService {
                 if indexFromLane >= layerLanes.count {
                     for dummy in layerLanes.count...indexFromLane {
                         let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
-                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": []])
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": [], "laneIDs": []])
                         map[layerIndex.description]!.append(dummyPlan.id)
                     }
                 }
@@ -254,8 +266,8 @@ extension APIService {
             try planCollectionPath.document(planID).updateData(["laneIDs": []])
             try planCollectionPath.document(planID).updateData(["periods": [[]]])
             
-        }
-        , deletePlansByParent: { planID in
+        },
+        deletePlansByParent: { planID in
             // TODO: -
             let laneIDs = try await planCollectionPath.document(planID).getDocument().data(as: Plan.self).laneIDs
             if let laneIDs = laneIDs {
@@ -276,7 +288,7 @@ extension APIService {
                     let parentLane = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self)
                     if var childIDsInLane = parentLane.childIDs {
                         let newPlanID = UUID().uuidString
-                        try await planCollectionPath.document(newPlanID).setData(["id": newPlanID])
+                        try await planCollectionPath.document(newPlanID).setData(["id": newPlanID, "periods": [], "laneIDs": []])
                         let newChildIndex = childIDsInLane.firstIndex(of: targetPlanID)! + (createOnTop ? 0 : 1)
                         childIDsInLane.insert(
                             newPlanID,
@@ -294,11 +306,59 @@ extension APIService {
                     projectMap[layerIndex.description] = []
                     for dummy in 0...laneIndex {
                         let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
-                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": []])
+                        try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": [], "laneIDs": []])
                         projectMap[layerIndex.description]!.append(dummyPlan.id)
                     }
                 }
             }
+            return projectMap
+        },
+        newLayerCreated: { layerIndex, projectID in
+            /// projectMap에 새 레이어를 추가
+            var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
+            let currentProjectMapLayerSize = projectMap.count
+            
+            if (currentProjectMapLayerSize - 1) <= layerIndex {
+                /// 이미 있는 레이어와 레이어 사이에 생성하는 것이 아닌, map에 아직 없는 레이어를 추가하는 경우: 레이어만 추가
+                for currentLayerIndex in currentProjectMapLayerSize..<layerIndex {
+                    projectMap["\(currentLayerIndex)"] = []
+                }
+            } else {
+                /// 이미 있는 레이어와 레이어 사이에 생성하는 경우
+                for currentLayerIndex in stride(from: currentProjectMapLayerSize - 1, to: layerIndex - 1, by: -1) {
+                    projectMap["\(currentLayerIndex + 1)"] = projectMap.removeValue(forKey: currentLayerIndex.description)
+                }
+                projectMap["\(layerIndex + 1)"] = []
+                
+                /// 생성된 레이어에, layerIndex(상위레이어)에 위치한 plan이
+                for planIDInUpperLayer in projectMap[layerIndex.description]! {
+                    let upperPlan = try await planCollectionPath.document(planIDInUpperLayer).getDocument(as: Plan.self)
+                    if let laneIDs = upperPlan.laneIDs {
+                        var newUpperPlansLanes = []
+                        /// 가지는 lane만큼
+                        for laneIndex in 0..<laneIDs.count {
+                            /// 빈 플랜을 생성해
+                            var newPlan = Plan(id: UUID().uuidString, periods: [:])
+                            newUpperPlansLanes.append(newPlan.id)
+                            projectMap[layerIndex.description]!.append(newPlan.id)
+                            
+                            /// upper plan의 lane을 새로 생성된 빈 플랜으로 옮겨주고,
+                            let newPlansLaneID = laneIDs[laneIndex]!
+                            newPlan.laneIDs = [laneIndex: newPlansLaneID]
+                            try await planCollectionPath.document(newPlan.id).setData(["id": newPlan.id, "periods": [], "laneIDs": newPlan.laneIDs as Any])
+                            
+                            /// 그 child plan의 lane들이 가리키는 parentLaneID를 생성된 plan으로 변경
+                            for laneID in laneIDs[laneIndex]! {
+                                try await planCollectionPath.document(laneID).updateData(["parentLaneID": newPlansLaneID])
+                            }
+                        }
+                        /// 부모 플랜이 가지는 laneIDs도 업데이트
+                        try await planCollectionPath.document(upperPlan.id).updateData(["laneIDs": newUpperPlansLanes])
+                    }
+                }
+            }
+            /// 수정된 map을 다시 해당 프로젝트에 업데이트
+            try await projectCollectionPath.document(projectID).updateData(["map": projectMap])
             return projectMap
         }
     )
