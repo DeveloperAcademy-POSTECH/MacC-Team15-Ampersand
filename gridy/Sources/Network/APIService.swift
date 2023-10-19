@@ -12,13 +12,13 @@ import FirebaseFirestoreSwift
 
 /// Service CRUD
 struct APIService {
-    var create: () async throws -> Void
+    var create: (String) async throws -> Void
     var readAllProjects: () async throws -> [Project]
     var updateProjectTitle: @Sendable (_ id: String, _ newTitle: String) async throws -> Void
     var delete: @Sendable (_ id: String) async throws -> Void
     
     init(
-        create: @escaping () async throws -> Void,
+        create: @escaping (String) async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         delete: @escaping @Sendable (String) async throws -> Void
@@ -48,10 +48,10 @@ extension APIService {
     }
     
     static let liveValue = Self(
-        create: {
+        create: { title in
             let id = try basePath.document().documentID
             let data = ["id": id,
-                        "title": "제목 없음",
+                        "title": title,
                         "ownerUid": try uid,
                         "createdDate": Date(),
                         "lastModifiedDate": Date()] as [String: Any]
@@ -78,14 +78,14 @@ extension APIService {
 // MARK: - test, mock
 extension APIService {
     static let testValue = Self(
-        create: { },
+        create: { _ in },
         readAllProjects: {
             [Project.mock] },
         updateProjectTitle: { _, _ in },
         delete: { _ in }
     )
     static let mockValue = Self(
-        create: { },
+        create: { _ in },
         readAllProjects: {
             [Project.mock] },
         updateProjectTitle: { _, _ in },

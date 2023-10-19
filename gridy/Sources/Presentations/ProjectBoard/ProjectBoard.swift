@@ -19,6 +19,8 @@ struct ProjectBoard: Reducer {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var successToFetchData = false
         var isInProgress = false
+        var isSheetPresented = false
+        @BindingState var title = ""
     }
     
     enum Action: BindableAction, Equatable {
@@ -28,11 +30,12 @@ struct ProjectBoard: Reducer {
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         case setProcessing(Bool)
-        
+        case titleChanged(String)
         case binding(BindingAction<State>)
+        case setSheet(isPresented: Bool)
         case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
-     
+    
     var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -43,9 +46,11 @@ struct ProjectBoard: Reducer {
                 }
                 
             case .createNewProjectButtonTapped:
+                let title = state.title
                 return .run { send in
-                    try await apiService.create()
+                    try await apiService.create(title)
                     await send(.fetchAllProjects)
+                    await send(.setSheet(isPresented: false))
                 }
                 
             case .readAllButtonTapped:
@@ -83,6 +88,15 @@ struct ProjectBoard: Reducer {
                 state.isInProgress = isInProgress
                 return .none
                 
+            case let .setSheet(isPresented: isPresented):
+                state.title = ""
+                state.isSheetPresented = isPresented
+                return .none
+                
+            case let .titleChanged(changedTitle):
+                state.title = changedTitle
+                return .none
+                
             case .binding:
                 return .none
                 
@@ -101,4 +115,3 @@ struct ProjectBoard: Reducer {
         }
     }
 }
-
