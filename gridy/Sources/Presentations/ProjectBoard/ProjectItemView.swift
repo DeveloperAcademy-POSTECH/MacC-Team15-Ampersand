@@ -27,7 +27,7 @@ struct ProjectItemView: View {
                                 .padding(.trailing, 4)
                             Spacer()
                             Button {
-                                //TODO: 더보기 버튼
+                                // TODO: 더보기 버튼
                             } label: {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 20, height: 20)
