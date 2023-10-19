@@ -17,8 +17,8 @@ struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-//                ContentView()
-                TimelineLayoutView()
+                ContentView()
+//                TimelineLayoutView()
             }
         }
     }
