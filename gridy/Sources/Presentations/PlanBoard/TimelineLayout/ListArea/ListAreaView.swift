@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ListAreaView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+
     @State var isLeftButtonClicked = false
     @State var isRightButtonClicked = false
     @State var isTopButtonClicked = false
@@ -27,6 +29,8 @@ struct ListAreaView: View {
                             isRightButtonClicked: $isRightButtonClicked,
                             largeTaskElementTextField: $largeTaskTexts[index]
                         )
+                        .frame(height: viewModel.lineAreaGridHeight)
+
                     }
                 }
             } else {
@@ -50,7 +54,6 @@ struct ListAreaView: View {
                 }
             }
         }
-        .frame(width: 266)
         .onAppear {
             leftSmallTaskTuples = Array(repeating: (1, ""), count: 20)
             rightSmallTaskTuples = (0..<20).map { ($0, "") }

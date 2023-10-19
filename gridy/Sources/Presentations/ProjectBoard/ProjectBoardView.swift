@@ -9,40 +9,32 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            ZStack {
-                BackgroundView()
-                if viewStore.successToFetchData {
-                    VStack {
-                        Button("create new project") {
-                            viewStore.send(.createNewProjectButtonTapped)
-                        }
-                        Button("read all projects") {
-                            viewStore.send(.readAllButtonTapped)
-                        }
-                        ForEachStore(
-                            store.scope(
-                                state: \.projects,
-                                action: { .deleteProjectButtonTapped(id: $0, action: $1) }
-                            )
-                        ) {
-                            ProjectItemView(store: $0)
-                        }
+            GeometryReader { geometry in
+                ZStack {
+                    HStack(spacing: 0) {
+                        ProjectBoardSideView()
+                            .frame(width: 306)
+                        ProjectBoardMainView(store: store)
                     }
-                } else {
-                    ZStack {
-                        if viewStore.isInProgress {
-                            ProgressView()
+                    if viewStore.isSheetPresented {
+                        ZStack {
+                            Color.black.opacity(0.6)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                                .onTapGesture {
+                                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                                }
+                            ProjectCreationView(store: store)
+                                .offset(y: viewStore.isSheetPresented ? 0 : -50)
                         }
                     }
                 }
-            }
-            .onAppear {
-                viewStore.send(.onAppear)
+                .onExitCommand {
+                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                }
             }
         }
     }
@@ -56,4 +48,3 @@ struct ProjectBoardView: View {
         )
     )
 }
-

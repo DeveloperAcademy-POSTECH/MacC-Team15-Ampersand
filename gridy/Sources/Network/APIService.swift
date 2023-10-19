@@ -13,7 +13,7 @@ import FirebaseFirestoreSwift
 /// Service CRUD
 struct APIService {
     /// Project
-    var createProject: () async throws -> Void
+    var createProject: (String) async throws -> Void
     var readAllProjects: () async throws -> [Project]
     var updateProjectTitle: @Sendable (_ id: String, _ newTitle: String) async throws -> Void
     var deleteProject: @Sendable (_ id: String) async throws -> Void
@@ -36,7 +36,7 @@ struct APIService {
     var newLayerCreated: @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     
     init(
-        createProject: @escaping () async throws -> Void,
+        createProject: @escaping (String) async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         deleteProject: @escaping @Sendable (String) async throws -> Void,
@@ -122,10 +122,10 @@ extension APIService {
     
     static let liveValue = Self(
         // MARK: - Project
-        createProject: {
+        createProject: { title in
             let id = try projectCollectionPath.document().documentID
             let data = ["id": id,
-                        "title": "제목없음",
+                        "title": title,
                         "ownerUid": try uid,
                         "createdDate": Date(),
                         "lastModifiedDate": Date(),
