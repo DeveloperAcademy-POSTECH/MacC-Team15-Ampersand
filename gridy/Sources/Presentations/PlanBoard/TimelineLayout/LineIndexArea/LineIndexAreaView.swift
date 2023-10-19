@@ -10,10 +10,14 @@ import SwiftUI
 struct LineIndexAreaView: View {
     var body: some View {
         // TODO: LineIndexArea (하위코드삭제)
-        Text("LineIndexArea")
-            .frame(width: 35)
-            .frame(maxHeight: .infinity)
-            .background(.orange)
+        ZStack {
+            Rectangle()
+                .foregroundStyle(.white)
+                .border(.black)
+            Text("LineIndexArea")
+                .frame(width: 35)
+                .frame(maxHeight: .infinity)
+        }
     }
 }
 
