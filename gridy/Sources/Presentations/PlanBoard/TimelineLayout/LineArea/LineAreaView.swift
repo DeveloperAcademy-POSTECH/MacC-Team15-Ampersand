@@ -24,9 +24,16 @@ struct LineAreaView: View {
                     Button(action: {
                         if !viewModel.selectedGridRanges.isEmpty {
                             let today = Date()
-                            let startDate = min(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
-                            let endDate = max(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!, Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
-                            viewModel.selectedDateRanges = [SelectedDateRange(start: startDate, end: endDate)]
+                            let startDate = min(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!,
+                                                Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
+                            let endDate = max(Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.start.col, to: today)!,
+                                              Calendar.current.date(byAdding: .day, value: viewModel.selectedGridRanges.last!.end.col, to: today)!)
+                            viewModel.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
+                            print(viewModel.selectedDateRanges)
+                            if let dateRange = viewModel.selectedDateRanges.last {
+                                let dateDiff = Calendar.current.dateComponents([.day], from: dateRange.start, to: dateRange.end)
+                                print(dateDiff)
+                            }
                         }
                     }) {
                         Text("create Plan")
@@ -34,7 +41,6 @@ struct LineAreaView: View {
                     .keyboardShortcut(.return, modifiers: [])
                     Button(action: {
                         viewModel.shiftedCol = 0
-                        viewModel.shiftedRow = 0
                     }) {
                         Text("shift to today")
                     }
@@ -88,6 +94,7 @@ struct LineAreaView: View {
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [.command])
                     Button(action: {
+                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: 0)
                         temporarySelectedGridRange = nil
                         viewModel.selectedGridRanges = []
                     }) {
@@ -114,6 +121,36 @@ struct LineAreaView: View {
                 .stroke(Color.gray, lineWidth: columnStroke)
                 
                 ZStack {
+                    if !viewModel.selectedDateRanges.isEmpty {
+                        ForEach(viewModel.selectedDateRanges, id: \.self) { selectedRange in
+                            let height = viewModel.lineAreaGridHeight
+                            let dayDifference = Calendar.current.dateComponents([.day], from: selectedRange.start, to: selectedRange.end).day!
+                            let width = CGFloat(dayDifference + 1) * viewModel.gridWidth
+                            
+                            let positionStart = CGFloat(Calendar.current.dateComponents([.day], from: Date(), to: selectedRange.start).day!) * viewModel.gridWidth
+                            
+                            Rectangle()
+                                .fill(Color.red.opacity(0.8))
+                                .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
+                                .frame(width: width, height: height)
+                                .position(x: positionStart + (width / 2), y: 100 + viewModel.lineAreaGridHeight / 2)
+                        }
+                    }
+                    if let temporaryRange = temporarySelectedGridRange {
+                        let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
+                        let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewModel.gridWidth
+                        let isStartRowSmaller: Bool = temporaryRange.start.row <= temporaryRange.end.row
+                        let isStartColSmaller: Bool = temporaryRange.start.col <= temporaryRange.end.col
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.05))
+                            .frame(width: width, height: height)
+                            .position(x:
+                                        isStartColSmaller ? CGFloat(temporaryRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 :
+                                        CGFloat(temporaryRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
+                                      y:
+                                        isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
+                                        CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                    }
                     if !viewModel.selectedGridRanges.isEmpty {
                         ForEach(viewModel.selectedGridRanges, id: \.self) { selectedRange in
                             let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
@@ -124,26 +161,11 @@ struct LineAreaView: View {
                                 .fill(Color.gray.opacity(0.05))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
                                 .frame(width: width, height: height)
-                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 : 
+                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 :
                                             CGFloat(selectedRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
                                           y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
                                             CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                         }
-                    }
-                    if let temporaryRange = temporarySelectedGridRange {
-                        let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewModel.lineAreaGridHeight
-                        let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewModel.gridWidth
-                        let isStartRowSmaller: Bool = temporaryRange.start.row <= temporaryRange.end.row
-                        let isStartColSmaller: Bool = temporaryRange.start.col <= temporaryRange.end.col
-                        Rectangle()
-                            .fill(Color.red.opacity(0.05))
-                            .frame(width: width, height: height)
-                            .position(x:
-                                        isStartColSmaller ? CGFloat(temporaryRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 :
-                                        CGFloat(temporaryRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
-                                      y:
-                                        isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
-                                        CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                     }
                 }
             }
@@ -204,7 +226,8 @@ struct LineAreaView: View {
                                 ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
                                 viewModel.selectedGridRanges = []
                                 temporarySelectedGridRange = nil
-                                temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.shiftedRow, startCol + viewModel.shiftedCol - viewModel.exceededCol), end: (endRow + viewModel.shiftedRow, endCol + viewModel.shiftedCol))
+                                temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.shiftedRow, startCol + viewModel.shiftedCol - viewModel.exceededCol),
+                                                                               end: (endRow + viewModel.shiftedRow, endCol + viewModel.shiftedCol))
                             } else {
                                 /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                 if let lastIndex = viewModel.selectedGridRanges.indices.last {
@@ -250,7 +273,6 @@ struct LineAreaView: View {
                         viewModel.maxCol = Int(geometry.size.width / viewModel.gridWidth) + 1
                     }
             )
-            
         }
     }
 }
