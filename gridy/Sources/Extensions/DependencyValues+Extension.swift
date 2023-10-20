@@ -27,7 +27,8 @@ extension DependencyValues {
     
     private enum APIServiceKey: DependencyKey {
         static let liveValue = APIService.liveValue
-        static let testValue = APIService.testValue
-        static let previewValue = APIService.mockValue
+        // TODO: - 추후 아래 데이터 추가
+//        static let testValue = APIService.testValue
+//        static let previewValue = APIService.mockValue
     }
 }

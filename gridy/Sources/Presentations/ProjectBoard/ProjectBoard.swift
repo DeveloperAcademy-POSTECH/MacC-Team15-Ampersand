@@ -15,6 +15,8 @@ struct ProjectBoard: Reducer {
     @Dependency(\.apiClient) var apiClient
     @Dependency(\.continuousClock) var continuousClock
     
+    private enum CancelID { case load }
+    
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var successToFetchData = false
@@ -23,7 +25,7 @@ struct ProjectBoard: Reducer {
         @BindingState var title = ""
     }
     
-    enum Action: BindableAction, Equatable {
+    enum Action: BindableAction, Equatable, Sendable {
         case onAppear
         case createNewProjectButtonTapped
         case readAllButtonTapped
@@ -48,7 +50,7 @@ struct ProjectBoard: Reducer {
             case .createNewProjectButtonTapped:
                 let title = state.title
                 return .run { send in
-                    try await apiService.create(title)
+                    try await apiService.createProject(title)
                     await send(.fetchAllProjects)
                     await send(.setSheet(isPresented: false))
                 }
@@ -102,7 +104,7 @@ struct ProjectBoard: Reducer {
                 
             case let .deleteProjectButtonTapped(id: id, action: .binding(\.$delete)):
                 return .run { send in
-                    try await apiService.delete(id)
+                    try await apiService.deleteProject(id)
                     await send(.fetchAllProjects)
                 }
                 

@@ -10,4 +10,5 @@ import Foundation
 enum APIError: Error {
     case noResponseResult
     case noAuthenticatedUser
+    case errorOccurred
 }
