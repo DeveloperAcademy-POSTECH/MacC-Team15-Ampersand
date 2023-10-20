@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TimelineLayoutView: View {
-    @StateObject var viewModel = TimelineLayoutViewModel()
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
     @State var proxy: ScrollViewProxy?

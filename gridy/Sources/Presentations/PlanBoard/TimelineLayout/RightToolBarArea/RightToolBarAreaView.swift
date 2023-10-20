@@ -30,66 +30,6 @@ struct GridSizeController: View {
                 .padding(8)
                 .background(Color.white.opacity(0.8))
                 .cornerRadius(10)
-            HStack {
-                VStack {
-                    Text("all")
-                    Button(action: {
-                                viewModel.gridWidth += 2
-                                viewModel.lineAreaGridHeight += 2
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    Button(action: {
-                                viewModel.gridWidth -= 2
-                                viewModel.lineAreaGridHeight -= 2
-                    }) {
-                        Image(systemName: "minus")
-                    }
-                }
-                VStack {
-                    Text("width")
-                    Button(action: {
-                                viewModel.gridWidth += 2
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    Button(action: {
-                                viewModel.gridWidth -= 2
-                    }) {
-                        Image(systemName: "minus")
-                    }
-                }
-                VStack {
-                    Text("height")
-                    Button(action: {
-                                viewModel.lineAreaGridHeight += 2
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    Button(action: {
-                                viewModel.lineAreaGridHeight -= 2
-                    }) {
-                        Image(systemName: "minus")
-                    }
-                }
-                VStack {
-                    Text("RESET")
-                    Button(action: {
-                                viewModel.lineAreaGridHeight = 45
-                                viewModel.gridWidth = 45
-                                viewModel.horizontalMagnification = 1.0
-                                viewModel.verticalMagnification = 1.0
-                    }) {
-                        Image(systemName: "gobackward")
-                    }
-                    Button(action: {
-                    }) {
-                        Image(systemName: "gobackward")
-                            .foregroundColor(.clear)
-                    }
-                }
-                
-            }
             Text("Mouse Location\nx \(viewModel.hoverLocation.x), y \(viewModel.hoverLocation.y)")
                 .foregroundColor(.black)
                 .padding(8)

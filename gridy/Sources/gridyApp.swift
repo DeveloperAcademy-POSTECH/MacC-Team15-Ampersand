@@ -13,14 +13,22 @@ import ComposableArchitecture
 struct GridyApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject var viewModel = TimelineLayoutViewModel()  // ViewModel 인스턴스 생성
+    
     
     var body: some Scene {
         WindowGroup {
             NavigationStack {
                 ContentView()
-//                TimelineLayoutView()
+                //                TimelineLayoutView()
+                //                    .environmentObject(viewModel)
             }
         }
+        .commands{
+            MenuBar(viewModel: viewModel)
+        }
+        
+        
     }
 }
 
