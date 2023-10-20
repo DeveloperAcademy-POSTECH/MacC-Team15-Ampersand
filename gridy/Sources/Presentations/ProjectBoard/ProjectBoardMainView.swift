@@ -13,6 +13,7 @@ struct ProjectBoardMainView: View {
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
     @State var tag: Int? = nil
+    @State var isShowingPopover = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -80,20 +81,6 @@ struct ProjectBoardMainView: View {
                                                 .padding(.bottom, 11)
                                                 .padding(.leading, 12)
                                                 Spacer()
-                                                Button {
-                                                    //TODO: 더보기 버튼
-                                                } label: {
-                                                    RoundedRectangle(cornerRadius: 6)
-                                                        .frame(width: 20, height: 20)
-                                                        .foregroundStyle(.gray.opacity(0.1))
-                                                        .overlay {
-                                                            Image(systemName: "ellipsis")
-                                                                .foregroundStyle(.gray)
-                                                        }
-                                                }
-                                                .buttonStyle(PlainButtonStyle())
-                                                .padding(.top, 4)
-                                                .padding(.trailing, 4)
                                             }
                                         }
                                 }
@@ -117,9 +104,21 @@ struct ProjectBoardMainView: View {
                                         action: { .deleteProjectButtonTapped(id: $0, action: $1) }
                                     )
                                 ) {
-                                    ProjectItemView(store: $0)
+                                    ProjectItemView(isShowingPopover: $isShowingPopover , store: $0)
                                         .onTapGesture {
                                             self.tag = 2
+                                        }
+                                        .contextMenu {
+                                            Button {
+                                                print("Edit Button")
+                                            } label: {
+                                                Text("Edit")
+                                            }
+                                            Button {
+                                                print("Delete Button")
+                                            } label: {
+                                                Text("Delete")
+                                            }
                                         }
                                 }
                             }

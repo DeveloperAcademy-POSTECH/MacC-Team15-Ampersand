@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectItemView: View {
-    
+    @Binding var isShowingPopover: Bool
     let store: StoreOf<ProjectItem>
     
     var body: some View {
@@ -26,21 +26,8 @@ struct ProjectItemView: View {
                                 .padding(.leading, 10)
                                 .padding(.trailing, 4)
                             Spacer()
-                            Button {
-                                //TODO: 더보기 버튼
-                            } label: {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .frame(width: 20, height: 20)
-                                    .foregroundStyle(.gray.opacity(0.1))
-                                    .overlay {
-                                        Image(systemName: "ellipsis")
-                                            .foregroundStyle(.gray)
-                                    }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .padding(.vertical, 4)
-                            .padding(.trailing, 4)
                         }
+                        .frame(width: 274, height: 28)
                         .background(.gray.opacity(0.1))
                         .clipShape(
                             .rect(
@@ -83,6 +70,6 @@ struct ProjectItemView: View {
     }
 }
 
-#Preview {
-    ProjectItemView(store: StoreOf<ProjectItem>(initialState: ProjectItem.State(), reducer: { ProjectItem() }))
-}
+//#Preview {
+//    ProjectItemView(store: StoreOf<ProjectItem>(initialState: ProjectItem.State(), reducer: { ProjectItem() }))
+//}
