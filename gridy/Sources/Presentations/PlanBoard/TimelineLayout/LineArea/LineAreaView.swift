@@ -13,10 +13,7 @@ struct LineAreaView: View {
     @State private var columnStroke = CGFloat(0.1)
     @State private var rowStroke = CGFloat(0.5)
     @State private var temporarySelectedGridRange: SelectedGridRange?
-    @State private var isExceededLeft = false
-    @State private var isExceededRight = false
-    @State private var isExceededTop = false
-    @State private var isExceededBottom = false
+    @State private var exceededDirection = [false, false, false, false]
     @State private var timer: Timer?
     
     var body: some View {
@@ -36,58 +33,58 @@ struct LineAreaView: View {
                     }
                     .keyboardShortcut(.return, modifiers: [])
                     Button(action: {
-                        viewModel.exceededCol = 0
-                        viewModel.exceededRow = 0
+                        viewModel.shiftedCol = 0
+                        viewModel.shiftedRow = 0
                     }) {
-                        Text("today")
+                        Text("shift to today")
                     }
                     .keyboardShortcut(.return, modifiers: [.command])
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: -1, colOffset: 0)
                     }) {
-                        Text("Up")
+                        Text("shift 1 UP")
                     }
                     .keyboardShortcut(.upArrow, modifiers: [])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 1, colOffset: 0)}) {
-                            Text("Down")
+                            Text("shift 1 Down")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 0, colOffset: -1)}) {
-                            Text("Left")
+                            Text("shift 1 Left")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 0, colOffset: 1)}) {
-                            Text("Right")
+                            Text("shift 1 Right")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [])
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: -7, colOffset: 0)
                     }) {
-                        Text("Top")
+                        Text("shift 7 Top")
                     }
                     .keyboardShortcut(.upArrow, modifiers: [.command])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 7, colOffset: 0)}) {
-                            Text("Bottom")
+                            Text("shift 7 Bottom")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [.command])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 0, colOffset: -7)}) {
-                            Text("Lead")
+                            Text("shift 7 Lead")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [.command])
                     
                     Button(action: {
                         viewModel.moveSelectedCell(rowOffset: 0, colOffset: 7)}) {
-                            Text("Trail")
+                            Text("shift 7 Trail")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [.command])
                     Button(action: {
@@ -97,7 +94,6 @@ struct LineAreaView: View {
                     }
                     .keyboardShortcut(.escape, modifiers: [])
                 }
-                
                 Color.white
                 
                 Path { path in
@@ -128,7 +124,10 @@ struct LineAreaView: View {
                                 .fill(Color.gray.opacity(0.05))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
                                 .frame(width: width, height: height)
-                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2 : CGFloat(selectedRange.end.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2, y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 : CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                                .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 : 
+                                            CGFloat(selectedRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
+                                          y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
+                                            CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
                         }
                     }
                     if let temporaryRange = temporarySelectedGridRange {
@@ -140,8 +139,8 @@ struct LineAreaView: View {
                             .fill(Color.red.opacity(0.05))
                             .frame(width: width, height: height)
                             .position(x:
-                                        isStartColSmaller ? CGFloat(temporaryRange.start.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2 :
-                                        CGFloat(temporaryRange.end.col - viewModel.exceededCol) * viewModel.gridWidth + width / 2,
+                                        isStartColSmaller ? CGFloat(temporaryRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 :
+                                        CGFloat(temporaryRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
                                       y:
                                         isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
                                         CGFloat(temporaryRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
@@ -149,6 +148,25 @@ struct LineAreaView: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .onChange(of: exceededDirection) { direction in
+                if var range = temporarySelectedGridRange {
+                    switch direction {
+                    case [true, false, false, false]:
+                        viewModel.shiftedCol -= 1
+                        viewModel.exceededCol -= 1
+                    case [false, true, false, false]:
+                        viewModel.shiftedCol += 1
+                        viewModel.exceededCol += 1
+                    case [false, false, true, false]:
+                        viewModel.shiftedRow -= 1
+                        viewModel.exceededRow -= 1
+                    case [false, false, false, true]:
+                        viewModel.shiftedRow += 1
+                        viewModel.exceededRow += 1
+                    default: break
+                    }
+                }
+            }
             .onChange(of: geometry.size) { newSize in
                 viewModel.maxLineAreaRow = Int(newSize.height / viewModel.lineAreaGridHeight) + 1
                 viewModel.maxCol = Int(newSize.width / viewModel.gridWidth) + 1
@@ -171,38 +189,42 @@ struct LineAreaView: View {
             .gesture(
                 DragGesture(minimumDistance: 0, coordinateSpace: .local)
                     .onChanged { gesture in
+                        /// local 뷰 기준 절대적인 드래그 시작점과 끝 점.
                         let dragEnd = gesture.location
                         let dragStart = gesture.startLocation
-                        
+                        /// 드래그된 값을 기준으로 시작점과 끝점의 Row, Col 계산
                         let startRow = Int(dragStart.y / viewModel.lineAreaGridHeight)
-                        let endRow = Int(dragEnd.y / viewModel.lineAreaGridHeight)
                         let startCol = Int(dragStart.x / viewModel.gridWidth)
+                        let endRow = Int(dragEnd.y / viewModel.lineAreaGridHeight)
                         let endCol = Int(dragEnd.x / viewModel.gridWidth)
-                        self.isExceededLeft = dragEnd.x < 0
-                        self.isExceededRight = dragEnd.x > geometry.size.width
-                        self.isExceededTop = dragEnd.y < 0
-                        self.isExceededBottom = dragEnd.y > geometry.size.height
+                        /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
+                        exceededDirection = [dragEnd.x < 0, dragEnd.x > geometry.size.width, dragEnd.y < 0, dragEnd.y > geometry.size.height]
                         if !viewModel.isCommandKeyPressed {
                             if !viewModel.isShiftKeyPressed {
+                                ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
                                 viewModel.selectedGridRanges = []
-                                self.temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.exceededRow, startCol + viewModel.exceededCol), end: (endRow + viewModel.exceededRow, endCol + viewModel.exceededCol))
+                                temporarySelectedGridRange = nil
+                                temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.shiftedRow, startCol + viewModel.shiftedCol - viewModel.exceededCol), end: (endRow + viewModel.shiftedRow, endCol + viewModel.shiftedCol))
                             } else {
+                                /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                 if let lastIndex = viewModel.selectedGridRanges.indices.last {
                                     var updatedRange = viewModel.selectedGridRanges[lastIndex]
-                                    updatedRange.end.row = endRow + viewModel.exceededRow
-                                    updatedRange.end.col = endCol + viewModel.exceededCol
-                                    viewModel.selectedGridRanges[lastIndex] = updatedRange
+                                    updatedRange.end.row = endRow + viewModel.shiftedRow
+                                    updatedRange.end.col = endCol + viewModel.shiftedCol
+                                    viewModel.selectedGridRanges = [updatedRange]
                                 }
                             }
                         } else {
                             if !viewModel.isShiftKeyPressed {
-                                self.temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.exceededRow, startCol + viewModel.exceededCol),
-                                                                                    end: (endRow + viewModel.exceededRow, endCol + viewModel.exceededCol))
+                                /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
+                                self.temporarySelectedGridRange = SelectedGridRange(start: (startRow + viewModel.shiftedRow, startCol + viewModel.shiftedCol),
+                                                                                    end: (endRow + viewModel.shiftedRow, endCol + viewModel.shiftedCol))
                             } else {
+                                /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                 if let lastIndex = viewModel.selectedGridRanges.indices.last {
                                     var updatedRange = viewModel.selectedGridRanges[lastIndex]
-                                    updatedRange.end.row = endRow + viewModel.exceededRow
-                                    updatedRange.end.col = endCol + viewModel.exceededCol
+                                    updatedRange.end.row = endRow + viewModel.shiftedRow
+                                    updatedRange.end.col = endCol + viewModel.shiftedCol
                                     viewModel.selectedGridRanges[lastIndex] = updatedRange
                                 }
                             }
@@ -213,10 +235,8 @@ struct LineAreaView: View {
                             viewModel.selectedGridRanges.append(newRange)
                             temporarySelectedGridRange = nil
                         }
-                        self.isExceededLeft = false
-                        self.isExceededRight = false
-                        self.isExceededTop = false
-                        self.isExceededBottom = false
+                        exceededDirection = [false, false, false, false]
+                        viewModel.exceededCol = 0
                     }
             )
             .gesture(

@@ -114,7 +114,7 @@ struct GridSizeController: View {
                     .padding(8)
                     .background(Color.white.opacity(0.8))
                     .cornerRadius(10)
-                Text("exceeded (col, row)\ncolumn \(viewModel.exceededCol), row \(viewModel.exceededRow)")
+                Text("shifted (col, row)\ncolumn \(viewModel.shiftedCol), row \(viewModel.shiftedRow)")
                     .foregroundColor(.black)
                     .padding(8)
                     .background(Color.white.opacity(0.8))
