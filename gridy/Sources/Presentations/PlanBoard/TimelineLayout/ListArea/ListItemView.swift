@@ -13,47 +13,90 @@ struct ListItemView: View {
     let unitWidth: CGFloat = 266
     let unitHeight: CGFloat = 45
     var showingLayerIndexs = [0]
+    let fontSize: CGFloat = 30
     
-    // 여기서부터 진짜 필요한 변수
+    /// 여기서부터 진짜 필요한 변수
     @FocusState var isTextFieldFocused: Bool
     @State var isHovering = false
     @State var isSelected = false
     @State var isEditing = false
-    @State var editingText = ""
-    var prevText = ""
+    @State var editingText = "구리구리"
+    @State var prevText = ""
     
     var body: some View {
-        GeometryReader { geo in
-            Rectangle()
-            // TODO: width: geo, unitHeight * 내가 가진 lane 개수
-                .frame(width: unitWidth / CGFloat(showingLayerIndexs.count), height: unitHeight)
-                .border(isSelected ? .blue : .clear)
-                .foregroundStyle(Color.clear)
-                .overlay {
-                    if isEditing {
-                        TextField("Editing", text: $editingText, axis: .vertical )
-                            .onSubmit {
-                                isEditing = false
-                            }
-                            .multilineTextAlignment(.center)
-                            .font(.custom("Pretendard-Regular", size: 16))
-                            .textFieldStyle(.plain)
+        GeometryReader { _ in
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(isHovering ? Color.gray.opacity(0.4) : Color.clear)
+                    .overlay(
+                        Text(editingText)
+                            .lineLimit(2)
                             .foregroundStyle(.black)
-                            .padding(.horizontal, 1)
-                            .padding(.vertical, 2)
-                            .cornerRadius(6)
-                        
-                        // TODO: 로이스 focus 적용
-                            .focused($isTextFieldFocused)
-                            .onExitCommand {
-                                isEditing = false
-                                isTextFieldFocused = false
-                            }
+                            .font(.custom("Pretendard-Regular", size: fontSize))
+                            .padding(.horizontal, 8)
+                    )
+                // TODO: border지우고 아래에 grid 깔기
+                    .border(.gray)
+                    .onHover { phase in
+                        if !isSelected && !isEditing {
+                            isHovering = phase
+                        }
                     }
+                    .onTapGesture(count: 1) {
+                        isHovering = false
+                        isSelected = true
+                    }
+                
+                if isSelected {
+                    Rectangle()
+                        .strokeBorder(Color.blue)
+                        .foregroundStyle(Color.yellow)
+                        .overlay(
+                            Text(editingText)
+                                .lineLimit(2)
+                                .foregroundStyle(.black)
+                                .font(.custom("Pretendard-Regular", size: fontSize))
+                                .padding(.horizontal, 8)
+                        )
+                        .onTapGesture(count: 2) {
+                            isSelected = false
+                            isEditing = true
+                            isTextFieldFocused = true
+                            prevText = editingText
+                        }
                 }
-                .onHover { phase in
-                    isHovering = phase
+                
+                if isEditing {
+                    Rectangle()
+                        .strokeBorder(Color.blue)
+                        .foregroundStyle(Color.clear)
+                        .overlay {
+                            TextField("Editing", text: $editingText, axis: .vertical )
+                                .disabled(true)
+                                .onSubmit {
+                                    isEditing = false
+                                    isTextFieldFocused = false
+                                }
+                                .multilineTextAlignment(.center)
+                                .font(.custom("Pretendard-Regular", size: fontSize))
+                                .textFieldStyle(.plain)
+                                .foregroundStyle(.clear)
+                                .padding(.horizontal, 1)
+                                .padding(.vertical, 2)
+                            // TODO: 로이스 focus 적용
+                                .focused($isTextFieldFocused)
+                                .onExitCommand {
+                                    editingText = prevText
+                                    isEditing = false
+                                    isTextFieldFocused = false
+                                }
+                        }
                 }
+            }
+            // TODO: 배경 지우기
+//            .background(.white)
+            // TODO: width: geo, unitHeight * 내가 가진 lane 개수
+            .frame(width: unitWidth / CGFloat(showingLayerIndexs.count), height: unitHeight * CGFloat(1))
         }
     }
 }
