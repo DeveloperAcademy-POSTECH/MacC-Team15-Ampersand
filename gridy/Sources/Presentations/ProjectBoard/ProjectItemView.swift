@@ -66,6 +66,19 @@ struct ProjectItemView: View {
                         .padding(.bottom, 9)
                     }
                 }
+                .contextMenu {
+                    Button {
+                        print("Edit Button \(viewStore.project.title)")
+                    } label: {
+                        Text("Edit")
+                    }
+                    Button {
+                        print("Delete Button \(viewStore.project.title)")
+                        viewStore.$delete.wrappedValue.toggle()
+                    } label: {
+                        Text("Delete")
+                    }
+                }
         }
     }
 }

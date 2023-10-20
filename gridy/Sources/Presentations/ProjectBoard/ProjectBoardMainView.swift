@@ -108,18 +108,18 @@ struct ProjectBoardMainView: View {
                                         .onTapGesture {
                                             self.tag = 2
                                         }
-                                        .contextMenu {
-                                            Button {
-                                                print("Edit Button")
-                                            } label: {
-                                                Text("Edit")
-                                            }
-                                            Button {
-                                                print("Delete Button")
-                                            } label: {
-                                                Text("Delete")
-                                            }
-                                        }
+//                                        .contextMenu {
+//                                            Button {
+//                                                print("Edit Button")
+//                                            } label: {
+//                                                Text("Edit")
+//                                            }
+//                                            Button {
+//                                                print("Delete Button")
+//                                            } label: {
+//                                                Text("Delete")
+//                                            }
+//                                        }
                                 }
                             }
                         }
