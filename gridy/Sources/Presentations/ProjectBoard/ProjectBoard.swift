@@ -19,7 +19,9 @@ struct ProjectBoard: Reducer {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var successToFetchData = false
         var isInProgress = false
-        var isSheetPresented = false
+        var isCreationViewPresented = false
+        var isEditViewPresented = false
+        var projectIdToEdit = ""
         @BindingState var title = ""
     }
     
@@ -31,8 +33,10 @@ struct ProjectBoard: Reducer {
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         case setProcessing(Bool)
         case titleChanged(String)
+        case projectTitleChanged
         case binding(BindingAction<State>)
         case setSheet(isPresented: Bool)
+        case setEditSheet(isPresented: Bool)
         case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
     
@@ -90,12 +94,25 @@ struct ProjectBoard: Reducer {
                 
             case let .setSheet(isPresented: isPresented):
                 state.title = ""
-                state.isSheetPresented = isPresented
+                state.isCreationViewPresented = isPresented
+                return .none
+                
+            case let .setEditSheet(isPresented: isPresented):
+                state.isEditViewPresented = isPresented
                 return .none
                 
             case let .titleChanged(changedTitle):
                 state.title = changedTitle
                 return .none
+                
+            case let .projectTitleChanged:
+                let id = state.projectIdToEdit
+                let changedTitle = state.title
+                return .run { send in
+                    try await apiService.updateProjectTitle(id, changedTitle)
+                    await send(.setEditSheet(isPresented: false))
+                    await send(.fetchAllProjects)
+                }
                 
             case .binding:
                 return .none
@@ -105,6 +122,15 @@ struct ProjectBoard: Reducer {
                     try await apiService.delete(id)
                     await send(.fetchAllProjects)
                 }
+                
+            case let .deleteProjectButtonTapped(id: id, action: .binding(\.$showSheet)):
+                let projectId = id
+                if let projectItem = state.projects[id: projectId] {
+                    state.title = projectItem.project.title
+                }
+                state.projectIdToEdit = id
+                state.isEditViewPresented = true
+                return .none
                 
             case .deleteProjectButtonTapped:
                 return .none

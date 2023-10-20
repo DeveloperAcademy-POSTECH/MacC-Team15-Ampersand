@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectItemView: View {
-    @Binding var isShowingPopover: Bool
     let store: StoreOf<ProjectItem>
     
     var body: some View {
@@ -69,11 +68,11 @@ struct ProjectItemView: View {
                 .contextMenu {
                     Button {
                         print("Edit Button \(viewStore.project.title)")
+                        viewStore.$showSheet.wrappedValue = true
                     } label: {
                         Text("Edit")
                     }
                     Button {
-                        print("Delete Button \(viewStore.project.title)")
                         viewStore.$delete.wrappedValue.toggle()
                     } label: {
                         Text("Delete")

@@ -1,14 +1,14 @@
 //
-//  ProjectItemView.swift
+//  ProjectEditView.swift
 //  gridy
 //
-//  Created by 제나 on 10/8/23.
+//  Created by xnoag on 10/20/23.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct ProjectCreationView: View {
+struct ProjectEditView: View {
     let store: StoreOf<ProjectBoard>
     @FocusState private var isTextFieldFocused: Bool
     @State var tag: Int? = nil
@@ -21,7 +21,7 @@ struct ProjectCreationView: View {
                 .overlay {
                     VStack(alignment: .center, spacing: 0) {
                         HStack(alignment: .center, spacing: 73) {
-                            Text("Create a new project")
+                            Text("Edit project")
                                 .font(.custom("Pretendard-Bold", size: 16))
                             HStack(alignment: .center, spacing: 4) {
                                 RoundedRectangle(cornerRadius: 5)
@@ -58,10 +58,8 @@ struct ProjectCreationView: View {
                                 )
                                 .focused($isTextFieldFocused)
                                 .onSubmit {
-                                    if !viewStore.title.isEmpty {
-                                        viewStore.send(.createNewProjectButtonTapped)
-                                        self.tag = 1
-                                    }
+                                    // TODO: titleChange
+//                                    viewStore.send(.titlecha)
                                 }
                                 .font(.custom("Pretendard-Medium", size: 14))
                                 .padding(.leading, 12)
@@ -146,19 +144,17 @@ struct ProjectCreationView: View {
                         Divider()
                             .padding(.bottom, 20)
                         ZStack {
-                            // TODO: NavigationLink 방식은 Store 이용하기
-                            NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
-                                EmptyView()
-                            }
                             Button {
-                                viewStore.send(.createNewProjectButtonTapped)
-                                self.tag = 1
+                                // TODO: title Change & editsheet 토글
+//                                viewStore.send(.setEditSheet(isPresented: false))
+//                                viewStore.send(.titleChanged())
+                                viewStore.send(.projectTitleChanged)                               
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)
                                     .frame(width: 328, height: 48)
                                     .foregroundStyle(viewStore.title.isEmpty ? .gray : .blue)
                                     .overlay {
-                                        Text("Go Ahead !")
+                                        Text("Finish")
                                             .font(.custom("Pretendard-Medium", size: 16))
                                             .foregroundStyle(viewStore.title.isEmpty ? .black : .white)
                                     }
@@ -182,7 +178,7 @@ struct ProjectCreationView: View {
                                         }
                                         .offset(y: -1)
                                 }
-                            Text("to Create a proejct")
+                            Text("to Edit a proejct")
                                 .font(.custom("Pretendard-Regular", size: 12))
                                 .foregroundStyle(.gray)
                         }

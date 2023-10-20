@@ -13,13 +13,12 @@ struct ProjectBoardMainView: View {
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
     @State var tag: Int? = nil
-    @State var isShowingPopover = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
-                    //TODO: NavigationLink 방식은 Store 이용하기
+                    // TODO: NavigationLink 방식은 Store 이용하기
                     NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
                         EmptyView()
                     }
@@ -104,22 +103,10 @@ struct ProjectBoardMainView: View {
                                         action: { .deleteProjectButtonTapped(id: $0, action: $1) }
                                     )
                                 ) {
-                                    ProjectItemView(isShowingPopover: $isShowingPopover , store: $0)
+                                    ProjectItemView(store: $0)
                                         .onTapGesture {
                                             self.tag = 2
                                         }
-//                                        .contextMenu {
-//                                            Button {
-//                                                print("Edit Button")
-//                                            } label: {
-//                                                Text("Edit")
-//                                            }
-//                                            Button {
-//                                                print("Delete Button")
-//                                            } label: {
-//                                                Text("Delete")
-//                                            }
-//                                        }
                                 }
                             }
                         }
