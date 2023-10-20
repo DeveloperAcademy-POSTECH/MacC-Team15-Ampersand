@@ -37,7 +37,7 @@ enum DayOfWeek: String {
          if self.isHoliday || self.dayOfWeek == DayOfWeek.sunday {
              self.fontColor = Color.red
          } else if self.dayOfWeek == DayOfWeek.saturday {
-             self.fontColor = Color.blue
+             self.fontColor = Color.black
          } else {
              self.fontColor = Color.black
          }

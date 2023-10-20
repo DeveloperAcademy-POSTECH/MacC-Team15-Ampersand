@@ -10,9 +10,13 @@ import SwiftUI
 struct ScheduleIndexAreaView: View {
     var body: some View {
         // TODO: ScheduleIndexArea (하위코드삭제)
-        Text("ShceduleIndexArea")
-            .frame(width: 35, height: 140)
-            .background(.red)
+        ZStack {
+            Rectangle()
+                .foregroundStyle(.white)
+                .border(.black)
+            Text("ShceduleIndexArea")
+                .frame(width: 35, height: 140)
+        }
     }
 }
 

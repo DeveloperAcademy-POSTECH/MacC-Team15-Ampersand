@@ -8,18 +8,37 @@
 import SwiftUI
 
 struct ScheduleAreaView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+    
     var body: some View {
-        // TODO: ScheduleArea (하위코드삭제)
-        HStack(spacing: 0) {
-            ForEach(1..<70) { _ in
-                VStack(spacing: 0) {
-                    ForEach(1..<6) { _ in
-                        Rectangle()
-                            .border(.green)
-                            .frame(width: 28, height: 28)
+        GeometryReader { geometry in
+            ZStack {
+                Color.white
+                Path { path in
+                    for rowIndex in 0..<viewModel.numOfScheduleAreaRow {
+                        let yLocation = CGFloat(rowIndex) * viewModel.scheduleAreaGridHeight - viewModel.rowStroke
+                        path.move(to: CGPoint(x: 0, y: yLocation))
+                        path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                     }
                 }
+                .stroke(Color.gray, lineWidth: viewModel.rowStroke)
+                Path { path in
+                    for columnIndex in 0..<viewModel.maxCol {
+                        let xLocation = CGFloat(columnIndex) * viewModel.gridWidth - viewModel.columnStroke
+                        path.move(to: CGPoint(x: xLocation, y: 0))
+                        path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                    }
+                }
+                .stroke(Color.gray, lineWidth: viewModel.columnStroke)
             }
+            .gesture(
+                MagnificationGesture()
+                    .onChanged { value in
+                        print(value)
+                        viewModel.gridWidth = min(max(viewModel.gridWidth * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                        viewModel.scheduleAreaGridHeight = min(max(viewModel.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), viewModel.minGridSize), viewModel.maxGridSize)
+                    }
+            )
         }
     }
 }

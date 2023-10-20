@@ -20,7 +20,6 @@ struct LargeTaskElementView: View {
     var body: some View {
         Rectangle()
             .frame(minWidth: 266, idealWidth: 266, maxWidth: 532)
-            .frame(height: 48)
             .foregroundStyle(.white)
             .border(.gray, width: 0.5)
             .overlay {
@@ -91,7 +90,6 @@ struct LargeTaskElementView: View {
                             }
                         }
                     }
-                    .frame(height: 48)
                     .border(isTaskElementHovering ? .blue : .clear)
                 }
             }

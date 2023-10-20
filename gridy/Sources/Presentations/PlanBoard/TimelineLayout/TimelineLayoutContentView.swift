@@ -8,65 +8,57 @@
 import SwiftUI
 
 struct TimelineLayoutContentView: View {
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @Namespace var scrollSpace
     @State var scrollOffset = CGFloat.zero
-    @State var leftmostDate = Date()
     @Binding var showingIndexArea: Bool
     @Binding var proxy: ScrollViewProxy?
-
+    
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             if showingIndexArea {
                 VStack(spacing: 0) {
                     ScheduleIndexAreaView()
                         .frame(height: 140)
                     Rectangle()
-                        .frame(height: 28)
+                        .foregroundStyle(.white)
+                        .border(.black)
+                        .frame(height: 60)
                     LineIndexAreaView()
                 }
                 .frame(width: 35)
+                .zIndex(1)
             }
-            VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 BlackPinkInYourAreaView()
-                    .frame(height: 168)
+                    .frame(height: 200)
                 ListAreaView()
+                    .environmentObject(viewModel)
             }
-            .frame(width: 140)
-            ScrollViewReader { scrollViewProxy in
-                ScrollView(.horizontal) {
-                    VStack(alignment: .leading, spacing: 0) {
+            .frame(width: 266)
+            .zIndex(1)
+            GeometryReader { geometry in
+                let maxCol = Int(geometry.size.width / viewModel.gridWidth + 1)
+                let maxScheduleAreaRow = Int(140 / viewModel.scheduleAreaGridHeight + 1)
+                let maxLineAreaRow = Int((geometry.size.height - 200) / viewModel.lineAreaGridHeight + 1)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    ZStack(alignment: .bottom) {
                         ScheduleAreaView()
-                            .frame(height: 140)
-                        
-                        TimeAxisAreaView(leftmostDate: $leftmostDate, proxy: $proxy)
-                            .frame(height: 60)
-                            .background(
-                                GeometryReader { geo in
-                                    let offset = -geo.frame(in: .named(scrollSpace)).minX
-                                    Color.clear
-                                        .preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                                }
-                            )
-                        
-                        LineAreaView()
+                            .environmentObject(viewModel)
+                            .frame(height: 200)
+            
+                        TimeAxisAreaView()
+                            .environmentObject(viewModel)
+                            .frame(height: 80)
                     }
-                    .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-                        scrollOffset = value
-                        let leftmostVisibleDate = Calendar.current.date(byAdding: .day, value: Int(value/50), to: Date())
-                        leftmostDate = leftmostVisibleDate!
-                    }
-                }
-                .onAppear {
-                    proxy = scrollViewProxy
+                    .zIndex(1)
+                    
+                    LineAreaSampleView()
+                        .environmentObject(viewModel)
+                        .zIndex(0)
                 }
             }
-            .coordinateSpace(name: scrollSpace)
         }
     }
 }
-
-//struct TimelineLayoutContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        TimelineLayoutContentView(showingIndexArea: .constant(true))
-//    }
-//}

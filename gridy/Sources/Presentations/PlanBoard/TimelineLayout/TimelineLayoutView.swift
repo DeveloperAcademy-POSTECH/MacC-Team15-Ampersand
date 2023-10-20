@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TimelineLayoutView: View {
+    @StateObject var viewModel = TimelineLayoutViewModel()
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
     @State var proxy: ScrollViewProxy?
@@ -19,8 +20,11 @@ struct TimelineLayoutView: View {
         } detail: {
             HSplitView {
                 TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
+                    .environmentObject(viewModel)
+                
                 if showingRightToolBarArea {
                     RightToolBarAreaView(proxy: $proxy)
+                        .environmentObject(viewModel)
                         .frame(width: 240)
                 }
             }
@@ -39,6 +43,16 @@ struct TimelineLayoutView: View {
                 .toggleStyle(.button)
             }
         }
+        .onAppear {
+            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                viewModel.isShiftKeyPressed = event.modifierFlags.contains(.shift)
+                return event
+            }
+            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                viewModel.isCommandKeyPressed = event.modifierFlags.contains(.command)
+                return event
+            }
+        }
     }
 }
 
@@ -47,3 +61,4 @@ struct TimelineLayoutView_Previews: PreviewProvider {
         TimelineLayoutView()
     }
 }
+
