@@ -13,13 +13,15 @@ struct Project: Identifiable, Decodable {
     var ownerUid: String
     let createdDate: Date
     var lastModifiedDate: Date
+    var map: [String: [String]] /// "layer#": [PlanIDs]
     
     static let mock = Project(
         id: "",
         title: "",
         ownerUid: "",
         createdDate: Date(),
-        lastModifiedDate: Date()
+        lastModifiedDate: Date(),
+        map: ["0": [""]]
     )
 }
 
