@@ -26,7 +26,7 @@ struct Authentication: Reducer {
         
         /// Navigation
         var isNavigationActive = false
-        var optionalProjectBoard: ProjectBoard.State?
+        var optionalProjectBoard = ProjectBoard.State()
     }
     
     enum Action: Equatable, Sendable {
@@ -41,7 +41,6 @@ struct Authentication: Reducer {
         /// Navigation
         case optionalProjectBoard(ProjectBoard.Action)
         case setNavigation(isActive: Bool)
-        case setNavigationIsActiveDelayCompleted
     }
     
     var body: some Reducer<State, Action> {
@@ -103,26 +102,21 @@ struct Authentication: Reducer {
                 /// Navigation
             case .setNavigation(isActive: true):
                 state.isNavigationActive = true
-                return .run { send in
+                return .run { _ in
                     try await continuousClock.sleep(for: .seconds(1))
-                    await send(.setNavigationIsActiveDelayCompleted)
                 }
                 .cancellable(id: CancelID.load)
                 
             case .setNavigation(isActive: false):
                 state.isNavigationActive = false
-                state.optionalProjectBoard = nil
                 return .cancel(id: CancelID.load)
-                
-            case .setNavigationIsActiveDelayCompleted:
-                state.optionalProjectBoard = ProjectBoard.State()
-                return .none
                 
             case .optionalProjectBoard:
                 return .none
             }
         }
-        .ifLet(\.optionalProjectBoard, action: /Action.optionalProjectBoard) {
+        
+        Scope(state: \.optionalProjectBoard, action: /Action.optionalProjectBoard) {
             ProjectBoard()
         }
     }

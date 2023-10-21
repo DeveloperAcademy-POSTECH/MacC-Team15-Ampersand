@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct ProjectCreationView: View {
     let store: StoreOf<ProjectBoard>
     @FocusState private var isTextFieldFocused: Bool
-    @State var tag: Int? = nil
+    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
