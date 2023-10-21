@@ -45,6 +45,7 @@ struct ProjectCreationView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 10)
+                        
                         RoundedRectangle(cornerRadius: 8)
                             .foregroundStyle(.gray.opacity(0.1))
                             .frame(width: 328, height: 36)
@@ -68,8 +69,10 @@ struct ProjectCreationView: View {
                                 .textFieldStyle(.plain)
                             }
                             .padding(.bottom, 16)
+                        
                         Divider()
                             .padding(.bottom, 14)
+                        
                         HStack(alignment: .center, spacing: 220) {
                             Text("Select Layout")
                                 .font(.custom("Pretendard-SemiBold", size: 14))
@@ -79,6 +82,7 @@ struct ProjectCreationView: View {
                                 .frame(width: 16, height: 16)
                         }
                         .padding(.bottom, 10)
+                        
                         HStack(alignment: .center, spacing: 14) {
                             RoundedRectangle(cornerRadius: 12)
                                 .foregroundStyle(.blue.opacity(0.1))
@@ -99,6 +103,7 @@ struct ProjectCreationView: View {
                                             .foregroundStyle(.blue)
                                     }
                                 }
+                            
                             RoundedRectangle(cornerRadius: 12)
                                 .foregroundStyle(.gray.opacity(0.1))
                                 .frame(width: 100, height: 120)
@@ -118,6 +123,7 @@ struct ProjectCreationView: View {
                                             .foregroundStyle(.gray)
                                     }
                                 }
+                            
                             RoundedRectangle(cornerRadius: 12)
                                 .foregroundStyle(.gray.opacity(0.1))
                                 .frame(width: 100, height: 120)
@@ -139,12 +145,15 @@ struct ProjectCreationView: View {
                                 }
                         }
                         .padding(.bottom, 16)
+                        
                         Text("We are currently offering the **Timeline Layout** in a \rclosed beta version. <Message>")
                             .font(.custom("Pretendard-Medium", size: 14))
                             .foregroundStyle(.gray)
                             .padding(.bottom, 24)
+                        
                         Divider()
                             .padding(.bottom, 20)
+                        
                         ZStack {
                             // TODO: NavigationLink 방식은 Store 이용하기
                             NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
@@ -167,6 +176,7 @@ struct ProjectCreationView: View {
                             .buttonStyle(PlainButtonStyle())
                             .padding(.bottom, 9)
                         }
+                        
                         HStack(alignment: .center, spacing: 5) {
                             RoundedRectangle(cornerRadius: 4)
                                 .frame(width: 55, height: 22)

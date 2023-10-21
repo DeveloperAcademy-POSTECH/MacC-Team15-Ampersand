@@ -45,6 +45,7 @@ struct ProjectEditView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 10)
+                        
                         RoundedRectangle(cornerRadius: 8)
                             .foregroundStyle(.gray.opacity(0.1))
                             .frame(width: 328, height: 36)
@@ -58,16 +59,17 @@ struct ProjectEditView: View {
                                 )
                                 .focused($isTextFieldFocused)
                                 .onSubmit {
-                                    // TODO: titleChange
-//                                    viewStore.send(.titlecha)
+                                    viewStore.send(.projectTitleChanged)
                                 }
                                 .font(.custom("Pretendard-Medium", size: 14))
                                 .padding(.leading, 12)
                                 .textFieldStyle(.plain)
                             }
                             .padding(.bottom, 16)
+                        
                         Divider()
                             .padding(.bottom, 14)
+                        
                         HStack(alignment: .center, spacing: 220) {
                             Text("Select Layout")
                                 .font(.custom("Pretendard-SemiBold", size: 14))
@@ -77,6 +79,7 @@ struct ProjectEditView: View {
                                 .frame(width: 16, height: 16)
                         }
                         .padding(.bottom, 10)
+                        
                         HStack(alignment: .center, spacing: 14) {
                             RoundedRectangle(cornerRadius: 12)
                                 .foregroundStyle(.blue.opacity(0.1))
@@ -137,18 +140,18 @@ struct ProjectEditView: View {
                                 }
                         }
                         .padding(.bottom, 16)
+                        
                         Text("We are currently offering the **Timeline Layout** in a \rclosed beta version. <Message>")
                             .font(.custom("Pretendard-Medium", size: 14))
                             .foregroundStyle(.gray)
                             .padding(.bottom, 24)
+                        
                         Divider()
                             .padding(.bottom, 20)
+                        
                         ZStack {
                             Button {
-                                // TODO: title Change & editsheet 토글
-//                                viewStore.send(.setEditSheet(isPresented: false))
-//                                viewStore.send(.titleChanged())
-                                viewStore.send(.projectTitleChanged)                               
+                                viewStore.send(.projectTitleChanged)
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)
                                     .frame(width: 328, height: 48)
@@ -163,6 +166,7 @@ struct ProjectEditView: View {
                             .buttonStyle(PlainButtonStyle())
                             .padding(.bottom, 9)
                         }
+                        
                         HStack(alignment: .center, spacing: 5) {
                             RoundedRectangle(cornerRadius: 4)
                                 .frame(width: 55, height: 22)

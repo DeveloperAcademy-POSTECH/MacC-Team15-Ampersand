@@ -60,6 +60,7 @@ struct ProjectBoardSideView: View {
                         HStack(alignment: .top, spacing: 0) {
                             Spacer()
                             Button {
+                                // TODO: - 왼쪽 버튼
                                 print("Button/1")
                             } label: {
                                 RoundedRectangle(cornerRadius: 6)
@@ -68,6 +69,7 @@ struct ProjectBoardSideView: View {
                                     .padding(.vertical, 4)
                             }
                             Button {
+                                // TODO: - 오른쪽 버튼
                                 print("Button/2")
                             } label: {
                                 RoundedRectangle(cornerRadius: 6)
@@ -95,8 +97,8 @@ struct ProjectBoardSideView: View {
                                 )
                             ) {
                                 ProjectSideItemView(store: $0)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 0, leading: -16, bottom: 0, trailing: 0))
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets(top: 0, leading: -16, bottom: 0, trailing: 0))
                             }
                         }
                     }
@@ -114,7 +116,3 @@ struct ProjectBoardSideView: View {
         }
     }
 }
-
-//#Preview {
-//    ProjectBoardSideView()
-//}

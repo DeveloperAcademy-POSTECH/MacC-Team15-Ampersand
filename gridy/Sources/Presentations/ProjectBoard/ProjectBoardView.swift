@@ -55,12 +55,3 @@ struct ProjectBoardView: View {
         }
     }
 }
-
-#Preview {
-    ProjectBoardView(
-        store: Store(
-            initialState: ProjectBoard.State(),
-            reducer: { ProjectBoard() }
-        )
-    )
-}

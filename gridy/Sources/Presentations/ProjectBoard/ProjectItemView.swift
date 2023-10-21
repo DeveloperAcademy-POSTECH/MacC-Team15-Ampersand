@@ -26,7 +26,7 @@ struct ProjectItemView: View {
                                 .padding(.trailing, 4)
                             Spacer()
                         }
-                        .frame(width: 274, height: 28)
+                        .frame(height: 28)
                         .background(.gray.opacity(0.1))
                         .clipShape(
                             .rect(
@@ -38,12 +38,17 @@ struct ProjectItemView: View {
                             )
                         )
                         .frame(height: 28)
-                        Text(viewStore.project.title)
-                            .font(.custom("Pretendard-Bold", size: 20))
-                            .multilineTextAlignment(.leading)
-                            .padding(.leading, 12)
-                            .padding(.top, 12)
-                            .padding(.bottom, 11)
+                        
+                        HStack {
+                            Text(viewStore.project.title)
+                                .font(.custom("Pretendard-Bold", size: 20))
+                                .multilineTextAlignment(.leading)
+                                .padding(.leading, 12)
+                                .padding(.top, 12)
+                                .padding(.bottom, 11)
+                            Spacer()
+                        }
+                        
                         HStack(alignment: .center, spacing: 0) {
                             Text("2023.10.01 ~ 2023.11.14")
                                 .font(.custom("Pretendard-SemiBold", size: 12))
@@ -67,7 +72,6 @@ struct ProjectItemView: View {
                 }
                 .contextMenu {
                     Button {
-                        print("Edit Button \(viewStore.project.title)")
                         viewStore.$showSheet.wrappedValue = true
                     } label: {
                         Text("Edit")
@@ -81,7 +85,3 @@ struct ProjectItemView: View {
         }
     }
 }
-
-//#Preview {
-//    ProjectItemView(store: StoreOf<ProjectItem>(initialState: ProjectItem.State(), reducer: { ProjectItem() }))
-//}

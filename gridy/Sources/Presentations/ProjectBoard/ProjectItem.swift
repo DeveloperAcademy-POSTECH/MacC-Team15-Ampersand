@@ -9,7 +9,6 @@ import Foundation
 import ComposableArchitecture
 
 struct ProjectItem: Reducer {
-    
     @Dependency(\.apiService) var apiService
     
     struct State: Equatable, Identifiable {

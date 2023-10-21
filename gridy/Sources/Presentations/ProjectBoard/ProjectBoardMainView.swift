@@ -24,7 +24,6 @@ struct ProjectBoardMainView: View {
                     }
                     .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
-                        
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.1))
                             .frame(height: 36)
@@ -110,7 +109,6 @@ struct ProjectBoardMainView: View {
                                 }
                             }
                         }
-                        
                         .padding(.top, 64)
                         .padding(.horizontal, 24)
                     }

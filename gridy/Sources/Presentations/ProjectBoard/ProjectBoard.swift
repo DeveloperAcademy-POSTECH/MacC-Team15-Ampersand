@@ -10,7 +10,6 @@ import ComposableArchitecture
 import FirebaseAuth
 
 struct ProjectBoard: Reducer {
-    
     @Dependency(\.apiService) var apiService
     @Dependency(\.apiClient) var apiClient
     @Dependency(\.continuousClock) var continuousClock
@@ -69,7 +68,7 @@ struct ProjectBoard: Reducer {
                         TaskResult {
                             try await apiService.readAllProjects()
                         }
-                    ), animation: .spring)
+                    ), animation: .spring) /// 여기 animation 효과 때문에, 타이틀 업데이트 했을 때 타이틀이 먼저 보여지는 현상이 생깁니다. none으로 바꾸면 괜찮아집니다.
                     await send(.setProcessing(false))
                 }
                 
@@ -110,8 +109,8 @@ struct ProjectBoard: Reducer {
                 let changedTitle = state.title
                 return .run { send in
                     try await apiService.updateProjectTitle(id, changedTitle)
-                    await send(.setEditSheet(isPresented: false))
                     await send(.fetchAllProjects)
+                    await send(.setEditSheet(isPresented: false))
                 }
                 
             case .binding:
