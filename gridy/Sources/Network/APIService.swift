@@ -20,20 +20,20 @@ struct APIService {
     
     /// Plan Type
     var readAllPlanTypes: () async throws -> [PlanType]
-    var searchPlanTypes: @Sendable (_ with: String) async throws -> [PlanType]
-    var createPlanType: @Sendable (_ target: PlanType) async throws -> String
-    var deletePlanType: @Sendable (_ typeID: String) async throws -> Void
+    var searchPlanTypes: @Sendable (String) async throws -> [PlanType]
+    var createPlanType: @Sendable (PlanType) async throws -> String
+    var deletePlanType: @Sendable (String) async throws -> Void
     
     /// Plan
-    var createPlan: @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> [String: [String]]
-    var deletePlan: @Sendable (_ planID: String) async throws -> Void
-    var deletePlansByParent: @Sendable (_ parentLaneID: String) async throws -> Void
+    var createPlan: @Sendable (Plan, Int, Int, String) async throws -> [String: [String]]
+    var deletePlan: @Sendable (String) async throws -> Void
+    var deletePlansByParent: @Sendable (String) async throws -> Void
     
     /// Lane
-    var newLaneCreated: @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]]
+    var newLaneCreated: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
     
     /// Layer
-    var newLayerCreated: @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
+    var newLayerCreated: @Sendable (Int, String) async throws -> [String: [String]]
     
     init(
         createProject: @escaping (String) async throws -> Void,
@@ -43,20 +43,15 @@ struct APIService {
         
         readAllPlanTypes: @escaping () async throws -> [PlanType],
         searchPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
-        createPlanType: @escaping @Sendable (_ target: PlanType) async throws -> String,
-        deletePlanType: @escaping @Sendable (_ typeID: String) async throws -> Void,
+        createPlanType: @escaping @Sendable (PlanType) async throws -> String,
+        deletePlanType: @escaping @Sendable (String) async throws -> Void,
         
-        createPlan: @escaping @Sendable (_ target: Plan, _ layerIndex: Int, _ indexFromLane: Int, _ projectID: String) async throws -> [String: [String]],
-        deletePlan: @escaping @Sendable (_ typeID: String) async throws -> Void,
-        deletePlansByParent: @escaping @Sendable (_ parentLaneID: String) async throws -> Void,
+        createPlan: @escaping @Sendable (Plan, Int, Int, String) async throws -> [String: [String]],
+        deletePlan: @escaping @Sendable (String) async throws -> Void,
+        deletePlansByParent: @escaping @Sendable (String) async throws -> Void,
         
-        newLaneCreated: @escaping @Sendable (_ layerIndex: Int, _ laneIndex: Int, _ createOnTop: Bool, _ planID: String, _ projectID: String) async throws -> [String: [String]],
-        
-        /**
-         - Parameters:
-         - layerIndex: 새 레이어를 추가하려는 인덱스. layerIndex와 layerIndex+1사이에 새 레이어가 추가. 즉 생성되는 레이어의 인덱스는 layerIndex + 1
-         - projectID: 프로젝트 ID
-         */
+        newLaneCreated: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
+
         newLayerCreated: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
@@ -140,11 +135,9 @@ extension APIService {
                 let snapshots = try await projectCollectionPath
                     .getDocuments()
                     .documents
-                print(snapshots)
-                let test = try snapshots
                     .map { try $0.data(as: Project.self) }
                     .sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                return test
+                return snapshots
             } catch {
                 throw APIError.noResponseResult
             }
@@ -293,9 +286,8 @@ extension APIService {
                         targetPlanID = planData.laneIDs![createOnTop ? 0 : planData.laneIDs!.count - 1]![0]
                     }
                 } else {
-                    // TODO: - 레인에 아무것도 없는데 레인을 나누는 경우
+                    /// 레인이 아무것도 없는데 레인을 나누는 경우
                     /// map 업데이트
-                    var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
                     projectMap[layerIndex.description] = []
                     for dummy in 0...laneIndex {
                         let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
