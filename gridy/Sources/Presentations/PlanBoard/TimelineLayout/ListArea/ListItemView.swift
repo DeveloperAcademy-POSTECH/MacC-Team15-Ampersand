@@ -96,8 +96,6 @@ struct ListItemView: View {
                         }
                 }
             }
-            // TODO: 배경 지우기
-            .background(.white)
             // TODO: width: geo, unitHeight * 내가 가진 lane 개수
             .frame(height: viewModel.lineAreaGridHeight * CGFloat(viewStore.sampleMap[layerIndex][rowIndex]))
             .onAppear {
@@ -108,8 +106,8 @@ struct ListItemView: View {
 }
 
 #Preview {
-    ListAreaView2(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+    ListItemView(
+        store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
             PlanBoard()
         }
     )

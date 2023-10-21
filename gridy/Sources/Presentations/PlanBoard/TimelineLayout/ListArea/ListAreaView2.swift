@@ -63,7 +63,7 @@ struct ListAreaView2: View {
 
 #Preview {
     ListAreaView2(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+        store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
             PlanBoard()
         }
     )

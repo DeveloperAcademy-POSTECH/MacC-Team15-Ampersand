@@ -33,11 +33,13 @@ struct TimelineLayoutContentView: View {
             VStack(alignment: .leading, spacing: 0) {
                 BlackPinkInYourAreaView()
                     .frame(height: 200)
-                // TODO: - 이 view 에서 쓰는 store 넘겨주기
-                ListAreaView2(store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
-                    PlanBoard()
-                })
-                    .environmentObject(viewModel)
+                // TODO: - dummy store 지우고 실제 store 넘겨주기
+                ListAreaView2(
+                    store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
+                        PlanBoard()
+                    }
+                )
+                .environmentObject(viewModel)
             }
             .frame(width: 266)
             .zIndex(1)
