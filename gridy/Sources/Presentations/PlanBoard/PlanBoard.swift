@@ -20,6 +20,13 @@ struct PlanBoard: Reducer {
         
         var keyword = ""
         var selectedColorCode = Color.red
+        
+        // MARK: - list area
+        var showingLayers: [Int] = [0]
+        var showingRows = 20
+        
+        // TODO: - 삭제하기
+        var sampleMap = [[1, 5], [1, 3, 1, 1], [1, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1]]
     }
     
     enum Action: Equatable {
@@ -39,6 +46,10 @@ struct PlanBoard: Reducer {
         case createPlan(layer: Int, row: Int, target: Plan)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case fetchAllPlans
+        
+        // MARK: - list area
+        case showUpperLayer
+        case showLowerLayer
     }
     
     var body: some Reducer<State, Action> {
@@ -150,6 +161,26 @@ struct PlanBoard: Reducer {
                 
             case .fetchAllPlans:
                 state.map = state.rootProject.map
+                return .none
+                
+            case .showUpperLayer:
+                let lastShowingIndex = state.showingLayers.last!
+                if state.showingLayers.count < 3 {
+                    state.showingLayers.append(lastShowingIndex + 1)
+                } else {
+                    state.showingLayers.removeFirst()
+                    state.showingLayers.append(lastShowingIndex + 1)
+                }
+                return .none
+                
+            case .showLowerLayer:
+                let firstShowingIndex = state.showingLayers.first!
+                if state.showingLayers.count < 3 {
+                    state.showingLayers.append(firstShowingIndex - 1)
+                } else {
+                    state.showingLayers.removeLast()
+                    state.showingLayers.insert(firstShowingIndex - 1, at: 0)
+                }
                 return .none
                 
             default:

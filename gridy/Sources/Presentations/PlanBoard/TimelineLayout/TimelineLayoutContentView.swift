@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
@@ -32,7 +33,10 @@ struct TimelineLayoutContentView: View {
             VStack(alignment: .leading, spacing: 0) {
                 BlackPinkInYourAreaView()
                     .frame(height: 200)
-                ListAreaView()
+                // TODO: - 이 view 에서 쓰는 store 넘겨주기
+                ListAreaView2(store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+                    PlanBoard()
+                })
                     .environmentObject(viewModel)
             }
             .frame(width: 266)

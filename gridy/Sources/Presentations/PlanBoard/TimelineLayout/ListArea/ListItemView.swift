@@ -9,10 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ListItemView: View {
+    
+    let store: StoreOf<PlanBoard>
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
+
     // TODO: 아래의 sample 변수 다 삭제
-    let unitWidth: CGFloat = 266
-    let unitHeight: CGFloat = 45
-    var showingLayerIndexs = [0]
+    var layerIndex: Int
+    var rowIndex: Int
     let fontSize: CGFloat = 30
     
     /// 여기서부터 진짜 필요한 변수
@@ -20,11 +23,11 @@ struct ListItemView: View {
     @State var isHovering = false
     @State var isSelected = false
     @State var isEditing = false
-    @State var editingText = "구리구리"
+    @State var editingText = ""
     @State var prevText = ""
     
     var body: some View {
-        GeometryReader { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 Rectangle()
                     .foregroundStyle(isHovering ? Color.gray.opacity(0.4) : Color.clear)
@@ -94,13 +97,20 @@ struct ListItemView: View {
                 }
             }
             // TODO: 배경 지우기
-//            .background(.white)
+            .background(.white)
             // TODO: width: geo, unitHeight * 내가 가진 lane 개수
-            .frame(width: unitWidth / CGFloat(showingLayerIndexs.count), height: unitHeight * CGFloat(1))
+            .frame(height: viewModel.lineAreaGridHeight * CGFloat(viewStore.sampleMap[layerIndex][rowIndex]))
+            .onAppear {
+                editingText = String(viewStore.sampleMap[layerIndex][rowIndex])
+            }
         }
     }
 }
 
 #Preview {
-    ListItemView()
+    ListAreaView2(
+        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+            PlanBoard()
+        }
+    )
 }
