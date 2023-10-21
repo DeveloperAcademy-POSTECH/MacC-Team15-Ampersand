@@ -18,7 +18,7 @@ struct ListAreaView2: View {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(viewStore.showingLayers, id: \.self) { layerIndex in
                         VStack(alignment: .leading, spacing: 0) {
-                            ForEach(0..<viewStore.sampleMap[layerIndex].count) { rowIndex in
+                            ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
                                 ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
                             }
                             // TODO: - 삭제
@@ -37,7 +37,6 @@ struct ListAreaView2: View {
                             }
                             .frame(width: 266 / CGFloat(viewStore.showingLayers.count))
                         }
-                        .border(.red)
                         .frame(width: 266 / CGFloat(viewStore.showingLayers.count))
                     }
                 }
@@ -53,9 +52,8 @@ struct ListAreaView2: View {
                             .showUpperLayer
                         )
                     }
-                    .disabled(viewStore.showingLayers.last == viewStore.sampleMap.count - 1)
+                    .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                 }
-                .frame(width: 266)
             }
         }
     }
@@ -63,7 +61,7 @@ struct ListAreaView2: View {
 
 #Preview {
     ListAreaView2(
-        store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
+        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
             PlanBoard()
         }
     )

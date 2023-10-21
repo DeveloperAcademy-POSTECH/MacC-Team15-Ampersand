@@ -14,7 +14,9 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var map = [String: [String]]()
+//        var map = [String: [String]]()
+        // TODO: - 삭제하기
+        var  map = ["0": ["1", "5"], "1": ["1", "3", "1", "1"], "2": ["1", "2", "1", "1", "1"]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         
@@ -24,9 +26,6 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         var showingLayers: [Int] = [0]
         var showingRows = 20
-        
-        // TODO: - 삭제하기
-        var sampleMap = [[1, 5], [1, 3, 1, 1], [1, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1]]
     }
     
     enum Action: Equatable {
@@ -50,6 +49,7 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         case showUpperLayer
         case showLowerLayer
+        case addLayer(layerIndex: Int)
     }
     
     var body: some Reducer<State, Action> {
@@ -181,6 +181,9 @@ struct PlanBoard: Reducer {
                     state.showingLayers.removeLast()
                     state.showingLayers.insert(firstShowingIndex - 1, at: 0)
                 }
+                return .none
+                
+            case let .addLayer(layerIndex):
                 return .none
                 
             default:

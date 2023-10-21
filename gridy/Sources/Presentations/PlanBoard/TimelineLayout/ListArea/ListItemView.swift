@@ -28,9 +28,10 @@ struct ListItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            let plan = viewStore.map[String(layerIndex)]![rowIndex]
             ZStack {
                 Rectangle()
-                    .foregroundStyle(isHovering ? Color.gray.opacity(0.4) : Color.clear)
+                    .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
                     .overlay(
                         Text(editingText)
                             .lineLimit(2)
@@ -74,8 +75,9 @@ struct ListItemView: View {
                         .strokeBorder(Color.blue)
                         .foregroundStyle(Color.clear)
                         .overlay {
+                            // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
-                                .disabled(true)
+//                                .disabled(true)
                                 .onSubmit {
                                     isEditing = false
                                     isTextFieldFocused = false
@@ -83,7 +85,7 @@ struct ListItemView: View {
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .textFieldStyle(.plain)
-                                .foregroundStyle(.clear)
+//                                .foregroundStyle(.clear)
                                 .padding(.horizontal, 1)
                                 .padding(.vertical, 2)
                             // TODO: 로이스 focus 적용
@@ -97,9 +99,13 @@ struct ListItemView: View {
                 }
             }
             // TODO: width: geo, unitHeight * 내가 가진 lane 개수
-            .frame(height: viewModel.lineAreaGridHeight * CGFloat(viewStore.sampleMap[layerIndex][rowIndex]))
+            .frame(height: viewModel.lineAreaGridHeight * CGFloat(Int(plan)!))
             .onAppear {
-                editingText = String(viewStore.sampleMap[layerIndex][rowIndex])
+//                if let layerArray = viewStore.map[String(layerIndex)] {
+//                    editingText = layerArray[rowIndex]
+//                    print(layerArray)
+//                }
+                editingText = String(plan)
             }
         }
     }
@@ -107,8 +113,10 @@ struct ListItemView: View {
 
 #Preview {
     ListItemView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
+        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
             PlanBoard()
-        }
+        },
+        layerIndex: 0,
+        rowIndex: 0
     )
 }

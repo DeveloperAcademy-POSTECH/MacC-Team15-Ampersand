@@ -35,10 +35,12 @@ struct TimelineLayoutContentView: View {
                     .frame(height: 200)
                 // TODO: - dummy store 지우고 실제 store 넘겨주기
                 ListAreaView2(
-                    store: Store(initialState: PlanBoard.State(rootProject: Project(id: "", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), map: ["0": [""], "1":[""], "2":[""]]))) {
+                    store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
                         PlanBoard()
+                            ._printChanges()
                     }
                 )
+                .background(.white)
                 .environmentObject(viewModel)
             }
             .frame(width: 266)
@@ -60,7 +62,7 @@ struct TimelineLayoutContentView: View {
                     }
                     .zIndex(1)
                     
-                    LineAreaSampleView()
+                    LineAreaView()
                         .environmentObject(viewModel)
                         .zIndex(0)
                 }
