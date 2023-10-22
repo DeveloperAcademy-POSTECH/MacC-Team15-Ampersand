@@ -26,11 +26,11 @@ struct APIService {
     
     /// Plan
     var createPlan: @Sendable (Plan, Int, Int, String) async throws -> [String: [String]]
-    var deletePlan: @Sendable (String) async throws -> Void
-    var deletePlansByParent: @Sendable (String) async throws -> Void
+    var deletePlan: @Sendable (String, Bool, String) async throws -> Void
     
     /// Lane
     var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
+    var deleteLane: @Sendable (String, Bool, String) async throws -> [String: [String]]
     
     /// Layer
     var createLayer: @Sendable (Int, String) async throws -> [String: [String]]
@@ -47,11 +47,11 @@ struct APIService {
         deletePlanType: @escaping @Sendable (String) async throws -> Void,
         
         createPlan: @escaping @Sendable (Plan, Int, Int, String) async throws -> [String: [String]],
-        deletePlan: @escaping @Sendable (String) async throws -> Void,
-        deletePlansByParent: @escaping @Sendable (String) async throws -> Void,
+        deletePlan: @escaping @Sendable (String, Bool, String) async throws -> Void,
         
         createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
-
+        deleteLane: @escaping @Sendable (String, Bool, String) async throws -> [String: [String]],
+        
         createLayer: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
@@ -66,9 +66,9 @@ struct APIService {
         
         self.createPlan = createPlan
         self.deletePlan = deletePlan
-        self.deletePlansByParent = deletePlansByParent
         
         self.createLane = createLane
+        self.deleteLane = deleteLane
         
         self.createLayer = createLayer
     }
@@ -255,13 +255,38 @@ extension APIService {
             }
             return map
         },
-        deletePlan: { planID in
-            try planCollectionPath.document(planID).updateData(["laneIDs": []])
-            try planCollectionPath.document(planID).updateData(["periods": [[]]])
-            
-        },
-        deletePlansByParent: { _ in
-            // TODO: - delete
+        deletePlan: { planID, deleteAll, projectID in
+            let currentPlan = try await planCollectionPath.document(planID).getDocument(as: Plan.self)
+            var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
+            if deleteAll {
+                /// 하위 레이어의 자식 plan들을 모두 삭제하는 경우
+                if let currentLaneIDs = currentPlan.laneIDs {
+                    for laneID in currentLaneIDs {
+                        /// plan이 가진 lane들에 속한 plan을 먼저 삭제
+                        let currentLane = try await laneCollectionPath.document(laneID).getDocument(as: Lane.self)
+                        if let childIDs = currentLane.childIDs {
+                            for planID in childIDs {
+                                try await planCollectionPath.document(planID).delete()
+                            }
+                        }
+                        /// lane들을 삭제
+                        try await laneCollectionPath.document(laneID).delete()
+                    }
+                }
+                /// plan이 속해있던 parentLane에서 삭제
+                if let parentLaneID = currentPlan.parentLaneID {
+                    if var parentLaneChildIDs = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self).childIDs {
+                        let childIDsWithoutTargetPlanID = parentLaneChildIDs.remove(at: parentLaneChildIDs.firstIndex(of: currentPlan.id)!)
+                        try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": childIDsWithoutTargetPlanID])
+                    }
+                }
+                /// plan을 삭제
+                try await planCollectionPath.document(currentPlan.id).delete()
+            } else {
+                /// 하위 레이어는 남겨두는 경우 == periods만 삭제
+                try await planCollectionPath.document(planID).updateData(["periods": [:]])
+            }
+            // TODO: - update map
         },
         createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
@@ -274,7 +299,9 @@ extension APIService {
                     let parentLane = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self)
                     if var childIDsInLane = parentLane.childIDs {
                         let newPlanID = UUID().uuidString
-                        try await planCollectionPath.document(newPlanID).setData(["id": newPlanID, "periods": [], "laneIDs": []])
+                        let newLaneID = try laneCollectionPath.document().documentID
+                        try await laneCollectionPath.document(newLaneID).setData(["id": newLaneID, "ownerID": newPlanID])
+                        try await planCollectionPath.document(newPlanID).setData(["id": newPlanID, "periods": [], "laneIDs": [newLaneID]])
                         let newChildIndex = childIDsInLane.firstIndex(of: targetPlanID)! + (createOnTop ? 0 : 1)
                         childIDsInLane.insert(
                             newPlanID,
@@ -283,7 +310,12 @@ extension APIService {
                         try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": childIDsInLane])
                         /// update project map
                         projectMap[currentLayerIndex.description]?.insert(targetPlanID, at: newChildIndex)
-                        targetPlanID = planData.laneIDs![createOnTop ? 0 : planData.laneIDs!.count - 1]![0]
+                        /// 다음 레이어에서 lane을 추가해줄 child plan으로 값 업데이트
+                        if let laneIDs = planData.laneIDs {
+                            targetPlanID = laneIDs[createOnTop ? 0 : laneIDs.count - 1]
+                        } else {
+                            // ???: laneIDs는 Plan이 무조건 하나 이상 갖고 있어야되는거 아닌가??
+                        }
                     }
                 } else {
                     /// 레인이 아무것도 없는데 레인을 나누는 경우
@@ -297,6 +329,10 @@ extension APIService {
                 }
             }
             return projectMap
+        },
+        deleteLane: { laneID, deleteAll, projectID in
+            
+            return [:]
         },
         createLayer: { layerIndex, projectID in
             /// projectMap에 새 레이어를 추가
@@ -323,18 +359,17 @@ extension APIService {
                         /// 가지는 lane만큼
                         for laneIndex in 0..<laneIDs.count {
                             /// 빈 플랜을 생성해
-                            var newPlan = Plan(id: UUID().uuidString, periods: [:])
+                            var newPlan = Plan(id: UUID().uuidString, periods: [:], laneIDs: [])
                             newUpperPlansLanes.append(newPlan.id)
                             projectMap[layerIndex.description]!.append(newPlan.id)
                             
                             /// upper plan의 lane을 새로 생성된 빈 플랜으로 옮겨주고,
-                            let newPlansLaneID = laneIDs[laneIndex]!
-                            newPlan.laneIDs = [laneIndex: newPlansLaneID]
+                            newPlan.laneIDs?.insert(laneIDs[laneIndex], at: laneIndex)
                             try await planCollectionPath.document(newPlan.id).setData(["id": newPlan.id, "periods": [], "laneIDs": newPlan.laneIDs as Any])
                             
-                            /// 그 child plan의 lane들이 가리키는 parentLaneID를 생성된 plan으로 변경
-                            for laneID in laneIDs[laneIndex]! {
-                                try await planCollectionPath.document(laneID).updateData(["parentLaneID": newPlansLaneID])
+                            /// 그 child plan의 lane들이 가리키는 planID를 생성된 plan으로 변경
+                            for laneID in laneIDs {
+                                try await laneCollectionPath.document(laneID).updateData(["planID": newPlan.id])
                             }
                         }
                         /// 부모 플랜이 가지는 laneIDs도 업데이트
