@@ -30,10 +30,10 @@ struct APIService {
     var deletePlansByParent: @Sendable (String) async throws -> Void
     
     /// Lane
-    var newLaneCreated: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
+    var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
     
     /// Layer
-    var newLayerCreated: @Sendable (Int, String) async throws -> [String: [String]]
+    var createLayer: @Sendable (Int, String) async throws -> [String: [String]]
     
     init(
         createProject: @escaping (String) async throws -> Void,
@@ -50,9 +50,9 @@ struct APIService {
         deletePlan: @escaping @Sendable (String) async throws -> Void,
         deletePlansByParent: @escaping @Sendable (String) async throws -> Void,
         
-        newLaneCreated: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
+        createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
 
-        newLayerCreated: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
+        createLayer: @escaping @Sendable (_ layerIndex: Int, _ projectID: String) async throws -> [String: [String]]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -68,9 +68,9 @@ struct APIService {
         self.deletePlan = deletePlan
         self.deletePlansByParent = deletePlansByParent
         
-        self.newLaneCreated = newLaneCreated
+        self.createLane = createLane
         
-        self.newLayerCreated = newLayerCreated
+        self.createLayer = createLayer
     }
 }
 
@@ -263,7 +263,7 @@ extension APIService {
         deletePlansByParent: { _ in
             // TODO: - delete
         },
-        newLaneCreated: { layerIndex, laneIndex, createOnTop, planID, projectID in
+        createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let maximumDepth = projectMap.count
             var targetPlanID = planID
@@ -298,7 +298,7 @@ extension APIService {
             }
             return projectMap
         },
-        newLayerCreated: { layerIndex, projectID in
+        createLayer: { layerIndex, projectID in
             /// projectMap에 새 레이어를 추가
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let currentProjectMapLayerSize = projectMap.count
