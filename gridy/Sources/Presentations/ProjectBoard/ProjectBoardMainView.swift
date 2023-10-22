@@ -13,6 +13,7 @@ struct ProjectBoardMainView: View {
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
     @State var tag: Int?
+    @State var isTapped = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -22,7 +23,6 @@ struct ProjectBoardMainView: View {
                     NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
                         EmptyView()
                     }
-                    .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.1))
@@ -103,9 +103,13 @@ struct ProjectBoardMainView: View {
                                     )
                                 ) {
                                     ProjectItemView(store: $0)
-                                        .onTapGesture {
-                                            self.tag = 2
-                                        }
+                                    .border(isTapped ? .blue : .clear)
+                                    .onTapGesture(count: 1) {
+                                        isTapped.toggle()
+                                    }
+                                    .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                        self.tag = 2
+                                    }))
                                 }
                             }
                         }

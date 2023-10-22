@@ -10,12 +10,13 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
+    @State var isHovering = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 6)
                 .frame(height: 108)
-                .foregroundStyle(.white)
+                .foregroundStyle(isHovering ? .gray.opacity(0.1) : .white)
                 .overlay {
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(alignment: .center, spacing: 0) {
@@ -81,6 +82,9 @@ struct ProjectItemView: View {
                     } label: {
                         Text("Delete")
                     }
+                }
+                .onHover { proxy in
+                    isHovering = proxy
                 }
         }
     }
