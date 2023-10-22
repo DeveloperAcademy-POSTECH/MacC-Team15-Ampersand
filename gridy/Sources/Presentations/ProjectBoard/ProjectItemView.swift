@@ -86,3 +86,4 @@ struct ProjectItemView: View {
 #Preview {
     ProjectItemView(store: StoreOf<ProjectItem>(initialState: ProjectItem.State(), reducer: { ProjectItem() }))
 }
+
