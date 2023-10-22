@@ -26,7 +26,7 @@ struct APIService {
     
     /// Plan
     var createPlan: @Sendable (Plan, Int, Int, String) async throws -> [String: [String]]
-    var deletePlan: @Sendable (String, Bool, String) async throws -> Void
+    var deletePlan: @Sendable (String, Int, Bool, String) async throws -> [String: [String]]
     
     /// Lane
     var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
@@ -47,7 +47,7 @@ struct APIService {
         deletePlanType: @escaping @Sendable (String) async throws -> Void,
         
         createPlan: @escaping @Sendable (Plan, Int, Int, String) async throws -> [String: [String]],
-        deletePlan: @escaping @Sendable (String, Bool, String) async throws -> Void,
+        deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> [String: [String]],
         
         createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
         deleteLane: @escaping @Sendable (String, Bool, String) async throws -> [String: [String]],
@@ -113,6 +113,33 @@ extension APIService {
         get throws {
             return try basePath.collection("Lanes")
         }
+    }
+    
+    static func deletePlanWithAllChild(
+        currentPlan: Plan,
+        currentLayerIndex: Int,
+        _ projectMap: inout [String: [String]]
+    ) async throws {
+        if let currentLaneIDs = currentPlan.laneIDs {
+            for laneID in currentLaneIDs {
+                /// plan이 가진 lane들에 속한 plan을 먼저 삭제, 재귀적으로 최하위까지 삭제
+                let currentLane = try await laneCollectionPath.document(laneID).getDocument(as: Lane.self)
+                if let childIDs = currentLane.childIDs {
+                    for planID in childIDs {
+                        let nextPlan = try await planCollectionPath.document(planID).getDocument(as: Plan.self)
+                        try await deletePlanWithAllChild(
+                            currentPlan: nextPlan,
+                            currentLayerIndex: currentLayerIndex + 1,
+                            &projectMap
+                        )
+                        try await planCollectionPath.document(planID).delete()
+                    }
+                }
+                /// lane들을 삭제
+                try await laneCollectionPath.document(laneID).delete()
+            }
+        }
+        projectMap["\(currentLayerIndex)"]!.remove(at: projectMap["\(currentLayerIndex)"]!.firstIndex(of: currentPlan.id)!)
     }
     
     static let liveValue = Self(
@@ -212,9 +239,15 @@ extension APIService {
                     }
                     
                     /// lane 업데이트
-                    try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
-                    try await laneCollectionPath.document(parentLaneID).updateData(["periods": [originLane.count: [target.periods[0], target.periods[1]]]])
-                    
+                    try await laneCollectionPath.document(parentLaneID).updateData(
+                        ["childIDs": FieldValue.arrayUnion([target.id]),
+                         "periods": [
+                            originLane.count: [
+                                target.periods[0],
+                                target.periods[1]]
+                            ]
+                        ]
+                    )
                 }
             }
             
@@ -255,38 +288,30 @@ extension APIService {
             }
             return map
         },
-        deletePlan: { planID, deleteAll, projectID in
+        deletePlan: { planID, layerIndex, deleteAll, projectID in
             let currentPlan = try await planCollectionPath.document(planID).getDocument(as: Plan.self)
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             if deleteAll {
                 /// 하위 레이어의 자식 plan들을 모두 삭제하는 경우
-                if let currentLaneIDs = currentPlan.laneIDs {
-                    for laneID in currentLaneIDs {
-                        /// plan이 가진 lane들에 속한 plan을 먼저 삭제
-                        let currentLane = try await laneCollectionPath.document(laneID).getDocument(as: Lane.self)
-                        if let childIDs = currentLane.childIDs {
-                            for planID in childIDs {
-                                try await planCollectionPath.document(planID).delete()
-                            }
-                        }
-                        /// lane들을 삭제
-                        try await laneCollectionPath.document(laneID).delete()
-                    }
-                }
+                try await APIService.deletePlanWithAllChild(
+                    currentPlan: currentPlan,
+                    currentLayerIndex: layerIndex, &projectMap
+                )
+                
                 /// plan이 속해있던 parentLane에서 삭제
                 if let parentLaneID = currentPlan.parentLaneID {
                     if var parentLaneChildIDs = try await laneCollectionPath.document(parentLaneID).getDocument(as: Lane.self).childIDs {
-                        let childIDsWithoutTargetPlanID = parentLaneChildIDs.remove(at: parentLaneChildIDs.firstIndex(of: currentPlan.id)!)
+                        let childIDsWithoutTargetPlanID = parentLaneChildIDs.remove(at: parentLaneChildIDs.firstIndex(of: planID)!)
                         try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": childIDsWithoutTargetPlanID])
                     }
                 }
                 /// plan을 삭제
-                try await planCollectionPath.document(currentPlan.id).delete()
+                try await planCollectionPath.document(planID).delete()
             } else {
                 /// 하위 레이어는 남겨두는 경우 == periods만 삭제
                 try await planCollectionPath.document(planID).updateData(["periods": [:]])
             }
-            // TODO: - update map
+            return projectMap
         },
         createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
