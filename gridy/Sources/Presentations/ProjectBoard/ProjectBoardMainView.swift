@@ -96,9 +96,6 @@ struct ProjectBoardMainView: View {
                                     )
                                 ) { projectStore in
                                     ProjectItemView(store: projectStore)
-                                    //                                            .onTapGesture {
-                                    //                                                self.tag = 2
-                                    //                                            }
                                 }
                             }
                         }
