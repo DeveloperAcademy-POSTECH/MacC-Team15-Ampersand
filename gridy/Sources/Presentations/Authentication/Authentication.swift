@@ -86,9 +86,8 @@ struct Authentication: Reducer {
             case let .fetchUserResponse(.success(response)):
                 state.authenticatedUser = response ?? User.mock
                 state.successToSignIn = true
-                return .run { send in
-                    await send(.setNavigation(isActive: true))
-                }
+                // TODO: - navigation 로직 수정필요 @제나
+                return .none
                 
             case .fetchUserResponse(.failure):
                 state.successToSignIn = false

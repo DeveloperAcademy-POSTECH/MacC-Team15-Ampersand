@@ -147,9 +147,9 @@ struct ProjectCreationView: View {
                             .padding(.bottom, 20)
                         ZStack {
                             // TODO: NavigationLink 방식은 Store 이용하기
-                            NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
-                                EmptyView()
-                            }
+//                            NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
+//                                EmptyView()
+//                            }
                             Button {
                                 viewStore.send(.createNewProjectButtonTapped)
                                 self.tag = 1

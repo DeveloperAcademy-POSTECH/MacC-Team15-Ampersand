@@ -6,20 +6,27 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct BlackPinkInYourAreaView: View {
+    
+    let store: StoreOf<PlanBoard>
     var body: some View {
-        ZStack {
-        Rectangle()
-            .foregroundStyle(.white)
-            .border(.black)
-            Text("BlackPinkInYourArea")
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(.white)
+                    .border(.black)
+                Text(viewStore.rootProject.title)
+            }
         }
     }
 }
 
 struct BlackPinkInYourAreaView_Previews: PreviewProvider {
     static var previews: some View {
-        BlackPinkInYourAreaView()
+        BlackPinkInYourAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+            PlanBoard()
+        })
     }
 }

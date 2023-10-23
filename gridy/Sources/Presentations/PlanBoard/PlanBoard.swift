@@ -14,9 +14,7 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-//        var map = [String: [String]]()
-        // TODO: - 삭제하기
-        var map = ["0": ["1", "5"], "1": ["1", "3", "1", "1"], "2": ["1", "2", "1", "1", "1"]]
+        var map = [String: [String]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         

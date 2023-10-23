@@ -33,7 +33,7 @@ struct TimelineLayoutContentView: View {
                 .zIndex(1)
             }
             VStack(alignment: .leading, spacing: 0) {
-                BlackPinkInYourAreaView()
+                BlackPinkInYourAreaView(store: store)
                     .frame(height: 200)
                 // TODO: - dummy store 지우고 실제 store 넘겨주기
                 ListAreaView2(
