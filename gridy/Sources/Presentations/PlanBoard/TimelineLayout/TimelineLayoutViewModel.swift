@@ -8,12 +8,15 @@
 import SwiftUI
 
 class TimelineLayoutViewModel: ObservableObject {
-    @Published var numOfScheduleAreaRow = 5
-    @Published var numOfCol = 30
     
+    /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
+    @Published var numOfScheduleAreaRow = 5
+    
+    /// 그리드 Path의 두께를 결정합니다. Line Area, ScheduleArea에서 따르고 있으며, ListArea는 별도의 Stroke를 가질 것으로 생각됩니다.
     @Published var columnStroke = CGFloat(0.1)
     @Published var rowStroke = CGFloat(0.5)
     
+    /// 그리드의 사이즈에 대한 변수들입니다. RightToolBarArea에서 변수를 조정할 수 있습니다. Magnificationn과 min/maxSIze는 사용자가 확대했을 때 최대 최소 크기를 지정하기 위해 필요한 제한 값입니다.
     let minGridSize = CGFloat(20)
     let maxGridSize = CGFloat(70)
     @Published var gridWidth = CGFloat(45)
@@ -22,20 +25,29 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var horizontalMagnification = CGFloat(1.0)
     @Published var verticalMagnification = CGFloat(1.0)
     
+    /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다. 아직은 RightToolBarArea에서 확인용으로만 사용하고 있습니다.
     @Published var hoverLocation: CGPoint = .zero
     @Published var hoveringCellRow = 0
     @Published var hoveringCellCol = 0
     @Published var isHovering = false
     
+    /// 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
     @Published var selectedGridRanges: [SelectedGridRange] = []
     @Published var selectedDateRanges: [SelectedDateRange] = []
     
+    /// 뷰의 GeometryReader값의 변화에 따라 Max 그리드 갯수가 변호합니다.
     @Published var maxLineAreaRow = 0
     @Published var maxCol = 0
+    
+    /// 뷰가 움직인 크기를 나타내는 변수입니다.
     @Published var shiftedRow = 0
     @Published var shiftedCol = 0
+    
+    /// 마우스로 드래그 할 때 화면 밖으로 벗어난 치수를 담고있는 변수입니다만, 현재 shiftedRow/Col과 역할이 비슷하여 하나로 합치는 것을 고려 중입니다.
     @Published var exceededRow = 0
     @Published var exceededCol = 0
+    
+    /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
 
@@ -82,6 +94,7 @@ class TimelineLayoutViewModel: ObservableObject {
         }
     }
     
+    // TODO: esc 눌렀을 때 row가 보정되지 않는 로직을 수정
     func escapeSelectedCell() {
         /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
         if let lastSelected = selectedGridRanges.last {
