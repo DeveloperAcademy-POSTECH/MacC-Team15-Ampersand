@@ -140,7 +140,6 @@ struct ProjectBoard: Reducer {
                 if let projectItem = state.projects[id: projectID] {
                     for project in state.projects {
                         state.projects[id: project.id]?.isTapped = (project.id == projectID)
-                        print(state.projects[id: project.id]?.id, state.projects[id: project.id]?.isTapped)
                     }
                 }
                 return .none
