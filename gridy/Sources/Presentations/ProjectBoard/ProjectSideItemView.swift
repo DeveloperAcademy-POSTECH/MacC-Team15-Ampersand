@@ -13,16 +13,16 @@ struct ProjectSideItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Rectangle()
-                .frame(height: 32)
-                .foregroundStyle(.gray.opacity(0.1))
-                .overlay {
-                    Text(viewStore.project.title)
-                        .font(.custom("Pretendard-Regular", size: 14))
-                        .multilineTextAlignment(.leading)
-                        .foregroundStyle(.black)
-                        .padding(.leading, 16)
+            GeometryReader { geometry in
+                Rectangle()
+                    .foregroundStyle(.gray.opacity(0.1))
+                    .overlay {
+                        Text(viewStore.project.title)
+                            .font(.custom("Pretendard-Regular", size: 14))
+                            .multilineTextAlignment(.leading)
+                            .foregroundStyle(.black)
                 }
+            }
         }
     }
 }
