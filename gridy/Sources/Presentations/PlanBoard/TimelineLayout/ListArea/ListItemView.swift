@@ -35,7 +35,6 @@ struct ListItemView: View {
                     .overlay(
                         Text(editingText)
                             .lineLimit(2)
-                            .foregroundStyle(.black)
                             .font(.custom("Pretendard-Regular", size: fontSize))
                             .padding(.horizontal, 8)
                     )
@@ -54,11 +53,9 @@ struct ListItemView: View {
                 if isSelected {
                     Rectangle()
                         .strokeBorder(Color.blue)
-                        .foregroundStyle(Color.yellow)
                         .overlay(
                             Text(editingText)
                                 .lineLimit(2)
-                                .foregroundStyle(.black)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .padding(.horizontal, 8)
                         )

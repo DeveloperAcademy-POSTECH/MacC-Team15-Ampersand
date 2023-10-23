@@ -11,51 +11,75 @@ import ComposableArchitecture
 struct ListAreaView2: View {
     
     let store: StoreOf<PlanBoard>
+    @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                HStack(alignment: .top, spacing: 0) {
+                HStack(alignment: .top, spacing: 2) {
                     ForEach(viewStore.showingLayers, id: \.self) { layerIndex in
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
                                 ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
                             }
-                            // TODO: - 삭제
-                            Text("\(layerIndex)")
-                                .frame(width: 266 / CGFloat(viewStore.showingLayers.count))
-                            
                             HStack {
-                                Button("< +") {
+                                Button {
                                     // TODO: - 내 index에 layer 추가
-                                    
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layerIndex - 1)
+                                    )
+                                } label: {
+                                    Text("+")
+                                        .foregroundStyle(.black)
                                 }
-                                Button("+ >") {
+                                
+                                // TODO: - 삭제
+                                Text("\(layerIndex)")
+                                
+                                Button {
                                     // TODO: - 내 index + 1 에 layer 추가
-                                    
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layerIndex)
+                                    )
+                                }label: {
+                                    Text("+")
+                                        .foregroundStyle(.black)
                                 }
                             }
-                            .frame(width: 266 / CGFloat(viewStore.showingLayers.count))
+                            .font(.caption)
+                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
                         }
-                        .frame(width: 266 / CGFloat(viewStore.showingLayers.count))
+                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
+                        .onAppear {
+                            print("layer : \(layerIndex)")
+                            print("layercount: \(viewModel.listColumnWidth[viewStore.showingLayers.count-1])")
+                            print(viewModel.listColumnWidth[viewStore.showingLayers.count-1][0])
+                        }
                     }
                 }
                 HStack {
-                    Button("<< 엎기") {
+                    Button {
                         viewStore.send(
                             .showLowerLayer
                         )
+                    } label: {
+                        Text(">> 엎기")
                     }
-                    .disabled(viewStore.showingLayers[0] == 0)
-                    Button("엎기 >>") {
+                    .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
+                    
+                    Spacer()
+                    
+                    Button {
                         viewStore.send(
                             .showUpperLayer
                         )
+                    } label: {
+                        Text("엎기 <<")
                     }
                     .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                 }
             }
-        }
+         }
     }
 }
 

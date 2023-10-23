@@ -16,7 +16,7 @@ struct PlanBoard: Reducer {
         var rootProject: Project
 //        var map = [String: [String]]()
         // TODO: - 삭제하기
-        var  map = ["0": ["1", "5"], "1": ["1", "3", "1", "1"], "2": ["1", "2", "1", "1", "1"]]
+        var map = ["0": ["1", "5"], "1": ["1", "3", "1", "1"], "2": ["1", "2", "1", "1", "1"]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         
@@ -47,9 +47,9 @@ struct PlanBoard: Reducer {
         case fetchAllPlans
         
         // MARK: - list area
+        case createLayer(layerIndex: Int)
         case showUpperLayer
         case showLowerLayer
-        case addLayer(layerIndex: Int)
     }
     
     var body: some Reducer<State, Action> {
@@ -174,17 +174,22 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .showLowerLayer:
-                let firstShowingIndex = state.showingLayers.first!
-                if state.showingLayers.count < 3 {
-                    state.showingLayers.append(firstShowingIndex - 1)
+                let firstShowingIndex = state.showingLayers.first!           
+                if firstShowingIndex == 0 {
+                    state.showingLayers.removeLast()
                 } else {
                     state.showingLayers.removeLast()
                     state.showingLayers.insert(firstShowingIndex - 1, at: 0)
                 }
                 return .none
                 
-            case let .addLayer(layerIndex):
-                return .none
+            /// 나와 똑같은 개수의 lane을 가진 layer를 내 index에 insert
+            case let .createLayer(layerIndex):
+                let projectId = state.rootProject.id
+                return .run { _ in
+                    let createdLayer = try await apiService.newLayerCreated(layerIndex, projectId)
+                    print(createdLayer)
+                }
                 
             default:
                 return .none

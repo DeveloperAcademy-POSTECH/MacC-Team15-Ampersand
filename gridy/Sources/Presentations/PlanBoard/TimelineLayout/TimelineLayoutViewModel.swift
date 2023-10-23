@@ -38,7 +38,9 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var exceededCol = 0
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
-
+    
+    // TODO: geo 받아오기
+    @Published var listColumnWidth: [[CGFloat]] = [[266], [132, 132], [24, 119, 119]]
     func moveSelectedCell(rowOffset: Int, colOffset: Int) {
         if !selectedGridRanges.isEmpty {
             if !isShiftKeyPressed {

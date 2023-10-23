@@ -40,7 +40,6 @@ struct TimelineLayoutContentView: View {
                             ._printChanges()
                     }
                 )
-                .background(.white)
                 .environmentObject(viewModel)
             }
             .frame(width: 266)
