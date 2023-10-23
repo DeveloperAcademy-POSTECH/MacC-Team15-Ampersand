@@ -168,7 +168,7 @@ struct LineAreaView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .onChange(of: exceededDirection) { direction in
-                if var range = temporarySelectedGridRange {
+                if temporarySelectedGridRange != nil {
                     switch direction {
                     case [true, false, false, false]:
                         viewModel.shiftedCol -= 1
