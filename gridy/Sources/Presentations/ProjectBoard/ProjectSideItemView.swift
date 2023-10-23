@@ -14,7 +14,7 @@ struct ProjectSideItemView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Rectangle()
-                .frame(width: 306, height: 32)
+                .frame(height: 32)
                 .foregroundStyle(.gray.opacity(0.1))
                 .overlay {
                     Text(viewStore.project.title)
