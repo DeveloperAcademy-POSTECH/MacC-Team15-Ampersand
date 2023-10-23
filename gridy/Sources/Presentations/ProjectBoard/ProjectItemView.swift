@@ -14,6 +14,18 @@ struct ProjectItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            NavigationLink {
+                TimelineLayoutView(
+                    store: Store(
+                        initialState: PlanBoard.State(
+                            rootProject: viewStore.project
+                        ),
+                        reducer: {
+                            PlanBoard()
+                        }
+                    )
+                )
+        } label: {
             RoundedRectangle(cornerRadius: 6)
                 .frame(height: 108)
                 .foregroundStyle(.white)
@@ -79,6 +91,7 @@ struct ProjectItemView: View {
                         .padding(.bottom, 9)
                     }
                 }
+        }
         }
     }
 }

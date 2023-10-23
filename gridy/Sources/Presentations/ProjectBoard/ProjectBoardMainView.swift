@@ -18,11 +18,6 @@ struct ProjectBoardMainView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
-                    // TODO: NavigationLink 방식은 Store 이용하기
-                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
-                        EmptyView()
-                    }
-                    .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
                         
                         Rectangle()

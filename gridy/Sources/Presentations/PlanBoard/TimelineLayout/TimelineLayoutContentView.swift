@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TimelineLayoutContentView: View {
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
@@ -13,6 +14,7 @@ struct TimelineLayoutContentView: View {
     @State var scrollOffset = CGFloat.zero
     @Binding var showingIndexArea: Bool
     @Binding var proxy: ScrollViewProxy?
+    let store: StoreOf<PlanBoard>
     
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -50,7 +52,7 @@ struct TimelineLayoutContentView: View {
                     }
                     .zIndex(1)
                     
-                    LineAreaView()
+                    LineAreaView(store: store)
                         .environmentObject(viewModel)
                         .zIndex(0)
                 }
