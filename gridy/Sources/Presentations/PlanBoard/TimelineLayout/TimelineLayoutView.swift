@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TimelineLayoutView: View {
+    
+    let store: StoreOf<PlanBoard>
     @StateObject var viewModel = TimelineLayoutViewModel()
     @State private var showingRightToolBarArea: Bool = true
     @State var showingIndexArea: Bool = true
@@ -19,7 +22,7 @@ struct TimelineLayoutView: View {
                 .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
         } detail: {
             HSplitView {
-                TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
+                TimelineLayoutContentView(store: store, showingIndexArea: $showingIndexArea, proxy: $proxy)
                     .environmentObject(viewModel)
                 
                 if showingRightToolBarArea {
@@ -58,7 +61,9 @@ struct TimelineLayoutView: View {
 
 struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
-        TimelineLayoutView()
+        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+            PlanBoard()
+        })
     }
 }
 

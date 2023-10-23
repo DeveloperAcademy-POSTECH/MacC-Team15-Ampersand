@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TimelineLayoutContentView: View {
+    
+    let store: StoreOf<PlanBoard>
     @EnvironmentObject var viewModel: TimelineLayoutViewModel
     @Namespace var scrollSpace
     @State var scrollOffset = CGFloat.zero

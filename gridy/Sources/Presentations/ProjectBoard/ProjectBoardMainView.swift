@@ -19,10 +19,10 @@ struct ProjectBoardMainView: View {
             GeometryReader { proxy in
                 ScrollView {
                     // TODO: NavigationLink 방식은 Store 이용하기
-                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
-                        EmptyView()
-                    }
-                    .disabled(true)
+//                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
+//                        EmptyView()
+//                    }
+//                    .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
                         
                         Rectangle()
@@ -116,15 +116,16 @@ struct ProjectBoardMainView: View {
                                         state: \.projects,
                                         action: { .deleteProjectButtonTapped(id: $0, action: $1) }
                                     )
-                                ) {
-                                    ProjectItemView(store: $0)
-                                        .onTapGesture {
-                                            self.tag = 2
-                                        }
+                                ) { projectStore in
+                                    NavigationLink(destination: TimelineLayoutView(store: )) {
+                                        ProjectItemView(store: projectStore)
+//                                            .onTapGesture {
+//                                                self.tag = 2
+//                                            }
+                                    }
                                 }
                             }
                         }
-                        
                         .padding(.top, 64)
                         .padding(.horizontal, 24)
                     }
