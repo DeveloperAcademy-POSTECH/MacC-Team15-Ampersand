@@ -12,17 +12,11 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
-    @State var isTapped = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
-                    // TODO: NavigationLink 방식은 Store 이용하기
-                    //                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
-                    //                        EmptyView()
-                    //                    }
-                    //                    .disabled(true)
                     VStack(alignment: .leading, spacing: 0) {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.1))

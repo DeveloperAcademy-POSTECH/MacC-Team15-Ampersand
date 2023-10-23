@@ -32,6 +32,7 @@ struct ProjectItem: Reducer {
         
         /// Navigation
         case optionalPlanBoard(PlanBoard.Action)
+        case setOptionalPlanBoard(PlanBoard.State)
         case setNavigation(isActive: Bool)
         case setNavigationIsActiveDelayCompleted
     }
@@ -64,6 +65,10 @@ struct ProjectItem: Reducer {
                 return .none
                 
             case .optionalPlanBoard:
+                return .none
+                
+            case let .setOptionalPlanBoard(planBoard):
+                state.optionalPlanBoard = planBoard
                 return .none
             }
         }

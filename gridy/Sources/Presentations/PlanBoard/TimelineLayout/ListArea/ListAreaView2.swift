@@ -16,40 +16,40 @@ struct ListAreaView2: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-//                HStack(alignment: .top, spacing: 2) {
-//                    ForEach(viewStore.showingLayers, id: \.self) { layerIndex in
-//                        VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top, spacing: 2) {
+                    ForEach(viewStore.showingLayers, id: \.self) { layerIndex in
+                        VStack(alignment: .leading, spacing: 0) {
 //                            ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
 //                                ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
 //                            }
-//                            HStack {
-//                                Button {
-//                                    viewStore.send(
-//                                        .createLayer(layerIndex: layerIndex - 1)
-//                                    )
-//                                } label: {
-//                                    Text("+")
-//                                        .foregroundStyle(.black)
-//                                }
-//                                
-//                                // TODO: - 삭제
-//                                Text("\(layerIndex)")
-//                                
-//                                Button {
-//                                    viewStore.send(
-//                                        .createLayer(layerIndex: layerIndex)
-//                                    )
-//                                }label: {
-//                                    Text("+")
-//                                        .foregroundStyle(.black)
-//                                }
-//                            }
-//                            .font(.caption)
-//                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
-//                        }
-//                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
-//                    }
-//                }
+                            HStack {
+                                Button {
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layerIndex - 1)
+                                    )
+                                } label: {
+                                    Text("+")
+                                        .foregroundStyle(.black)
+                                }
+                                
+                                // TODO: - 삭제
+                                Text("\(layerIndex)")
+                                
+                                Button {
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layerIndex)
+                                    )
+                                }label: {
+                                    Text("+")
+                                        .foregroundStyle(.black)
+                                }
+                            }
+                            .font(.caption)
+                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
+                        }
+                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
+                    }
+                }
                 HStack {
                     Button {
                         viewStore.send(

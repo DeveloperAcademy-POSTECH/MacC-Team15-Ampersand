@@ -50,6 +50,11 @@ class TimelineLayoutViewModel: ObservableObject {
     /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
+    
+    // MARK: - list area view
+    
+    /// 보여주는 열의 개수에 따른 width 배열입니다. 추후 geo로 수정 예정
+    @Published var listColumnWidth: [[CGFloat]] = [[266], [132, 132], [24, 119, 119]]
 
     func shiftSelectedCell(rowOffset: Int, colOffset: Int) {
         if !selectedGridRanges.isEmpty {
