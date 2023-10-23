@@ -71,7 +71,7 @@ struct ProjectBoard: Reducer {
                         TaskResult {
                             try await apiService.readAllProjects()
                         }
-                    ), animation: .spring) /// 여기 animation 효과 때문에, 타이틀 업데이트 했을 때 타이틀이 먼저 보여지는 현상이 생깁니다. none으로 바꾸면 괜찮아집니다.
+                    ), animation: .spring)
                     await send(.setProcessing(false))
                 }
                 
