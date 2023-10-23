@@ -13,7 +13,6 @@ struct ProjectBoardMainView: View {
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
     @State var isTapped = false
-    @State private var selectedIndex = 0
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
