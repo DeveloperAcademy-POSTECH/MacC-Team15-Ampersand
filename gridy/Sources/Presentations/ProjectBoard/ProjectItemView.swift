@@ -10,14 +10,22 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
+    @State var tag: Int?
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            GeometryReader { geo in
-                NavigationLink(destination: TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: viewStore.project)) {
-                    PlanBoard()
-                })) {
+                ZStack {
+                    NavigationLink(destination: TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: viewStore.project)) {
+                        PlanBoard()
+                    })) {
+                        EmptyView()
+                    }
+                    
                     RoundedRectangle(cornerRadius: 6)
                         .foregroundStyle(.white)
+                        .frame(height: 108)
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(viewStore.isTapped ? .blue : .clear)
                         .overlay {
                             VStack(alignment: .leading, spacing: 0) {
                                 HStack(alignment: .center, spacing: 0) {
@@ -27,20 +35,8 @@ struct ProjectItemView: View {
                                         .padding(.leading, 10)
                                         .padding(.trailing, 4)
                                     Spacer()
-                                    Button {
-                                        // TODO: 더보기 버튼
-                                    } label: {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .frame(width: 20, height: 20)
-                                            .foregroundStyle(.gray.opacity(0.1))
-                                            .overlay {
-                                                Image(systemName: "ellipsis")
-                                                    .foregroundStyle(.gray)
-                                            }
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .padding([.vertical, .trailing], 4)
                                 }
+                                .frame(height: 28)
                                 .background(.gray.opacity(0.1))
                                 .clipShape(
                                     .rect(
@@ -51,12 +47,16 @@ struct ProjectItemView: View {
                                         style: .continuous
                                     )
                                 )
-                                .frame(height: 28)
-                                Text(viewStore.project.title)
-                                    .font(.custom("Pretendard-Bold", size: 20))
-                                    .multilineTextAlignment(.leading)
-                                    .padding([.leading, .top], 12)
-                                    .padding(.bottom, 11)
+                                
+                                HStack {
+                                    Text(viewStore.project.title)
+                                        .font(.custom("Pretendard-Bold", size: 20))
+                                        .multilineTextAlignment(.leading)
+                                        .padding([.leading, .top], 12)
+                                        .padding(.bottom, 11)
+                                    Spacer()
+                                }
+                                
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("2023.10.01 ~ 2023.11.14")
                                         .font(.custom("Pretendard-SemiBold", size: 12))
@@ -80,7 +80,40 @@ struct ProjectItemView: View {
                         }
                         .frame(height: 108)
                 }
-            }
+                .contextMenu {
+                    Button {
+                        viewStore.$showSheet.wrappedValue = true
+                    } label: {
+                        Text("Edit")
+                    }
+                    Button {
+                        viewStore.$delete.wrappedValue.toggle()
+                    } label: {
+                        Text("Delete")
+                    }
+                }
+                .onHover { proxy in
+                    DispatchQueue.main.async {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            let taskResult = viewStore.send(
+                                .isHovering(hovered: proxy)
+                            )
+                        }
+                    }
+                }
+                .onTapGesture {
+                    viewStore.$isTapped.wrappedValue = true
+                }
+                .highPriorityGesture(TapGesture(count: 2).onEnded({
+                    viewStore.$isTapped.wrappedValue = true
+                    DispatchQueue.main.async {
+                        withAnimation(.easeIn(duration: 0.1)) {
+                            self.tag = 2
+                        }
+                    }
+                }))
+                .scaleEffect(viewStore.isHovering ? 1.03 : 1)
+            
         }
     }
 }
