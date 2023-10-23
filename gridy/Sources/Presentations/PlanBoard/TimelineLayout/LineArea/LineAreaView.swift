@@ -47,10 +47,12 @@ struct LineAreaView: View {
                                     )!.filteredDate
                                 )
                                 viewStore.send(.createPlan(
-                                    // TODO: - #1, #2, #3
-                                    layer: 0,
-                                    row: 0,
-                                    target: Plan.mock,
+                                    // TODO: - Need arguments #1, #2
+                                    layer: 1,
+                                    row: 2,
+                                    target: Plan(
+                                        id: "",
+                                        periods: [:]),
                                     startDate: startDate,
                                     endDate: endDate
                                 ))
@@ -59,9 +61,7 @@ struct LineAreaView: View {
                             Text("create Plan")
                         }
                         .keyboardShortcut(.return, modifiers: [])
-                        /*위 코드 수정
-                         
-                         */
+                        
                         Button(action: {
                             viewStore.send(.shiftToToday)
                         }) {

@@ -41,6 +41,7 @@ struct PlanBoard: Reducer {
         var gridWidth = CGFloat(45)
         var scheduleAreaGridHeight = CGFloat(45)
         var lineAreaGridHeight = CGFloat(45)
+        // TODO: - 나중에 추가될 코드 ... 헨리가 뭔가 준비만 해뒀다고 했음!
 //        var horizontalMagnification = CGFloat(1.0)
 //         var verticalMagnification = CGFloat(1.0)
         
@@ -204,15 +205,14 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - plan
             case let .createPlan(layer, row, target, startDate, endDate):
+                // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
-                return .none
                 let projectID = state.rootProject.id
-                let createdPlanID = UUID().uuidString
                 
-                let newPlan = Plan(id: createdPlanID, // APIService에서 자동 생성
+                let newPlan = Plan(id: "", // APIService에서 자동 생성
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
-                                   periods: [0: [Date(), Date()]],
+                                   periods: [0: [startDate, endDate]],
                                    description: target.description)
                 return .run { send in
                     await send(.createPlanResponse(
