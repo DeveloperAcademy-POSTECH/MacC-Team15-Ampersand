@@ -214,7 +214,6 @@
 		AD8ECB812ABC7CA10040A0B8 = {
 			isa = PBXGroup;
 			children = (
-				EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */,
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
 			);
@@ -273,6 +272,7 @@
 				EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */,
 				AD96ED3F2AD1BC17005D197B /* ProjectCreationView.swift */,
 				EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */,
+				EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */,
 				EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */,
 				EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */,
 			);
