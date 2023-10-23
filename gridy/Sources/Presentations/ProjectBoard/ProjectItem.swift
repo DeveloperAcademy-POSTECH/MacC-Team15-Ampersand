@@ -20,6 +20,7 @@ struct ProjectItem: Reducer {
         @BindingState var delete = false
         @BindingState var showSheet = false
         @BindingState var isTapped = false
+        var isHovering = false
         
         /// Navigation
         var isNavigationActive = false
@@ -28,6 +29,7 @@ struct ProjectItem: Reducer {
     
     enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
+        case isHovering(hovered: Bool)
         
         /// Navigation
         case optionalPlanBoard(PlanBoard.Action)
@@ -40,6 +42,10 @@ struct ProjectItem: Reducer {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+                
+            case let .isHovering(hovered):
+                state.isHovering = hovered
                 return .none
                 
                 /// Navigation

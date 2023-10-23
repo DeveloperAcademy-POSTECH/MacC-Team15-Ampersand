@@ -10,7 +10,6 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
-    @State var isHovering = false
     @State var tag: Int?
     
     var body: some View {
@@ -96,7 +95,9 @@ struct ProjectItemView: View {
             .onHover { proxy in
                 DispatchQueue.main.async {
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        isHovering = proxy
+                        let taskResult = viewStore.send(
+                            .isHovering(hovered: proxy)
+                        )
                     }
                 }
             }
@@ -111,7 +112,7 @@ struct ProjectItemView: View {
                     }
                 }
             }))
-            .scaleEffect(isHovering ? 1.03 : 1)
+            .scaleEffect(viewStore.isHovering ? 1.03 : 1)
         }
     }
 }
