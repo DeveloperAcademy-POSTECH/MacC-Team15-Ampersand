@@ -80,37 +80,37 @@ struct ProjectItemView: View {
                             .padding(.bottom, 9)
                         }
                     }
-                    .contextMenu {
-                        Button {
-                            viewStore.$showSheet.wrappedValue = true
-                        } label: {
-                            Text("Edit")
-                        }
-                        Button {
-                            viewStore.$delete.wrappedValue.toggle()
-                        } label: {
-                            Text("Delete")
-                        }
-                    }
-                    .onHover { proxy in
-                        DispatchQueue.main.async {
-                            withAnimation(.easeInOut(duration: 0.1)) {
-                                isHovering = proxy
-                            }
-                        }
-                    }
-                    .onTapGesture {
-                        viewStore.$isTapped.wrappedValue = true
-                    }
-                    .highPriorityGesture(TapGesture(count: 2).onEnded({
-                        viewStore.$isTapped.wrappedValue = true
-                        DispatchQueue.main.async {
-                            withAnimation(.easeIn(duration: 0.1)) {
-                                self.tag = 2
-                            }
-                        }
-                    }))
             }
+            .contextMenu {
+                Button {
+                    viewStore.$showSheet.wrappedValue = true
+                } label: {
+                    Text("Edit")
+                }
+                Button {
+                    viewStore.$delete.wrappedValue.toggle()
+                } label: {ㅎ
+                    Text("Delete")
+                }
+            }
+            .onHover { proxy in
+                DispatchQueue.main.async {
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isHovering = proxy
+                    }
+                }
+            }
+            .onTapGesture {
+                viewStore.$isTapped.wrappedValue = true
+            }
+            .highPriorityGesture(TapGesture(count: 2).onEnded({
+                viewStore.$isTapped.wrappedValue = true
+                DispatchQueue.main.async {
+                    withAnimation(.easeIn(duration: 0.1)) {
+                        self.tag = 2
+                    }
+                }
+            }))
             .scaleEffect(isHovering ? 1.03 : 1)
         }
     }
