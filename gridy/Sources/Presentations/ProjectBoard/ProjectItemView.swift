@@ -46,7 +46,6 @@ struct ProjectItemView: View {
                                     style: .continuous
                                 )
                             )
-                            .frame(height: 28)
                             
                             HStack {
                                 Text(viewStore.project.title)
