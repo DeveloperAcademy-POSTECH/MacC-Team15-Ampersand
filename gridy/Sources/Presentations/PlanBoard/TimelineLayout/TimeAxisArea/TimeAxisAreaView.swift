@@ -42,6 +42,7 @@ struct TimeAxisAreaView: View {
                 }
             }
             .onAppear {
+                viewStore.send(.onAppear)
                 Task {
                     do {
                         let fetchedHolidays = try await fetchKoreanHolidays()
