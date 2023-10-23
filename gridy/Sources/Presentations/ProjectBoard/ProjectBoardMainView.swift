@@ -14,6 +14,7 @@ struct ProjectBoardMainView: View {
     let store: StoreOf<ProjectBoard>
     @State var tag: Int?
     @State var isTapped = false
+    @State private var selectedIndex = 0
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -103,13 +104,10 @@ struct ProjectBoardMainView: View {
                                     )
                                 ) {
                                     ProjectItemView(store: $0)
-                                    .border(isTapped ? .blue : .clear)
-                                    .onTapGesture(count: 1) {
-                                        isTapped.toggle()
-                                    }
-                                    .highPriorityGesture(TapGesture(count: 2).onEnded({
-                                        self.tag = 2
-                                    }))
+                                        .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                            
+                                            self.tag = 2
+                                        }))
                                 }
                             }
                         }

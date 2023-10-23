@@ -19,6 +19,7 @@ struct ProjectItem: Reducer {
         var id: String { project.id }
         @BindingState var delete = false
         @BindingState var showSheet = false
+        @BindingState var isTapped = false
         
         /// Navigation
         var isNavigationActive = false

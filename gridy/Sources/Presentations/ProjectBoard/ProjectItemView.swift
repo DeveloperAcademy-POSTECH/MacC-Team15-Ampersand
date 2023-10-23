@@ -16,7 +16,7 @@ struct ProjectItemView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 6)
                 .frame(height: 108)
-                .foregroundStyle(isHovering ? .gray.opacity(0.1) : .white)
+                .foregroundStyle(.white)
                 .overlay {
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(alignment: .center, spacing: 0) {
@@ -84,8 +84,17 @@ struct ProjectItemView: View {
                     }
                 }
                 .onHover { proxy in
-                    isHovering = proxy
+                    DispatchQueue.main.async {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isHovering = proxy
+                        }
+                    }
                 }
+                .onTapGesture {
+                    viewStore.$isTapped.wrappedValue = true
+                }
+                .border(viewStore.isTapped ? .blue : .clear)
+                .scaleEffect(isHovering ? 1.03 : 1)
         }
     }
 }

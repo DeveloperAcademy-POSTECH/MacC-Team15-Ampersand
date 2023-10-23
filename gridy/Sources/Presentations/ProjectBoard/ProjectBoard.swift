@@ -24,6 +24,7 @@ struct ProjectBoard: Reducer {
         var isEditViewPresented = false
         var projectIdToEdit = ""
         @BindingState var title = ""
+        var tappedProjectID: ProjectItem.State.ID?
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -106,7 +107,7 @@ struct ProjectBoard: Reducer {
                 state.title = changedTitle
                 return .none
                 
-            case let .projectTitleChanged:
+            case .projectTitleChanged:
                 let id = state.projectIdToEdit
                 let changedTitle = state.title
                 return .run { send in
@@ -131,6 +132,17 @@ struct ProjectBoard: Reducer {
                 }
                 state.projectIdToEdit = id
                 state.isEditViewPresented = true
+                return .none
+                
+            case let .deleteProjectButtonTapped(id: id, action: .binding(\.$isTapped)):
+                let projectID = id
+                state.tappedProjectID = projectID
+                if let projectItem = state.projects[id: projectID] {
+                    for project in state.projects {
+                        state.projects[id: project.id]?.isTapped = (project.id == projectID)
+                        print(state.projects[id: project.id]?.id, state.projects[id: project.id]?.isTapped)
+                    }
+                }
                 return .none
                 
             case .deleteProjectButtonTapped:
