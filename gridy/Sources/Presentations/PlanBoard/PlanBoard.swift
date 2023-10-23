@@ -184,9 +184,9 @@ struct PlanBoard: Reducer {
             /// 나와 똑같은 개수의 lane을 가진 layer를 내 index에 insert
             case let .createLayer(layerIndex):
                 let projectId = state.rootProject.id
-                return .run { _ in
+                return .run { send in
                     let createdLayer = try await apiService.newLayerCreated(layerIndex, projectId)
-                    print(createdLayer)
+                    await send(.fetchAllPlans)
                 }
                 
             default:

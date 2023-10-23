@@ -321,10 +321,13 @@ extension APIService {
                 for currentLayerIndex in stride(from: currentProjectMapLayerSize - 1, to: layerIndex - 1, by: -1) {
                     projectMap["\(currentLayerIndex + 1)"] = projectMap.removeValue(forKey: currentLayerIndex.description)
                 }
-                projectMap["\(layerIndex + 1)"] = []
+//                projectMap["\(layerIndex + 1)"] = []
+                projectMap["\(layerIndex)"] = []
                 
                 /// 생성된 레이어에, layerIndex(상위레이어)에 위치한 plan이
                 for planIDInUpperLayer in projectMap[layerIndex.description]! {
+                    print(planIDInUpperLayer)
+                    print(projectMap[layerIndex.description])
                     let upperPlan = try await planCollectionPath.document(planIDInUpperLayer).getDocument(as: Plan.self)
                     if let laneIDs = upperPlan.laneIDs {
                         var newUpperPlansLanes = []

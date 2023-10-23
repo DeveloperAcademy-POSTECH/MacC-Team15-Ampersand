@@ -17,7 +17,7 @@ struct ListAreaView2: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 HStack(alignment: .top, spacing: 2) {
-                    ForEach(viewStore.showingLayers, id: \.self) { layerIndex in
+                    ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
                         VStack(alignment: .leading, spacing: 0) {
 //                            ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
 //                                ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
@@ -45,9 +45,9 @@ struct ListAreaView2: View {
                                 }
                             }
                             .font(.caption)
-                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
+                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                         }
-                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][layerIndex])
+                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                     }
                 }
                 HStack {
@@ -72,7 +72,12 @@ struct ListAreaView2: View {
                     .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                 }
             }
-         }
+            .onAppear {
+                viewStore.send(
+                    .onAppear
+                )
+            }
+        }
     }
 }
 
