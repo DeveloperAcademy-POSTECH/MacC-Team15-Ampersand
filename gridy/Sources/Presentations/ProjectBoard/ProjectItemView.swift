@@ -51,8 +51,7 @@ struct ProjectItemView: View {
                                 Text(viewStore.project.title)
                                     .font(.custom("Pretendard-Bold", size: 20))
                                     .multilineTextAlignment(.leading)
-                                    .padding(.leading, 12)
-                                    .padding(.top, 12)
+                                    .padding([.leading, .top], 12)
                                     .padding(.bottom, 11)
                                 Spacer()
                             }
