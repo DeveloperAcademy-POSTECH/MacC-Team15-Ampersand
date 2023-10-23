@@ -89,7 +89,7 @@ struct ProjectItemView: View {
                 }
                 Button {
                     viewStore.$delete.wrappedValue.toggle()
-                } label: {ㅎ
+                } label: {
                     Text("Delete")
                 }
             }
