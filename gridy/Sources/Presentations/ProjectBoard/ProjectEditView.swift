@@ -81,63 +81,27 @@ struct ProjectEditView: View {
                         .padding(.bottom, 10)
                         
                         HStack(alignment: .center, spacing: 14) {
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundStyle(.blue.opacity(0.1))
-                                .frame(width: 100, height: 120)
-                                .overlay {
-                                    VStack(alignment: .center, spacing: 10) {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .foregroundStyle(.blue.opacity(0.2))
-                                            .frame(width: 64, height: 64)
-                                            .overlay {
-                                                Image(systemName: "chart.bar.doc.horizontal")
-                                                    .resizable()
-                                                    .foregroundStyle(.blue)
-                                                    .frame(width: 32, height: 38)
-                                            }
-                                        Text("Timeline")
-                                            .font(.custom("Pretendard-Medium", size: 14))
-                                            .foregroundStyle(.blue)
-                                    }
-                                }
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundStyle(.gray.opacity(0.1))
-                                .frame(width: 100, height: 120)
-                                .overlay {
-                                    VStack(alignment: .center, spacing: 10) {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .foregroundStyle(.gray.opacity(0.2))
-                                            .frame(width: 64, height: 64)
-                                            .overlay {
-                                                Image(systemName: "calendar")
-                                                    .resizable()
-                                                    .foregroundStyle(.gray)
-                                                    .frame(width: 36, height: 33)
-                                            }
-                                        Text("Calendar")
-                                            .font(.custom("Pretendard-Medium", size: 14))
-                                            .foregroundStyle(.gray)
-                                    }
-                                }
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundStyle(.gray.opacity(0.1))
-                                .frame(width: 100, height: 120)
-                                .overlay {
-                                    VStack(alignment: .center, spacing: 10) {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .foregroundStyle(.gray.opacity(0.2))
-                                            .frame(width: 64, height: 64)
-                                            .overlay {
-                                                Image(systemName: "point.3.filled.connected.trianglepath.dotted")
-                                                    .resizable()
-                                                    .foregroundStyle(.gray)
-                                                    .frame(width: 36, height: 30)
-                                            }
-                                        Text("Scheme")
-                                            .font(.custom("Pretendard-Medium", size: 14))
-                                            .foregroundStyle(.gray)
-                                    }
-                                }
+                            // TODO: - Button Action 파라미터로 주기
+                            Button {
+                                
+                            } label: {
+                                LayoutOption(symbol: "chart.bar.doc.horizontal", text: "Timeline")
+                            }
+                            .buttonStyle(.plain)
+                            Button {
+                                
+                            } label: {
+                                LayoutOption(symbol: "calendar", text: "Calendar")
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(true)
+                            Button {
+                                
+                            } label: {
+                                LayoutOption(symbol: "point.3.filled.connected.trianglepath.dotted", text: "Scheme")
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(true)
                         }
                         .padding(.bottom, 16)
                         
