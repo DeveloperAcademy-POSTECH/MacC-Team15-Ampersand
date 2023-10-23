@@ -181,7 +181,6 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            /// 나와 똑같은 개수의 lane을 가진 layer를 내 index에 insert
             case let .createLayer(layerIndex):
                 let projectId = state.rootProject.id
                 return .run { send in
