@@ -221,7 +221,6 @@ extension APIService {
                     /// lane 업데이트
                     try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
                     try await laneCollectionPath.document(parentLaneID).updateData(["periods": [originLane.count: [target.periods[0], target.periods[1]]]])
-                    
                 }
             }
             

@@ -36,6 +36,6 @@ extension Date {
     }
     
     var integerDate: Int {
-        Int(self.timeIntervalSince1970)
+        Int(self.timeIntervalSince1970) / 86400
     }
 }
