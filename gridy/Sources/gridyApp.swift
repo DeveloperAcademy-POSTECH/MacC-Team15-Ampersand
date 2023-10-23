@@ -18,7 +18,6 @@ struct GridyApp: App {
         WindowGroup {
             NavigationStack {
                 ContentView()
-//                TimelineLayoutView()
             }
         }
     }

@@ -19,7 +19,7 @@ struct TimeAxisAreaView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom, spacing: 0) {
                 ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.exceededCol, to: startDate)!
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.shiftedCol, to: startDate)!
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     Rectangle()
                         .foregroundStyle(.clear)
@@ -33,7 +33,7 @@ struct TimeAxisAreaView: View {
             }
             HStack(spacing: 0) {
                 ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.exceededCol, to: startDate)!
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.shiftedCol, to: startDate)!
                     let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
                     DayGridView(dateInfo: dateInfo)
                         .frame(width: viewModel.gridWidth)
