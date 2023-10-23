@@ -40,63 +40,61 @@ struct LineAreaView: View {
                     }
                     .keyboardShortcut(.return, modifiers: [])
                     Button(action: {
-                        viewModel.shiftedCol = 0
+                        viewModel.shiftToToday()
                     }) {
                         Text("shift to today")
                     }
                     .keyboardShortcut(.return, modifiers: [.command])
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: -1, colOffset: 0)
+                        viewModel.shiftSelectedCell(rowOffset: -1, colOffset: 0)
                     }) {
                         Text("shift 1 UP")
                     }
                     .keyboardShortcut(.upArrow, modifiers: [])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 1, colOffset: 0)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 1, colOffset: 0)}) {
                             Text("shift 1 Down")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: -1)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 0, colOffset: -1)}) {
                             Text("shift 1 Left")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: 1)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 0, colOffset: 1)}) {
                             Text("shift 1 Right")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [])
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: -7, colOffset: 0)
+                        viewModel.shiftSelectedCell(rowOffset: -7, colOffset: 0)
                     }) {
                         Text("shift 7 Top")
                     }
                     .keyboardShortcut(.upArrow, modifiers: [.command])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 7, colOffset: 0)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 7, colOffset: 0)}) {
                             Text("shift 7 Bottom")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [.command])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: -7)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 0, colOffset: -7)}) {
                             Text("shift 7 Lead")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [.command])
                     
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: 7)}) {
+                        viewModel.shiftSelectedCell(rowOffset: 0, colOffset: 7)}) {
                             Text("shift 7 Trail")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [.command])
                     Button(action: {
-                        viewModel.moveSelectedCell(rowOffset: 0, colOffset: 0)
-                        temporarySelectedGridRange = nil
-                        viewModel.selectedGridRanges = []
+                        viewModel.escapeSelectedCell()
                     }) {
                     }
                     .keyboardShortcut(.escape, modifiers: [])
@@ -125,15 +123,14 @@ struct LineAreaView: View {
                         ForEach(viewModel.selectedDateRanges, id: \.self) { selectedRange in
                             let height = viewModel.lineAreaGridHeight
                             let dayDifference = Calendar.current.dateComponents([.day], from: selectedRange.start, to: selectedRange.end).day!
-                            let width = CGFloat(dayDifference + 1) * viewModel.gridWidth
-                            
-                            let positionStart = CGFloat(Calendar.current.dateComponents([.day], from: Date(), to: selectedRange.start).day!) * viewModel.gridWidth
+                            let width = CGFloat(dayDifference + 1)
+                            let positionStart = CGFloat(Calendar.current.dateComponents([.day], from: Date(), to: selectedRange.start).day! + 1)
                             
                             Rectangle()
                                 .fill(Color.red.opacity(0.8))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
-                                .frame(width: width, height: height)
-                                .position(x: positionStart + (width / 2), y: 100 + viewModel.lineAreaGridHeight / 2)
+                                .frame(width: width * viewModel.gridWidth, height: height)
+                                .position(x: (positionStart + (width / 2) - CGFloat(viewModel.shiftedCol)) * viewModel.gridWidth, y: 100 + viewModel.lineAreaGridHeight / 2)
                         }
                     }
                     if let temporaryRange = temporarySelectedGridRange {
@@ -163,15 +160,15 @@ struct LineAreaView: View {
                                 .frame(width: width, height: height)
                                 .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2 :
                                             CGFloat(selectedRange.end.col - viewModel.shiftedCol) * viewModel.gridWidth + width / 2,
-                                          y: isStartRowSmaller ? CGFloat(selectedRange.start.row) * viewModel.lineAreaGridHeight + height / 2 :
-                                            CGFloat(selectedRange.end.row) * viewModel.lineAreaGridHeight + height / 2)
+                                          y: isStartRowSmaller ? CGFloat(selectedRange.start.row - viewModel.shiftedRow) * viewModel.lineAreaGridHeight + height / 2 :
+                                            CGFloat(selectedRange.end.row - viewModel.shiftedRow) * viewModel.lineAreaGridHeight + height / 2)
                         }
                     }
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .onChange(of: exceededDirection) { direction in
-                if var range = temporarySelectedGridRange {
+                if temporarySelectedGridRange != nil {
                     switch direction {
                     case [true, false, false, false]:
                         viewModel.shiftedCol -= 1

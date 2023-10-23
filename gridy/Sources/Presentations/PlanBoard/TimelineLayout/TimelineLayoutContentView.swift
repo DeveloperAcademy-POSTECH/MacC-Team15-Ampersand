@@ -46,11 +46,7 @@ struct TimelineLayoutContentView: View {
             }
             .frame(width: 266)
             .zIndex(1)
-            GeometryReader { geometry in
-                let maxCol = Int(geometry.size.width / viewModel.gridWidth + 1)
-                let maxScheduleAreaRow = Int(140 / viewModel.scheduleAreaGridHeight + 1)
-                let maxLineAreaRow = Int((geometry.size.height - 200) / viewModel.lineAreaGridHeight + 1)
-                
+            GeometryReader { _ in                
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack(alignment: .bottom) {
                         ScheduleAreaView()
