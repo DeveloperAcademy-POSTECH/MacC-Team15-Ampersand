@@ -9,7 +9,6 @@ import Foundation
 import ComposableArchitecture
 
 struct ProjectItem: Reducer {
-    
     @Dependency(\.apiService) var apiService
     @Dependency(\.continuousClock) var continuousClock
     
@@ -19,14 +18,17 @@ struct ProjectItem: Reducer {
         @BindingState var project = Project.mock
         var id: String { project.id }
         @BindingState var delete = false
+        @BindingState var showSheet = false
+        @BindingState var isTapped = false
+        var isHovering = false
         
         /// Navigation
         var optionalPlanBoard: PlanBoard.State?
     }
     
     enum Action: BindableAction, Equatable, Sendable {
-        case titleChanged(String)
         case binding(BindingAction<State>)
+        case isHovering(hovered: Bool)
         
         /// Navigation
         case optionalPlanBoard(PlanBoard.Action)
@@ -38,13 +40,11 @@ struct ProjectItem: Reducer {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case let .titleChanged(newTitle):
-                let id = state.project.id
-                state.project.title = newTitle
-                return .run { _ in
-                    try await apiService.updateProjectTitle(id, newTitle)
-                }
             case .binding:
+                return .none
+                
+            case let .isHovering(hovered):
+                state.isHovering = hovered
                 return .none
                 
                 /// Navigation

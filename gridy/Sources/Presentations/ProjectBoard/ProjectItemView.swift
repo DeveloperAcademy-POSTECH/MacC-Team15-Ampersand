@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectItemView: View {
-    
     let store: StoreOf<ProjectItem>
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -85,8 +84,3 @@ struct ProjectItemView: View {
         }
     }
 }
-
-#Preview {
-    ProjectItemView(store: StoreOf<ProjectItem>(initialState: ProjectItem.State(), reducer: { ProjectItem() }))
-}
-
