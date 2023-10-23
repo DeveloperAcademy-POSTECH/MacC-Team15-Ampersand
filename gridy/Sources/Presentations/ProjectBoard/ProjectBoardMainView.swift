@@ -12,7 +12,6 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
-    @State var tag: Int?
     @State var isTapped = false
     @State private var selectedIndex = 0
     
@@ -20,10 +19,6 @@ struct ProjectBoardMainView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { proxy in
                 ScrollView {
-                    // TODO: NavigationLink 방식은 Store 이용하기
-                    NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
-                        EmptyView()
-                    }
                     VStack(alignment: .leading, spacing: 0) {
                         Rectangle()
                             .foregroundStyle(.gray.opacity(0.1))
@@ -76,9 +71,8 @@ struct ProjectBoardMainView: View {
                                                         .multilineTextAlignment(.leading)
                                                         .font(.custom("Pretendard-Medium", size: 14))
                                                 }
-                                                .padding(.top, 12)
+                                                .padding([.top, .leading], 12)
                                                 .padding(.bottom, 11)
-                                                .padding(.leading, 12)
                                                 Spacer()
                                             }
                                         }
@@ -104,10 +98,6 @@ struct ProjectBoardMainView: View {
                                     )
                                 ) {
                                     ProjectItemView(store: $0)
-                                        .highPriorityGesture(TapGesture(count: 2).onEnded({
-                                            
-                                            self.tag = 2
-                                        }))
                                 }
                             }
                         }

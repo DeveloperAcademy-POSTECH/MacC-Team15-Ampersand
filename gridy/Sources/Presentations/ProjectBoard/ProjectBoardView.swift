@@ -50,7 +50,6 @@ struct ProjectBoardView: View {
                         }
                     }
                 }
-                
             }
         }
     }
