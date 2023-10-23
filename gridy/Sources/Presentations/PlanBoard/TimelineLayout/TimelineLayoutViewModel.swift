@@ -39,7 +39,7 @@ class TimelineLayoutViewModel: ObservableObject {
     @Published var isShiftKeyPressed = false
     @Published var isCommandKeyPressed = false
 
-    func moveSelectedCell(rowOffset: Int, colOffset: Int) {
+    func shiftSelectedCell(rowOffset: Int, colOffset: Int) {
         if !selectedGridRanges.isEmpty {
             if !isShiftKeyPressed {
                 /// 넓은 범위를 선택한 상태에서 방향키를 눌렀을 때, 시작점의 위치 - 2로 화면이 이동하는 기능
@@ -63,16 +63,38 @@ class TimelineLayoutViewModel: ObservableObject {
                 selectedGridRanges = [SelectedGridRange(start: (startRow, startCol), end: (movedEndRow, movedEndCol))]
             }
             /// 선택영역 중 마지막 영역의  끝지점 Col이 현재 뷰의 영점인 shiftedCol보다 작거나, 현재 뷰의 최대점인  maxCol + shiftedCol - 2 을 넘어갈 떄 화면이 스크롤된다.
-            if Int(selectedGridRanges.last!.end.col)  < shiftedCol ||
+            if Int(selectedGridRanges.last!.end.col) < shiftedCol ||
                 Int(selectedGridRanges.last!.end.col) > maxCol + shiftedCol - 2 {
                 shiftedCol += colOffset
-                print(maxCol)
             }
             /// 선택영역 중 마지막 영역의  끝지점 Row이 현재 뷰의 영점인 shiftedRow보다 작거나, 현재 뷰의 최대점인  maxRow + shiftedRow - 2 을 넘어갈 떄 화면이 스크롤된다.
             if Int(selectedGridRanges.last!.end.row) < shiftedRow ||
                 Int(selectedGridRanges.last!.end.row) > maxLineAreaRow + shiftedRow - 2 {
                 shiftedRow = max(shiftedRow + rowOffset, 0)
             }
+        }
+    }
+    
+    func shiftToToday() {
+        shiftedCol = 0
+        if let lastSelected = selectedGridRanges.last {
+            selectedGridRanges = [SelectedGridRange(start: (lastSelected.start.row, 0), end: (lastSelected.start.row, 0))]
+        }
+    }
+    
+    func escapeSelectedCell() {
+        /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
+        if let lastSelected = selectedGridRanges.last {
+            selectedGridRanges = [SelectedGridRange(start: (lastSelected.start.row, lastSelected.start.col), end: (lastSelected.start.row, lastSelected.start.col))]
+        }
+        /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+        if Int(selectedGridRanges.last!.start.col) < shiftedCol ||
+            Int(selectedGridRanges.last!.start.col) > maxCol + shiftedCol - 2 {
+            shiftedCol = selectedGridRanges.last!.start.col - 2
+        }
+        if Int(selectedGridRanges.last!.start.row) < shiftedRow ||
+            Int(selectedGridRanges.last!.start.row) > maxLineAreaRow + shiftedRow - 2 {
+            shiftedRow = max(selectedGridRanges.last!.start.row, 0)
         }
     }
 }
