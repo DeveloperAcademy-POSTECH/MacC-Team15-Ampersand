@@ -92,7 +92,7 @@ struct ProjectBoardSideView: View {
                             ProjectSideItemView(store: $0)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 0, leading: -16, bottom: 0, trailing: 0))
-//                                .border(.gray)
+
                                 .frame(width: proxy.size.width, height: 32)
                         }
                     }

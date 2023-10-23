@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
     // TODO: - 삭제될 것
+
     @State var tag: Int?
     
     var body: some View {
