@@ -21,7 +21,6 @@ struct ProjectItem: Reducer {
         @BindingState var delete = false
         
         /// Navigation
-        var isNavigationActive = false
         var optionalPlanBoard: PlanBoard.State?
     }
     
@@ -50,7 +49,6 @@ struct ProjectItem: Reducer {
                 
                 /// Navigation
             case .setNavigation(isActive: true):
-                state.isNavigationActive = true
                 return .run { send in
                     try await continuousClock.sleep(for: .seconds(1))
                     await send(.setNavigationIsActiveDelayCompleted)
@@ -58,7 +56,6 @@ struct ProjectItem: Reducer {
                 .cancellable(id: CancelID.load)
                 
             case .setNavigation(isActive: false):
-                state.isNavigationActive = false
                 state.optionalPlanBoard = nil
                 return .cancel(id: CancelID.load)
                 
