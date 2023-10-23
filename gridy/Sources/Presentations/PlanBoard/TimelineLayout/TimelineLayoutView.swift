@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TimelineLayoutView: View {
-    @State private var showingRightToolBarArea: Bool = true
-    @State var showingIndexArea: Bool = true
+    @State private var showingRightToolBarArea = true
+    @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
     
     let store: StoreOf<PlanBoard>

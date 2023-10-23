@@ -233,7 +233,7 @@ extension APIService {
                         "periods": ["0": target.periods[0]],
                         "description": target.description,
                         "laneIDs": [newLaneID]] as [String: Any?]
-                try await planCollectionPath.document(targetID).setData(data as [String : Any])
+                try await planCollectionPath.document(targetID).setData(data as [String: Any])
             }
             /// map 업데이트
             var map = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
