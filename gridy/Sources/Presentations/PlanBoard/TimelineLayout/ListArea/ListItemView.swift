@@ -74,7 +74,6 @@ struct ListItemView: View {
                         .overlay {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
-//                                .disabled(true)
                                 .onSubmit {
                                     isEditing = false
                                     isTextFieldFocused = false
@@ -82,7 +81,7 @@ struct ListItemView: View {
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .textFieldStyle(.plain)
-//                                .foregroundStyle(.clear)
+                                .foregroundStyle(.clear)
                                 .padding(.horizontal, 1)
                                 .padding(.vertical, 2)
                             // TODO: 로이스 focus 적용
@@ -97,13 +96,6 @@ struct ListItemView: View {
             }
             // TODO: width: geo, unitHeight * 내가 가진 lane 개수
             .frame(height: viewModel.lineAreaGridHeight * CGFloat(Int(plan)!))
-            .onAppear {
-//                if let layerArray = viewStore.map[String(layerIndex)] {
-//                    editingText = layerArray[rowIndex]
-//                    print(layerArray)
-//                }
-                editingText = String(plan)
-            }
         }
     }
 }

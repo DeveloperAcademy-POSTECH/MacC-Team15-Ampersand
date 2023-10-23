@@ -24,7 +24,6 @@ struct ListAreaView2: View {
                             }
                             HStack {
                                 Button {
-                                    // TODO: - 내 index에 layer 추가
                                     viewStore.send(
                                         .createLayer(layerIndex: layerIndex - 1)
                                     )
@@ -37,7 +36,6 @@ struct ListAreaView2: View {
                                 Text("\(layerIndex)")
                                 
                                 Button {
-                                    // TODO: - 내 index + 1 에 layer 추가
                                     viewStore.send(
                                         .createLayer(layerIndex: layerIndex)
                                     )
