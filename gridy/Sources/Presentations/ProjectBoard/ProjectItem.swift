@@ -21,6 +21,7 @@ struct ProjectItem: Reducer {
         @BindingState var showSheet = false
         @BindingState var isTapped = false
         var isHovering = false
+        var isNavigateActivated = false
         
         /// Navigation
         var optionalPlanBoard: PlanBoard.State?
@@ -34,6 +35,7 @@ struct ProjectItem: Reducer {
         case optionalPlanBoard(PlanBoard.Action)
         case setNavigation(isActive: Bool)
         case setNavigationIsActiveDelayCompleted
+        case activeNavigation(isActivated: Bool)
     }
     
     var body: some Reducer<State, Action> {
@@ -64,6 +66,10 @@ struct ProjectItem: Reducer {
                 return .none
                 
             case .optionalPlanBoard:
+                return .none
+                
+            case let .activeNavigation(isActivated):
+                state.isNavigateActivated = isActivated
                 return .none
             }
         }

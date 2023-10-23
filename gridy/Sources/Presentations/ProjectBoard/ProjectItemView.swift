@@ -17,7 +17,7 @@ struct ProjectItemView: View {
                 ZStack {
                     NavigationLink(destination: TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: viewStore.project)) {
                         PlanBoard()
-                    })) {
+                    }), isActive: .constant(viewStore.isNavigateActivated)) {
                         EmptyView()
                     }
                     
@@ -109,6 +109,9 @@ struct ProjectItemView: View {
                     DispatchQueue.main.async {
                         withAnimation(.easeIn(duration: 0.1)) {
                             self.tag = 2
+                            viewStore.send(
+                                .activeNavigation(isActivated: true)
+                            )
                         }
                     }
                 }))
