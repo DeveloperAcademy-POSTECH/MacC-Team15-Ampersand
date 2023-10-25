@@ -201,7 +201,7 @@ struct LineAreaView: View {
                         switch direction {
                         case [true, false, false, false]:
                             viewStore.send(
-                                .dragExeeded(
+                                .dragExceeded(
                                     shiftedRow: 0,
                                     shiftedCol: -1,
                                     exceededRow: 0,
@@ -210,7 +210,7 @@ struct LineAreaView: View {
                             )
                         case [false, true, false, false]:
                             viewStore.send(
-                                .dragExeeded(
+                                .dragExceeded(
                                     shiftedRow: 0,
                                     shiftedCol: 1,
                                     exceededRow: 0,
@@ -219,7 +219,7 @@ struct LineAreaView: View {
                             )
                         case [false, false, true, false]:
                             viewStore.send(
-                                .dragExeeded(
+                                .dragExceeded(
                                     shiftedRow: -1,
                                     shiftedCol: 0,
                                     exceededRow: -1,
@@ -228,7 +228,7 @@ struct LineAreaView: View {
                             )
                         case [false, false, false, true]:
                             viewStore.send(
-                                .dragExeeded(
+                                .dragExceeded(
                                     shiftedRow: 1,
                                     shiftedCol: 0,
                                     exceededRow: 1,

@@ -107,7 +107,7 @@ struct PlanBoard: Reducer {
         case magnificationChangedInScheduleArea(CGFloat)
         
         // MARK: - LineAreaView
-        case dragExeeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
+        case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
         case onContinuousHover(Bool, CGPoint?)
@@ -317,7 +317,7 @@ struct PlanBoard: Reducer {
                 state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 return .none
                 
-            case let .dragExeeded(shiftedRow, shiftedCol, exceededRow, exceededCol):
+            case let .dragExceeded(shiftedRow, shiftedCol, exceededRow, exceededCol):
                 state.shiftedRow += shiftedRow
                 state.shiftedCol += shiftedCol
                 state.exceededRow += exceededRow
