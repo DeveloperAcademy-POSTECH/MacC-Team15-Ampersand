@@ -37,7 +37,7 @@ struct ScheduleAreaView: View {
                 .gesture(
                     MagnificationGesture()
                         .onChanged { value in
-                            
+                            viewStore.send(.magnificationChangedInScheduleArea(value))
                         }
                 )
             }
