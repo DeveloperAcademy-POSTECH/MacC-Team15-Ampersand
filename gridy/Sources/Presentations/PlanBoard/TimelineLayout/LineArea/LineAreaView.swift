@@ -23,7 +23,7 @@ struct LineAreaView: View {
             GeometryReader { geometry in
                 ZStack {
                     HStack {
-                        Button(action: {
+                        Button {
                             if !viewStore.selectedGridRanges.isEmpty {
                                 let today = Date().filteredDate
                                 let startDate = min(
@@ -57,75 +57,77 @@ struct LineAreaView: View {
                                     endDate: endDate
                                 ))
                             }
-                        }) {
+                        } label: {
                             Text("create Plan")
                         }
                         .keyboardShortcut(.return, modifiers: [])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftToToday)
-                        }) {
+                        } label: {
                             Text("shift to today")
                         }
                         .keyboardShortcut(.return, modifiers: [.command])
-                        Button(action: {
+                        
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: -1, colOffset: 0))
-                        }) {
+                        } label: {
                             Text("shift 1 UP")
                         }
                         .keyboardShortcut(.upArrow, modifiers: [])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 1, colOffset: 0))
-                        }) {
+                        } label: {
                             Text("shift 1 Down")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -1))
-                        }) {
+                        } label: {
                             Text("shift 1 Left")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 1))
-                        }) {
+                        } label: {
                             Text("shift 1 Right")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [])
-                        Button(action: {
+                        
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: -7, colOffset: 0))
-                        }) {
+                        } label: {
                             Text("shift 7 Top")
                         }
                         .keyboardShortcut(.upArrow, modifiers: [.command])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 7, colOffset: 0))
-                        }) {
+                        } label: {
                             Text("shift 7 Bottom")
                         }
                         .keyboardShortcut(.downArrow, modifiers: [.command])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -7))
-                        }) {
+                        } label: {
                             Text("shift 7 Lead")
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [.command])
                         
-                        Button(action: {
+                        Button {
                             viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 7))
-                        }) {
+                        } label: {
                             Text("shift 7 Trail")
                         }
                         .keyboardShortcut(.rightArrow, modifiers: [.command])
-                        Button(action: {
+                        
+                        Button {
                             viewStore.send(.escapeSelectedCell)
-                        }) {
-                        }
+                        } label: { }
                         .keyboardShortcut(.escape, modifiers: [])
                     }
                     Color.white
