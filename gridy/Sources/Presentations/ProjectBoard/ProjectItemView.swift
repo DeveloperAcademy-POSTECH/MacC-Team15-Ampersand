@@ -111,7 +111,7 @@ struct ProjectItemView: View {
             .onHover { proxy in
                 DispatchQueue.main.async {
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        let _ = viewStore.send(
+                        _ = viewStore.send(
                             .isHovering(hovered: proxy)
                         )
                     }
