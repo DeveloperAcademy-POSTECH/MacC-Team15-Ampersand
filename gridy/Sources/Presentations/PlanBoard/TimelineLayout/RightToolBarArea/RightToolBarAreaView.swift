@@ -105,13 +105,13 @@ struct GridSizeController: View {
                     .cornerRadius(10)
                 
                 if !viewStore.selectedGridRanges.isEmpty {
-                    Text("SelectedRange Start\ncolumn \(viewStore.selectedGridRanges.last!.start.0), row \(viewStore.selectedGridRanges.last!.start.1)")
+                    Text("SelectedRange Start\nrow \(viewStore.selectedGridRanges.last!.start.0), column \(viewStore.selectedGridRanges.last!.start.1)")
                         .foregroundColor(.black)
                         .padding(8)
                         .background(Color.white.opacity(0.8))
                         .cornerRadius(10)
                     
-                    Text("SelectedRange End\ncolumn \(viewStore.selectedGridRanges.last!.end.0), row \(viewStore.selectedGridRanges.last!.end.1)")
+                    Text("SelectedRange End\nrow \(viewStore.selectedGridRanges.last!.end.0), column \(viewStore.selectedGridRanges.last!.end.1)")
                         .foregroundColor(.black)
                         .padding(8)
                         .background(Color.white.opacity(0.8))
