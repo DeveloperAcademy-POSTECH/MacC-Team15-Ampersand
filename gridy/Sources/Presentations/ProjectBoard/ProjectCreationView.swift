@@ -150,6 +150,7 @@ struct ProjectCreationView: View {
                             Button {
                                 viewStore.send(.createNewProjectButtonTapped)
                                 // TODO: - 삭제될 것. tag가 아니라 store에서 처리
+                                
                                 self.tag = 1
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)

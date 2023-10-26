@@ -226,7 +226,7 @@ extension APIService {
             }
             
             if !identicalTypeExist {
-                /// plan 생성
+                /// lane에 동일한 type의 플랜이 존재하지 않으면 새로운 plan 생성
                 data = ["id": targetID,
                         "planTypeID": target.planTypeID,
                         "parentLaneID": target.parentLaneID,

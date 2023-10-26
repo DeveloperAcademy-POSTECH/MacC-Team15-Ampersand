@@ -10,8 +10,6 @@ import ComposableArchitecture
 
 struct LineAreaView: View {
     
-    @State private var columnStroke = CGFloat(0.1)
-    @State private var rowStroke = CGFloat(0.5)
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
     @State private var timer: Timer?
@@ -134,20 +132,20 @@ struct LineAreaView: View {
                     
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - rowStroke
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
                     }
-                    .stroke(Color.gray, lineWidth: rowStroke)
+                    .stroke(Color.gray, lineWidth: viewStore.rowStroke)
                     Path { path in
                         for columnIndex in 0..<viewStore.maxCol {
-                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - columnStroke
+                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - viewStore.columnStroke
                             path.move(to: CGPoint(x: xLocation, y: 0))
                             path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                         }
                     }
-                    .stroke(Color.gray, lineWidth: columnStroke)
+                    .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
                     ZStack {
                         ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
