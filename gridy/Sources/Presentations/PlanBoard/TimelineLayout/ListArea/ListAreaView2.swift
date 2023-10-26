@@ -27,6 +27,8 @@ struct ListAreaView2: View {
                                     viewStore.send(
                                         .createLayer(layerIndex: layerIndex - 1)
                                     )
+                                    print("=== layer added btw \(layerIndex - 1) and \(layerIndex)")
+                                    print(viewStore.map)
                                 } label: {
                                     Text("+")
                                         .foregroundStyle(.black)
@@ -39,6 +41,9 @@ struct ListAreaView2: View {
                                     viewStore.send(
                                         .createLayer(layerIndex: layerIndex)
                                     )
+                                    print("=== layer added btw \(layerIndex) and \(layerIndex + 1)")
+                                    print(viewStore.map)
+                                    print(viewStore.rootProject.map)
                                 }label: {
                                     Text("+")
                                         .foregroundStyle(.black)
@@ -71,11 +76,6 @@ struct ListAreaView2: View {
                     }
                     .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                 }
-            }
-            .onAppear {
-                viewStore.send(
-                    .onAppear
-                )
             }
         }
     }

@@ -263,7 +263,7 @@ struct PlanBoard: Reducer {
             case let .createLayer(layerIndex):
                 let projectId = state.rootProject.id
                 return .run { send in
-                    let createdLayer = try await apiService.newLayerCreated(layerIndex, projectId)
+                    try await apiService.newLayerCreated(layerIndex, projectId)
                     await send(.fetchAllPlans)
                 }
                 
