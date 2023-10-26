@@ -45,9 +45,9 @@ struct ListAreaView2: View {
                                 }
                             }
                             .font(.caption)
-                            .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                            .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                         }
-                        .frame(width: viewModel.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                        .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                     }
                 }
                 HStack {

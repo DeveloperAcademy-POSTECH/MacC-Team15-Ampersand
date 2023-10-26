@@ -21,9 +21,9 @@ struct ProjectItem: Reducer {
         @BindingState var showSheet = false
         @BindingState var isTapped = false
         var isHovering = false
-        var isNavigateActivated = false
         
         /// Navigation
+        var isNavigationActive = false
         var optionalPlanBoard: PlanBoard.State?
     }
     
@@ -35,7 +35,6 @@ struct ProjectItem: Reducer {
         case optionalPlanBoard(PlanBoard.Action)
         case setNavigation(isActive: Bool)
         case setNavigationIsActiveDelayCompleted
-        case activeNavigation(isActivated: Bool)
     }
     
     var body: some Reducer<State, Action> {
@@ -51,6 +50,7 @@ struct ProjectItem: Reducer {
                 
                 /// Navigation
             case .setNavigation(isActive: true):
+                state.isNavigationActive = true
                 return .run { send in
                     try await continuousClock.sleep(for: .seconds(1))
                     await send(.setNavigationIsActiveDelayCompleted)
@@ -58,6 +58,7 @@ struct ProjectItem: Reducer {
                 .cancellable(id: CancelID.load)
                 
             case .setNavigation(isActive: false):
+                state.isNavigationActive = false
                 state.optionalPlanBoard = nil
                 state.isHovering = false
                 return .cancel(id: CancelID.load)
@@ -67,10 +68,6 @@ struct ProjectItem: Reducer {
                 return .none
                 
             case .optionalPlanBoard:
-                return .none
-                
-            case let .activeNavigation(isActivated):
-                state.isNavigateActivated = isActivated
                 return .none
             }
         }

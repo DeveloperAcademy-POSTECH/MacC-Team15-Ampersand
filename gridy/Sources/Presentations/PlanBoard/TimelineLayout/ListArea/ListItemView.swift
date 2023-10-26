@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct ListItemView: View {
     
     let store: StoreOf<PlanBoard>
-    @EnvironmentObject var viewModel: TimelineLayoutViewModel
 
     // TODO: 아래의 sample 변수 다 삭제
     var layerIndex: Int
@@ -95,7 +94,7 @@ struct ListItemView: View {
                 }
             }
             // TODO: width: geo, unitHeight * 내가 가진 lane 개수
-            .frame(height: viewModel.lineAreaGridHeight * CGFloat(Int(plan)!))
+            .frame(height: viewStore.lineAreaGridHeight * CGFloat(Int(plan)!))
         }
     }
 }
