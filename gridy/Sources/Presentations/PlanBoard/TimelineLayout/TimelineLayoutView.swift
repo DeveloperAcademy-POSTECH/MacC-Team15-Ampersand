@@ -11,9 +11,8 @@ import ComposableArchitecture
 struct TimelineLayoutView: View {
     
     let store: StoreOf<PlanBoard>
-    @StateObject var viewModel = TimelineLayoutViewModel()
-    @State private var showingRightToolBarArea: Bool = true
-    @State var showingIndexArea: Bool = true
+    @State private var showingRightToolBarArea = true
+    @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
     
     var body: some View {
@@ -23,12 +22,10 @@ struct TimelineLayoutView: View {
                     .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
             } detail: {
                 HSplitView {
-                    TimelineLayoutContentView(store: store, showingIndexArea: $showingIndexArea, proxy: $proxy)
-                        .environmentObject(viewModel)
+                    TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy, store: store)
                     
                     if showingRightToolBarArea {
-                        RightToolBarAreaView(proxy: $proxy)
-                            .environmentObject(viewModel)
+                        RightToolBarAreaView(proxy: $proxy, store: store)
                             .frame(width: 240)
                     }
                 }
@@ -49,11 +46,11 @@ struct TimelineLayoutView: View {
             }
             .onAppear {
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                    viewModel.isShiftKeyPressed = event.modifierFlags.contains(.shift)
+                    viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
                     return event
                 }
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                    viewModel.isCommandKeyPressed = event.modifierFlags.contains(.command)
+                    viewStore.send(.isCommandKeyPressed(event.modifierFlags.contains(.command)))
                     return event
                 }
             }
@@ -63,9 +60,7 @@ struct TimelineLayoutView: View {
 
 struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
-        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
-            PlanBoard()
-        })
+        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
     }
 }
 

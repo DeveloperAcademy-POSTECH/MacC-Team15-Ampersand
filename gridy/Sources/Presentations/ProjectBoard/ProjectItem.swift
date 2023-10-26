@@ -59,6 +59,7 @@ struct ProjectItem: Reducer {
                 
             case .setNavigation(isActive: false):
                 state.optionalPlanBoard = nil
+                state.isHovering = false
                 return .cancel(id: CancelID.load)
                 
             case .setNavigationIsActiveDelayCompleted:

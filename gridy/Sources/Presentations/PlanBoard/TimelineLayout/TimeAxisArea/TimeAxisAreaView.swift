@@ -6,47 +6,50 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TimeAxisAreaView: View {
-    @EnvironmentObject var viewModel: TimelineLayoutViewModel
-    
     // TODO: TimeAxisAreaView (날짜 및 공휴일 상위 뷰에 선언)
     let startDate = Date()
 
     @State private var holidays = [Date]()
+    let store: StoreOf<PlanBoard>
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .bottom, spacing: 0) {
-                ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.shiftedCol, to: startDate)!
-                    let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
-                    Rectangle()
-                        .foregroundStyle(.clear)
-                        .overlay(
-                            MonthView(month: dateInfo.month)
-                                .frame(width: 100)
-                                .opacity(dateInfo.isFirstOfMonth || dayOffset == 0 ? 1 : 0)
-                                .offset(x: (100 - viewModel.gridWidth) / 2)
-                        )
+        WithViewStore(store, observe: {$0}) { viewStore in
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .bottom, spacing: 0) {
+                    ForEach(0..<viewStore.maxCol, id: \.self) { dayOffset in
+                        let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol, to: startDate)!
+                        let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
+                        Rectangle()
+                            .foregroundStyle(.clear)
+                            .overlay(
+                                MonthView(month: dateInfo.month)
+                                    .frame(width: 100)
+                                    .opacity(dateInfo.isFirstOfMonth || dayOffset == 0 ? 1 : 0)
+                                    .offset(x: (100 - viewStore.gridWidth) / 2)
+                            )
+                    }
+                }
+                HStack(spacing: 0) {
+                    ForEach(0..<viewStore.maxCol, id: \.self) { dayOffset in
+                        let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol, to: startDate)!
+                        let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
+                        DayGridView(dateInfo: dateInfo)
+                            .frame(width: viewStore.gridWidth)
+                    }
                 }
             }
-            HStack(spacing: 0) {
-                ForEach(0..<viewModel.maxCol, id: \.self) { dayOffset in
-                    let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewModel.shiftedCol, to: startDate)!
-                    let dateInfo = DateInfo(date: date, isHoliday: holidays.contains(date))
-                    DayGridView(dateInfo: dateInfo)
-                        .frame(width: viewModel.gridWidth)
-                }
-            }
-        }
-        .onAppear {
-            Task {
-                do {
-                    let fetchedHolidays = try await fetchKoreanHolidays()
-                    holidays = fetchedHolidays
-                } catch {
-                    print("오류 발생: \(error.localizedDescription)")
+            .onAppear {
+                viewStore.send(.onAppear)
+                Task {
+                    do {
+                        let fetchedHolidays = try await fetchKoreanHolidays()
+                        holidays = fetchedHolidays
+                    } catch {
+                        print("오류 발생: \(error.localizedDescription)")
+                    }
                 }
             }
         }

@@ -39,6 +39,7 @@ struct LayoutOption: View {
 struct ProjectCreationView: View {
     let store: StoreOf<ProjectBoard>
     @FocusState private var isTextFieldFocused: Bool
+    // TODO: - 삭제될 것
     @State var tag: Int?
     
     var body: some View {
@@ -89,6 +90,7 @@ struct ProjectCreationView: View {
                                 .onSubmit {
                                     if !viewStore.title.isEmpty {
                                         viewStore.send(.createNewProjectButtonTapped)
+                                        // TODO: - 삭제될 것. tag가 아니라 store에서 처리
                                         self.tag = 1
                                     }
                                 }
@@ -145,12 +147,9 @@ struct ProjectCreationView: View {
                             .padding(.bottom, 20)
                         
                         ZStack {
-                            // TODO: NavigationLink 방식은 Store 이용하기
-//                            NavigationLink(destination: TimelineLayoutView(), tag: 1, selection: self.$tag) {
-//                                EmptyView()
-//                            }
                             Button {
                                 viewStore.send(.createNewProjectButtonTapped)
+                                // TODO: - 삭제될 것. tag가 아니라 store에서 처리
                                 self.tag = 1
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)
