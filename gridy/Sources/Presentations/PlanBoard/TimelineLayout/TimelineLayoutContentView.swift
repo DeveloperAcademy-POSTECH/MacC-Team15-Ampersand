@@ -16,7 +16,7 @@ struct TimelineLayoutContentView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }){ viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .top, spacing: 0) {
                 if showingIndexArea {
                     VStack(spacing: 0) {

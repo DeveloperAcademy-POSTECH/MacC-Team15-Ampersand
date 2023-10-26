@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct ListAreaView2: View {
     
     let store: StoreOf<PlanBoard>
-    @EnvironmentObject var viewModel: TimelineLayoutViewModel
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -19,6 +18,7 @@ struct ListAreaView2: View {
                 HStack(alignment: .top, spacing: 2) {
                     ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
                         VStack(alignment: .leading, spacing: 0) {
+                            // TODO: - map에 아무것도 없을 때 index 처리 해야 함
 //                            ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
 //                                ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
 //                            }
@@ -82,9 +82,5 @@ struct ListAreaView2: View {
 }
 
 #Preview {
-    ListAreaView2(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
-            PlanBoard()
-        }
-    )
+    ListAreaView2(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
 }
