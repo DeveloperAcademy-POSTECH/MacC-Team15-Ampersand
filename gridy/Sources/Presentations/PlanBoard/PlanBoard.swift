@@ -242,11 +242,6 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - listArea
-                
-            case .listAreaOnAppear:
-                state.map = state.rootProject.map
-                return .none
-                
             case .showUpperLayer:
                 let lastShowingIndex = state.showingLayers.last!
                 if state.showingLayers.count < 3 {
