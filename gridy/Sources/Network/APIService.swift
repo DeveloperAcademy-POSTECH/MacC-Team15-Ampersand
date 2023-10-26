@@ -312,9 +312,9 @@ extension APIService {
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let currentProjectMapLayerSize = projectMap.count
             
-            if (currentProjectMapLayerSize - 1) <= layerIndex {
+            if (currentProjectMapLayerSize - 1) < layerIndex {
                 /// 이미 있는 레이어와 레이어 사이에 생성하는 것이 아닌, map에 아직 없는 레이어를 추가하는 경우: 레이어만 추가
-                for currentLayerIndex in currentProjectMapLayerSize..<layerIndex {
+                for currentLayerIndex in currentProjectMapLayerSize...layerIndex {
                     projectMap["\(currentLayerIndex)"] = []
                 }
             } else {
@@ -322,7 +322,6 @@ extension APIService {
                 for currentLayerIndex in stride(from: currentProjectMapLayerSize - 1, to: layerIndex - 1, by: -1) {
                     projectMap["\(currentLayerIndex + 1)"] = projectMap.removeValue(forKey: currentLayerIndex.description)
                 }
-//                projectMap["\(layerIndex + 1)"] = []
                 projectMap["\(layerIndex)"] = []
                 
                 /// 생성된 레이어에, layerIndex(상위레이어)에 위치한 plan이

@@ -36,55 +36,7 @@ struct ListAreaView2: View {
                     
                     // MARK: - ListArea Contents
                     VStack(spacing: 0) {
-                        HStack(alignment: .top, spacing: 2) {
-                            ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
-                                VStack(alignment: .leading, spacing: 0) {
-                                    // TODO: - map에 아무것도 없을 때 index 처리 해야 함
-                                    //                            if viewStore.map[String(layerIndex)]!.count > 0 {
-                                    //                                ForEach(0..<viewStore.map[String(layerIndex)]!.count) { rowIndex in
-                                    //                                    ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-                                    //                                }
-                                    //                            }
-                                    
-                                    //                            ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layerIndex)]!.count) { rowIndex in
-                                    //                                ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
-                                    //                            }
-                                    
-                                    // TODO: - LayerIndex Area 나오면 옮기기. 지금은 temp.
-                                    HStack {
-                                        Button {
-                                            viewStore.send(
-                                                .createLayer(layerIndex: layerIndex - 1)
-                                            )
-                                            print("=== layer added btw \(layerIndex - 1) and \(layerIndex)")
-                                            print(viewStore.map)
-                                        } label: {
-                                            Text("+")
-                                                .foregroundStyle(.black)
-                                        }
-                                        
-                                        Text("\(layerIndex)")
-                                        
-                                        Button {
-                                            viewStore.send(
-                                                .createLayer(layerIndex: layerIndex)
-                                            )
-                                            print("=== layer added btw \(layerIndex) and \(layerIndex + 1)")
-                                            print(viewStore.map)
-                                            print(viewStore.rootProject.map)
-                                        }label: {
-                                            Text("+")
-                                                .foregroundStyle(.black)
-                                        }
-                                    }
-                                    .font(.caption)
-                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
-                                }
-                                .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
-                            }
-                        }
-                        
-                        // MARK: - LayerIndex Components
+                        // MARK: - LayerIndex Section
                         // TODO: - 이 액션 LayerIndex Area 나오면 옮기기. 지금은 temp.
                         HStack {
                             Button {
@@ -107,8 +59,59 @@ struct ListAreaView2: View {
                             }
                             .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                         }
+                        .background(.red)
+                        
+                        // MARK: - ListItem Section
+                        HStack(alignment: .top, spacing: 2) {
+                            ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
+                                VStack(alignment: .leading, spacing: 0) {
+                                    let layer = viewStore.showingLayers[forIndex]
+                                    
+                                    if viewStore.map[String(layer)]!.count > 0 {
+                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
+                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+                                        }
+                                    }
+                                    
+                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
+                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
+                                    }
+                                    
+                                    // TODO: - LayerIndex Area 나오면 옮기기. 지금은 temp.
+                                    HStack {
+                                        Button {
+                                            viewStore.send(
+                                                .createLayer(layerIndex: layerIndex - 1)
+                                            )
+                                        } label: {
+                                            Text("+")
+                                                .foregroundStyle(.black)
+                                        }
+                                        
+                                        Text("\(layerIndex)")
+                                        
+                                        Button {
+                                            viewStore.send(
+                                                .createLayer(layerIndex: layerIndex)
+                                            )
+                                        } label: {
+                                            Text("+")
+                                                .foregroundStyle(.black)
+                                        }
+                                    }
+                                    .font(.caption)
+                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                                }
+                                .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                            }
+                        }
                     }
                 }
+            }
+            .onAppear {
+                viewStore.send(
+                    .onAppear
+                    )
             }
         }
     }
