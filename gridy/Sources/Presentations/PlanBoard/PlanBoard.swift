@@ -74,7 +74,7 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         var showingLayers: [Int] = [0]
         var showingRows = 20
-        var listColumnWidth: [[CGFloat]] = [[266.0], [133.0, 133.0], [24.0, 119.0, 119.0]]
+        var listColumnWidth: [[CGFloat]] = [[266.0], [132.0, 132.0], [24.0, 119.0, 119.0]]
     }
     
     enum Action: Equatable {

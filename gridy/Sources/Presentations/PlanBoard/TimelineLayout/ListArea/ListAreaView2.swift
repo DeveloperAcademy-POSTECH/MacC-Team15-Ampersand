@@ -28,9 +28,18 @@ struct ListAreaView2: View {
                     }
                     .stroke(Color.gray, lineWidth: viewStore.rowStroke)
                     Path { path in
-                        let xLocation = geometry.size.width - viewStore.columnStroke
-                        path.move(to: CGPoint(x: xLocation, y: 0))
-                        path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                        let numOfShowingLayers = viewStore.showingLayers.count
+                        
+                        for colIndex in 0..<numOfShowingLayers {
+                            var xLocation = CGFloat.zero
+                            
+                            for internalIndex in 0..<viewStore.listColumnWidth[numOfShowingLayers-1].count {
+                                xLocation += (viewStore.listColumnWidth[numOfShowingLayers-1][internalIndex] + CGFloat((2 * internalIndex)) - viewStore.columnStroke)
+                                
+                                path.move(to: CGPoint(x: xLocation, y: 0))
+                                path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                            }
+                        }
                     }
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
@@ -60,6 +69,7 @@ struct ListAreaView2: View {
                             .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                         }
                         .background(.red)
+                        .frame(height: viewStore.lineAreaGridHeight / 2)
                         
                         // MARK: - ListItem Section
                         HStack(alignment: .top, spacing: 2) {
@@ -68,15 +78,20 @@ struct ListAreaView2: View {
                                     let layer = viewStore.showingLayers[forIndex]
                                     
                                     // TODO: map이 자꾸 빈걸로 들어옴 ;;;; 그래서 map 언래핑 할 수 없음
-                                    if viewStore.map[String(layer)]!.count > 0 {
-                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
-                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-                                        }
-                                    }
+//                                    if viewStore.map[String(layer)]!.count > 0 {
+//                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
+//                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+//                                        }
+//                                    }
                                     
-                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
-                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
-                                    }
+                                    // TODO: scroll이 가능하게 되면 기본으로 보여줄 row 개수만큼으로 변경
+//                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
+//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
+//                                    }
+                                    
+//                                    ForEach(0..<viewStore.maxLineAreaRow) { rowIndex in
+//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+//                                    }
                                     
                                     // TODO: - LayerIndex Area 나오면 옮기기. 지금은 temp.
                                     HStack {
@@ -102,6 +117,7 @@ struct ListAreaView2: View {
                                     }
                                     .font(.caption)
                                     .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                                    .onAppear{print(viewStore.maxLineAreaRow)}
                                 }
                                 .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                             }
