@@ -120,9 +120,10 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        case createLayer(layerIndex: Int)
         case showUpperLayer
         case showLowerLayer
+        case createLayer(layerIndex: Int)
+        case createLayerResponse(TaskResult<[String: [String]]>)
     }
     
     var body: some Reducer<State, Action> {
@@ -263,9 +264,15 @@ struct PlanBoard: Reducer {
             case let .createLayer(layerIndex):
                 let projectId = state.rootProject.id
                 return .run { send in
-                    try await apiService.newLayerCreated(layerIndex, projectId)
-                    await send(.fetchAllPlans)
-                }
+                    await send(.createLayerResponse(
+                        TaskResult {
+                            try await apiService.newLayerCreated(layerIndex, projectId)
+                        }
+                    ))}
+                
+            case let .createLayerResponse(.success(response)):
+                state.map = response
+                return .none
                 
             case let .shiftSelectedCell(rowOffset, colOffset):
                 if !state.selectedGridRanges.isEmpty {
