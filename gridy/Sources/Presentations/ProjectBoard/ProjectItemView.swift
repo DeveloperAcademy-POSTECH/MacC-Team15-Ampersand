@@ -10,13 +10,31 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
+    // TODO: - 삭제될 것
+
     @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 // TODO: NavigationLink 방식은 Store 이용하기
-                NavigationLink(destination: TimelineLayoutView(), tag: 2, selection: self.$tag) {
+                NavigationLink(
+                    isActive: viewStore.binding(
+                        get: \.isNavigationActive,
+                        send: { .setNavigation(isActive: $0) }
+                    )
+                ) {
+                    IfLetStore(
+                        self.store.scope(
+                            state: \.optionalPlanBoard,
+                            action: ProjectItem.Action.optionalPlanBoard
+                        )
+                    ) {
+                        TimelineLayoutView(store: $0)
+                    } else: {
+                        ProgressView()
+                    }
+                } label: {
                     EmptyView()
                 }
                 RoundedRectangle(cornerRadius: 6)
@@ -93,7 +111,7 @@ struct ProjectItemView: View {
             .onHover { proxy in
                 DispatchQueue.main.async {
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        let taskResult = viewStore.send(
+                        _ = viewStore.send(
                             .isHovering(hovered: proxy)
                         )
                     }
@@ -104,11 +122,7 @@ struct ProjectItemView: View {
             }
             .highPriorityGesture(TapGesture(count: 2).onEnded({
                 viewStore.$isTapped.wrappedValue = true
-                DispatchQueue.main.async {
-                    withAnimation(.easeIn(duration: 0.1)) {
-                        self.tag = 2
-                    }
-                }
+                viewStore.send(.setNavigation(isActive: true))
             }))
             .scaleEffect(viewStore.isHovering ? 1.03 : 1)
         }

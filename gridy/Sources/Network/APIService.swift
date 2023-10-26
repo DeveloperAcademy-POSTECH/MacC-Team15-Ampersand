@@ -195,11 +195,12 @@ extension APIService {
         
         // MARK: - Plan
         createPlan: { target, layerIndex, indexFromLane, projectID in
+            let targetID = try planCollectionPath.document().documentID
             /// plane에 대한  lane 생성
             let newLaneID = try laneCollectionPath.document().documentID
             var data = ["id": newLaneID,
                         "childIDs": [],
-                        "ownerID": target.id,
+                        "ownerID": targetID,
                         "periods": []] as [String: Any?]
             try await laneCollectionPath.document(newLaneID).setData(data as [String: Any])
             
@@ -214,26 +215,25 @@ extension APIService {
                         let childPlan = try await planCollectionPath.document(childID).getDocument(as: Plan.self)
                         if target.planTypeID == childPlan.planTypeID {
                             identicalTypeExist = true
-                            try await planCollectionPath.document(childPlan.id).updateData(["periods": [childPlan.periods.count: [target.periods[0], target.periods[1]]]])
+                            try await planCollectionPath.document(childPlan.id).updateData(["periods": [childPlan.periods.count: [target.periods[0]![0], target.periods[0]![1]]]])
                         }
                     }
                     
                     /// lane 업데이트
-                    try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([target.id])])
+                    try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": FieldValue.arrayUnion([targetID])])
                     try await laneCollectionPath.document(parentLaneID).updateData(["periods": [originLane.count: [target.periods[0], target.periods[1]]]])
-                    
                 }
             }
             
             if !identicalTypeExist {
-                /// plan 생성
-                data = ["id": target.id,
+                /// lane에 동일한 type의 플랜이 존재하지 않으면 새로운 plan 생성
+                data = ["id": targetID,
                         "planTypeID": target.planTypeID,
                         "parentLaneID": target.parentLaneID,
-                        "periods": target.periods,
+                        "periods": ["0": target.periods[0]],
                         "description": target.description,
                         "laneIDs": [newLaneID]] as [String: Any?]
-                try await planCollectionPath.document(target.id).setData(data as [String: Any])
+                try await planCollectionPath.document(targetID).setData(data as [String: Any])
             }
             /// map 업데이트
             var map = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
@@ -249,7 +249,8 @@ extension APIService {
                 /// 빈 아이템을 생성해야 하는 경우인지 확인
                 if indexFromLane >= layerLanes.count {
                     for dummy in layerLanes.count...indexFromLane {
-                        let dummyPlan = Plan(id: UUID().uuidString, periods: [:])
+                        let dummyPlanID = try planCollectionPath.document().documentID
+                        let dummyPlan = Plan(id: dummyPlanID, periods: [:])
                         try await planCollectionPath.document(dummyPlan.id).setData(["id": dummyPlan.id, "periods": [], "laneIDs": []])
                         map[layerIndex.description]!.append(dummyPlan.id)
                     }
@@ -257,7 +258,7 @@ extension APIService {
                 
                 /// 생성된 플랜이 들어갈 위치에 이미 빈 아이템이 있는 상태
                 try await planCollectionPath.document(map[layerIndex.description]![indexFromLane]).delete()
-                map[layerIndex.description]![indexFromLane] = target.id
+                map[layerIndex.description]![indexFromLane] = targetID
                 try await projectCollectionPath.document(projectID).updateData(["map": map])
             }
             return map
@@ -290,7 +291,7 @@ extension APIService {
                         try await laneCollectionPath.document(parentLaneID).updateData(["childIDs": childIDsInLane])
                         /// update project map
                         projectMap[currentLayerIndex.description]?.insert(targetPlanID, at: newChildIndex)
-                        targetPlanID = planData.laneIDs![createOnTop ? 0 : planData.laneIDs!.count - 1]![0]
+                        targetPlanID = planData.laneIDs![createOnTop ? 0 : planData.laneIDs!.count - 1]
                     }
                 } else {
                     // TODO: - 레인에 아무것도 없는데 레인을 나누는 경우
@@ -336,12 +337,12 @@ extension APIService {
                             projectMap[layerIndex.description]!.append(newPlan.id)
                             
                             /// upper plan의 lane을 새로 생성된 빈 플랜으로 옮겨주고,
-                            let newPlansLaneID = laneIDs[laneIndex]!
-                            newPlan.laneIDs = [laneIndex: newPlansLaneID]
+                            let newPlansLaneID = laneIDs[laneIndex]
+                            newPlan.laneIDs = [newPlansLaneID]
                             try await planCollectionPath.document(newPlan.id).setData(["id": newPlan.id, "periods": [], "laneIDs": newPlan.laneIDs as Any])
                             
                             /// 그 child plan의 lane들이 가리키는 parentLaneID를 생성된 plan으로 변경
-                            for laneID in laneIDs[laneIndex]! {
+                            for laneID in laneIDs {
                                 try await planCollectionPath.document(laneID).updateData(["parentLaneID": newPlansLaneID])
                             }
                         }
