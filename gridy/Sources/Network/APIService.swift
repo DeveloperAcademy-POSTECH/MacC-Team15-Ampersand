@@ -366,9 +366,9 @@ extension APIService {
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let currentProjectMapLayerSize = projectMap.count
             
-            if (currentProjectMapLayerSize - 1) <= layerIndex {
+            if (currentProjectMapLayerSize - 1) < layerIndex {
                 /// 이미 있는 레이어와 레이어 사이에 생성하는 것이 아닌, map에 아직 없는 레이어를 추가하는 경우: 레이어만 추가
-                for currentLayerIndex in currentProjectMapLayerSize..<layerIndex {
+                for currentLayerIndex in currentProjectMapLayerSize...layerIndex {
                     projectMap["\(currentLayerIndex)"] = []
                 }
             } else {
