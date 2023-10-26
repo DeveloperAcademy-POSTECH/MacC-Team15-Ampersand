@@ -17,7 +17,7 @@ struct ListItemView: View {
     var rowIndex: Int
     let fontSize: CGFloat = 30
     
-    /// 여기서부터 진짜 필요한 변수
+    /// 여기서부터 진짜 필요한 변수 각 뷰마다 Store를 가지게 해야 할 듯 합니다. 왜냐하면 각각의 listItemView마다 상태 체크를 해야해용. IdentifiedArray<ListItem>으로 PlanBoard Store에서 갖고있게 한 후 ForEachStore로 돌려도 괜찮을 듯 싶습니ㄷ=-0987654
     @FocusState var isTextFieldFocused: Bool
     @State var isHovering = false
     @State var isSelected = false

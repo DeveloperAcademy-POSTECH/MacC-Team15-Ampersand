@@ -67,6 +67,7 @@ struct ListAreaView2: View {
                                 VStack(alignment: .leading, spacing: 0) {
                                     let layer = viewStore.showingLayers[forIndex]
                                     
+                                    // TODO: map이 자꾸 빈걸로 들어옴 ;;;; 그래서 map 언래핑 할 수 없음
                                     if viewStore.map[String(layer)]!.count > 0 {
                                         ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
                                             ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
@@ -107,11 +108,6 @@ struct ListAreaView2: View {
                         }
                     }
                 }
-            }
-            .onAppear {
-                viewStore.send(
-                    .onAppear
-                    )
             }
         }
     }

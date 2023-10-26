@@ -121,7 +121,6 @@ struct PlanBoard: Reducer {
         
         // MARK: - list area
         // TODO: listAreaOnAppear delete
-        case listAreaOnAppear
         case showUpperLayer
         case showLowerLayer
         case createLayer(layerIndex: Int)
