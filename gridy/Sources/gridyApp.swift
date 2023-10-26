@@ -20,8 +20,7 @@ struct GridyApp: App {
         WindowGroup {
             NavigationStack {
                 ContentView()
-                //                TimelineLayoutView()
-                //                    .environmentObject(viewModel)
+
             }
         }
         .commands{

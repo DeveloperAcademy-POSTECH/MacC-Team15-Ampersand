@@ -1,46 +1,16 @@
 //
-//  ProjectItemView.swift
+//  ProjectEditView.swift
 //  gridy
 //
-//  Created by 제나 on 10/8/23.
+//  Created by xnoag on 10/20/23.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct LayoutOption: View {
-    var symbol: String
-    var text: String
-    
-    var body: some View {
-        // TODO: - 버튼 세개 활성화 되었을 때 color 분기한 것 제거
-        RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(text == "Timeline" ? .blue.opacity(0.1) : .gray.opacity(0.1))
-            .frame(width: 100, height: 120)
-            .overlay {
-                VStack(alignment: .center, spacing: 10) {
-                    RoundedRectangle(cornerRadius: 6)
-                        .foregroundStyle(text == "Timeline" ? .blue.opacity(0.2) : .gray.opacity(0.2))
-                        .frame(width: 64, height: 64)
-                        .overlay {
-                            Image(systemName: symbol)
-                                .resizable()
-                                .foregroundStyle(text == "Timeline" ? .blue : .gray)
-                                .frame(width: 36, height: 30)
-                        }
-                    Text(text)
-                        .font(.custom("Pretendard-Medium", size: 14))
-                        .foregroundStyle(text == "Timeline" ? .blue : .gray)
-                }
-            }
-    }
-}
-
-struct ProjectCreationView: View {
+struct ProjectEditView: View {
     let store: StoreOf<ProjectBoard>
     @FocusState private var isTextFieldFocused: Bool
-    // TODO: - 삭제될 것
-    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -50,7 +20,7 @@ struct ProjectCreationView: View {
                 .overlay {
                     VStack(alignment: .center, spacing: 0) {
                         HStack(alignment: .center, spacing: 73) {
-                            Text("Create a new project")
+                            Text("Edit project")
                                 .font(.custom("Pretendard-Bold", size: 16))
                             HStack(alignment: .center, spacing: 4) {
                                 RoundedRectangle(cornerRadius: 5)
@@ -88,11 +58,7 @@ struct ProjectCreationView: View {
                                 )
                                 .focused($isTextFieldFocused)
                                 .onSubmit {
-                                    if !viewStore.title.isEmpty {
-                                        viewStore.send(.createNewProjectButtonTapped)
-                                        // TODO: - 삭제될 것. tag가 아니라 store에서 처리
-                                        self.tag = 1
-                                    }
+                                    viewStore.send(.projectTitleChanged)
                                 }
                                 .font(.custom("Pretendard-Medium", size: 14))
                                 .padding(.leading, 12)
@@ -148,16 +114,13 @@ struct ProjectCreationView: View {
                         
                         ZStack {
                             Button {
-                                viewStore.send(.createNewProjectButtonTapped)
-                                // TODO: - 삭제될 것. tag가 아니라 store에서 처리
-                                
-                                self.tag = 1
+                                viewStore.send(.projectTitleChanged)
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)
                                     .frame(width: 328, height: 48)
                                     .foregroundStyle(viewStore.title.isEmpty ? .gray : .blue)
                                     .overlay {
-                                        Text("Go Ahead !")
+                                        Text("Finish")
                                             .font(.custom("Pretendard-Medium", size: 16))
                                             .foregroundStyle(viewStore.title.isEmpty ? .black : .white)
                                     }
@@ -182,7 +145,7 @@ struct ProjectCreationView: View {
                                         }
                                         .offset(y: -1)
                                 }
-                            Text("to Create a proejct")
+                            Text("to Edit a proejct")
                                 .font(.custom("Pretendard-Regular", size: 12))
                                 .foregroundStyle(.gray)
                         }
