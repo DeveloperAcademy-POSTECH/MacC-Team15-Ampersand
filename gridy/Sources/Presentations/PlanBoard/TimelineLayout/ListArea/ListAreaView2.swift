@@ -97,11 +97,9 @@ struct ListAreaView2: View {
                     }
                     .stroke(Color.gray, lineWidth: viewStore.rowStroke)
                     Path { path in
-                        for columnIndex in 0..<viewStore.maxCol {
-                            let xLocation = CGFloat(columnIndex) * geometry.size.width - viewStore.columnStroke
-                            path.move(to: CGPoint(x: xLocation, y: 0))
-                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
-                        }
+                        let xLocation = geometry.size.width - viewStore.columnStroke
+                        path.move(to: CGPoint(x: xLocation, y: 0))
+                        path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                     }
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                 }
