@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct ListAreaView: View {
-    @EnvironmentObject var viewModel: TimelineLayoutViewModel
 
     @State var isLeftButtonClicked = false
     @State var isRightButtonClicked = false
@@ -19,71 +19,75 @@ struct ListAreaView: View {
     @State var rightSmallTaskTuples: [(Int, String)] = []
     @State var clickedIndex = -1
     
+    let store: StoreOf<PlanBoard>
+    
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            if !isRightButtonClicked && !isLeftButtonClicked {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(0..<largeTaskTexts.count, id: \.self) { index in
-                        LargeTaskElementView(
-                            isLeftButtonClicked: $isLeftButtonClicked,
-                            isRightButtonClicked: $isRightButtonClicked,
-                            largeTaskElementTextField: $largeTaskTexts[index]
-                        )
-                        .frame(height: viewModel.lineAreaGridHeight)
-
-                    }
-                }
-            } else {
-                HStack(alignment: .top, spacing: 0) {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ScrollView(showsIndicators: false) {
+                if !isRightButtonClicked && !isLeftButtonClicked {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(0..<leftSmallTaskTuples.count, id: \.self) { index in
-                            LeftSmallTaskElementView(leftSmallTaskTuple: $leftSmallTaskTuples[index])
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(0..<rightSmallTaskTuples.count, id: \.self) { index in
-                            RightSmallTaskElementView(
-                                rightSmallTaskTuple: $rightSmallTaskTuples[index],
-                                isTopButtonClicked: $isTopButtonClicked,
-                                isBottomButtonClicked: $isBottomButtonClicked,
-                                clickedIndex: $clickedIndex,
-                                myIndex: index
+                        ForEach(0..<largeTaskTexts.count, id: \.self) { index in
+                            LargeTaskElementView(
+                                isLeftButtonClicked: $isLeftButtonClicked,
+                                isRightButtonClicked: $isRightButtonClicked,
+                                largeTaskElementTextField: $largeTaskTexts[index]
                             )
+                            .frame(height: viewStore.lineAreaGridHeight)
+
+                        }
+                    }
+                } else {
+                    HStack(alignment: .top, spacing: 0) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(0..<leftSmallTaskTuples.count, id: \.self) { index in
+                                LeftSmallTaskElementView(leftSmallTaskTuple: $leftSmallTaskTuples[index])
+                            }
+                        }
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(0..<rightSmallTaskTuples.count, id: \.self) { index in
+                                RightSmallTaskElementView(
+                                    rightSmallTaskTuple: $rightSmallTaskTuples[index],
+                                    isTopButtonClicked: $isTopButtonClicked,
+                                    isBottomButtonClicked: $isBottomButtonClicked,
+                                    clickedIndex: $clickedIndex,
+                                    myIndex: index
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        .onAppear {
-            leftSmallTaskTuples = Array(repeating: (1, ""), count: 20)
-            rightSmallTaskTuples = (0..<20).map { ($0, "") }
-        }
-        .onChange(of: isRightButtonClicked) { newValue in
-            if newValue {
-                leftSmallTaskTuples = largeTaskTexts.enumerated().map { _, stringValues in
-                    return(1, stringValues)
+            .onAppear {
+                leftSmallTaskTuples = Array(repeating: (1, ""), count: 20)
+                rightSmallTaskTuples = (0..<20).map { ($0, "") }
+            }
+            .onChange(of: isRightButtonClicked) { newValue in
+                if newValue {
+                    leftSmallTaskTuples = largeTaskTexts.enumerated().map { _, stringValues in
+                        return(1, stringValues)
+                    }
                 }
             }
-        }
-        .onChange(of: isLeftButtonClicked) { newValue in
-            if newValue {
-                rightSmallTaskTuples = largeTaskTexts.enumerated().map { index, stringValues in
-                    return(index, stringValues)
+            .onChange(of: isLeftButtonClicked) { newValue in
+                if newValue {
+                    rightSmallTaskTuples = largeTaskTexts.enumerated().map { index, stringValues in
+                        return(index, stringValues)
+                    }
                 }
             }
-        }
-        .onChange(of: isTopButtonClicked) { newValue in
-            if newValue {
-                rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex)
-                leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
-                isTopButtonClicked = false
+            .onChange(of: isTopButtonClicked) { newValue in
+                if newValue {
+                    rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex)
+                    leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
+                    isTopButtonClicked = false
+                }
             }
-        }
-        .onChange(of: isBottomButtonClicked) { newValue in
-            if newValue {
-                rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex + 1)
-                leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
-                isBottomButtonClicked = false
+            .onChange(of: isBottomButtonClicked) { newValue in
+                if newValue {
+                    rightSmallTaskTuples.insert((rightSmallTaskTuples[clickedIndex].0, ""), at: clickedIndex + 1)
+                    leftSmallTaskTuples[rightSmallTaskTuples[clickedIndex].0].0 += 1
+                    isBottomButtonClicked = false
+                }
             }
         }
     }
@@ -91,6 +95,6 @@ struct ListAreaView: View {
 
 struct ListAreaView_Previews: PreviewProvider {
     static var previews: some View {
-        ListAreaView()
+        ListAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
     }
 }

@@ -6,51 +6,53 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TimelineLayoutView: View {
-    @StateObject var viewModel = TimelineLayoutViewModel()
-    @State private var showingRightToolBarArea: Bool = true
-    @State var showingIndexArea: Bool = true
+    @State private var showingRightToolBarArea = true
+    @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
     
+    let store: StoreOf<PlanBoard>
+    
     var body: some View {
-        NavigationSplitView {
-            LeftToolBarAreaView()
-                .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
-        } detail: {
-            HSplitView {
-                TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy)
-                    .environmentObject(viewModel)
-                
-                if showingRightToolBarArea {
-                    RightToolBarAreaView(proxy: $proxy)
-                        .environmentObject(viewModel)
-                        .frame(width: 240)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            NavigationSplitView {
+                LeftToolBarAreaView()
+                    .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
+            } detail: {
+                HSplitView {
+                    TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy, store: store)
+                    
+                    if showingRightToolBarArea {
+                        RightToolBarAreaView(proxy: $proxy, store: store)
+                            .frame(width: 240)
+                    }
                 }
             }
-        }
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Toggle(isOn: $showingRightToolBarArea) {
-                    Image(systemName: "sidebar.trailing")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Toggle(isOn: $showingRightToolBarArea) {
+                        Image(systemName: "sidebar.trailing")
+                    }
+                    .toggleStyle(.button)
                 }
-                .toggleStyle(.button)
-            }
-            ToolbarItem(placement: .cancellationAction) {
-                Toggle(isOn: $showingIndexArea) {
-                    Image(systemName: "heart")
+                ToolbarItem(placement: .cancellationAction) {
+                    Toggle(isOn: $showingIndexArea) {
+                        Image(systemName: "heart")
+                    }
+                    .toggleStyle(.button)
                 }
-                .toggleStyle(.button)
             }
-        }
-        .onAppear {
-            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                viewModel.isShiftKeyPressed = event.modifierFlags.contains(.shift)
-                return event
-            }
-            NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                viewModel.isCommandKeyPressed = event.modifierFlags.contains(.command)
-                return event
+            .onAppear {
+                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                    viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
+                    return event
+                }
+                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                    viewStore.send(.isCommandKeyPressed(event.modifierFlags.contains(.command)))
+                    return event
+                }
             }
         }
     }
@@ -58,7 +60,7 @@ struct TimelineLayoutView: View {
 
 struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
-        TimelineLayoutView()
+        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
     }
 }
 

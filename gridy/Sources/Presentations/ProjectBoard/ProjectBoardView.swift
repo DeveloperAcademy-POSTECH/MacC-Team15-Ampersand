@@ -16,11 +16,11 @@ struct ProjectBoardView: View {
             GeometryReader { geometry in
                 ZStack {
                     HStack(spacing: 0) {
-                        ProjectBoardSideView()
+                        ProjectBoardSideView(store: store)
                             .frame(width: 306)
                         ProjectBoardMainView(store: store)
                     }
-                    if viewStore.isSheetPresented {
+                    if viewStore.isCreationViewPresented {
                         ZStack {
                             Color.black.opacity(0.6)
                                 .frame(width: geometry.size.width, height: geometry.size.height)
@@ -28,23 +28,29 @@ struct ProjectBoardView: View {
                                     viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
                                 }
                             ProjectCreationView(store: store)
-                                .offset(y: viewStore.isSheetPresented ? 0 : -50)
+                                .offset(y: viewStore.isCreationViewPresented ? 0 : -50)
+                        }
+                        .onExitCommand {
+                            viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
                         }
                     }
-                }
-                .onExitCommand {
-                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                    
+                    if viewStore.isEditViewPresented {
+                        ZStack {
+                            Color.black.opacity(0.6)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                                .onTapGesture {
+                                    viewStore.send(ProjectBoard.Action.setEditSheet(isPresented: false))
+                                }
+                            ProjectEditView(store: store)
+                                .offset(y: viewStore.isEditViewPresented ? 0 : -50)
+                        }
+                        .onExitCommand {
+                            viewStore.send(ProjectBoard.Action.setEditSheet(isPresented: false))
+                        }
+                    }
                 }
             }
         }
     }
-}
-
-#Preview {
-    ProjectBoardView(
-        store: Store(
-            initialState: ProjectBoard.State(),
-            reducer: { ProjectBoard() }
-        )
-    )
 }
