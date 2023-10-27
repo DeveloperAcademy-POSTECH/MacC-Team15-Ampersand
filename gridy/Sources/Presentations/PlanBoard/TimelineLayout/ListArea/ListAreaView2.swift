@@ -63,6 +63,7 @@ struct ListAreaView2: View {
                                 viewStore.send(
                                     .showUpperLayer
                                 )
+                                print(viewStore.map)
                             } label: {
                                 Text("엎기 <<")
                             }
@@ -77,8 +78,6 @@ struct ListAreaView2: View {
                                 VStack(alignment: .leading, spacing: 0) {
                                     let layer = viewStore.showingLayers[forIndex]
                                     
-                                    
-                                    
                                     // TODO: - LayerIndex Area 나오면 옮기기. 지금은 temp.
                                     HStack {
                                         Button {
@@ -89,6 +88,8 @@ struct ListAreaView2: View {
                                             Text("+")
                                                 .foregroundStyle(.black)
                                         }
+                                        // TODO: - 임시로 막아둠. 0에서 눌렀을 때 -1이 생기는거 보정되면 삭제
+                                        .disabled(layer == 0)
                                         
                                         Text("\(layerIndex)")
                                         
@@ -104,23 +105,16 @@ struct ListAreaView2: View {
                                     }
                                     .font(.caption)
                                     .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex], height: viewStore.lineAreaGridHeight / 2)
-                                    .onAppear{print(viewStore.maxLineAreaRow)}
+                            
+                                    if viewStore.map.count > 0 {
+                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
+                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+                                        }
+                                    }
                                     
-                                    
-                                    // TODO: map이 자꾸 빈걸로 들어옴 ;;;; 그래서 map 언래핑 할 수 없음
-//                                    if viewStore.map[String(layer)]!.count > 0 {
-//                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
-//                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-//                                        }
-//                                    }
-                                    
-                                    // TODO: scroll이 가능하게 되면 기본으로 보여줄 row 개수만큼으로 변경
-//                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
-//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
-//                                    }
-                                    
-                                    ForEach(0..<20) { rowIndex in
-                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+                                    // TODO: - 16 > maxLineAreaRow로 변경. 현재는 0으로 초기화 되어있고 값이 바뀔 때마다 할당이되어서 처음에는 보여줄 개수가 0밖에 없음
+                                    ForEach(0..<(16 - viewStore.map[String(layer)]!.count)) { rowIndex in
+                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
                                     }
                                 }
                                 .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
@@ -134,5 +128,5 @@ struct ListAreaView2: View {
 }
 
 #Preview {
-    ListAreaView2(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
+    ListAreaView2(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
 }

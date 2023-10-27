@@ -102,7 +102,7 @@ struct ListItemView: View {
 
 #Preview {
     ListItemView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock)) {
+        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
             PlanBoard()
         },
         layerIndex: 0,

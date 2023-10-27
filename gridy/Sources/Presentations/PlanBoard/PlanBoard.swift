@@ -21,7 +21,7 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var map = [String: [String]]()
+        var map: [String: [String]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         
