@@ -122,14 +122,14 @@ struct ListAreaView: View {
                                     
                                     // MARK: - ListItemSection
                                     if viewStore.map.count > 0 {
-                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
-                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+                                        ForEach(0..<viewStore.map[String(layer)]!.count) { _ in
+                                            ListItemView(store: store)
                                         }
                                     }
                                     
                                     // TODO: - 16 -> maxLineAreaRow로 변경. 현재는 0으로 초기화 되어있고 값이 바뀔 때마다 할당이되어서 처음에 항상 0개.
                                     // TODO: - map에 들어있는 것들 count를 빼는게 아니라 map에 들어있는 plan이 들고있는 lane 개수로 변경
-                                    ForEach(0..<(16 - viewStore.map[String(layer)]!.count)) { rowIndex in
+                                    ForEach(0..<(16 - viewStore.map[String(layer)]!.count)) { _ in
                                         ListItemEmptyView(store: store)
                                     }
                                 }
