@@ -12,7 +12,6 @@ struct LineAreaView: View {
     
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
-    @State private var timer: Timer? /// timer가 사용되는 곳이 없습니다. 헨리의 확인이 필요합니다.
     
     let store: StoreOf<PlanBoard>
     
@@ -147,7 +146,7 @@ struct LineAreaView: View {
                     }
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
-                    ZStack {
+                    Group {
                         ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
                             let today = Date().filteredDate
                             let height = viewStore.lineAreaGridHeight
