@@ -137,6 +137,7 @@ struct PlanBoard: Reducer {
             case let .createPlanType(planID):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
+                let projectID = state.rootProject.id
                 state.keyword = ""
                 return .run { send in
                     let createdID = try await apiService.createPlanType(
@@ -144,7 +145,9 @@ struct PlanBoard: Reducer {
                             id: "", // APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
-                        ), planID
+                        ), 
+                        planID,
+                        projectID
                     )
                     await send(.createPlanTypeResponse(
                         TaskResult {
@@ -162,10 +165,11 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .fetchAllPlanTypes:
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlanTypesResponse(
                         TaskResult {
-                            try await apiService.readAllPlanTypes()
+                            try await apiService.readAllPlanTypes(projectID)
                         }
                     ))
                 }
@@ -178,10 +182,11 @@ struct PlanBoard: Reducer {
                 
             case let .searchExistingPlanTypes(with: keyword):
                 state.keyword = keyword
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.searchExistingPlanTypesResponse(
                         TaskResult {
-                            try await apiService.searchPlanTypes(keyword)
+                            try await apiService.searchPlanTypes(keyword, projectID)
                         }
                     ))
                 }
@@ -228,17 +233,19 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .updatePlan(planID, planTypeID):
+                let projectID = state.rootProject.id
                 return .run { send in
-                    try await apiService.updatePlan(planID, planTypeID)
+                    try await apiService.updatePlan(planID, planTypeID, projectID)
                 }
                 
             case .fetchAllPlans:
                 // TODO: - lily code와 합쳐지면 삭제될 코드: store에서 map까지 너겨받게 수정했음
                 state.map = state.rootProject.map
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlansResponse(
                         TaskResult {
-                            try await apiService.readAllPlans()
+                            try await apiService.readAllPlans(projectID)
                         }
                     ))
                 }
