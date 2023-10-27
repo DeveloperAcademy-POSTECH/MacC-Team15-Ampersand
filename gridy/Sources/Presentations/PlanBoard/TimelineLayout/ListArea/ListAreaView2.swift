@@ -28,17 +28,20 @@ struct ListAreaView2: View {
                     }
                     .stroke(Color.gray, lineWidth: viewStore.rowStroke)
                     Path { path in
+                        /// 현재 보여주고 있는 layer 수
                         let numOfShowingLayers = viewStore.showingLayers.count
+                        /// 현재 보여주고 있는 layer 수에 따른 col의 너비 값을 저장한 배열.
+                        let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers-1]
+                        /// 2n - 1: 2 col 보여줄 땐 줄 3개, 3col 보여줄 땐 줄 5개
+                        let numOfStrokes = 2 * numOfShowingLayers - 1
                         
-                        for colIndex in 0..<numOfShowingLayers {
-                            var xLocation = CGFloat.zero
+                        var xLocation = CGFloat.zero
                             
-                            for internalIndex in 0..<viewStore.listColumnWidth[numOfShowingLayers-1].count {
-                                xLocation += (viewStore.listColumnWidth[numOfShowingLayers-1][internalIndex] + CGFloat((2 * internalIndex)) - viewStore.columnStroke)
-                                
-                                path.move(to: CGPoint(x: xLocation, y: 0))
-                                path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
-                            }
+                        for forIndex in 0..<numOfStrokes {
+                            /// index가 짝수 일 때는 배열 안의 값을 더해주고 홀수일 때는 2를 더해줘서 스페이싱을 준다.
+                            xLocation += (forIndex%2 == 0 ? currentColsWidthArray[(forIndex / 2)] : CGFloat(2 * (forIndex % 2)))
+                            path.move(to: CGPoint(x: xLocation, y: 0))
+                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                         }
                     }
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
@@ -106,16 +109,16 @@ struct ListAreaView2: View {
                                     .font(.caption)
                                     .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex], height: viewStore.lineAreaGridHeight / 2)
                             
-                                    if viewStore.map.count > 0 {
-                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
-                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-                                        }
-                                    }
-                                    
-                                    // TODO: - 16 > maxLineAreaRow로 변경. 현재는 0으로 초기화 되어있고 값이 바뀔 때마다 할당이되어서 처음에는 보여줄 개수가 0밖에 없음
-                                    ForEach(0..<(16 - viewStore.map[String(layer)]!.count)) { rowIndex in
-                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
-                                    }
+//                                    if viewStore.map.count > 0 {
+//                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
+//                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+//                                        }
+//                                    }
+//                                    
+//                                    // TODO: - 16 > maxLineAreaRow로 변경. 현재는 0으로 초기화 되어있고 값이 바뀔 때마다 할당이되어서 처음에는 보여줄 개수가 0밖에 없음
+//                                    ForEach(0..<(16 - viewStore.map[String(layer)]!.count)) { rowIndex in
+//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
+//                                    }
                                 }
                                 .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                             }
