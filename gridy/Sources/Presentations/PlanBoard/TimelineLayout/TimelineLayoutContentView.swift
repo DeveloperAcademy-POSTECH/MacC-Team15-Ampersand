@@ -34,7 +34,7 @@ struct TimelineLayoutContentView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     BlackPinkInYourAreaView(store: store)
                         .frame(height: 200)
-                    ListAreaView2(store: store)
+                    ListAreaView(store: store)
                 }
                 .frame(width: 266)
                 .zIndex(1)

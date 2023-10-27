@@ -15,7 +15,7 @@ struct ListItemView: View {
     // TODO: 아래의 sample 변수 삭제하기
     var layerIndex: Int
     var rowIndex: Int
-    let fontSize: CGFloat = 30
+    let fontSize: CGFloat = 14
     
     /// 여기서부터 진짜 필요한 변수.
     /// 각 뷰마다 Store를 가지게 해야 할 듯 합니다. 왜냐하면 각각의 listItemView마다 상태 체크를 해야해요.. IdentifiedArrayOf<ListItem>으로 PlanBoard Store에서 갖고있게 한 후 ForEachStore로 돌려도 괜찮을 듯 싶습니다.
@@ -90,7 +90,7 @@ struct ListItemView: View {
                                     isTextFieldFocused = false
                                 }
                                 .multilineTextAlignment(.center)
-                                .font(.custom("Pretendard-Regular", size: fontSize))
+                                .font(.custom("Pretendard-Medium", size: fontSize))
                                 .textFieldStyle(.plain)
                                 .padding(.horizontal, 1)
                                 .padding(.vertical, 2)
