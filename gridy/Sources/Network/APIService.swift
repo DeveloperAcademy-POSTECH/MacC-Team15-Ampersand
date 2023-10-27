@@ -71,7 +71,7 @@ struct APIService {
         self.createPlan = createPlan
         self.deletePlan = deletePlan
         self.updatePlan = updatePlan
-        self.readAllPlans = readAllPlans
+        self.readAllPlans = readAllPlans 
         
         self.createLane = createLane
         self.deleteLane = deleteLane
