@@ -69,7 +69,6 @@ struct ListItemView: View {
                 if isEditing {
                     Rectangle()
                         .strokeBorder(Color.blue)
-                        .foregroundStyle(Color.clear)
                         .overlay {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )

@@ -77,21 +77,7 @@ struct ListAreaView2: View {
                                 VStack(alignment: .leading, spacing: 0) {
                                     let layer = viewStore.showingLayers[forIndex]
                                     
-                                    // TODO: map이 자꾸 빈걸로 들어옴 ;;;; 그래서 map 언래핑 할 수 없음
-//                                    if viewStore.map[String(layer)]!.count > 0 {
-//                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
-//                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-//                                        }
-//                                    }
                                     
-                                    // TODO: scroll이 가능하게 되면 기본으로 보여줄 row 개수만큼으로 변경
-//                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
-//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
-//                                    }
-                                    
-//                                    ForEach(0..<viewStore.maxLineAreaRow) { rowIndex in
-//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
-//                                    }
                                     
                                     // TODO: - LayerIndex Area 나오면 옮기기. 지금은 temp.
                                     HStack {
@@ -114,10 +100,28 @@ struct ListAreaView2: View {
                                             Text("+")
                                                 .foregroundStyle(.black)
                                         }
+                                       
                                     }
                                     .font(.caption)
-                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex], height: viewStore.lineAreaGridHeight / 2)
                                     .onAppear{print(viewStore.maxLineAreaRow)}
+                                    
+                                    
+                                    // TODO: map이 자꾸 빈걸로 들어옴 ;;;; 그래서 map 언래핑 할 수 없음
+//                                    if viewStore.map[String(layer)]!.count > 0 {
+//                                        ForEach(0..<viewStore.map[String(layer)]!.count) { rowIndex in
+//                                            ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+//                                        }
+//                                    }
+                                    
+                                    // TODO: scroll이 가능하게 되면 기본으로 보여줄 row 개수만큼으로 변경
+//                                    ForEach(0..<viewStore.maxLineAreaRow - viewStore.map[String(layer)]!.count) { rowIndex in
+//                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex + viewStore.map[String(layerIndex)]!.count)
+//                                    }
+                                    
+                                    ForEach(0..<20) { rowIndex in
+                                        ListItemView(store: store, layerIndex: layerIndex, rowIndex: rowIndex)
+                                    }
                                 }
                                 .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
                             }
