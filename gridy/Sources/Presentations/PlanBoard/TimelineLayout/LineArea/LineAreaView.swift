@@ -47,10 +47,12 @@ struct LineAreaView: View {
                                 viewStore.send(.createPlan(
                                     // TODO: - Need arguments #1, #2
                                     layer: 1,
-                                    row: 2,
                                     target: Plan(
                                         id: "",
-                                        periods: [:]),
+                                        parentLaneID: "CbOueYeOwslUsDDQnkEV",
+                                        periods: [:],
+                                        laneIDs: []
+                                    ),
                                     startDate: startDate,
                                     endDate: endDate
                                 ))

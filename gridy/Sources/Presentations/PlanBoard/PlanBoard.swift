@@ -87,7 +87,7 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date, endDate: Date)
+        case createPlan(layer: Int, target: Plan, startDate: Date, endDate: Date)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case fetchAllPlans
         
@@ -131,7 +131,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(layer, row, target, startDate, endDate):
+            case let .createPlanType(layer, parentLaneID, target, startDate, endDate):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 state.keyword = ""
@@ -155,7 +155,6 @@ struct PlanBoard: Reducer {
                     await send(
                         .createPlan(
                             layer: layer,
-                            row: row,
                             target: Plan(
                                 id: target.id,
                                 planTypeID: createdID,
@@ -204,7 +203,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
-            case let .createPlan(layer, row, target, startDate, endDate):
+            case let .createPlan(layer, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
                 let projectID = state.rootProject.id
@@ -213,11 +212,13 @@ struct PlanBoard: Reducer {
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
                                    periods: [0: [startDate, endDate]],
-                                   description: target.description)
+                                   description: target.description,
+                                   laneIDs: []
+                )
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(newPlan, layer, row, projectID)
+                            try await apiService.createPlan(newPlan, layer, projectID)
                         }
                     ), animation: .easeIn)
                 }
