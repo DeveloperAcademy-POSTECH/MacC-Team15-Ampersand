@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct ListItemEmptyView: View {
     
     let store: StoreOf<PlanBoard>
-
+    
     let fontSize: CGFloat = 14
     
     /// 호버, 클릭, 더블 클릭을 트래킹하는 변수들.
