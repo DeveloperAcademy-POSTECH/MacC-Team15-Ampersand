@@ -1,24 +1,21 @@
 //
-//  ListItemView.swift
+//  ListItemEmptyView.swift
 //  gridy
 //
-//  Created by SY AN on 10/19/23.
+//  Created by SY AN on 10/27/23.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct ListItemView: View {
-    
+struct ListItemEmptyView: View {
     let store: StoreOf<PlanBoard>
 
     // TODO: 아래의 sample 변수 삭제하기
     var layerIndex: Int
     var rowIndex: Int
     let fontSize: CGFloat = 14
-    
-    /// 여기서부터 진짜 필요한 변수.
-    /// 각 뷰마다 Store를 가지게 해야 할 듯 합니다. 왜냐하면 각각의 listItemView마다 상태 체크를 해야해요.. IdentifiedArrayOf<ListItem>으로 PlanBoard Store에서 갖고있게 한 후 ForEachStore로 돌려도 괜찮을 듯 싶습니다.
+
     @FocusState var isTextFieldFocused: Bool
     @State var isHovering = false
     @State var isSelected = false
@@ -28,8 +25,6 @@ struct ListItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            // TODO: - 실제 Plan 받아오기
-//            let plan = viewStore.map[String(layerIndex)]![rowIndex]
             ZStack {
                 // MARK: - 초기 상태.
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
@@ -88,7 +83,7 @@ struct ListItemView: View {
                                 .onSubmit {
                                     isEditing = false
                                     isTextFieldFocused = false
-                                    // TODO: PlanType Title Change
+                                    // TODO: CreatePlan
                                 }
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Medium", size: fontSize))
@@ -105,15 +100,13 @@ struct ListItemView: View {
                         }
                 }
             }
-            // TODO: unitHeight * 내가 가진 lane 개수
-//            .frame(height: viewStore.lineAreaGridHeight * CGFloat(Int(viewStore.map[String(layerIndex)]![rowIndex])!))
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
 }
 
 #Preview {
-    ListItemView(
+    ListItemEmptyView(
         store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
             PlanBoard()
         },
