@@ -28,6 +28,7 @@ struct APIService {
     var createPlan: @Sendable (Plan, Int, String) async throws -> [String: [String]]
     var deletePlan: @Sendable (String, Int, Bool, String) async throws -> [String: [String]]
     var updatePlan: @Sendable (String, String) async throws -> Void
+    var readAllPlans: @Sendable () async throws -> [String: Plan]
     
     /// Lane
     var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
@@ -50,6 +51,7 @@ struct APIService {
         createPlan: @escaping @Sendable (Plan, Int, String) async throws -> [String: [String]],
         deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> [String: [String]],
         updatePlan: @escaping @Sendable (String, String) async throws -> Void,
+        readAllPlans: @escaping @Sendable () async throws -> [String: Plan],
         
         createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
         deleteLane: @escaping @Sendable (String, Bool, String) async throws -> [String: [String]],
@@ -69,6 +71,7 @@ struct APIService {
         self.createPlan = createPlan
         self.deletePlan = deletePlan
         self.updatePlan = updatePlan
+        self.readAllPlans = readAllPlans
         
         self.createLane = createLane
         self.deleteLane = deleteLane
@@ -351,6 +354,14 @@ extension APIService {
             /// planTypeID를 업데이트하는 updatePlan
             /// periods를 업데이트하는 updatePlan도 필요함
             try await planCollectionPath.document(planID).updateData(["planTypeID": planTypeID])
+        },
+        readAllPlans: {
+            let plans = try await planCollectionPath.getDocuments().documents.map { try $0.data(as: Plan.self) }
+            var result = [String: Plan]()
+            for plan in plans {
+                result[plan.id] = plan
+            }
+            return result
         },
         createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map

@@ -24,7 +24,7 @@ struct PlanBoard: Reducer {
         var map = [String: [String]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
-        var existingAllPlans = [Plan]()
+        var existingAllPlans = [String: Plan]()
         
         var keyword = ""
         var selectedColorCode = Color.red
@@ -92,6 +92,7 @@ struct PlanBoard: Reducer {
         case createPlanResponse(TaskResult<[String: [String]]>)
         case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
+        case fetchAllPlansResponse(TaskResult<[String: Plan]>)
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -232,7 +233,18 @@ struct PlanBoard: Reducer {
                 }
                 
             case .fetchAllPlans:
+                // TODO: - lily code와 합쳐지면 삭제될 코드: store에서 map까지 너겨받게 수정했음
                 state.map = state.rootProject.map
+                return .run { send in
+                    await send(.fetchAllPlansResponse(
+                        TaskResult {
+                            try await apiService.readAllPlans()
+                        }
+                    ))
+                }
+                
+            case let .fetchAllPlansResponse(.success(response)):
+                state.existingAllPlans = response
                 return .none
                 
             case let .shiftSelectedCell(rowOffset, colOffset):
