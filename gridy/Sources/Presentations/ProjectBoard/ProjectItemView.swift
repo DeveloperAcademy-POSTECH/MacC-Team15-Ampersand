@@ -10,14 +10,10 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
-    // TODO: - 삭제될 것
-
-    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
-                // TODO: NavigationLink 방식은 Store 이용하기
                 NavigationLink(
                     isActive: viewStore.binding(
                         get: \.isNavigationActive,

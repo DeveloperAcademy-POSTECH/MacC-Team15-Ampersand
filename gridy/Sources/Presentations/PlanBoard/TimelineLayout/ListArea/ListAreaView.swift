@@ -16,9 +16,9 @@ struct ListAreaView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
-                    
                     // MARK: - Grid Background
                     Color.white
+                    
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
@@ -37,6 +37,7 @@ struct ListAreaView: View {
                         }
                     }
                     .stroke(Color.gray, lineWidth: viewStore.rowStroke)
+                    
                     Path { path in
                         /// 현재 보여주고 있는 layer 수
                         let numOfShowingLayers = viewStore.showingLayers.count

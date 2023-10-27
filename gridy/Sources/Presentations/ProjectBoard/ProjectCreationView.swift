@@ -39,8 +39,6 @@ struct LayoutOption: View {
 struct ProjectCreationView: View {
     let store: StoreOf<ProjectBoard>
     @FocusState private var isTextFieldFocused: Bool
-    // TODO: - 삭제될 것
-    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -90,8 +88,6 @@ struct ProjectCreationView: View {
                                 .onSubmit {
                                     if !viewStore.title.isEmpty {
                                         viewStore.send(.createNewProjectButtonTapped)
-                                        // TODO: - 삭제될 것. tag가 아니라 store에서 처리
-                                        self.tag = 1
                                     }
                                 }
                                 .font(.custom("Pretendard-Medium", size: 14))
@@ -149,8 +145,6 @@ struct ProjectCreationView: View {
                         ZStack {
                             Button {
                                 viewStore.send(.createNewProjectButtonTapped)
-                                // TODO: - 삭제될 것. tag가 아니라 store에서 처리
-                                self.tag = 1
                             } label: {
                                 RoundedRectangle(cornerRadius: 12)
                                     .frame(width: 328, height: 48)
