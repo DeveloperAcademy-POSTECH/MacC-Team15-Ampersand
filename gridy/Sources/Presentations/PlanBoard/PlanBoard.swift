@@ -24,6 +24,7 @@ struct PlanBoard: Reducer {
         var map = [String: [String]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
+        var existingAllPlans = [Plan]()
         
         var keyword = ""
         var selectedColorCode = Color.red
@@ -79,7 +80,7 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(layer: Int, row: Int, target: Plan, startDate: Date, endDate: Date)
+        case createPlanType(planID: String)
         case createPlanTypeResponse(TaskResult<PlanType>)
         case searchExistingPlanTypes(with: String)
         case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
@@ -89,6 +90,7 @@ struct PlanBoard: Reducer {
         // MARK: - plan
         case createPlan(layer: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
+        case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
@@ -131,7 +133,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(layer, parentLaneID, target, startDate, endDate):
+            case let .createPlanType(planID):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 state.keyword = ""
@@ -141,7 +143,7 @@ struct PlanBoard: Reducer {
                             id: "", // APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
-                        )
+                        ), planID
                     )
                     await send(.createPlanTypeResponse(
                         TaskResult {
@@ -152,21 +154,6 @@ struct PlanBoard: Reducer {
                             )
                         }
                     ))
-                    await send(
-                        .createPlan(
-                            layer: layer,
-                            target: Plan(
-                                id: target.id,
-                                planTypeID: createdID,
-                                parentLaneID: target.parentLaneID,
-                                periods: target.periods,
-                                description: target.description,
-                                laneIDs: target.laneIDs
-                            ),
-                            startDate: startDate,
-                            endDate: endDate
-                        )
-                    )
                 }
                 
             case let .createPlanTypeResponse(.success(response)):
@@ -210,20 +197,20 @@ struct PlanBoard: Reducer {
                 var newPlan: Plan?
                 if let startDate = startDate, let endDate = endDate {
                     newPlan = Plan(id: "", // APIService에서 자동 생성
-                                       planTypeID: target.planTypeID,
-                                       parentLaneID: target.parentLaneID,
-                                       periods: [0: [startDate, endDate]],
-                                       description: target.description,
-                                       laneIDs: []
+                                   planTypeID: target.planTypeID,
+                                   parentLaneID: target.parentLaneID,
+                                   periods: [0: [startDate, endDate]],
+                                   description: target.description,
+                                   laneIDs: []
                     )
                     state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
                 } else {
                     newPlan = Plan(id: "", // APIService에서 자동 생성
-                                       planTypeID: target.planTypeID,
-                                       parentLaneID: target.parentLaneID,
-                                       periods: [:],
-                                       description: target.description,
-                                       laneIDs: []
+                                   planTypeID: target.planTypeID,
+                                   parentLaneID: target.parentLaneID,
+                                   periods: [:],
+                                   description: target.description,
+                                   laneIDs: []
                     )
                 }
                 let planToBeCreated = newPlan!
@@ -238,6 +225,11 @@ struct PlanBoard: Reducer {
             case let .createPlanResponse(.success(response)):
                 state.map = response
                 return .none
+                
+            case let .updatePlan(planID, planTypeID):
+                return .run { send in
+                    try await apiService.updatePlan(planID, planTypeID)
+                }
                 
             case .fetchAllPlans:
                 state.map = state.rootProject.map

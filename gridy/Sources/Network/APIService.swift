@@ -21,12 +21,13 @@ struct APIService {
     /// Plan Type
     var readAllPlanTypes: () async throws -> [PlanType]
     var searchPlanTypes: @Sendable (String) async throws -> [PlanType]
-    var createPlanType: @Sendable (PlanType) async throws -> String
+    var createPlanType: @Sendable (PlanType, String) async throws -> String
     var deletePlanType: @Sendable (String) async throws -> Void
     
     /// Plan
     var createPlan: @Sendable (Plan, Int, String) async throws -> [String: [String]]
     var deletePlan: @Sendable (String, Int, Bool, String) async throws -> [String: [String]]
+    var updatePlan: @Sendable (String, String) async throws -> Void
     
     /// Lane
     var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
@@ -43,11 +44,12 @@ struct APIService {
         
         readAllPlanTypes: @escaping () async throws -> [PlanType],
         searchPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
-        createPlanType: @escaping @Sendable (PlanType) async throws -> String,
+        createPlanType: @escaping @Sendable (PlanType, String) async throws -> String,
         deletePlanType: @escaping @Sendable (String) async throws -> Void,
         
         createPlan: @escaping @Sendable (Plan, Int, String) async throws -> [String: [String]],
         deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> [String: [String]],
+        updatePlan: @escaping @Sendable (String, String) async throws -> Void,
         
         createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
         deleteLane: @escaping @Sendable (String, Bool, String) async throws -> [String: [String]],
@@ -66,6 +68,7 @@ struct APIService {
         
         self.createPlan = createPlan
         self.deletePlan = deletePlan
+        self.updatePlan = updatePlan
         
         self.createLane = createLane
         self.deleteLane = deleteLane
@@ -198,12 +201,13 @@ extension APIService {
             }
             
         },
-        createPlanType: { target in
+        createPlanType: { target, planID in
             let id = try planTypeCollectionPath.document().documentID
             let data = ["id": id,
                         "title": target.title,
                         "colorCode": target.colorCode] as [String: Any]
             try planTypeCollectionPath.document(id).setData(data)
+            try planCollectionPath.document(planID).updateData(["planTypeID": id])
             return id
             
         },
@@ -343,6 +347,11 @@ extension APIService {
             }
             return projectMap
         },
+        updatePlan: { planID, planTypeID in
+            /// planTypeID를 업데이트하는 updatePlan
+            /// periods를 업데이트하는 updatePlan도 필요함
+            try await planCollectionPath.document(planID).updateData(["planTypeID": planTypeID])
+        },
         createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let maximumDepth = projectMap.count
@@ -382,7 +391,7 @@ extension APIService {
             return projectMap
         },
         deleteLane: { laneID, deleteAll, projectID in
-            
+            // TODO: -
             return [:]
         },
         createLayer: { layerIndex, projectID in
