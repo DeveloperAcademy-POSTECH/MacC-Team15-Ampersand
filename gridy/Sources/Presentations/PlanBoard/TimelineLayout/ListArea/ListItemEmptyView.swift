@@ -11,9 +11,6 @@ import ComposableArchitecture
 struct ListItemEmptyView: View {
     let store: StoreOf<PlanBoard>
 
-    // TODO: 아래의 sample 변수 삭제하기
-    var layerIndex: Int
-    var rowIndex: Int
     let fontSize: CGFloat = 14
 
     @FocusState var isTextFieldFocused: Bool
@@ -109,8 +106,6 @@ struct ListItemEmptyView: View {
     ListItemEmptyView(
         store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
             PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
+        }
     )
 }
