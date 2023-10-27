@@ -23,14 +23,16 @@ struct ListItemView: View {
     @State var isHovering = false
     @State var isSelected = false
     @State var isEditing = false
-    @State var editingText = ""
+    @State var editingText =  ""
     @State var prevText = ""
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            
+            // TODO: - 실제 Plan 받아오기
 //            let plan = viewStore.map[String(layerIndex)]![rowIndex]
             ZStack {
+                // MARK: - 초기 상태.
+                /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
                 Rectangle()
                     .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
                     .overlay(
@@ -44,11 +46,20 @@ struct ListItemView: View {
                             isHovering = phase
                         }
                     }
-                    .onTapGesture(count: 1) {
+                    .onTapGesture {
                         isHovering = false
                         isSelected = true
                     }
+                    .highPriorityGesture(TapGesture(count: 2).onEnded({
+                        isHovering = false
+                        isSelected = false
+                        isEditing = true
+                        isTextFieldFocused = true
+                        prevText = editingText
+                    }))
                 
+                // MARK: - 한 번 클릭 된 상태.
+                /// 호버링 상태를 추적하지 않는다. 흰 배경에 보더만 파란 상태. 더블 클릭이 가능하다.
                 if isSelected {
                     Rectangle()
                         .strokeBorder(Color.blue)
@@ -66,6 +77,8 @@ struct ListItemView: View {
                         }
                 }
                 
+                // MARK: - 더블 클릭 된 상태.
+                /// 호버링 상태를 추적하지 않는다. 텍스트 필드가 활성화 된다. 엔터를 누르면 텍스트가 변경되고, esc를 누르면 이전 text를 보여주는 초기 상태로 돌아간다.
                 if isEditing {
                     Rectangle()
                         .strokeBorder(Color.blue)
@@ -79,7 +92,6 @@ struct ListItemView: View {
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .textFieldStyle(.plain)
-                                .foregroundStyle(.clear)
                                 .padding(.horizontal, 1)
                                 .padding(.vertical, 2)
                             // TODO: 로이스 focus 적용
@@ -95,7 +107,6 @@ struct ListItemView: View {
             // TODO: unitHeight * 내가 가진 lane 개수
 //            .frame(height: viewStore.lineAreaGridHeight * CGFloat(Int(viewStore.map[String(layerIndex)]![rowIndex])!))
             .frame(height: viewStore.lineAreaGridHeight)
-            .background(.blue.opacity(0.2))
         }
     }
 }
