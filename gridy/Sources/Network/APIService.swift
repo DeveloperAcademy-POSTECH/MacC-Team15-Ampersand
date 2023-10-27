@@ -254,7 +254,7 @@ extension APIService {
                             data = ["id": targetID,
                                     "planTypeID": dummyPlan.planTypeID,
                                     "parentLaneID": dummyPlan.parentLaneID,
-                                    "periods": ["0": dummyPlan.periods[0]],
+                                    "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
                                     "description": dummyPlan.description,
                                     "laneIDs": [newLaneID]] as [String: Any?]
                             
@@ -293,7 +293,7 @@ extension APIService {
                     data = ["id": targetID,
                             "planTypeID": dummyPlan.planTypeID,
                             "parentLaneID": dummyPlan.parentLaneID,
-                            "periods": ["0": dummyPlan.periods[0]],
+                            "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
                             "description": dummyPlan.description,
                             "laneIDs": [newLaneID]] as [String: Any?]
                     try await planCollectionPath.document(targetID).setData(data as [String: Any])
@@ -310,7 +310,7 @@ extension APIService {
             data = ["id": targetID,
                     "planTypeID": target.planTypeID,
                     "parentLaneID": target.parentLaneID,
-                    "periods": ["0": target.periods[0]],
+                    "periods": target.periods.count == 0 ? [:] : ["0": target.periods[0]],
                     "description": target.description,
                     "laneIDs": [newLaneID]] as [String: Any?]
             try await planCollectionPath.document(targetID).setData(data as [String: Any])

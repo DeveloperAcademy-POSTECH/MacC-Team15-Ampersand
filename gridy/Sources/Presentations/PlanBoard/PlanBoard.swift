@@ -87,7 +87,7 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(layer: Int, target: Plan, startDate: Date, endDate: Date)
+        case createPlan(layer: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case fetchAllPlans
         
@@ -205,20 +205,32 @@ struct PlanBoard: Reducer {
                 // MARK: - plan
             case let .createPlan(layer, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
-                state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
                 let projectID = state.rootProject.id
                 
-                let newPlan = Plan(id: "", // APIService에서 자동 생성
-                                   planTypeID: target.planTypeID,
-                                   parentLaneID: target.parentLaneID,
-                                   periods: [0: [startDate, endDate]],
-                                   description: target.description,
-                                   laneIDs: []
-                )
+                var newPlan: Plan?
+                if let startDate = startDate, let endDate = endDate {
+                    newPlan = Plan(id: "", // APIService에서 자동 생성
+                                       planTypeID: target.planTypeID,
+                                       parentLaneID: target.parentLaneID,
+                                       periods: [0: [startDate, endDate]],
+                                       description: target.description,
+                                       laneIDs: []
+                    )
+                    state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
+                } else {
+                    newPlan = Plan(id: "", // APIService에서 자동 생성
+                                       planTypeID: target.planTypeID,
+                                       parentLaneID: target.parentLaneID,
+                                       periods: [:],
+                                       description: target.description,
+                                       laneIDs: []
+                    )
+                }
+                let planToBeCreated = newPlan!
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(newPlan, layer, projectID)
+                            try await apiService.createPlan(planToBeCreated, layer, projectID)
                         }
                     ), animation: .easeIn)
                 }
