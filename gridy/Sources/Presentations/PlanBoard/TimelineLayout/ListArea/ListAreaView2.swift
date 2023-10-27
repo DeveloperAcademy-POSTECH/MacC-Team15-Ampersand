@@ -22,8 +22,18 @@ struct ListAreaView2: View {
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
-                            path.move(to: CGPoint(x: 0, y: yLocation))
-                            path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
+                            /// 현재 보여주고 있는 layer 수
+                            let numOfShowingLayers = viewStore.showingLayers.count
+                            /// 현재 보여주고 있는 layer 수에 따른 col의 너비 값을 저장한 배열.
+                            let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers-1]
+                            
+                            var xLocation = CGFloat.zero
+                            
+                            for forIndex in 0..<numOfShowingLayers {
+                                xLocation += (forIndex == 0 ? 0 : currentColsWidthArray[forIndex-1] + 2)
+                                path.move(to: CGPoint(x: xLocation, y: yLocation))
+                                path.addLine(to: CGPoint(x: xLocation + currentColsWidthArray[forIndex], y: yLocation))
+                            }
                         }
                     }
                     .stroke(Color.gray, lineWidth: viewStore.rowStroke)
@@ -66,7 +76,6 @@ struct ListAreaView2: View {
                                 viewStore.send(
                                     .showUpperLayer
                                 )
-                                print(viewStore.map)
                             } label: {
                                 Text("엎기 <<")
                             }
