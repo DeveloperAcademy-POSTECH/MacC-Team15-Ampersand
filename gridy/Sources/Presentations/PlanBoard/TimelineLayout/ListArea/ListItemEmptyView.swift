@@ -27,30 +27,32 @@ struct ListItemEmptyView: View {
             ZStack {
                 // MARK: - 초기 상태.
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
-                Rectangle()
-                    .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
-                    .overlay(
-                        Text(editingText)
-                            .lineLimit(2)
-                            .font(.custom("Pretendard-Regular", size: fontSize))
-                            .padding(.horizontal, 8)
-                    )
-                    .onHover { phase in
-                        if !isSelected && !isEditing {
-                            isHovering = phase
+                if !isSelected && !isEditing {
+                    Rectangle()
+                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
+                        .overlay(
+                            Text(editingText)
+                                .lineLimit(2)
+                                .font(.custom("Pretendard-Regular", size: fontSize))
+                                .padding(.horizontal, 8)
+                        )
+                        .onHover { phase in
+                            if !isSelected && !isEditing {
+                                isHovering = phase
+                            }
                         }
-                    }
-                    .onTapGesture {
-                        isHovering = false
-                        isSelected = true
-                    }
-                    .highPriorityGesture(TapGesture(count: 2).onEnded({
-                        isHovering = false
-                        isSelected = false
-                        isEditing = true
-                        isTextFieldFocused = true
-                        prevText = editingText
-                    }))
+                        .onTapGesture {
+                            isHovering = false
+                            isSelected = true
+                        }
+                        .highPriorityGesture(TapGesture(count: 2).onEnded({
+                            isHovering = false
+                            isSelected = false
+                            isEditing = true
+                            isTextFieldFocused = true
+                            prevText = editingText
+                        }))
+                }
                 
                 // MARK: - 한 번 클릭 된 상태.
                 /// 호버링 상태를 추적하지 않는다. 흰 배경에 보더만 파란 상태. 더블 클릭이 가능하다.
