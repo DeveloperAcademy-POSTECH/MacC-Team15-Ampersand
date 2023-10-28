@@ -123,7 +123,7 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        // TODO: listAreaOnAppear delete
+        // TODO: - listAreaOnAppear delete
         case showUpperLayer
         case showLowerLayer
         case createLayer(layerIndex: Int)
@@ -343,7 +343,7 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-                // TODO: esc 눌렀을 때 row가 보정되지 않는 로직을 수정
+                // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {

@@ -84,14 +84,14 @@ struct ListItemView: View {
                                 .onSubmit {
                                     isEditing = false
                                     isTextFieldFocused = false
-                                    // TODO: PlanType Title Change
+                                    // TODO: - PlanType Title Change
                                 }
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Medium", size: fontSize))
                                 .textFieldStyle(.plain)
                                 .padding(.horizontal, 1)
                                 .padding(.vertical, 2)
-                            // TODO: 로이스 focus 적용
+                            // TODO: - 로이스 focus 적용
                                 .focused($isTextFieldFocused)
                                 .onExitCommand {
                                     editingText = prevText
@@ -101,7 +101,7 @@ struct ListItemView: View {
                         }
                 }
             }
-            // TODO: unitHeight * 내가 가진 lane 개수
+            // TODO: - unitHeight * 내가 가진 lane 개수
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
