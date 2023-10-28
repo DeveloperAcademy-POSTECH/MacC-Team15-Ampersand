@@ -12,6 +12,10 @@ struct LineAreaView: View {
     
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
+    @State private var planTitle = ""
+    @State private var isTextFieldEditing = false
+    
+    @FocusState private var isTextFieldFocused: Bool
     
     let store: StoreOf<PlanBoard>
     
@@ -55,6 +59,8 @@ struct LineAreaView: View {
                                     startDate: startDate,
                                     endDate: endDate
                                 ))
+                                isTextFieldEditing = true
+                                isTextFieldFocused = true
                             }
                         } label: {
                             Text("create Plan")
@@ -127,7 +133,7 @@ struct LineAreaView: View {
                         Button {
                             viewStore.send(.escapeSelectedCell)
                         } label: { }
-                        .keyboardShortcut(.escape, modifiers: [])
+                            .keyboardShortcut(.escape, modifiers: [])
                     }
                     Color.white
                     
@@ -155,6 +161,19 @@ struct LineAreaView: View {
                             let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
                             let width = CGFloat(dayDifference + 1)
                             let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
+                            if isTextFieldEditing {
+                                TextField("", text: $planTitle, axis: .vertical)
+                                    .onSubmit { isTextFieldEditing = false }
+                                    .focused($isTextFieldFocused)
+                                    .frame(width: viewStore.gridWidth * 2, height: height / 2)
+                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
+                            } else {
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .overlay(alignment: .leading) { Text(planTitle) }
+                                    .frame(width: viewStore.gridWidth * 2, height: height / 2)
+                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
+                            }
                             Rectangle()
                                 .fill(Color.red.opacity(0.8))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
