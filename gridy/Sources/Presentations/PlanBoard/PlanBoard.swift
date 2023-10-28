@@ -73,7 +73,7 @@ struct PlanBoard: Reducer {
         var isCommandKeyPressed = false
         
         // MARK: - list area
-        var showingLayers: [Int] = [0]
+        var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [[CGFloat]] = [[266.0], [132.0, 132.0], [24.0, 119.0, 119.0]]
     }
@@ -123,7 +123,6 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        // TODO: - listAreaOnAppear delete
         case showUpperLayer
         case showLowerLayer
         case createLayer(layerIndex: Int)
