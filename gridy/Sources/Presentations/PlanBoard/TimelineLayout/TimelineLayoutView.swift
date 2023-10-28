@@ -9,11 +9,11 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TimelineLayoutView: View {
+    
+    let store: StoreOf<PlanBoard>
     @State private var showingRightToolBarArea = true
     @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
-    
-    let store: StoreOf<PlanBoard>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -45,6 +45,9 @@ struct TimelineLayoutView: View {
                 }
             }
             .onAppear {
+                viewStore.send(
+                    .onAppear
+                )
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
                     viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
                     return event
@@ -60,7 +63,7 @@ struct TimelineLayoutView: View {
 
 struct TimelineLayoutView_Previews: PreviewProvider {
     static var previews: some View {
-        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
+        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
     }
 }
 

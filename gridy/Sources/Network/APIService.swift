@@ -440,7 +440,7 @@ extension APIService {
                         projectMap["0"] = newFirstLayer
                     }
                 } else {
-                    for currentLayerIndex in stride(from: currentProjectMapLayerSize - 1, to: layerIndex - 1, by: -1) {
+                    for currentLayerIndex in stride(from: currentProjectMapLayerSize - 1, to: layerIndex, by: -1) {
                         projectMap["\(currentLayerIndex + 1)"] = projectMap.removeValue(forKey: currentLayerIndex.description)
                     }
                     projectMap["\(layerIndex + 1)"] = []

@@ -15,11 +15,14 @@
 		8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A51624F2AC41D7100EEB1B4 /* Localizable.strings */; };
 		8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */; };
 		8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */; };
+		9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */; };
 		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
 		975A62132ACE970800DE31AB /* DayGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62122ACE970800DE31AB /* DayGridView.swift */; };
+		97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemView.swift */; };
 		97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */; };
+		97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C419DB2AE2CAEB00501321 /* ListAreaView.swift */; };
 		AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */; };
 		AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BD2AD7766200E3CC07 /* PlanType.swift */; };
 		AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BF2AD7767700E3CC07 /* Plan.swift */; };
@@ -68,7 +71,6 @@
 		EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */; };
 		EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */; };
 		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */; };
-		EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
 		EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5D2AC3CFA600C9AAF0 /* LineIndexAreaView.swift */; };
 		EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */; };
@@ -77,9 +79,6 @@
 		EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A652AC3D10300C9AAF0 /* LeftToolBarAreaView.swift */; };
 		EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
-		EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */; };
-		EEBDE40C2AD3F29100B52C98 /* LeftSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */; };
-		EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,11 +92,14 @@
 		8A5162502AC41D9800EEB1B4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGridRange.swift; sourceTree = "<group>"; };
 		8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedDateRange.swift; sourceTree = "<group>"; };
+		9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemEmptyView.swift; sourceTree = "<group>"; };
 		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
 		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
+		97806BB42AE15ACC0044FA0C /* ListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemView.swift; sourceTree = "<group>"; };
 		97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDatePickerView.swift; sourceTree = "<group>"; };
+		97C419DB2AE2CAEB00501321 /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
 		AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		AD06C4BD2AD7766200E3CC07 /* PlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanType.swift; sourceTree = "<group>"; };
 		AD06C4BF2AD7767700E3CC07 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
@@ -135,7 +137,6 @@
 		EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarAreaView.swift; sourceTree = "<group>"; };
 		EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackPinkInYourAreaView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
-		EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
 		EE909A5D2AC3CFA600C9AAF0 /* LineIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineIndexAreaView.swift; sourceTree = "<group>"; };
 		EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAxisAreaView.swift; sourceTree = "<group>"; };
@@ -144,9 +145,6 @@
 		EE909A652AC3D10300C9AAF0 /* LeftToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftToolBarAreaView.swift; sourceTree = "<group>"; };
 		EE909A6D2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleIndexAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
-		EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeTaskElementView.swift; sourceTree = "<group>"; };
-		EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftSmallTaskElementView.swift; sourceTree = "<group>"; };
-		EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightSmallTaskElementView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -423,10 +421,9 @@
 		EE909A512AC3CEC600C9AAF0 /* ListArea */ = {
 			isa = PBXGroup;
 			children = (
-				EE909A592AC3CF6100C9AAF0 /* ListAreaView.swift */,
-				EEBDE4092AD3F27B00B52C98 /* LargeTaskElementView.swift */,
-				EEBDE40B2AD3F29100B52C98 /* LeftSmallTaskElementView.swift */,
-				EEBDE40D2AD3F29A00B52C98 /* RightSmallTaskElementView.swift */,
+				97C419DB2AE2CAEB00501321 /* ListAreaView.swift */,
+				97806BB42AE15ACC0044FA0C /* ListItemView.swift */,
+				9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */,
 			);
 			path = ListArea;
 			sourceTree = "<group>";
@@ -580,7 +577,6 @@
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
 				AD2F7A092ADD5BD2006201AB /* Lane.swift in Sources */,
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
-				EEBDE40A2AD3F27B00B52C98 /* LargeTaskElementView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
 				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
@@ -591,13 +587,12 @@
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */,
+				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
-				EE909A5A2AC3CF6100C9AAF0 /* ListAreaView.swift in Sources */,
 				AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */,
-				EEBDE40E2AD3F29A00B52C98 /* RightSmallTaskElementView.swift in Sources */,
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				AD96ED402AD1BC17005D197B /* ProjectCreationView.swift in Sources */,
@@ -605,6 +600,7 @@
 				EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
 				EE909A662AC3D10300C9AAF0 /* LeftToolBarAreaView.swift in Sources */,
+				9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */,
 				AD96ED622AD5B005005D197B /* BackgroundView.swift in Sources */,
 				975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */,
 				EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */,
@@ -614,6 +610,7 @@
 				AD96ED442AD30312005D197B /* APIError.swift in Sources */,
 				EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */,
 				97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */,
+				97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */,
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */,
@@ -622,7 +619,6 @@
 				EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */,
 				975A62132ACE970800DE31AB /* DayGridView.swift in Sources */,
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
-				EEBDE40C2AD3F29100B52C98 /* LeftSmallTaskElementView.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
 				AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */,

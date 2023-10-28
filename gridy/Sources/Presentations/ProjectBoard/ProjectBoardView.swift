@@ -25,13 +25,17 @@ struct ProjectBoardView: View {
                             Color.black.opacity(0.6)
                                 .frame(width: geometry.size.width, height: geometry.size.height)
                                 .onTapGesture {
-                                    viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                                    viewStore.send(
+                                        ProjectBoard.Action.setSheet(isPresented: false)
+                                    )
                                 }
                             ProjectCreationView(store: store)
                                 .offset(y: viewStore.isCreationViewPresented ? 0 : -50)
                         }
                         .onExitCommand {
-                            viewStore.send(ProjectBoard.Action.setSheet(isPresented: false))
+                            viewStore.send(
+                                .setSheet(isPresented: false)
+                            )
                         }
                     }
                     
@@ -46,7 +50,9 @@ struct ProjectBoardView: View {
                                 .offset(y: viewStore.isEditViewPresented ? 0 : -50)
                         }
                         .onExitCommand {
-                            viewStore.send(ProjectBoard.Action.setEditSheet(isPresented: false))
+                            viewStore.send(
+                                .setEditSheet(isPresented: false)
+                            )
                         }
                     }
                 }
