@@ -15,7 +15,7 @@ struct TimelineLayoutContentView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in            
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
                 // MARK: - layerControlArea 상단
                 HStack(alignment: .top, spacing: 0) {

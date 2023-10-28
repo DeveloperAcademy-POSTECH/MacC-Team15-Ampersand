@@ -21,14 +21,14 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var map = [String: [String]]()
+        var map: [String: [String]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
         var selectedColorCode = Color.red
-        
+
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
         var numOfScheduleAreaRow = 5
         
@@ -72,6 +72,10 @@ struct PlanBoard: Reducer {
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
         
+        // MARK: - list area
+        var showingLayers = [0]
+        var showingRows = 20
+        var listColumnWidth: [[CGFloat]] = [[266.0], [132.0, 132.0], [24.0, 119.0, 119.0]]
     }
     
     enum Action: Equatable {
@@ -117,6 +121,12 @@ struct PlanBoard: Reducer {
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
+        
+        // MARK: - list area
+        case showUpperLayer
+        case showLowerLayer
+        case createLayer(layerIndex: Int)
+        case createLayerResponse(TaskResult<[String: [String]]>)
     }
     
     var body: some Reducer<State, Action> {
@@ -239,8 +249,6 @@ struct PlanBoard: Reducer {
                 }
                 
             case .fetchAllPlans:
-                // TODO: - lily code와 합쳐지면 삭제될 코드: store에서 map까지 너겨받게 수정했음
-                state.map = state.rootProject.map
                 let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlansResponse(
@@ -252,6 +260,40 @@ struct PlanBoard: Reducer {
                 
             case let .fetchAllPlansResponse(.success(response)):
                 state.existingAllPlans = response
+                return .none
+                
+                // MARK: - listArea
+            case .showUpperLayer:
+                let lastShowingIndex = state.showingLayers.last!
+                if state.showingLayers.count < 3 {
+                    state.showingLayers.append(lastShowingIndex + 1)
+                } else {
+                    state.showingLayers.removeFirst()
+                    state.showingLayers.append(lastShowingIndex + 1)
+                }
+                return .none
+                
+            case .showLowerLayer:
+                let firstShowingIndex = state.showingLayers.first!           
+                if firstShowingIndex == 0 {
+                    state.showingLayers.removeLast()
+                } else {
+                    state.showingLayers.removeLast()
+                    state.showingLayers.insert(firstShowingIndex - 1, at: 0)
+                }
+                return .none
+                
+            case let .createLayer(layerIndex):
+                let projectId = state.rootProject.id
+                return .run { send in
+                    await send(.createLayerResponse(
+                        TaskResult {
+                            try await apiService.createLayer(layerIndex, projectId)
+                        }
+                    ))}
+                
+            case let .createLayerResponse(.success(response)):
+                state.map = response
                 return .none
                 
             case let .shiftSelectedCell(rowOffset, colOffset):
@@ -300,7 +342,7 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-                // TODO: esc 눌렀을 때 row가 보정되지 않는 로직을 수정
+                // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
