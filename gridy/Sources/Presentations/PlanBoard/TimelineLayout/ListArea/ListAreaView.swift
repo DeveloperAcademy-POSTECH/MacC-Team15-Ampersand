@@ -102,7 +102,10 @@ struct ListAreaView: View {
                                             )
                                             .font(.custom("Pretendard-Regular", size: 11))
                                     }
-                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex], height: viewStore.lineAreaGridHeight / 2)
+                                    .frame(
+                                        width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex],
+                                        height: viewStore.lineAreaGridHeight / 2
+                                    )
                                     .contextMenu {
                                         Button {
                                             viewStore.send(
