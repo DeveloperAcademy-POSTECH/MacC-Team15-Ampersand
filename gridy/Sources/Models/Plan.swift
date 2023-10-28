@@ -15,7 +15,7 @@ struct Plan: Identifiable, Equatable, Decodable {
     var parentLaneID: String?
     var periods: [Int: [Date]] /// [index: [startDate, endDate]]
     var description: String?
-    var laneIDs: [String]?
+    var laneIDs: [String]
     
     static let mock = Plan(id: "", planTypeID: "", parentLaneID: "", periods: [:], description: "", laneIDs: [])
 }
