@@ -13,7 +13,7 @@ struct ScheduleAreaView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }){ viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack {
                     Color.white
