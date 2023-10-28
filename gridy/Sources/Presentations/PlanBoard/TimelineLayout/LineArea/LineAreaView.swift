@@ -165,12 +165,14 @@ struct LineAreaView: View {
                                 TextField("", text: $planTitle, axis: .vertical)
                                     .onSubmit { isTextFieldEditing = false }
                                     .focused($isTextFieldFocused)
+                                    .foregroundStyle(.black)
                                     .frame(width: viewStore.gridWidth * 2, height: height / 2)
                                     .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
                             } else {
                                 Rectangle()
                                     .fill(Color.white)
                                     .overlay(alignment: .leading) { Text(planTitle) }
+                                    .foregroundStyle(.black)
                                     .frame(width: viewStore.gridWidth * 2, height: height / 2)
                                     .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
                             }
