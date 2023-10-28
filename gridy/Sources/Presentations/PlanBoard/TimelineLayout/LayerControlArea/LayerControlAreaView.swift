@@ -29,11 +29,23 @@ struct LayerControlAreaView: View {
                         .padding(.leading, 4)
                     
                     // TODO: - width showingColumns에 따라 조절
-                    LayerControlComponent(componentWidth: 266)
+                    LayerControlComponent(componentWidth: 264)
                         .overlay(
                             Text("Layer")
                                 .font(.custom("Pretendard-Medium", size: 12))
                         )
+                        .contextMenu {
+                            Button {
+                               
+                            } label: {
+                                Text("Add a lower layer")
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Add a upper layer")
+                            }
+                        }
                     
                     // TODO: - width 조절
                     LayerControlComponent(componentWidth: geometry.size.width - 340)
@@ -41,6 +53,18 @@ struct LayerControlAreaView: View {
                             Text("Layer")
                                 .font(.custom("Pretendard-Medium", size: 12))
                         )
+                        .contextMenu {
+                            Button {
+                               
+                            } label: {
+                                Text("Add a lower layer")
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Add a upper layer")
+                            }
+                        }
                     
                     LayerControlComponent(componentWidth: 28)
                         .overlay(
