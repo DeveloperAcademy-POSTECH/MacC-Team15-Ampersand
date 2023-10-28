@@ -250,8 +250,6 @@ struct PlanBoard: Reducer {
                 }
                 
             case .fetchAllPlans:
-//                // TODO: - lily code와 합쳐지면 삭제될 코드: store에서 map까지 너겨받게 수정했음
-//                state.map = state.rootProject.map
                 let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlansResponse(

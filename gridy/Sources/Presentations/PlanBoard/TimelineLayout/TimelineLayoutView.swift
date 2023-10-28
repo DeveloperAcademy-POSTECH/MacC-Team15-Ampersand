@@ -45,6 +45,9 @@ struct TimelineLayoutView: View {
                 }
             }
             .onAppear {
+                viewStore.send(
+                    .onAppear
+                )
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
                     viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
                     return event
