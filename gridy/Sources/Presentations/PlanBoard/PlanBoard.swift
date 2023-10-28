@@ -142,7 +142,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     let createdID = try await apiService.createPlanType(
                         PlanType(
-                            id: "", // APIService에서 자동 생성
+                            id: "", /// APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
                         ), 

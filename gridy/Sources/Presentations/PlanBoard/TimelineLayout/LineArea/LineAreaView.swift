@@ -49,7 +49,7 @@ struct LineAreaView: View {
                                     layer: 1,
                                     target: Plan(
                                         id: "",
-                                        parentLaneID: "CbOueYeOwslUsDDQnkEV",
+                                        parentLaneID: nil, // TODO: - root layer가 아니라면 parentLaneID 필요
                                         periods: [:],
                                         laneIDs: []
                                     ),
