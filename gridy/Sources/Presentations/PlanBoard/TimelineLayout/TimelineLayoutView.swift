@@ -22,7 +22,7 @@ struct TimelineLayoutView: View {
                     .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
             } detail: {
                 HSplitView {
-                    TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy, store: store)
+                    TimelineLayoutContentView(proxy: $proxy, store: store)
                     
                     if showingRightToolBarArea {
                         RightToolBarAreaView(proxy: $proxy, store: store)

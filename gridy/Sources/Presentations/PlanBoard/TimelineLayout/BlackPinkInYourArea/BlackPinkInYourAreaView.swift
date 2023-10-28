@@ -12,7 +12,7 @@ struct BlackPinkInYourAreaView: View {
         ZStack {
         Rectangle()
             .foregroundStyle(.white)
-            .border(.black)
+            .border(.gray)
             Text("BlackPinkInYourArea")
         }
     }
