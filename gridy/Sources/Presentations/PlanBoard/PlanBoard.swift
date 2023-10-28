@@ -24,6 +24,7 @@ struct PlanBoard: Reducer {
         var map: [String: [String]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
+        var existingAllPlans = [String: Plan]()
         
         var keyword = ""
         var selectedColorCode = Color.red
@@ -83,7 +84,7 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(layer: Int, row: Int, target: Plan, startDate: Date, endDate: Date)
+        case createPlanType(planID: String)
         case createPlanTypeResponse(TaskResult<PlanType>)
         case searchExistingPlanTypes(with: String)
         case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
@@ -91,9 +92,11 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date, endDate: Date)
+        case createPlan(layer: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
+        case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
+        case fetchAllPlansResponse(TaskResult<[String: Plan]>)
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -142,17 +145,20 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(layer, row, target, startDate, endDate):
+            case let .createPlanType(planID):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
+                let projectID = state.rootProject.id
                 state.keyword = ""
                 return .run { send in
                     let createdID = try await apiService.createPlanType(
                         PlanType(
-                            id: "", // APIService에서 자동 생성
+                            id: "", /// APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
-                        )
+                        ), 
+                        planID,
+                        projectID
                     )
                     await send(.createPlanTypeResponse(
                         TaskResult {
@@ -163,22 +169,6 @@ struct PlanBoard: Reducer {
                             )
                         }
                     ))
-                    await send(
-                        .createPlan(
-                            layer: layer,
-                            row: row,
-                            target: Plan(
-                                id: target.id,
-                                planTypeID: createdID,
-                                parentLaneID: target.parentLaneID,
-                                periods: target.periods,
-                                description: target.description,
-                                laneIDs: target.laneIDs
-                            ),
-                            startDate: startDate,
-                            endDate: endDate
-                        )
-                    )
                 }
                 
             case let .createPlanTypeResponse(.success(response)):
@@ -186,10 +176,11 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .fetchAllPlanTypes:
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.fetchAllPlanTypesResponse(
                         TaskResult {
-                            try await apiService.readAllPlanTypes()
+                            try await apiService.readAllPlanTypes(projectID)
                         }
                     ))
                 }
@@ -202,10 +193,11 @@ struct PlanBoard: Reducer {
                 
             case let .searchExistingPlanTypes(with: keyword):
                 state.keyword = keyword
+                let projectID = state.rootProject.id
                 return .run { send in
                     await send(.searchExistingPlanTypesResponse(
                         TaskResult {
-                            try await apiService.searchPlanTypes(keyword)
+                            try await apiService.searchPlanTypes(keyword, projectID)
                         }
                     ))
                 }
@@ -215,20 +207,34 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
-            case let .createPlan(layer, row, target, startDate, endDate):
+            case let .createPlan(layer, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
-                state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
                 let projectID = state.rootProject.id
                 
-                let newPlan = Plan(id: "", // APIService에서 자동 생성
+                var newPlan: Plan?
+                if let startDate = startDate, let endDate = endDate {
+                    newPlan = Plan(id: "", // APIService에서 자동 생성
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
                                    periods: [0: [startDate, endDate]],
-                                   description: target.description)
+                                   description: target.description,
+                                   laneIDs: []
+                    )
+                    state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
+                } else {
+                    newPlan = Plan(id: "", // APIService에서 자동 생성
+                                   planTypeID: target.planTypeID,
+                                   parentLaneID: target.parentLaneID,
+                                   periods: [:],
+                                   description: target.description,
+                                   laneIDs: []
+                    )
+                }
+                let planToBeCreated = newPlan!
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(newPlan, layer, row, projectID)
+                            try await apiService.createPlan(planToBeCreated, layer, projectID)
                         }
                     ), animation: .easeIn)
                 }
@@ -237,8 +243,26 @@ struct PlanBoard: Reducer {
                 state.map = response
                 return .none
                 
+            case let .updatePlan(planID, planTypeID):
+                let projectID = state.rootProject.id
+                return .run { send in
+                    try await apiService.updatePlan(planID, planTypeID, projectID)
+                }
+                
             case .fetchAllPlans:
-                state.map = state.rootProject.map
+//                // TODO: - lily code와 합쳐지면 삭제될 코드: store에서 map까지 너겨받게 수정했음
+//                state.map = state.rootProject.map
+                let projectID = state.rootProject.id
+                return .run { send in
+                    await send(.fetchAllPlansResponse(
+                        TaskResult {
+                            try await apiService.readAllPlans(projectID)
+                        }
+                    ))
+                }
+                
+            case let .fetchAllPlansResponse(.success(response)):
+                state.existingAllPlans = response
                 return .none
                 
                 // MARK: - listArea
@@ -267,7 +291,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.createLayerResponse(
                         TaskResult {
-                            try await apiService.newLayerCreated(layerIndex, projectId)
+                            try await apiService.createLayer(layerIndex, projectId)
                         }
                     ))}
                 
