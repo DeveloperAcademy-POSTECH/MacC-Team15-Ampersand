@@ -18,6 +18,7 @@ struct LayerControlAreaView: View {
                 VStack {
                     Spacer()
                         .frame(height: 3)
+                    
                     HStack(spacing: 2) {
                         // MARK: - 엎기 >
                         LayerControlButton(componentWidth: 28) {
@@ -32,8 +33,10 @@ struct LayerControlAreaView: View {
                         .padding(.leading, 4)
                         
                         // MARK: - Layer Index
+                        let numberOfShowingLayers = viewStore.showingLayers.count
+                        
                         if viewStore.showingLayers.isEmpty {
-                            LayerControlButton(componentWidth: viewStore.listColumnWidth[0]![0]) {
+                            LayerControlButton(componentWidth: viewStore.listColumnWidth[numberOfShowingLayers]![0]) {
                                 Text("Add a layer")
                                     .font(.custom("Pretendard-Medium", size: 12))
                                     .foregroundStyle(.gray)
@@ -41,9 +44,9 @@ struct LayerControlAreaView: View {
                         } else {
                             ForEach(viewStore.showingLayers.indices, id: \.self) { forIndex in
                                 let layer = viewStore.showingLayers[forIndex]
-                                let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
+                                let showingAtFirst = (numberOfShowingLayers == 3 && forIndex == 0)
                                 
-                                LayerControlButton(componentWidth: viewStore.listColumnWidth[viewStore.showingLayers.count]![forIndex]) {
+                                LayerControlButton(componentWidth: viewStore.listColumnWidth[numberOfShowingLayers]![forIndex]) {
                                     Text(showingAtFirst ? "L\(layer)": "Layer\(layer)")
                                         .font(.custom("Pretendard-Medium", size: 12))
                                 }
