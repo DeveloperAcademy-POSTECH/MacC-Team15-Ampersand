@@ -161,26 +161,36 @@ struct LineAreaView: View {
                             let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
                             let width = CGFloat(dayDifference + 1)
                             let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
+                            
+                            // MARK: - Position
+                            let selectedGridRange = viewStore.selectedGridRanges[0]
+                            let isStartRowSmaller = selectedGridRange.start.row <= selectedGridRange.end.row
+                            let isStartColSmaller = selectedGridRange.start.col <= selectedGridRange.end.col
+                            
                             if isTextFieldEditing {
                                 TextField("", text: $planTitle, axis: .vertical)
                                     .onSubmit { isTextFieldEditing = false }
                                     .focused($isTextFieldFocused)
                                     .foregroundStyle(.black)
                                     .frame(width: viewStore.gridWidth * 2, height: height / 2)
-                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
+                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: isStartRowSmaller ? CGFloat(selectedGridRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight - viewStore.lineAreaGridHeight / 4 : CGFloat(selectedGridRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight - viewStore.lineAreaGridHeight / 4 )
                             } else {
                                 Rectangle()
                                     .fill(Color.white)
                                     .overlay(alignment: .leading) { Text(planTitle) }
                                     .foregroundStyle(.black)
                                     .frame(width: viewStore.gridWidth * 2, height: height / 2)
-                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 - viewStore.lineAreaGridHeight / 4)
+                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: isStartRowSmaller ? CGFloat(selectedGridRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight - viewStore.lineAreaGridHeight / 4 : CGFloat(selectedGridRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight - viewStore.lineAreaGridHeight / 4 )
                             }
                             Rectangle()
                                 .fill(Color.red.opacity(0.8))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
                                 .frame(width: width * viewStore.gridWidth, height: height)
-                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 + viewStore.lineAreaGridHeight / 2)
+                            //                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 + viewStore.lineAreaGridHeight / 2)
+                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
+                                          y: isStartRowSmaller ? CGFloat(selectedGridRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                            CGFloat(selectedGridRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2)
+                            
                         }
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
