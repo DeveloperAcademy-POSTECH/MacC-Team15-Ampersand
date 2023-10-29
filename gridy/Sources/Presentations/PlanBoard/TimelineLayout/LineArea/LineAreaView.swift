@@ -59,8 +59,8 @@ struct LineAreaView: View {
                                     startDate: startDate,
                                     endDate: endDate
                                 ))
-                                isTextFieldEditing = true
-                                isTextFieldFocused = true
+                                isTextFieldEditing = true /// TextField와 입력된 Text가 보여지는 형태를 구분하기 위함.
+                                isTextFieldFocused = true /// TextField가 열리자마자 바로 입력될 수 있게하기 위함.
                             }
                         } label: {
                             Text("create Plan")
@@ -156,24 +156,24 @@ struct LineAreaView: View {
                     
                     Group {
                         ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
-                            let today = Date().filteredDate
-                            let height = viewStore.lineAreaGridHeight
-                            let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                            let width = CGFloat(dayDifference + 1)
-                            let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
+                            let today = Date().filteredDate /// 초 단위까지의 시간을 제외하고, 일 단위로의 시간을 today에 할당
+                            let height = viewStore.lineAreaGridHeight /// RightToolBar에서 조정 가능한 그리드의 셀 높이를 height에 할당
+                            let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate) /// (뒷날짜 - 앞날짜) 값을 dayDifference에 할당
+                            let width = CGFloat(dayDifference + 1) /// dayDifference + 1가 너비. width에 할당
+                            let position = CGFloat(selectedRange.start.integerDate - today.integerDate) /// (앞날짜 - 오늘) 값을 position에 할당
                             if isTextFieldEditing {
                                 TextField("", text: $planTitle, axis: .vertical)
                                     .onSubmit { isTextFieldEditing = false }
                                     .onExitCommand { isTextFieldEditing = false }
                                     .focused($isTextFieldFocused)
                                     .foregroundStyle(.black)
-                                    .frame(width: viewStore.gridWidth * 2, height: height / 2)
-                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
-                                              y: 100 - height / 4 )
+                                    .frame(width: viewStore.gridWidth * 2, height: height / 2) /// 너비는 셀 두개, 높이는 셀 반개의 크기를 가진다.
+                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,  /// RedRectangle과 왼쪽 정렬을 맞추기 위함.
+                                              y: 100 - height / 4) /// Red Rectangle 바로 위에 붙게 하기 위함.
                             } else {
                                 Rectangle()
                                     .fill(Color.white)
-                                    .overlay(alignment: .leading) { Text(planTitle) }
+                                    .overlay(alignment: .leading) { Text(planTitle) } /// 입력한 text가 TextField와 같은 위치에 배치되게 하기 위함.
                                     .foregroundStyle(.black)
                                     .frame(width: viewStore.gridWidth * 2, height: height / 2)
                                     .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
@@ -182,9 +182,9 @@ struct LineAreaView: View {
                             Rectangle()
                                 .fill(Color.red.opacity(0.8))
                                 .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
-                                .frame(width: width * viewStore.gridWidth, height: height)
-                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
-                                          y: 100 + height / 2)
+                                .frame(width: width * viewStore.gridWidth, height: height) /// 조정되는 그리드 사이즈에 맞춰 frame 지정.
+                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, /// position에 Rectangle 너비 절반을 더해서 중앙점 배치.
+                                          y: 100 + height / 2) /// 우선 100에 height의 절반을 더해서 중앙점 배치.
                             
                         }
                         if let temporaryRange = temporarySelectedGridRange {
@@ -336,6 +336,8 @@ struct LineAreaView: View {
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
+                            print("@#$#@#$#@#$#@#$#@#$#@#$#@#$#@#$#@#$@43")
+                            print(viewStore.selectedGridRanges)
                             if let newRange = temporarySelectedGridRange {
                                 temporarySelectedGridRange = nil
                             }
