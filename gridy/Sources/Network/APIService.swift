@@ -71,7 +71,7 @@ struct APIService {
         self.createPlan = createPlan
         self.deletePlan = deletePlan
         self.updatePlan = updatePlan
-        self.readAllPlans = readAllPlans 
+        self.readAllPlans = readAllPlans
         
         self.createLane = createLane
         self.deleteLane = deleteLane
@@ -115,6 +115,45 @@ extension APIService {
         return try projectCollectionPath.document(projectID).collection("Lanes")
     }
     
+    /// 비우기만
+    static func emptyOutPlanWithAllChild(
+        currentPlan: Plan,
+        currentLayerIndex: Int,
+        _ projectMap: inout [String: [String]],
+        projectID: String
+    ) async throws {
+        for laneID in currentPlan.laneIDs {
+            /// plan이 가진 lane들에 속한 plan을 먼저 삭제, 재귀적으로 최하위까지 비움
+            let currentLane = try await laneCollectionPath(projectID).document(laneID).getDocument(as: Lane.self)
+            if let childIDs = currentLane.childIDs {
+                for planID in childIDs {
+                    let nextPlan = try await planCollectionPath(projectID).document(planID).getDocument(as: Plan.self)
+                    try await emptyOutPlanWithAllChild(
+                        currentPlan: nextPlan,
+                        currentLayerIndex: currentLayerIndex + 1,
+                        &projectMap,
+                        projectID: projectID
+                    )
+                    if laneID == currentPlan.laneIDs.first,
+                       planID == childIDs.first {
+                        let emptyData = [
+                            "periods": nil,
+                            "planTypeID": nil
+                        ] as [String: Any?]
+                        try await planCollectionPath(projectID).document(planID).updateData(emptyData as [String: Any])
+                    } else {
+                        try await planCollectionPath(projectID).document(planID).delete()
+                        projectMap["\(currentLayerIndex)"]!.remove(at: projectMap["\(currentLayerIndex)"]!.firstIndex(of: currentPlan.id)!)
+                    }
+                }
+            }
+            /// 하나의 lane(첫 lane)은 제외하고 나머지 lane들은 삭제
+            if laneID == currentPlan.laneIDs.first! { continue }
+            try await laneCollectionPath(projectID).document(laneID).delete()
+        }
+    }
+    
+    /// 싹 삭제
     static func deletePlanWithAllChild(
         currentPlan: Plan,
         currentLayerIndex: Int,
@@ -134,12 +173,13 @@ extension APIService {
                         projectID: projectID
                     )
                     try await planCollectionPath(projectID).document(planID).delete()
+                    projectMap["\(currentLayerIndex)"]!.remove(at: projectMap["\(currentLayerIndex)"]!.firstIndex(of: currentPlan.id)!)
                 }
             }
-            /// lane들을 삭제
+            /// 하나의 lane(첫 lane)은 제외하고 나머지 lane들은 삭제
+            if laneID == currentPlan.laneIDs.first { continue }
             try await laneCollectionPath(projectID).document(laneID).delete()
         }
-        projectMap["\(currentLayerIndex)"]!.remove(at: projectMap["\(currentLayerIndex)"]!.firstIndex(of: currentPlan.id)!)
     }
     
     static let liveValue = Self(
@@ -168,7 +208,6 @@ extension APIService {
             } catch {
                 throw APIError.noResponseResult
             }
-            
         },
         updateProjectTitle: { id, newTitle in
             try projectCollectionPath.document(id).updateData(["title": newTitle])
@@ -225,8 +264,7 @@ extension APIService {
                         "periods": []] as [String: Any?]
             try await laneCollectionPath(projectID).document(newLaneID).setData(data as [String: Any])
             
-            /// lane에 생성된 id를 추가
-            /// 이 동작은 lane이 이미 존재한다는 전제 하에 있음: lane을 추가하려 했으면 lane 추가 액션에서 이미 생성되어 있어야 함
+            /// parentPlanID를 조회
             var parentPlanID: String?
             if let parentLaneID = target.parentLaneID {
                 parentPlanID = try await laneCollectionPath(projectID).document(parentLaneID).getDocument(as: Lane.self).ownerID
@@ -238,14 +276,22 @@ extension APIService {
             let currentLayerCount = map.count
             if layerIndex >= currentLayerCount {
                 var upperLaneID: String?
+                var rowIndex = -1
                 for newLayerIndex in currentLayerCount...layerIndex {
                     map["\(newLayerIndex)"] = []
                     /// 생겨난 레이어에도 이전 최하위 레어어의 플랜만큼 만들어줌
                     if let prevLayer = map["\(newLayerIndex-1)"] {
                         for index in 0..<prevLayer.count {
-                            /// 범위 외에 있다면
+                            if let parentPlanID = parentPlanID,
+                               newLayerIndex == currentLayerCount,
+                               prevLayer[index] == parentPlanID {
+                                // 첫 순회때 새 플랜이 생성될 row 인덱스 조회
+                                rowIndex = index
+                            }
                             let prevLayerPlanID = prevLayer[index]
-                            var dummyPlan = Plan(id: targetID, periods: [:], laneIDs: [newLaneID])
+                            
+                            let newPlanID = (layerIndex == newLayerIndex && rowIndex == index) ? targetID : try planCollectionPath(projectID).document().documentID
+                            var dummyPlan = Plan(id: newPlanID, periods: [:], laneIDs: [newLaneID])
                             
                             if prevLayerPlanID == parentPlanID,
                                newLayerIndex == layerIndex {
@@ -254,19 +300,19 @@ extension APIService {
                             }
                             let newLaneID = try laneCollectionPath(projectID).document().documentID
                             
-                            data = ["id": targetID,
+                            data = ["id": dummyPlan.id,
                                     "planTypeID": dummyPlan.planTypeID,
                                     "parentLaneID": dummyPlan.parentLaneID,
                                     "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
                                     "description": dummyPlan.description,
                                     "laneIDs": [newLaneID]] as [String: Any?]
                             
-                            try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
+                            try await planCollectionPath(projectID).document(dummyPlan.id).setData(data as [String: Any])
                             try await laneCollectionPath(projectID).document(newLaneID).setData(["id": newLaneID, "ownerID": dummyPlan.id])
                             if let upperLaneID = upperLaneID {
                                 try await laneCollectionPath(projectID).document(upperLaneID).updateData(["childIDs": dummyPlan.id])
                             }
-                            map["\(newLayerIndex)"]![index] = targetID
+                            map["\(newLayerIndex)"]![index] = dummyPlan.id
                             
                             if prevLayerPlanID == parentPlanID {
                                 parentPlanID = prevLayerPlanID
@@ -280,44 +326,43 @@ extension APIService {
             }
             
             /// 새로운 레인을 생성하는 경우 == parentLane이 없는 경우
-            var prevLayerLaneID: String?
             if parentPlanID == nil {
-                for currentLayerIndex in 0..<currentLayerCount {
-                    let newLaneID = try laneCollectionPath(projectID).document().documentID
-                    var dummyPlan = Plan(id: targetID, periods: [:], laneIDs: [newLaneID])
-                    if currentLayerIndex == layerIndex {
-                        dummyPlan = target
-                        dummyPlan.laneIDs = [newLaneID]
-                    }
-                    try await laneCollectionPath(projectID).document(newLaneID).setData(["id": newLaneID, "ownerID": dummyPlan.id])
-                    if let prevLayerLaneID = prevLayerLaneID {
-                        try await laneCollectionPath(projectID).document(prevLayerLaneID).updateData(["childIDs": FieldValue.arrayUnion([dummyPlan.id])])
-                    }
+                if layerIndex == 0 { /// root인 경우
+                    map["0"]!.append(targetID)
                     data = ["id": targetID,
-                            "planTypeID": dummyPlan.planTypeID,
-                            "parentLaneID": dummyPlan.parentLaneID,
-                            "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
-                            "description": dummyPlan.description,
+                            "planTypeID": target.planTypeID,
+                            "parentLaneID": target.parentLaneID,
+                            "periods": target.periods.count == 0 ? [:] : ["0": target.periods[0]],
+                            "description": target.description,
                             "laneIDs": [newLaneID]] as [String: Any?]
+                    
                     try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
-                    prevLayerLaneID = newLaneID
-                    map["\(currentLayerIndex)"]!.append(dummyPlan.id)
-                    if currentLayerIndex == layerIndex-1 {
-                        parentPlanID = dummyPlan.id
+                } else { /// root가 아니고 parentLane이 없는 경우
+                    var prevLayerLaneID: String?
+                    for currentLayerIndex in 0...layerIndex {
+                        let newLaneID = try laneCollectionPath(projectID).document().documentID
+                        var dummyPlan = Plan(id: try planCollectionPath(projectID).document().documentID, periods: [:], laneIDs: [newLaneID])
+                        if currentLayerIndex == layerIndex {
+                            dummyPlan = target
+                            dummyPlan.id = targetID
+                            dummyPlan.laneIDs = [newLaneID]
+                        }
+                        try await laneCollectionPath(projectID).document(newLaneID).setData(["id": newLaneID, "ownerID": dummyPlan.id])
+                        if let prevLayerLaneID = prevLayerLaneID {
+                            try await laneCollectionPath(projectID).document(prevLayerLaneID).updateData(["childIDs": FieldValue.arrayUnion([dummyPlan.id])])
+                        }
+                        data = ["id": targetID,
+                                "planTypeID": dummyPlan.planTypeID,
+                                "parentLaneID": dummyPlan.parentLaneID,
+                                "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
+                                "description": dummyPlan.description,
+                                "laneIDs": [newLaneID]] as [String: Any?]
+                        try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
+                        prevLayerLaneID = newLaneID
+                        map["\(currentLayerIndex)"]!.append(dummyPlan.id)
                     }
                 }
-                try await projectCollectionPath.document(projectID).updateData(["map": map])
-                return map
             }
-            
-            data = ["id": targetID,
-                    "planTypeID": target.planTypeID,
-                    "parentLaneID": target.parentLaneID,
-                    "periods": target.periods.count == 0 ? [:] : ["0": target.periods[0]],
-                    "description": target.description,
-                    "laneIDs": [newLaneID]] as [String: Any?]
-            try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
-            try await laneCollectionPath(projectID).document(target.parentLaneID!).updateData(["childIDs": FieldValue.arrayUnion([targetID])])
             try await projectCollectionPath.document(projectID).updateData(["map": map])
             return map
         },
@@ -325,27 +370,52 @@ extension APIService {
             let currentPlan = try await planCollectionPath(projectID).document(planID).getDocument(as: Plan.self)
             var projectMap = try await projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             if deleteAll {
-                /// 하위 레이어의 자식 plan들을 모두 삭제하는 경우
-                try await APIService.deletePlanWithAllChild(
-                    currentPlan: currentPlan,
-                    currentLayerIndex: layerIndex,
-                    &projectMap,
-                    projectID: projectID
-                )
-                
-                /// plan이 속해있던 parentLane에서 삭제
+                /// plan이 속해있던 parent의 childPlan의 개수가 2이상이라면 아예 삭제
+                /// childPlan의 개수를 알아보자 ..;;
+                var parentsChildsID = Set<String>()
                 if let parentLaneID = currentPlan.parentLaneID {
-                    if var parentLaneChildIDs = try await laneCollectionPath(projectID).document(parentLaneID).getDocument(as: Lane.self).childIDs {
-                        let childIDsWithoutTargetPlanID = parentLaneChildIDs.remove(at: parentLaneChildIDs.firstIndex(of: planID)!)
-                        try await laneCollectionPath(projectID).document(parentLaneID).updateData(["childIDs": childIDsWithoutTargetPlanID])
+                    let parentPlanID = try await laneCollectionPath(projectID).document(parentLaneID).getDocument(as: Lane.self).ownerID
+                    let parentsLaneIDs = try await planCollectionPath(projectID).document(parentPlanID).getDocument(as: Plan.self).laneIDs
+                    for parentsLaneID in parentsLaneIDs {
+                        if let currentLanesChildIDs = try await laneCollectionPath(projectID).document(parentsLaneID).getDocument(as: Lane.self).childIDs {
+                            for currentLanesChildID in currentLanesChildIDs {
+                                parentsChildsID.insert(currentLanesChildID)
+                            }
+                        }
+                        if parentsChildsID.count > 1 { break }
                     }
                 }
-                /// plan을 삭제
-                try await planCollectionPath(projectID).document(planID).delete()
+                
+                if parentsChildsID.count > 1 {
+                    /// 하위 레이어의 자식 plan들을 모두 삭제하는 경우
+                    try await APIService.deletePlanWithAllChild(
+                        currentPlan: currentPlan,
+                        currentLayerIndex: layerIndex,
+                        &projectMap,
+                        projectID: projectID
+                    )
+                    try await planCollectionPath(projectID).document(planID).delete()
+                    projectMap["\(layerIndex)"]!.remove(at: projectMap["\(layerIndex)"]!.firstIndex(of: planID)!)
+                } else {
+                    /// parent plan이 가진 plan이 이것 하나뿐이기 때문에 타겟 플랜은 비우기만 하는데 ... 자식들은 싹 다 하나만 남겨야되네
+                    try await APIService.emptyOutPlanWithAllChild(
+                        currentPlan: currentPlan,
+                        currentLayerIndex: layerIndex,
+                        &projectMap,
+                        projectID: projectID
+                    )
+                     let emptyData = [
+                         "periods": nil,
+                         "planTypeID": nil
+                     ] as [String: Any?]
+                     try await planCollectionPath(projectID).document(planID).updateData(emptyData as [String: Any])
+                }
             } else {
-                /// 하위 레이어는 남겨두는 경우 == periods만 삭제
-                try await planCollectionPath(projectID).document(planID).updateData(["periods": [:]])
+                /// 하위 레이어는 남겨두는 경우 == periods, type만 삭제
+                let emptyData = ["periods": nil, "planTypeID": nil] as [String: Any?]
+                try await planCollectionPath(projectID).document(planID).updateData(emptyData as [String: Any])
             }
+            try await projectCollectionPath.document(projectID).updateData(["map": projectMap])
             return projectMap
         },
         updatePlan: { planID, planTypeID, projectID in
@@ -434,7 +504,7 @@ extension APIService {
                                 try await laneCollectionPath(projectID).document(newLaneID).setData(["id": newLaneID, "ownerID": newPlan.id])
                             }
                         }
-                        for currentLayerIndex in stride(from: projectMap.count-1, through: 0, by: -1) {
+                        for currentLayerIndex in stride(from: projectMap.count-1, through: -1, by: -1) {
                             projectMap["\(currentLayerIndex + 1)"] = projectMap["\(currentLayerIndex)"]
                         }
                         projectMap["0"] = newFirstLayer
