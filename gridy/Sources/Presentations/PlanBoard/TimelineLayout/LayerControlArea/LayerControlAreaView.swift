@@ -84,7 +84,9 @@ struct LayerControlAreaView: View {
 }
 
 #Preview {
-    LayerControlAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
+    LayerControlAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
+        PlanBoard()
+    })
 }
 
 struct LayerControlComponent: View {

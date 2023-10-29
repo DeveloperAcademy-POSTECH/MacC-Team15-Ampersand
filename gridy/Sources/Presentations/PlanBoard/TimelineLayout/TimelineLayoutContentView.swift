@@ -30,7 +30,7 @@ struct TimelineLayoutContentView: View {
                     .frame(width: 35)
                     
                     VStack(alignment: .leading, spacing: 0) {
-                        BlackPinkInYourAreaView()
+                        BlackPinkInYourAreaView(store: store)
                             .frame(height: 160)
                         Rectangle()
                             .foregroundStyle(.white)
