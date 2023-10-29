@@ -47,6 +47,6 @@ struct ScheduleAreaView: View {
 
 struct ScheduleAreaView_Previews: PreviewProvider {
     static var previews: some View {
-        ScheduleAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
+        ScheduleAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
     }
 }

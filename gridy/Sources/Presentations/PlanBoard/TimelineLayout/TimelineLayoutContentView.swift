@@ -16,7 +16,7 @@ struct TimelineLayoutContentView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }){ viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .top, spacing: 0) {
                 if showingIndexArea {
                     VStack(spacing: 0) {
@@ -32,7 +32,7 @@ struct TimelineLayoutContentView: View {
                     .zIndex(1)
                 }
                 VStack(alignment: .leading, spacing: 0) {
-                    BlackPinkInYourAreaView()
+                    BlackPinkInYourAreaView(store: store)
                         .frame(height: 200)
                     ListAreaView(store: store)
                 }
@@ -43,7 +43,7 @@ struct TimelineLayoutContentView: View {
                         ZStack(alignment: .bottom) {
                             ScheduleAreaView(store: store)
                                 .frame(height: 200)
-                
+                            
                             TimeAxisAreaView(store: store)
                                 .frame(height: 80)
                         }

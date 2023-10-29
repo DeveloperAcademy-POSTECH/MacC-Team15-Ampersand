@@ -10,14 +10,10 @@ import ComposableArchitecture
 
 struct ProjectItemView: View {
     let store: StoreOf<ProjectItem>
-    // TODO: - 삭제될 것
-
-    @State var tag: Int?
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
-                // TODO: NavigationLink 방식은 Store 이용하기
                 NavigationLink(
                     isActive: viewStore.binding(
                         get: \.isNavigationActive,
@@ -38,11 +34,10 @@ struct ProjectItemView: View {
                     EmptyView()
                 }
                 RoundedRectangle(cornerRadius: 6)
-                    .frame(height: 108)
                     .foregroundStyle(.white)
+                    .frame(height: 108)
                 RoundedRectangle(cornerRadius: 6)
                     .stroke(viewStore.isTapped ? .blue : .clear)
-                    .frame(height: 108)
                     .overlay {
                         VStack(alignment: .leading, spacing: 0) {
                             HStack(alignment: .center, spacing: 0) {
@@ -95,6 +90,7 @@ struct ProjectItemView: View {
                             .padding(.bottom, 9)
                         }
                     }
+                    .frame(height: 108)
             }
             .contextMenu {
                 Button {
@@ -125,6 +121,7 @@ struct ProjectItemView: View {
                 viewStore.send(.setNavigation(isActive: true))
             }))
             .scaleEffect(viewStore.isHovering ? 1.03 : 1)
+            
         }
     }
 }
