@@ -121,7 +121,6 @@ struct ProjectItemView: View {
                 viewStore.send(.setNavigation(isActive: true))
             }))
             .scaleEffect(viewStore.isHovering ? 1.03 : 1)
-            
         }
     }
 }

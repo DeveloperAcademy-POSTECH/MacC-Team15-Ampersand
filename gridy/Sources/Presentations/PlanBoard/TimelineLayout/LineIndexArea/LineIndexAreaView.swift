@@ -13,9 +13,8 @@ struct LineIndexAreaView: View {
         ZStack {
             Rectangle()
                 .foregroundStyle(.white)
-                .border(.black)
+                .border(.gray)
             Text("LineIndexArea")
-                .frame(width: 35)
                 .frame(maxHeight: .infinity)
         }
     }

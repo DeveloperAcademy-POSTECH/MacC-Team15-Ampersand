@@ -13,9 +13,8 @@ struct ScheduleIndexAreaView: View {
         ZStack {
             Rectangle()
                 .foregroundStyle(.white)
-                .border(.black)
+                .border(.gray)
             Text("ShceduleIndexArea")
-                .frame(width: 35, height: 140)
         }
     }
 }
