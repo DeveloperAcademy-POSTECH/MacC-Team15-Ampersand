@@ -12,6 +12,7 @@ struct TimelineLayoutView: View {
     
     let store: StoreOf<PlanBoard>
     @State private var showingRightToolBarArea = true
+    // TODO: - 쓰지 않는 토글기능임이 확정되면 변수와 하트 지우기
     @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
     
@@ -22,7 +23,7 @@ struct TimelineLayoutView: View {
                     .navigationSplitViewColumnWidth(min: 240, ideal: 240, max: 480)
             } detail: {
                 HSplitView {
-                    TimelineLayoutContentView(showingIndexArea: $showingIndexArea, proxy: $proxy, store: store)
+                    TimelineLayoutContentView(proxy: $proxy, store: store)
                     
                     if showingRightToolBarArea {
                         RightToolBarAreaView(proxy: $proxy, store: store)
