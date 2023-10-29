@@ -126,8 +126,13 @@ struct ListAreaView: View {
                                     // MARK: - ListItemSection
                                     /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌
                                     if viewStore.map.count > 0 {
-                                        ForEach(0..<viewStore.map[String(layer)]!.count) { _ in
-                                            ListItemView(store: store)
+                                        ForEach(0..<viewStore.map[String(layer)]!.count) { row in
+                                            Color.clear.onAppear {
+                                                print(viewStore.map)
+                                                print("# at layer: \(layer)")
+                                                print(viewStore.map[String(layer)]!.count)
+                                            }
+                                            ListItemView(store: store, layerIndex: layer, rowIndex: row)
                                         }
                                     }
                                     
@@ -135,7 +140,7 @@ struct ListAreaView: View {
                                     // TODO: showingRows->maxRow 변화할 때마다 업데이트
                                     /// 그 아래에 빈 listItemView를 뿌려주어서 Plan 생성이 가능하도록 함
                                     ForEach(0..<viewStore.showingRows) { _ in
-                                        ListItemEmptyView(store: store)
+                                        ListItemEmptyView(store: store, layerIndex: layer)
                                     }
                                 }
                                 .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
