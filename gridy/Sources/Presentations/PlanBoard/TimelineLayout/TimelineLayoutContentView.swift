@@ -15,9 +15,9 @@ struct TimelineLayoutContentView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        WithViewStore(store, observe: { $0 }) { _ in
             VStack(spacing: 0) {
-                // MARK: - layerControlArea 상단
+                // MARK: - Above the LayerControlArea
                 HStack(alignment: .top, spacing: 0) {
                     VStack(alignment: .leading, spacing: 0) {
                         ScheduleIndexAreaView()
@@ -52,12 +52,12 @@ struct TimelineLayoutContentView: View {
                 .frame(height: 200)
                 .zIndex(1)
                 
-                // MARK: - layerControlArea
+                // MARK: - LayerControlArea
                 LayerControlAreaView(store: store)
                     .frame(height: 32)
                     .zIndex(1)
                 
-                // MARK: - layerControlArea 하단
+                // MARK: - Below the LayerControlArea
                 HStack(alignment: .top, spacing: 0) {
                     LineIndexAreaView()
                         .frame(width: 35)

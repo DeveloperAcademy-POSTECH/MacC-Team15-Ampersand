@@ -59,14 +59,12 @@ struct ListAreaView: View {
                     
                     // MARK: - ListArea Contents
                     VStack(spacing: 0) {
-                        // MARK: - ListItem Section
                         HStack(alignment: .top, spacing: 2) {
                             ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
                                 VStack(alignment: .leading, spacing: 0) {
                                     let layer = viewStore.showingLayers[forIndex]
                                     let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
                                     
-                                    // MARK: - ListItemSection
                                     /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌
                                     if viewStore.map.count > 0 {
                                         ForEach(0..<viewStore.map[String(layer)]!.count) { _ in

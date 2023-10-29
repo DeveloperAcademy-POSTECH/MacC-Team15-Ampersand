@@ -13,7 +13,7 @@ struct LayerControlAreaView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore (store, observe: { $0 }) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 VStack {
                     Spacer()
@@ -59,8 +59,13 @@ struct LayerControlAreaView: View {
                         }
                         
                         LayerControlButton(componentWidth: geometry.size.width - 336) {
-                            Text("Layer")
+                            let lastShowingLayer = viewStore.showingLayers.last!
+                            let totalLayers = viewStore.map.count
+                            let haveMoreLayer = lastShowingLayer < (totalLayers - 1)
+        
+                            Text(haveMoreLayer ? "Layer \(lastShowingLayer + 1)" : "Add a layer")
                                 .font(.custom("Pretendard-Medium", size: 12))
+                                .foregroundStyle(haveMoreLayer ? .black : .gray)
                         }
                         
                         // MARK: - < 엎기
