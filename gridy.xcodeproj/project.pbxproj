@@ -20,6 +20,7 @@
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
 		975A62132ACE970800DE31AB /* DayGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62122ACE970800DE31AB /* DayGridView.swift */; };
+		9784DB542AECEB88002EB52F /* LayerControlAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */; };
 		97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemView.swift */; };
 		97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */; };
 		97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C419DB2AE2CAEB00501321 /* ListAreaView.swift */; };
@@ -97,6 +98,7 @@
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
 		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
+		9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerControlAreaView.swift; sourceTree = "<group>"; };
 		97806BB42AE15ACC0044FA0C /* ListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemView.swift; sourceTree = "<group>"; };
 		97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDatePickerView.swift; sourceTree = "<group>"; };
 		97C419DB2AE2CAEB00501321 /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
@@ -193,6 +195,14 @@
 				AD2F7A082ADD5BD2006201AB /* Lane.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		9784DB522AECEB66002EB52F /* LayerControlArea */ = {
+			isa = PBXGroup;
+			children = (
+				9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */,
+			);
+			path = LayerControlArea;
 			sourceTree = "<group>";
 		};
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
@@ -348,6 +358,7 @@
 				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
 				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
 				EE909A522AC3CECD00C9AAF0 /* BlackPinkInYourArea */,
+				9784DB522AECEB66002EB52F /* LayerControlArea */,
 				EE909A512AC3CEC600C9AAF0 /* ListArea */,
 				EE909A502AC3CEBE00C9AAF0 /* LineArea */,
 				EE909A4F2AC3CEAE00C9AAF0 /* LineIndexArea */,
@@ -576,6 +587,7 @@
 				AD52FE9F2AC965EF00AA001F /* User.swift in Sources */,
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
 				AD2F7A092ADD5BD2006201AB /* Lane.swift in Sources */,
+				9784DB542AECEB88002EB52F /* LayerControlAreaView.swift in Sources */,
 				EE909A6E2AC3D4E900C9AAF0 /* ScheduleIndexAreaView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
