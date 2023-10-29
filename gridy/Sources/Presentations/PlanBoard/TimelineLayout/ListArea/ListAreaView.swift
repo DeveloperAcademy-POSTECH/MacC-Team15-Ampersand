@@ -66,29 +66,27 @@ struct ListAreaView: View {
                             )
                     } else {
                         // MARK: - ListArea Contents
-                        VStack(spacing: 0) {
-                            HStack(alignment: .top, spacing: 2) {
-                                ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        let layer = viewStore.showingLayers[forIndex]
-                                        let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
-                                        
-                                        /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌
-                                        if viewStore.map.count > 0 {
-                                            ForEach(0..<viewStore.map[String(layer)]!.count) { row in
-                                                ListItemView(store: store, layerIndex: layer, rowIndex: row)
-                                            }
-                                        }
-                                        
-                                        // TODO: map이 가진 lane수가 viewStore.showingRows보다 크면 showingRows를 lane개수 + showingRows로 업데이트
-                                        // TODO: showingRows->maxRow 변화할 때마다 업데이트
-                                        /// 그 아래에 빈 listItemView를 뿌려주어서 Plan 생성이 가능하도록 함
-                                        ForEach(0..<viewStore.showingRows) { _ in
-                                            ListItemEmptyView(store: store, layerIndex: layer)
+                        HStack(alignment: .top, spacing: 2) {
+                            ForEach(Array(viewStore.showingLayers.indices), id: \.self) { forIndex in
+                                VStack(alignment: .leading, spacing: 0) {
+                                    let layer = viewStore.showingLayers[forIndex]
+                                    let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
+                                    
+                                    /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌
+                                    if viewStore.map.count > 0 {
+                                        ForEach(Array(viewStore.map[String(layer)]!.indices), id: \.self) { row in
+                                            ListItemView(store: store, layerIndex: layer, rowIndex: row)
                                         }
                                     }
-                                    .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count]![forIndex])
+                                    
+                                    // TODO: map이 가진 lane수가 viewStore.showingRows보다 크면 showingRows를 lane개수 + showingRows로 업데이트
+                                    // TODO: showingRows->maxRow 변화할 때마다 업데이트
+                                    /// 그 아래에 빈 listItemView를 뿌려주어서 Plan 생성이 가능하도록 함
+                                    ForEach(0..<viewStore.showingRows) { _ in
+                                        ListItemEmptyView(store: store, layerIndex: layer)
+                                    }
                                 }
+                                .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count]![forIndex])
                             }
                         }
                     }

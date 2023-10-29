@@ -103,6 +103,7 @@ struct ListItemEmptyView: View {
                                     ))
                                     isEditing = false
                                     isTextFieldFocused = false
+                                    editingText = ""
                                 }
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Medium", size: fontSize))
