@@ -25,11 +25,11 @@ struct ListAreaView: View {
                             /// 현재 보여주고 있는 layer 수
                             let numOfShowingLayers = viewStore.showingLayers.count
                             /// 현재 보여주고 있는 layer 수에 따른 col의 너비 값을 저장한 배열.
-                            let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers-1]
+                            let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers]!
                             
                             var xLocation = CGFloat.zero
                             
-                            for forIndex in 0..<numOfShowingLayers {
+                            for forIndex in 0..<currentColsWidthArray.count {
                                 xLocation += (forIndex == 0 ? 0 : currentColsWidthArray[forIndex-1] + 2)
                                 path.move(to: CGPoint(x: xLocation, y: yLocation))
                                 path.addLine(to: CGPoint(x: xLocation + currentColsWidthArray[forIndex], y: yLocation))
@@ -42,9 +42,9 @@ struct ListAreaView: View {
                         /// 현재 보여주고 있는 layer 수
                         let numOfShowingLayers = viewStore.showingLayers.count
                         /// 현재 보여주고 있는 layer 수에 따른 col의 너비 값을 저장한 배열.
-                        let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers-1]
+                        let currentColsWidthArray = viewStore.listColumnWidth[numOfShowingLayers]!
                         /// 2n - 1: 2 col 보여줄 땐 줄 3개, 3col 보여줄 땐 줄 5개
-                        let numOfStrokes = 2 * numOfShowingLayers - 1
+                        let numOfStrokes = numOfShowingLayers == 0 ? 1 : 2 * numOfShowingLayers - 1
                         
                         var xLocation = CGFloat.zero
                         
@@ -79,7 +79,7 @@ struct ListAreaView: View {
                                         ListItemEmptyView(store: store)
                                     }
                                 }
-                                .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex])
+                                .frame(width: viewStore.listColumnWidth[viewStore.showingLayers.count]![forIndex])
                             }
                         }
                     }

@@ -28,38 +28,46 @@ struct LayerControlAreaView: View {
                                 .showLowerLayer
                             )
                         }
-                        .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
+                        .disabled(viewStore.showingLayers.isEmpty)
                         .padding(.leading, 4)
                         
                         // MARK: - Layer Index
-                        ForEach(viewStore.showingLayers.indices, id: \.self) { forIndex in
-                            let layer = viewStore.showingLayers[forIndex]
-                            let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
-                            
-                            LayerControlButton(componentWidth: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex]) {
-                                Text(showingAtFirst ? "L\(layer)": "Layer\(layer)")
+                        if viewStore.showingLayers.isEmpty {
+                            LayerControlButton(componentWidth: viewStore.listColumnWidth[0]![0]) {
+                                Text("Add a layer")
                                     .font(.custom("Pretendard-Medium", size: 12))
+                                    .foregroundStyle(.gray)
                             }
-                            .contextMenu {
-                                Button {
-                                    viewStore.send(
-                                        .createLayer(layerIndex: layer - 1)
-                                    )
-                                } label: {
-                                    Text("Add a lower layer")
+                        } else {
+                            ForEach(viewStore.showingLayers.indices, id: \.self) { forIndex in
+                                let layer = viewStore.showingLayers[forIndex]
+                                let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
+                                
+                                LayerControlButton(componentWidth: viewStore.listColumnWidth[viewStore.showingLayers.count]![forIndex]) {
+                                    Text(showingAtFirst ? "L\(layer)": "Layer\(layer)")
+                                        .font(.custom("Pretendard-Medium", size: 12))
                                 }
-                                Button {
-                                    viewStore.send(
-                                        .createLayer(layerIndex: layer)
-                                    )
-                                } label: {
-                                    Text("Add a upper layer")
+                                .contextMenu {
+                                    Button {
+                                        viewStore.send(
+                                            .createLayer(layerIndex: layer - 1)
+                                        )
+                                    } label: {
+                                        Text("Add a lower layer")
+                                    }
+                                    Button {
+                                        viewStore.send(
+                                            .createLayer(layerIndex: layer)
+                                        )
+                                    } label: {
+                                        Text("Add a upper layer")
+                                    }
                                 }
                             }
                         }
                         
                         LayerControlButton(componentWidth: geometry.size.width - 336) {
-                            let lastShowingLayer = viewStore.showingLayers.last!
+                            let lastShowingLayer = viewStore.showingLayers.isEmpty ? -1 : viewStore.showingLayers.last!
                             let totalLayers = viewStore.map.count
                             let haveMoreLayer = lastShowingLayer < (totalLayers - 1)
         

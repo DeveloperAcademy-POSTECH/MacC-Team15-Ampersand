@@ -75,7 +75,7 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         var showingLayers = [0]
         var showingRows = 20
-        var listColumnWidth: [[CGFloat]] = [[266.0], [132.0, 132.0], [24.0, 119.0, 119.0]]
+        var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
     }
     
     enum Action: Equatable {
@@ -264,7 +264,7 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - listArea
             case .showUpperLayer:
-                let lastShowingIndex = state.showingLayers.last!
+                let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
                 if state.showingLayers.count < 3 {
                     state.showingLayers.append(lastShowingIndex + 1)
                 } else {
