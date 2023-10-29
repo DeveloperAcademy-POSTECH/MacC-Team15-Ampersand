@@ -58,32 +58,7 @@ struct ListAreaView: View {
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
                     // MARK: - ListArea Contents
-                    VStack(spacing: 0) {
-                        // MARK: - LayerIndex Section
-                        // TODO: - 이 액션 LayerIndex Area 나오면 옮기기. 지금은 temp.
-                        HStack {
-                            Button {
-                                viewStore.send(
-                                    .showLowerLayer
-                                )
-                            } label: {
-                                Text(">> 엎기")
-                            }
-                            .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
-                            
-                            Spacer()
-                            
-                            Button {
-                                viewStore.send(
-                                    .showUpperLayer
-                                )
-                            } label: {
-                                Text("엎기 <<")
-                            }
-                            .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
-                        }
-                        .frame(height: viewStore.lineAreaGridHeight / 2)
-                        
+                    VStack(spacing: 0) {                        
                         // MARK: - ListItem Section
                         HStack(alignment: .top, spacing: 2) {
                             ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in

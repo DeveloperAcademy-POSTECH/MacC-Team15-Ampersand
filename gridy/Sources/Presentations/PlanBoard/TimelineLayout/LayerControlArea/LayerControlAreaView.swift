@@ -25,8 +25,11 @@ struct LayerControlAreaView: View {
                                     .font(.custom("Pretendard-Medium", size: 12))
                             )
                             .onTapGesture {
-                                // TODO: - 엎기
+                                viewStore.send(
+                                    .showLowerLayer
+                                )
                             }
+                            .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
                             .padding(.leading, 4)
                         
                         // TODO: - width showingColumns에 따라 조절
@@ -73,8 +76,11 @@ struct LayerControlAreaView: View {
                                     .font(.custom("Pretendard-Medium", size: 12))
                             )
                             .onTapGesture {
-                                // TODO: - 엎기
+                                viewStore.send(
+                                    .showUpperLayer
+                                )
                             }
+                            .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                             .padding(.trailing, 4)
                     }
                 }
