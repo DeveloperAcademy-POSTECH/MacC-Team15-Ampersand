@@ -161,11 +161,6 @@ struct LineAreaView: View {
                             let today = Date().filteredDate /// 초 단위까지의 시간을 제외하고, 일 단위로의 시간을 today에 할당
                             let height = viewStore.lineAreaGridHeight /// RightToolBar에서 조정 가능한 그리드의 셀 높이를 height에 할당
 //                            let dayDifference = CGFloat(plan.periods[0][1].integerDate - plan.periods[0][0].integerDate) /// (뒷날짜 - 앞날짜) 값을 dayDifference에 할당
-                            Color.clear.onAppear {
-                                print("!@#@!@#@!@#@!@#@!@#!@")
-                                print(planID)
-                                print(plan)
-                            }
 //                            let width = CGFloat(dayDifference + 1) /// (dayDifference + 1)이 너비, width에 할당
 //                            let position = CGFloat(plan.periods[0][0].integerDate - today.integerDate) /// (앞날짜 - 오늘) 값을 position에 할당
 //                            if isTextFieldEditing {
