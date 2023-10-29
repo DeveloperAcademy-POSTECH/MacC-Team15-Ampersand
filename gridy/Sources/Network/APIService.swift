@@ -251,7 +251,7 @@ extension APIService {
                             }
                             let prevLayerPlanID = prevLayer[index]
                             
-                            let newPlanID = (layerIndex == newLayerIndex && rowIndex == index) ? targetID : try await planCollectionPath(projectID).document().documentID
+                            let newPlanID = (layerIndex == newLayerIndex && rowIndex == index) ? targetID : try planCollectionPath(projectID).document().documentID
                             var dummyPlan = Plan(id: newPlanID, periods: [:], laneIDs: [newLaneID])
                             
                             if prevLayerPlanID == parentPlanID,
@@ -287,7 +287,6 @@ extension APIService {
             }
             
             /// 새로운 레인을 생성하는 경우 == parentLane이 없는 경우
-            var prevLayerLaneID: String?
             if parentPlanID == nil {
                 if layerIndex == 0 { /// root인 경우
                     map["0"]!.append(targetID)
@@ -300,11 +299,13 @@ extension APIService {
                     
                     try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
                 } else { /// root가 아니고 parentLane이 없는 경우
-                    for currentLayerIndex in 0..<currentLayerCount {
+                    var prevLayerLaneID: String?
+                    for currentLayerIndex in 0...layerIndex {
                         let newLaneID = try laneCollectionPath(projectID).document().documentID
-                        var dummyPlan = Plan(id: targetID, periods: [:], laneIDs: [newLaneID])
+                        var dummyPlan = Plan(id: try planCollectionPath(projectID).document().documentID, periods: [:], laneIDs: [newLaneID])
                         if currentLayerIndex == layerIndex {
                             dummyPlan = target
+                            dummyPlan.id = targetID
                             dummyPlan.laneIDs = [newLaneID]
                         }
                         try await laneCollectionPath(projectID).document(newLaneID).setData(["id": newLaneID, "ownerID": dummyPlan.id])
@@ -320,9 +321,6 @@ extension APIService {
                         try await planCollectionPath(projectID).document(targetID).setData(data as [String: Any])
                         prevLayerLaneID = newLaneID
                         map["\(currentLayerIndex)"]!.append(dummyPlan.id)
-                        if currentLayerIndex == layerIndex-1 {
-                            parentPlanID = dummyPlan.id
-                        }
                     }
                 }
             }

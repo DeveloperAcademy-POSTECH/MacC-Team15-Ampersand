@@ -88,6 +88,16 @@ struct ListItemEmptyView: View {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
                                 .onSubmit {
+//                                    let myIndex = viewStore.map[String(layerIndex)]!.count
+//                                    print(layerIndex)
+//                                    let isFirstLayer = layerIndex == 0
+//                                    let prevLayerCount = isFirstLayer ? 0 : viewStore.map[String(layerIndex-1)]!.count
+//                                    let needToCreateLane = prevLayerCount - 1 < myIndex
+//                                    
+//                                    let parentLaneID = isFirstLayer ? nil : needToCreateLane ? nil : viewStore.existingAllPlans[viewStore.map[String(layerIndex-1)]![myIndex]]!.laneIDs[0]
+//                                    print(viewStore.map)
+//                                    print(parentLaneID)
+                                    
                                     viewStore.send(.createPlan(
                                         layer: layerIndex,
                                         target: Plan(
