@@ -22,12 +22,12 @@ struct LayerControlAreaView: View {
                     HStack(spacing: 2) {
                         // MARK: - 엎기 >
                         LayerControlButton(componentWidth: 28) {
-                            Image(systemName: "arrow.forward")
-                                .font(.custom("Pretendard-Medium", size: 12))
-                        } action: {
                             viewStore.send(
                                 .showLowerLayer
                             )
+                        } label: {
+                            Image(systemName: "arrow.forward")
+                                .font(.custom("Pretendard-Medium", size: 12))
                         }
                         .disabled(viewStore.showingLayers.isEmpty)
                         .padding(.leading, 4)
@@ -73,7 +73,7 @@ struct LayerControlAreaView: View {
                             let lastShowingLayer = viewStore.showingLayers.isEmpty ? -1 : viewStore.showingLayers.last!
                             let totalLayers = viewStore.map.count
                             let haveMoreLayer = lastShowingLayer < (totalLayers - 1)
-        
+                            
                             Text(haveMoreLayer ? "Layer \(lastShowingLayer + 1)" : "Add a layer")
                                 .font(.custom("Pretendard-Medium", size: 12))
                                 .foregroundStyle(haveMoreLayer ? .black : .gray)
@@ -81,12 +81,12 @@ struct LayerControlAreaView: View {
                         
                         // MARK: - < 엎기
                         LayerControlButton(componentWidth: 28) {
-                            Image(systemName: "arrow.backward")
-                                .font(.custom("Pretendard-Medium", size: 12))
-                        } action: {
                             viewStore.send(
                                 .showUpperLayer
                             )
+                        } label: {
+                            Image(systemName: "arrow.backward")
+                                .font(.custom("Pretendard-Medium", size: 12))
                         }
                         .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
                         .padding(.trailing, 4)
@@ -105,13 +105,13 @@ struct LayerControlAreaView: View {
 
 struct LayerControlButton<Label: View>: View {
     var componentWidth: CGFloat
-        var content: () -> Label
-        var action: (() -> Void)?
+    var action: (() -> Void)?
+    var label: () -> Label
 
-    init(componentWidth: CGFloat, @ViewBuilder content: @escaping () -> Label, action: (() -> Void)? = nil) {
+    init(componentWidth: CGFloat, action: (() -> Void)? = nil, @ViewBuilder label: @escaping () -> Label) {
         self.componentWidth = componentWidth
-        self.content = content
         self.action = action
+        self.label = label
     }
 
     var body: some View {
@@ -126,7 +126,7 @@ struct LayerControlButton<Label: View>: View {
                     .stroke(.gray, lineWidth: 0.5)
             }
             .overlay(
-                self.content()
+                self.label()
             )
         }
         .buttonStyle(.plain)
