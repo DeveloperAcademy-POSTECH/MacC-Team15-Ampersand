@@ -108,7 +108,11 @@ struct LayerControlButton<Label: View>: View {
     var action: (() -> Void)?
     var label: () -> Label
 
-    init(componentWidth: CGFloat, action: (() -> Void)? = nil, @ViewBuilder label: @escaping () -> Label) {
+    init(
+        componentWidth: CGFloat, 
+        action: (() -> Void)? = nil,
+        @ViewBuilder label: @escaping () -> Label
+    ) {
         self.componentWidth = componentWidth
         self.action = action
         self.label = label
