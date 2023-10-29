@@ -58,45 +58,13 @@ struct ListAreaView: View {
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
                     // MARK: - ListArea Contents
-                    VStack(spacing: 0) {                        
+                    VStack(spacing: 0) {
                         // MARK: - ListItem Section
                         HStack(alignment: .top, spacing: 2) {
                             ForEach(Array(zip(viewStore.showingLayers.indices, viewStore.showingLayers)), id: \.0) { forIndex, layerIndex in
                                 VStack(alignment: .leading, spacing: 0) {
                                     let layer = viewStore.showingLayers[forIndex]
                                     let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
-                                    
-                                    // MARK: - LayerIndex Section
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .foregroundStyle(Color.clear)
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color.gray, lineWidth: 0.3)
-                                            .overlay(
-                                                Text(showingAtFirst ? "L\(layerIndex)": "Layer\(layerIndex)")
-                                            )
-                                            .font(.custom("Pretendard-Regular", size: 11))
-                                    }
-                                    .frame(
-                                        width: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex],
-                                        height: viewStore.lineAreaGridHeight / 2
-                                    )
-                                    .contextMenu {
-                                        Button {
-                                            viewStore.send(
-                                                .createLayer(layerIndex: layerIndex - 1)
-                                            )
-                                        } label: {
-                                            Text("왼쪽에 layer 삽입")
-                                        }
-                                        Button {
-                                            viewStore.send(
-                                                .createLayer(layerIndex: layerIndex)
-                                            )
-                                        } label: {
-                                            Text("오른쪽에 layer 삽입")
-                                        }
-                                    }
                                     
                                     // MARK: - ListItemSection
                                     /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌

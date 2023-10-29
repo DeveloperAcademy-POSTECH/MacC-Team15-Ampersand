@@ -18,70 +18,62 @@ struct LayerControlAreaView: View {
                 VStack {
                     Spacer()
                         .frame(height: 3)
-                    HStack(spacing: 4) {
-                        LayerControlComponent(componentWidth: 28)
-                            .overlay(
-                                Image(systemName: "arrow.forward")
-                                    .font(.custom("Pretendard-Medium", size: 12))
+                    HStack(spacing: 2) {
+                        // MARK: - 엎기 >
+                        LayerControlButton(componentWidth: 28) {
+                            Image(systemName: "arrow.forward")
+                                .font(.custom("Pretendard-Medium", size: 12))
+                        } action: {
+                            viewStore.send(
+                                .showLowerLayer
                             )
-                            .onTapGesture {
-                                viewStore.send(
-                                    .showLowerLayer
-                                )
-                            }
-                            .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
-                            .padding(.leading, 4)
+                        }
+                        .disabled(viewStore.showingLayers[0] == 0 && viewStore.showingLayers.count == 1)
+                        .padding(.leading, 4)
                         
-                        // TODO: - width showingColumns에 따라 조절
-                        LayerControlComponent(componentWidth: 264)
-                            .overlay(
-                                Text("Layer")
+                        // MARK: - Layer Index
+                        ForEach(viewStore.showingLayers.indices, id: \.self) { forIndex in
+                            let layer = viewStore.showingLayers[forIndex]
+                            let showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
+                            
+                            LayerControlButton(componentWidth: viewStore.listColumnWidth[viewStore.showingLayers.count-1][forIndex]) {
+                                Text(showingAtFirst ? "L\(layer)": "Layer\(layer)")
                                     .font(.custom("Pretendard-Medium", size: 12))
-                            )
+                            }
                             .contextMenu {
                                 Button {
-                                    
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layer - 1)
+                                    )
                                 } label: {
                                     Text("Add a lower layer")
                                 }
                                 Button {
-                                    
+                                    viewStore.send(
+                                        .createLayer(layerIndex: layer)
+                                    )
                                 } label: {
                                     Text("Add a upper layer")
                                 }
                             }
+                        }
                         
-                        // TODO: - width 조절
-                        LayerControlComponent(componentWidth: geometry.size.width - 340)
-                            .overlay(
-                                Text("Layer")
-                                    .font(.custom("Pretendard-Medium", size: 12))
-                            )
-                            .contextMenu {
-                                Button {
-                                    
-                                } label: {
-                                    Text("Add a lower layer")
-                                }
-                                Button {
-                                    
-                                } label: {
-                                    Text("Add a upper layer")
-                                }
-                            }
+                        LayerControlButton(componentWidth: geometry.size.width - 336) {
+                            Text("Layer")
+                                .font(.custom("Pretendard-Medium", size: 12))
+                        }
                         
-                        LayerControlComponent(componentWidth: 28)
-                            .overlay(
-                                Image(systemName: "arrow.backward")
-                                    .font(.custom("Pretendard-Medium", size: 12))
+                        // MARK: - < 엎기
+                        LayerControlButton(componentWidth: 28) {
+                            Image(systemName: "arrow.backward")
+                                .font(.custom("Pretendard-Medium", size: 12))
+                        } action: {
+                            viewStore.send(
+                                .showUpperLayer
                             )
-                            .onTapGesture {
-                                viewStore.send(
-                                    .showUpperLayer
-                                )
-                            }
-                            .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
-                            .padding(.trailing, 4)
+                        }
+                        .disabled(viewStore.showingLayers.last == viewStore.map.count - 1)
+                        .padding(.trailing, 4)
                     }
                 }
             }
@@ -95,17 +87,33 @@ struct LayerControlAreaView: View {
     })
 }
 
-struct LayerControlComponent: View {
+struct LayerControlButton<Label: View>: View {
     var componentWidth: CGFloat
-    
+        var content: () -> Label
+        var action: (() -> Void)?
+
+    init(componentWidth: CGFloat, @ViewBuilder content: @escaping () -> Label, action: (() -> Void)? = nil) {
+        self.componentWidth = componentWidth
+        self.content = content
+        self.action = action
+    }
+
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 4)
-                .foregroundStyle(Color.white)
-            
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(.gray, lineWidth: 0.5)
+        Button(action: {
+            self.action?()
+        }) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 4)
+                    .foregroundStyle(Color.white)
+                
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(.gray, lineWidth: 0.5)
+            }
+            .overlay(
+                self.content()
+            )
         }
+        .buttonStyle(.plain)
         .frame(width: max(componentWidth, 0), height: 26)
     }
 }
