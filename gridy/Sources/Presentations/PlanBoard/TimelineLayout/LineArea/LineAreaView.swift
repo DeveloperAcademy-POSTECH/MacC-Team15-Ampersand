@@ -47,6 +47,7 @@ struct LineAreaView: View {
                                 viewStore.send(.createPlan(
                                     // TODO: - Need arguments #1, #2
                                     layer: 1,
+                                    row: 1,
                                     target: Plan(
                                         id: "",
                                         parentLaneID: nil, // TODO: - root layer가 아니라면 parentLaneID 필요

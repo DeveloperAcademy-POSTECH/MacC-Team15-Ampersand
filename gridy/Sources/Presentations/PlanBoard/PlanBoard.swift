@@ -88,7 +88,7 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(layer: Int, target: Plan, startDate: Date?, endDate: Date?)
+        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
@@ -196,7 +196,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
-            case let .createPlan(layer, target, startDate, endDate):
+            case let .createPlan(layer, row, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 let projectID = state.rootProject.id
                 
@@ -223,7 +223,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(planToBeCreated, layer, projectID)
+                            try await apiService.createPlan(planToBeCreated, layer, row, projectID)
                         }
                     ), animation: .easeIn)
                 }
