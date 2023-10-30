@@ -13,7 +13,7 @@ struct ScheduleAreaView: View {
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }){ viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack {
                     Color.white
@@ -47,6 +47,6 @@ struct ScheduleAreaView: View {
 
 struct ScheduleAreaView_Previews: PreviewProvider {
     static var previews: some View {
-        ScheduleAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
+        ScheduleAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
     }
 }

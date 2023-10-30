@@ -11,47 +11,62 @@ import ComposableArchitecture
 struct TimelineLayoutContentView: View {
     @Namespace var scrollSpace
     @State var scrollOffset = CGFloat.zero
-    @Binding var showingIndexArea: Bool
     @Binding var proxy: ScrollViewProxy?
     let store: StoreOf<PlanBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }){ viewStore in
-            HStack(alignment: .top, spacing: 0) {
-                if showingIndexArea {
-                    VStack(spacing: 0) {
+        WithViewStore(store, observe: { $0 }) { _ in
+            VStack(spacing: 0) {
+                // MARK: - Above the LayerControlArea
+                HStack(alignment: .top, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
                         ScheduleIndexAreaView()
-                            .frame(height: 140)
+                            .frame(height: 160)
                         Rectangle()
                             .foregroundStyle(.white)
-                            .border(.black)
-                            .frame(height: 60)
-                        LineIndexAreaView()
+                            .border(.gray)
+                            .frame(height: 40)
                     }
                     .frame(width: 35)
-                    .zIndex(1)
-                }
-                VStack(alignment: .leading, spacing: 0) {
-                    BlackPinkInYourAreaView()
-                        .frame(height: 200)
-                    ListAreaView(store: store)
-                }
-                .frame(width: 266)
-                .zIndex(1)
-                GeometryReader { _ in
+                    
                     VStack(alignment: .leading, spacing: 0) {
-                        ZStack(alignment: .bottom) {
-                            ScheduleAreaView(store: store)
-                                .frame(height: 200)
-                
-                            TimeAxisAreaView(store: store)
-                                .frame(height: 80)
-                        }
-                        .zIndex(1)
-                        
-                        LineAreaView(store: store)
-                            .zIndex(0)
+                        BlackPinkInYourAreaView(store: store)
+                            .frame(height: 160)
+                        Rectangle()
+                            .foregroundStyle(.white)
+                            .border(.gray)
+                            .frame(height: 40)
                     }
+                    .frame(width: 266)
+                    
+                    GeometryReader { _ in
+                        VStack(alignment: .leading, spacing: 0) {
+                            ZStack(alignment: .bottom) {
+                                ScheduleAreaView(store: store)
+                                TimeAxisAreaView(store: store)
+                                    .frame(height: 80)
+                            }
+                        }
+                    }
+                }
+                .frame(height: 200)
+                .zIndex(1)
+                
+                // MARK: - LayerControlArea
+                LayerControlAreaView(store: store)
+                    .frame(height: 32)
+                    .zIndex(1)
+                
+                // MARK: - Below the LayerControlArea
+                HStack(alignment: .top, spacing: 0) {
+                    LineIndexAreaView()
+                        .frame(width: 35)
+                        .zIndex(1)
+                    ListAreaView(store: store)
+                        .frame(width: 266)
+                        .zIndex(1)
+                    LineAreaView(store: store)
+                        .zIndex(0)
                 }
             }
         }

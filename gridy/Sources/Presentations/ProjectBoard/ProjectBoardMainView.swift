@@ -12,7 +12,6 @@ struct ProjectBoardMainView: View {
     let columnsFolders = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let columnsProjects = [GridItem(.adaptive(minimum: 274), spacing: 20)]
     let store: StoreOf<ProjectBoard>
-    @State var isTapped = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -95,8 +94,8 @@ struct ProjectBoardMainView: View {
                                         state: \.projects,
                                         action: { .deleteProjectButtonTapped(id: $0, action: $1) }
                                     )
-                                ) {
-                                    ProjectItemView(store: $0)
+                                ) { projectStore in
+                                    ProjectItemView(store: projectStore)
                                 }
                             }
                         }
