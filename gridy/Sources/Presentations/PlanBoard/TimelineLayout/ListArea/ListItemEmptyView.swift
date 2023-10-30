@@ -23,6 +23,7 @@ struct ListItemEmptyView: View {
     @State var prevText = ""
     
     var layerIndex: Int
+    var rowIndex: Int
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -33,7 +34,8 @@ struct ListItemEmptyView: View {
                     Rectangle()
                         .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
                         .overlay(
-                            Text(editingText)
+                            // TODO: - editingText로 변경
+                            Text("\(rowIndex)")
                                 .lineLimit(2)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .padding(.horizontal, 8)
@@ -88,22 +90,11 @@ struct ListItemEmptyView: View {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
                                 .onSubmit {
-//                                    let myIndex = viewStore.map[String(layerIndex)]!.count
-//                                    print(layerIndex)
-//                                    let isFirstLayer = layerIndex == 0
-//                                    let prevLayerCount = isFirstLayer ? 0 : viewStore.map[String(layerIndex-1)]!.count
-//                                    let needToCreateLane = prevLayerCount - 1 < myIndex
-//                                    
-//                                    let parentLaneID = isFirstLayer ? nil : needToCreateLane ? nil : viewStore.existingAllPlans[viewStore.map[String(layerIndex-1)]![myIndex]]!.laneIDs[0]
-//                                    print(viewStore.map)
-//                                    print(parentLaneID)
-                                    
-                                    viewStore.send(.createPlan(
+                                 viewStore.send(.createPlan(
                                         layer: layerIndex,
+                                        row: rowIndex,
                                         target: Plan(
                                             id: "",
-                                            // TODO: - root layer가 아니라면 parentLaneID 필요
-//                                            parentLaneID: layerIndex == 0 ? nil : nil,
                                             parentLaneID: nil,
                                             periods: [:],
                                             laneIDs: []
@@ -140,6 +131,7 @@ struct ListItemEmptyView: View {
         store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
             PlanBoard()
         },
-        layerIndex: 0
+        layerIndex: 0,
+        rowIndex: 0
     )
 }

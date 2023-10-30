@@ -2,17 +2,109 @@
 //  FirestoreService.swift
 //  gridy
 //
-//  Created by SY AN on 10/30/23.
+//  Created by 제나 on 10/30/23.
 //
 
-import SwiftUI
+import Foundation
+import FirebaseAuth
+import FirebaseFirestore
+import FirebaseFirestoreSwift
 
-struct FirestoreService: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+enum CollectionName: String {
+    case plans = "Plans"
+    case lanes = "Lanes"
+    case planTypes = "PlanTypes"
 }
 
-#Preview {
-    FirestoreService()
+struct FirestoreService {
+    // MARK: - methods for convenience
+    /// Currently authenticated user
+    static var uid: String {
+        get throws {
+            guard let uid = Auth.auth().currentUser?.uid else { throw APIError.noAuthenticatedUser }
+            return uid
+        }
+    }
+    
+    /// Base firestore path for API Service
+    static var basePath: DocumentReference {
+        get throws {
+            let firestore = Firestore.firestore().collection("ProjectCollection")
+            return firestore.document(try uid)
+        }
+    }
+    
+    static var projectCollectionPath: CollectionReference {
+        get throws {
+            return try basePath.collection("Projects")
+        }
+    }
+
+    static func collectionPath(
+        _ projectID: String,
+        _ collectionName: String
+    ) throws -> CollectionReference {
+        return try basePath.collection("Projects").document(projectID).collection(collectionName)
+    }
+    
+    static func getDocument(
+        _ projectID: String,
+        _ collectionName: CollectionName,
+        _ documentID: String,
+        _ decodeTo: Decodable.Type
+    ) async throws -> Decodable {
+        return try await collectionPath(projectID, collectionName.rawValue)
+            .document(documentID)
+            .getDocument(as: decodeTo.self)
+    }
+    
+    static func getDocuments(
+        _ projectID: String,
+        _ collectionName: CollectionName,
+        _ decodeTo: Decodable.Type
+    ) async throws -> [Decodable] {
+        return try await collectionPath(projectID, collectionName.rawValue)
+            .getDocuments()
+            .documents
+            .map { try $0.data(as: decodeTo.self) }
+    }
+    
+    static func updateDocumentData(
+        _ projectID: String,
+        _ collection: CollectionName,
+        _ documentID: String,
+        _ data: [String: Any]
+    ) async throws {
+        try await collectionPath(projectID, collection.rawValue)
+            .document(documentID)
+            .updateData(data)
+    }
+    
+    static func deleteDocument(
+        _ projectID: String,
+        _ collection: CollectionName,
+        _ documentID: String
+    ) async throws {
+        try await collectionPath(projectID, collection.rawValue)
+            .document(documentID)
+            .delete()
+    }
+    
+    static func getNewDocumentID(
+        _ projectID: String,
+        _ collection: CollectionName
+    ) throws -> String {
+        return try collectionPath(projectID, collection.rawValue).document().documentID
+    }
+    
+    static func setDocumentData(
+        _ projectID: String,
+        _ collection: CollectionName,
+        _ documentID: String,
+        _ data: [String: Any]
+    ) async throws {
+        try await collectionPath(projectID, collection.rawValue)
+            .document(documentID)
+            .setData(data)
+    }
 }

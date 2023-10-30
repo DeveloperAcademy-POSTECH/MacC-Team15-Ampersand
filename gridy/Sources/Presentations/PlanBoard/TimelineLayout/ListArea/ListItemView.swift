@@ -35,10 +35,18 @@ struct ListItemView: View {
                     Rectangle()
                         .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
                         .overlay(
-                            Text(viewStore.map[String(layerIndex)]![rowIndex])
-                                .lineLimit(2)
-                                .font(.custom("Pretendard-Regular", size: fontSize))
-                                .padding(.horizontal, 8)
+                            Text(editingText)
+                                .onAppear {
+                                    if let plan = viewStore.existingAllPlans[viewStore.map[String(layerIndex)]![rowIndex]],
+                                       let planTypeID = plan.planTypeID,
+                                       let planType = viewStore.existingPlanTypes[planTypeID] {
+                                        let title = planType.title
+                                        editingText = title
+                                    } else {
+                                        // TODO: - 옵셔널 분기 없어야함. map에 있는 ID로 existingAllPlans에 접근하면 무조건 있어야 함.
+                                        editingText = viewStore.map[String(layerIndex)]![rowIndex]
+                                    }
+                                }
                         )
                         .onHover { phase in
                             if !isSelected && !isEditing {
