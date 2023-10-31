@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import ComposableArchitecture
 
 struct LineAreaView: View {
@@ -17,6 +18,7 @@ struct LineAreaView: View {
     
     @FocusState private var isTextFieldFocused: Bool
     
+    private let today: Int = Date().filteredDate.integerDate
     let store: StoreOf<PlanBoard>
     
     var body: some View {
@@ -50,8 +52,10 @@ struct LineAreaView: View {
                                 viewStore.send(.createPlan(
                                     // TODO: - Need arguments #1, #2
                                     layer: 1,
+                                    row: min(viewStore.selectedGridRanges[0].start.row, viewStore.selectedGridRanges[0].end.row),
                                     target: Plan(
                                         id: "",
+                                        planTypeID: "0000",
                                         parentLaneID: nil, // TODO: - root layer가 아니라면 parentLaneID 필요
                                         periods: [:],
                                         laneIDs: []
@@ -59,6 +63,7 @@ struct LineAreaView: View {
                                     startDate: startDate,
                                     endDate: endDate
                                 ))
+                                viewStore.send(.fetchAllLanes)
                                 isTextFieldEditing = true /// TextField와 입력된 Text가 보여지는 형태를 구분하기 위함.
                                 isTextFieldFocused = true /// TextField가 열리자마자 바로 입력될 수 있게하기 위함.
                             }
@@ -155,39 +160,59 @@ struct LineAreaView: View {
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
                     Group {
-                        ForEach(0..<viewStore.map["0"]!.count) { index in
-                            let planID = viewStore.map["0"]![index]
-                            let plan = viewStore.existingAllPlans[planID]
-                            let today = Date().filteredDate /// 초 단위까지의 시간을 제외하고, 일 단위로의 시간을 today에 할당
-                            let height = viewStore.lineAreaGridHeight /// RightToolBar에서 조정 가능한 그리드의 셀 높이를 height에 할당
-//                            let dayDifference = CGFloat(plan.periods[0][1].integerDate - plan.periods[0][0].integerDate) /// (뒷날짜 - 앞날짜) 값을 dayDifference에 할당
-//                            let width = CGFloat(dayDifference + 1) /// (dayDifference + 1)이 너비, width에 할당
-//                            let position = CGFloat(plan.periods[0][0].integerDate - today.integerDate) /// (앞날짜 - 오늘) 값을 position에 할당
-//                            if isTextFieldEditing {
-//                                TextField("", text: $planTitle, axis: .vertical)
-//                                    .onSubmit { isTextFieldEditing = false }
-//                                    .onExitCommand { isTextFieldEditing = false }
-//                                    .focused($isTextFieldFocused)
-//                                    .foregroundStyle(.black)
-//                                    .frame(width: viewStore.gridWidth * 2, height: height / 2) /// 너비는 셀 두개, 높이는 셀 반개의 크기를 가진다.
-//                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,  /// RedRectangle과 왼쪽 정렬을 맞추기 위함.
-//                                              y: 100 - height / 4) /// Red Rectangle 바로 위에 붙게 하기 위함.
-//                            } else {
-//                                Rectangle()
-//                                    .fill(Color.white)
-//                                    .overlay(alignment: .leading) { Text(planTitle) } /// 입력한 text가 TextField와 같은 위치에 배치되게 하기 위함.
-//                                    .foregroundStyle(.black)
-//                                    .frame(width: viewStore.gridWidth * 2, height: height / 2)
-//                                    .position(x: (position + 1 - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
-//                                              y: 100 - height / 4 )
-//                            }
-//                            Rectangle()
-//                                .fill(Color.red.opacity(0.8))
-//                                .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
-//                                .frame(width: width * viewStore.gridWidth, height: height) /// 조정되는 그리드 사이즈에 맞춰 frame 지정.
-//                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, /// position에 Rectangle 너비 절반을 더해서 중앙점 배치.
-//                                          y: 100 + height / 2) /// 우선 100에 height의 절반을 더해서 중앙점 배치.
+                        // MARK: - Rectangle
+                        let gridHeight = viewStore.lineAreaGridHeight
+                        var prevLayerIndex = 0
+                        var planIDsInCurrentLayer = viewStore.map[String(prevLayerIndex)]!
+                        var totalLanes = 0
+                        
+                        Color.clear.onAppear {
+                            print(viewStore.lineAreaLaneIDs)
+                        }
+                        // MARK: - 각 lane이 가지는 모든 childPlan의 periods에 접근
+                        ForEach(Array(viewStore.lineAreaLaneIDs.enumerated()), id: \.offset) { index, laneID in
+                            let lane = viewStore.existingLanes[laneID]!
+                            let childIDsArray = lane.childIDs!
                             
+                            ForEach(childIDsArray, id: \.self) { childID in
+                                let childPlan = viewStore.existingAllPlans[childID]!
+                                let childPlanTypeID = childPlan.planTypeID!
+                                let childPlanType = viewStore.existingPlanTypes[childPlanTypeID]!
+                                let periodArray = childPlan.periods
+                                
+                                ForEach(Array(periodArray.keys), id: \.self) { key in
+                                    let period = periodArray[key]!
+                                    let startDate = period[0].integerDate
+                                    let endDate = period[1].integerDate
+                                    let dayDifference = CGFloat(endDate - startDate)
+                                    let width = CGFloat(dayDifference + 1)
+                                    let xOffset = startDate - today + 1
+                                    
+                                    if isTextFieldEditing {
+                                        // TODO: - $planTitle > childPlanType.title 보여주기
+                                        TextField("", text: $planTitle, axis: .vertical)
+                                            .onSubmit { isTextFieldEditing = false }
+                                            .onExitCommand { isTextFieldEditing = false }
+                                            .focused($isTextFieldFocused)
+                                            .foregroundStyle(.black)
+                                            .frame(width: viewStore.gridWidth * 2, height: gridHeight / 2)
+                                            .position(x: CGFloat(xOffset - viewStore.shiftedCol) * viewStore.gridWidth,
+                                                      y: CGFloat(index) * gridHeight - gridHeight / 4)
+                                    } else {
+                                        Rectangle()
+                                            .fill(Color.white)
+                                            .overlay(alignment: .leading) { Text(childPlanType.title) }
+                                            .foregroundStyle(.black)
+                                            .frame(width: viewStore.gridWidth * 2, height: gridHeight / 2)
+                                            .position(x: CGFloat(xOffset - viewStore.shiftedCol) * viewStore.gridWidth, y: CGFloat(index) * gridHeight - gridHeight / 4)
+                                    }
+                                    Rectangle()
+                                        .fill(Color.red.opacity(0.8))
+                                        .overlay(Rectangle().stroke(Color.blue, lineWidth: 1))
+                                        .frame(width: width * viewStore.gridWidth, height: gridHeight)
+                                        .position(x: CGFloat(xOffset - viewStore.shiftedCol) * viewStore.gridWidth, y: CGFloat(index) * gridHeight - gridHeight / 4)
+                                }
+                            }
                         }
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -354,3 +379,5 @@ struct LineAreaView: View {
         }
     }
 }
+
+

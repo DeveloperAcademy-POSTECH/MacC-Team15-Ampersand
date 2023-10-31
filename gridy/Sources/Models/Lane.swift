@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Lane: Identifiable, Decodable {
+struct Lane: Identifiable, Decodable, Equatable {
     var id: String
     var childIDs: [String]?
     var ownerID: String

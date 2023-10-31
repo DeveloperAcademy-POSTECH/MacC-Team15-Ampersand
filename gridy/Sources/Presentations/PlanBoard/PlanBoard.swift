@@ -25,10 +25,13 @@ struct PlanBoard: Reducer {
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [String: PlanType]()
         var existingAllPlans = [String: Plan]()
+        var existingLanes = [String: Lane]()
         
         var keyword = ""
         var selectedColorCode = Color.red
-
+        
+        var emptyPlanTypeID = ""
+        
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
         var numOfScheduleAreaRow = 5
         
@@ -42,9 +45,10 @@ struct PlanBoard: Reducer {
         var gridWidth = CGFloat(45)
         var scheduleAreaGridHeight = CGFloat(45)
         var lineAreaGridHeight = CGFloat(45)
+        
         // TODO: - 나중에 추가될 코드 ... 헨리가 뭔가 준비만 해뒀다고 했음!
-        //        var horizontalMagnification = CGFloat(1.0)
-        //         var verticalMagnification = CGFloat(1.0)
+        // var horizontalMagnification = CGFloat(1.0)
+        // var verticalMagnification = CGFloat(1.0)
         
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다. 아직은 RightToolBarArea에서 확인용으로만 사용하고 있습니다.
         var hoverLocation: CGPoint = .zero
@@ -76,6 +80,9 @@ struct PlanBoard: Reducer {
         var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
+        
+        // MARK: - line area
+        var lineAreaLaneIDs: [String] = []
     }
     
     enum Action: Equatable {
@@ -84,7 +91,7 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(planID: String)
+        case createPlanType
         case createPlanTypeResponse(TaskResult<PlanType>)
         case searchExistingPlanTypes(with: String)
         case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
@@ -92,7 +99,7 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
-        case createPlan(layer: Int, target: Plan, startDate: Date?, endDate: Date?)
+        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
@@ -101,6 +108,10 @@ struct PlanBoard: Reducer {
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
         case escapeSelectedCell
+        
+        // MARK: - Lane
+        case fetchAllLanes
+        case fetchAllLanesResponse(TaskResult<[String: Lane]>)
         
         // MARK: - TimelineLayout
         case isShiftKeyPressed(Bool)
@@ -127,6 +138,9 @@ struct PlanBoard: Reducer {
         case showLowerLayer
         case createLayer(layerIndex: Int)
         case createLayerResponse(TaskResult<[String: [String]]>)
+        
+        // MARK: - line area
+        case fetchLineArea
     }
     
     var body: some Reducer<State, Action> {
@@ -137,6 +151,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.fetchAllPlans)
                     await send(.fetchAllPlanTypes)
+                    await send(.fetchAllLanes)
                 }
                 
             case let .selectColorCode(selectedColor):
@@ -144,7 +159,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(planID):
+            case .createPlanType:
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 let projectID = state.rootProject.id
@@ -155,14 +170,13 @@ struct PlanBoard: Reducer {
                             id: "", /// APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
-                        ), 
-                        planID,
+                        ),
                         projectID
                     )
                     await send(.createPlanTypeResponse(
                         TaskResult {
                             PlanType(
-                                id: createdID,
+                                id: "0000",
                                 title: keyword,
                                 colorCode: colorCode
                             )
@@ -172,6 +186,7 @@ struct PlanBoard: Reducer {
                 
             case let .createPlanTypeResponse(.success(response)):
                 state.existingPlanTypes[response.id] = response
+                state.emptyPlanTypeID = response.id
                 return .none
                 
             case .fetchAllPlanTypes:
@@ -206,16 +221,15 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
-            case let .createPlan(layer, target, startDate, endDate):
+            case let .createPlan(layer, row, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 let projectID = state.rootProject.id
-                
                 var newPlan: Plan?
                 if let startDate = startDate, let endDate = endDate {
                     newPlan = Plan(id: "", // APIService에서 자동 생성
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
-                                   periods: [0: [startDate, endDate]],
+                                   periods: ["0": [startDate, endDate]],
                                    description: target.description,
                                    laneIDs: []
                     )
@@ -229,18 +243,25 @@ struct PlanBoard: Reducer {
                                    laneIDs: []
                     )
                 }
+                
                 let planToBeCreated = newPlan!
+                state.keyword = "빈거지롱"
+                state.selectedColorCode = Color.red
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
-                            try await apiService.createPlan(planToBeCreated, layer, projectID)
+                            try await apiService.createPlan(planToBeCreated, layer, row, projectID)
                         }
                     ), animation: .easeIn)
+                    await send(.createPlanType)
                 }
                 
             case let .createPlanResponse(.success(response)):
                 state.map = response
-                return .none
+                return .run { send in
+                    await send(.fetchAllPlans)
+                    await send(.fetchAllLanes)
+                }
                 
             case let .updatePlan(planID, planTypeID):
                 let projectID = state.rootProject.id
@@ -260,7 +281,9 @@ struct PlanBoard: Reducer {
                 
             case let .fetchAllPlansResponse(.success(response)):
                 state.existingAllPlans = response
-                return .none
+                return .run { send in
+                    await send(.fetchLineArea)
+                }
                 
                 // MARK: - listArea
             case .showUpperLayer:
@@ -274,7 +297,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .showLowerLayer:
-                let firstShowingIndex = state.showingLayers.first!           
+                let firstShowingIndex = state.showingLayers.first!
                 if firstShowingIndex == 0 {
                     state.showingLayers.removeLast()
                 } else {
@@ -360,6 +383,21 @@ struct PlanBoard: Reducer {
                     Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
                     state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
                 }
+                return .none
+                
+            case .fetchAllLanes:
+                let projectId = state.rootProject.id
+                
+                return .run { send in
+                    await send(.fetchAllLanesResponse(
+                        TaskResult {
+                            try await apiService.readAllLanes(projectId)
+                        }
+                    ))
+                }
+                
+            case let .fetchAllLanesResponse(.success(response)):
+                state.existingLanes = response
                 return .none
                 
             case let .isShiftKeyPressed(isPressed):
@@ -451,6 +489,21 @@ struct PlanBoard: Reducer {
                 )
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
+                return .none
+                
+            case .fetchLineArea:
+                // TODO: - showingLayers.last!
+                let showingPrevLayer = 0
+                let planIDsArray = state.map[String(showingPrevLayer)]!
+                print(state.existingAllPlans)
+                for planID in planIDsArray {
+                    let plan = state.existingAllPlans[planID]!
+                    let laneIDsArray = plan.laneIDs
+                    for laneID in laneIDsArray {
+                        state.lineAreaLaneIDs.append(laneID)
+                    }
+                }
+                
                 return .none
                 
             default:

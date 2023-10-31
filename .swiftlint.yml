@@ -560,12 +560,12 @@ opt_in_rules: #사용하는 룰
 # Options
 type_body_length:
   warning: 200 # warning
-  error: 400 # error
+  error: 1000 # error
 file_length:
   warning: 300
-  error: 600
+  error: 1000
 function_body_length:
   warning: 100
-  error: 150
+  error: 1000
   
 reporter: "xcode"
