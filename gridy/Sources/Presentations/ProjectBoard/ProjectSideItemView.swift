@@ -13,7 +13,7 @@ struct ProjectSideItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            GeometryReader { geometry in
+            GeometryReader { _ in
                 Rectangle()
                     .foregroundStyle(.gray.opacity(0.1))
                     .overlay {
