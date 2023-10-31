@@ -68,9 +68,20 @@ struct ListAreaView: View {
                         // MARK: - ListArea Contents
                         HStack(alignment: .top, spacing: 2) {
                             ForEach(Array(viewStore.showingLayers.indices), id: \.self) { forIndex in
+                                let layer = viewStore.showingLayers[forIndex]
+                                let layerArray = viewStore.map[String(layer)]!
+                                var layerSize = layerArray.count
+                                
+                                var height = 0
+                                var numOfChild = 0
+                                /// 내 leaf의 lane 수를 찾아야 함
+                                ForEach(0..<viewStore.showingLayers.count, id: \.self) { index in
+                                    let layerIndex = layer + index
+                                    Color.clear.onAppear { print(layerIndex) }
+                                }
+                                
                                 VStack(alignment: .leading, spacing: 0) {
-                                    let layer = viewStore.showingLayers[forIndex]
-                                    var layerSize = viewStore.map[String(layer)]!.count
+                                    
                                     var showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
                                     
                                     /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌

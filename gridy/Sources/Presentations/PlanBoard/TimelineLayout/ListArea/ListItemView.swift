@@ -69,20 +69,37 @@ struct ListItemView: View {
                 // MARK: - 한 번 클릭 된 상태.
                 /// 호버링 상태를 추적하지 않는다. 흰 배경에 보더만 파란 상태. 더블 클릭이 가능하다.
                 if isSelected {
-                    Rectangle()
-                        .strokeBorder(Color.blue)
-                        .overlay(
-                            Text(editingText)
-                                .lineLimit(2)
-                                .font(.custom("Pretendard-Regular", size: fontSize))
-                                .padding(.horizontal, 8)
-                        )
-                        .onTapGesture(count: 2) {
-                            isSelected = false
-                            isEditing = true
-                            isTextFieldFocused = true
-                            prevText = editingText
+                    ZStack {
+                        Rectangle()
+                            .foregroundStyle(Color.white)
+                        Rectangle()
+                            .strokeBorder(Color.blue)
+                            .overlay(
+                                Text(editingText)
+                                    .lineLimit(2)
+                                    .font(.custom("Pretendard-Regular", size: fontSize))
+                                    .padding(.horizontal, 8)
+                            )
+                    }
+                    .onTapGesture(count: 2) {
+                        isSelected = false
+                        isEditing = true
+                        isTextFieldFocused = true
+                        prevText = editingText
+                    }
+                    .contextMenu {
+                        Button {
+                            
+                        } label: {
+                            Text("Add a lane above")
                         }
+                        
+                        Button {
+                            
+                        } label: {
+                            Text("Add a lane below")
+                        }
+                    }
                 }
                 
                 // MARK: - 더블 클릭 된 상태.

@@ -117,6 +117,7 @@ struct ListItemEmptyView: View {
                                     editingText = prevText
                                     isEditing = false
                                     isTextFieldFocused = false
+                                    isHovering = false
                                 }
                         }
                 }
