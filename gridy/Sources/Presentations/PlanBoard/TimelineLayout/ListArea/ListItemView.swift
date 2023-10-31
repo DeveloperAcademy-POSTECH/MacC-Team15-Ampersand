@@ -22,6 +22,9 @@ struct ListItemView: View {
     @State var editingText =  ""
     @State var prevText = ""
     
+    var layerIndex: Int
+    var rowIndex: Int
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             // TODO: - 실제 Plan 받아오기
@@ -31,12 +34,19 @@ struct ListItemView: View {
                 if !isSelected && !isEditing {
                     Rectangle()
                         .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
-                        .overlay(
-                            Text(editingText)
+                        .overlay {
+                            // TODO: - PlanType 의 title로
+//                            let planID = viewStore.map[String(layerIndex)]![rowIndex]
+//                            let plan = viewStore.existingAllPlans[planID]
+//                            let planTypeID = plan?.planTypeID
+//                            let planType = viewStore.existingPlanTypes[planTypeID]
+//                            let title = planType == nil ? "" : planType.title
+                            
+                            Text("title")
                                 .lineLimit(2)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .padding(.horizontal, 8)
-                        )
+                        }
                         .onHover { phase in
                             if !isSelected && !isEditing {
                                 isHovering = phase
@@ -111,6 +121,8 @@ struct ListItemView: View {
     ListItemView(
         store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
             PlanBoard()
-        }
+        },
+        layerIndex: 0,
+        rowIndex: 0
     )
 }

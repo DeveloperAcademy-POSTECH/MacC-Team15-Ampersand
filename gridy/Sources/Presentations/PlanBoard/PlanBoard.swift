@@ -215,7 +215,7 @@ struct PlanBoard: Reducer {
                     newPlan = Plan(id: "", // APIService에서 자동 생성
                                    planTypeID: target.planTypeID,
                                    parentLaneID: target.parentLaneID,
-                                   periods: [0: [startDate, endDate]],
+                                   periods: ["0": [startDate, endDate]],
                                    description: target.description,
                                    laneIDs: []
                     )

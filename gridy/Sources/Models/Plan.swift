@@ -9,11 +9,11 @@ import Foundation
 
 struct Plan: Identifiable, Equatable, Decodable {
     var id: String
-    var planTypeID: String?
+    var planTypeID: String
     
     /// If parentLaneID is nil, this plan data must be on root layer
     var parentLaneID: String?
-    var periods: [Int: [Date]] /// [index: [startDate, endDate]]
+    var periods: [String: [Date]] /// [index: [startDate, endDate]]
     var description: String?
     var laneIDs: [String]
     
