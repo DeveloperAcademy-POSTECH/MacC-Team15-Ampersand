@@ -42,7 +42,7 @@ struct ProjectBoardSideView: View {
                         .padding(.vertical)
                     
                     Button {
-                        //TODO: New Folder Button
+                        // TODO: - New Folder Button
                     } label: {
                         RoundedRectangle(cornerRadius: 12)
                             .foregroundStyle(.blue)

@@ -244,7 +244,7 @@ struct PlanBoard: Reducer {
                 
             case let .updatePlan(planID, planTypeID):
                 let projectID = state.rootProject.id
-                return .run { send in
+                return .run { _ in
                     try await apiService.updatePlan(planID, planTypeID, projectID)
                 }
                 

@@ -70,21 +70,9 @@ struct ListAreaView: View {
                             ForEach(Array(viewStore.showingLayers.indices), id: \.self) { forIndex in
                                 let layer = viewStore.showingLayers[forIndex]
                                 let layerArray = viewStore.map[String(layer)]!
-                                var layerSize = layerArray.count
-                                
-                                var height = 0
-                                var numOfChild = 0
-                                /// 내 leaf의 lane 수를 찾아야 함
-                                ForEach(0..<viewStore.showingLayers.count, id: \.self) { index in
-                                    let layerIndex = layer + index
-                                    Color.clear.onAppear { print(layerIndex) }
-                                }
+                                let layerSize = layerArray.count
                                 
                                 VStack(alignment: .leading, spacing: 0) {
-                                    
-                                    var showingAtFirst = (viewStore.showingLayers.count == 3 && forIndex == 0)
-                                    
-                                    /// 기존에 맵이 들고있는 layer들을 먼저 뿌려줌
                                     if viewStore.map.count > 0 {
                                         ForEach(Array(viewStore.map[String(layer)]!.indices), id: \.self) { row in
                                             ListItemView(store: store, layerIndex: layer, rowIndex: row)

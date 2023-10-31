@@ -27,7 +27,6 @@ struct ListItemView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            // TODO: - 실제 Plan 받아오기
             ZStack {
                 // MARK: - 초기 상태.
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
