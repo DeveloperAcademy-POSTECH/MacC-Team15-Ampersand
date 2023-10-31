@@ -31,7 +31,7 @@ struct APIService {
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     
     /// Lane
-    var createLane: @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]]
+    var createLane: @Sendable (Bool, String, String) async throws -> [String: Plan]
     var deleteLane: @Sendable (String, Bool, String) async throws -> [String: [String]]
     
     /// Layer
@@ -53,7 +53,7 @@ struct APIService {
         updatePlan: @escaping @Sendable (String, String, String) async throws -> Plan,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         
-        createLane: @escaping @Sendable (Int, Int, Bool, String, String) async throws -> [String: [String]],
+        createLane: @escaping @Sendable (Bool, String, String) async throws -> [String: Plan],
         deleteLane: @escaping @Sendable (String, Bool, String) async throws -> [String: [String]],
         
         createLayer: @escaping @Sendable (Int, String) async throws -> [String: [String]]
@@ -110,11 +110,9 @@ extension APIService {
         updateProjectTitle: { id, newTitle in
             try FirestoreService.projectCollectionPath.document(id).updateData(["title": newTitle])
             try FirestoreService.projectCollectionPath.document(id).updateData(["lastModifiedDate": Date()])
-            
         },
         deleteProject: { id in
             try FirestoreService.projectCollectionPath.document(id).delete()
-            
         },
         // MARK: - Plan type
         readAllPlanTypes: { projectID in
@@ -157,25 +155,25 @@ extension APIService {
             var map = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             /// 레이어를 생성해야 하는 경우인지 확인
             let currentLayerCount = map.count
+            let countRowToBeCreated = map["\(currentLayerCount)"]?.count ?? 0
             if layerIndex >= currentLayerCount {
                 var upperLaneID: String?
                 // TODO: - parameter랑 이름 겹침
-                var rowIndex = -1
                 for newLayerIndex in currentLayerCount...layerIndex {
                     map["\(newLayerIndex)"] = []
-                    /// 생겨난 레이어에도 이전 최하위 레어어의 플랜만큼 만들어줌
-                    if let prevLayer = map["\(newLayerIndex-1)"] {
-                        for index in 0..<prevLayer.count {
+                    for newRowIndex in 0...countRowToBeCreated {
+                        var createTargetPlan = false
+                        /// 생겨난 레이어에도 이전 최하위 레어어의 플랜만큼 만들어줌
+                        if let prevLayer = map["\(newLayerIndex-1)"] {
                             if let parentPlanID = parentPlanID,
-                               newLayerIndex == currentLayerCount,
-                               prevLayer[index] == parentPlanID {
-                                // TODO: - 입력받은 row에 들어가도록 수정
+                               newLayerIndex == layerIndex,
+                               prevLayer[newRowIndex] == parentPlanID {
                                 // 첫 순회때 새 플랜이 생성될 row 인덱스 조회
-                                rowIndex = index
+                                createTargetPlan = true
                             }
-                            let prevLayerPlanID = prevLayer[index]
+                            let prevLayerPlanID = prevLayer[newRowIndex]
                             
-                            let newPlanID = (layerIndex == newLayerIndex && rowIndex == index) ? targetID : try FirestoreService.getNewDocumentID(projectID, .plans)
+                            let newPlanID = createTargetPlan ? targetID : try FirestoreService.getNewDocumentID(projectID, .plans)
                             var dummyPlan = Plan(id: newPlanID, periods: [:], laneIDs: [newLaneID])
                             
                             if prevLayerPlanID == parentPlanID,
@@ -196,7 +194,7 @@ extension APIService {
                             if let upperLaneID = upperLaneID {
                                 try await FirestoreService.updateDocumentData(projectID, .lanes, upperLaneID, ["childIDs": dummyPlan.id])
                             }
-                            map["\(newLayerIndex)"]![index] = dummyPlan.id
+                            map["\(newLayerIndex)"]![newRowIndex] = dummyPlan.id
                             
                             if prevLayerPlanID == parentPlanID {
                                 parentPlanID = prevLayerPlanID
@@ -210,33 +208,31 @@ extension APIService {
             }
             
             /// 새로운 레인을 생성하는 경우 == parentLane이 없는 경우
-            if parentPlanID == nil {
-                var prevLayerLaneID: String?
-                for currentLayerIndex in 0..<currentLayerCount {
-                    let dummyLaneCountExceptTarget = rowIndex - (map["\(currentLayerIndex)"]!.count - 1)
-                    for currentLaneIndex in 0..<dummyLaneCountExceptTarget {
-                        let newLaneID = try FirestoreService.getNewDocumentID(projectID, .lanes)
-                        var dummyPlan = Plan(id: try FirestoreService.getNewDocumentID(projectID, .plans), periods: [:], laneIDs: [newLaneID])
-                        if currentLayerIndex == layerIndex,
-                           currentLaneIndex == dummyLaneCountExceptTarget - 1 {
-                            dummyPlan = target
-                            dummyPlan.id = targetID
-                            dummyPlan.laneIDs = [newLaneID]
-                        }
-                        try await FirestoreService.setDocumentData(projectID, .lanes, newLaneID, ["id": newLaneID, "ownerID": dummyPlan.id])
-                        if let prevLayerLaneID = prevLayerLaneID {
-                            try await FirestoreService.updateDocumentData(projectID, .lanes, prevLayerLaneID, ["childIDs": FieldValue.arrayUnion([dummyPlan.id])])
-                        }
-                        data = ["id": targetID,
-                                "planTypeID": dummyPlan.planTypeID,
-                                "parentLaneID": dummyPlan.parentLaneID,
-                                "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
-                                "description": dummyPlan.description,
-                                "laneIDs": [newLaneID]] as [String: Any?]
-                        try await FirestoreService.setDocumentData(projectID, .plans, targetID, data as [String: Any])
-                        prevLayerLaneID = newLaneID
-                        map["\(currentLayerIndex)"]!.append(dummyPlan.id)
+            var prevLayerLaneID: String?
+            for currentLayerIndex in 0..<currentLayerCount {
+                let dummyLaneCountExceptTarget = rowIndex - (map["\(currentLayerIndex)"]!.count - 1)
+                for currentLaneIndex in 0..<dummyLaneCountExceptTarget {
+                    let newLaneID = try FirestoreService.getNewDocumentID(projectID, .lanes)
+                    var dummyPlan = Plan(id: try FirestoreService.getNewDocumentID(projectID, .plans), periods: [:], laneIDs: [newLaneID])
+                    if currentLayerIndex == layerIndex,
+                       currentLaneIndex == dummyLaneCountExceptTarget - 1 {
+                        dummyPlan = target
+                        dummyPlan.id = targetID
+                        dummyPlan.laneIDs = [newLaneID]
                     }
+                    try await FirestoreService.setDocumentData(projectID, .lanes, newLaneID, ["id": newLaneID, "ownerID": dummyPlan.id])
+                    if let prevLayerLaneID = prevLayerLaneID {
+                        try await FirestoreService.updateDocumentData(projectID, .lanes, prevLayerLaneID, ["childIDs": FieldValue.arrayUnion([dummyPlan.id])])
+                    }
+                    data = ["id": targetID,
+                            "planTypeID": dummyPlan.planTypeID,
+                            "parentLaneID": dummyPlan.parentLaneID,
+                            "periods": dummyPlan.periods.count == 0 ? [:] : ["0": dummyPlan.periods[0]],
+                            "description": dummyPlan.description,
+                            "laneIDs": [newLaneID]] as [String: Any?]
+                    try await FirestoreService.setDocumentData(projectID, .plans, targetID, data as [String: Any])
+                    prevLayerLaneID = newLaneID
+                    map["\(currentLayerIndex)"]!.append(dummyPlan.id)
                 }
             }
             try await FirestoreService.projectCollectionPath.document(projectID).updateData(["map": map])
@@ -295,8 +291,6 @@ extension APIService {
             return projectMap
         },
         updatePlan: { planID, planTypeID, projectID in
-            /// planTypeID를 업데이트하는 updatePlan
-            /// periods를 업데이트하는 updatePlan도 필요함
             try await FirestoreService.updateDocumentData(projectID, .plans, planID, ["planTypeID": planTypeID])
             return try await FirestoreService.getDocument(projectID, .plans, planID, Plan.self) as! Plan
         },
@@ -308,43 +302,17 @@ extension APIService {
             }
             return result
         },
-        createLane: { layerIndex, laneIndex, createOnTop, planID, projectID in
-            var projectMap = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).map
-            let maximumDepth = projectMap.count
-            var targetPlanID = planID
-            /// 최하위 레이어까지 해당 위치에 새 레인 생성
-            for currentLayerIndex in layerIndex..<maximumDepth {
-                let planData = try await FirestoreService.getDocument(projectID, .plans, targetPlanID, Plan.self) as! Plan
-                if var parentLaneID = planData.parentLaneID {
-                    let parentLane = try await FirestoreService.getDocument(projectID, .lanes, parentLaneID, Lane.self) as! Lane
-                    if var childIDsInLane = parentLane.childIDs {
-                        let newPlanID = UUID().uuidString
-                        let newLaneID = try FirestoreService.getNewDocumentID(projectID, .lanes)
-                        try await FirestoreService.setDocumentData(projectID, .lanes, newLaneID, ["id": newLaneID, "ownerID": newPlanID])
-                        try await FirestoreService.setDocumentData(projectID, .plans, newPlanID, ["id": newPlanID, "periods": [], "laneIDs": [newLaneID]])
-                        let newChildIndex = childIDsInLane.firstIndex(of: targetPlanID)! + (createOnTop ? 0 : 1)
-                        childIDsInLane.insert(
-                            newPlanID,
-                            at: newChildIndex
-                        )
-                        try await FirestoreService.updateDocumentData(projectID, .lanes, parentLaneID, ["childIDs": childIDsInLane])
-                        /// update project map
-                        projectMap[currentLayerIndex.description]?.insert(targetPlanID, at: newChildIndex)
-                        /// 다음 레이어에서 lane을 추가해줄 child plan으로 값 업데이트
-                        targetPlanID = planData.laneIDs[createOnTop ? 0 : planData.laneIDs.count - 1]
-                    }
-                } else {
-                    /// 레인이 아무것도 없는데 레인을 나누는 경우
-                    /// map 업데이트
-                    projectMap[layerIndex.description] = []
-                    for dummy in 0...laneIndex {
-                        let dummyPlan = Plan(id: UUID().uuidString, periods: [:], laneIDs: [])
-                        try await FirestoreService.setDocumentData(projectID, .plans, dummyPlan.id, ["id": dummyPlan.id, "periods": [], "laneIDs": []])
-                        projectMap[layerIndex.description]!.append(dummyPlan.id)
-                    }
-                }
+        createLane: { createOnTop, planID, projectID in
+            let newLane = Lane(id: try FirestoreService.getNewDocumentID(projectID, .lanes), ownerID: planID)
+            var currentLaneIDs = (try await FirestoreService.getDocument(projectID, .plans, planID, Plan.self) as! Plan).laneIDs
+            try await FirestoreService.updateDocumentData(projectID, .plans, planID, ["laneIDs": createOnTop ? currentLaneIDs.insert(newLane.id, at: 0) : FieldValue.arrayUnion([newLane.id])])
+            
+            let plans = try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
+            var result = [String: Plan]()
+            for plan in plans {
+                result[plan.id] = plan
             }
-            return projectMap
+            return result
         },
         deleteLane: { laneID, deleteAll, projectID in
             // TODO: -
@@ -355,9 +323,9 @@ extension APIService {
             var projectMap = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).map
             let currentProjectMapLayerSize = projectMap.count
             
-            if (currentProjectMapLayerSize - 1) < layerIndex {
+            if (currentProjectMapLayerSize - 1) < layerIndex + 1 {
                 /// 이미 있는 레이어와 레이어 사이에 생성하는 것이 아닌, map에 아직 없는 레이어를 추가하는 경우: 레이어만 추가
-                for currentLayerIndex in currentProjectMapLayerSize...layerIndex {
+                for currentLayerIndex in currentProjectMapLayerSize...layerIndex + 1 {
                     projectMap["\(currentLayerIndex)"] = []
                 }
             } else {
