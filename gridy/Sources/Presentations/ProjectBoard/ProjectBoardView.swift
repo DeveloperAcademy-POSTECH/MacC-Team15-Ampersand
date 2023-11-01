@@ -27,7 +27,7 @@ struct ProjectBoardView: View {
                     borderSpacer(.horizontal)
                     projectListArea
                 }
-                .frame(width: 300)
+                .frame(width: 280)
                 borderSpacer(.vertical)
                 listArea
             }
@@ -66,6 +66,15 @@ extension ProjectBoardView {
     }
 }
 extension ProjectBoardView {
+    var calendarArea: some View {
+        RoundedRectangle(cornerRadius: 32)
+            .foregroundStyle(.white)
+            .frame(width: 248, height: 248)
+            .padding()
+            .overlay(Text("CalendarArea").foregroundStyle(.black))
+    }
+}
+extension ProjectBoardView {
     var boardSearchArea: some View {
         Text("boardSearchArea")
     }
@@ -73,11 +82,6 @@ extension ProjectBoardView {
 extension ProjectBoardView {
     var projectListArea: some View {
         Text("projectListArea")
-    }
-}
-extension ProjectBoardView {
-    var calendarArea: some View {
-        Text("CalendarArea")
     }
 }
 extension ProjectBoardView {
