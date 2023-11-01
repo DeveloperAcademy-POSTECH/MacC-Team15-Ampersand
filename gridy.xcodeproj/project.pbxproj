@@ -90,6 +90,7 @@
 		EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC7F2AF2209D00751FAE /* TabBarView.swift */; };
 		EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC812AF2210700751FAE /* RightToolBarView.swift */; };
 		EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC832AF2233400751FAE /* CreateFolderView.swift */; };
+		EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -167,6 +168,7 @@
 		EED5EC7F2AF2209D00751FAE /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		EED5EC812AF2210700751FAE /* RightToolBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarView.swift; sourceTree = "<group>"; };
 		EED5EC832AF2233400751FAE /* CreateFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderView.swift; sourceTree = "<group>"; };
+		EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardViewDeprecated.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -265,7 +267,7 @@
 		AD8ECB9D2ABC7CC00040A0B8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				EED5EC6C2AF21C4700751FAE /* New Group */,
+				EED5EC8A2AF23FD200751FAE /* Deprecated */,
 				975A62092ACE930500DE31AB /* Models */,
 				ADACF5FA2AC20133008AADFA /* Presentations */,
 				ADACF6002AC25AF3008AADFA /* Network */,
@@ -489,11 +491,12 @@
 			path = ScheduleIndexArea;
 			sourceTree = "<group>";
 		};
-		EED5EC6C2AF21C4700751FAE /* New Group */ = {
+		EED5EC8A2AF23FD200751FAE /* Deprecated */ = {
 			isa = PBXGroup;
 			children = (
+				EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */,
 			);
-			path = "New Group";
+			path = Deprecated;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -626,6 +629,7 @@
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
 				AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */,
 				EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */,
+				EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */,
 				AD96ED6C2AD6FBBE005D197B /* PlanBoard.swift in Sources */,
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
