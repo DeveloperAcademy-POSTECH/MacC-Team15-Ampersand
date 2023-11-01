@@ -92,13 +92,7 @@ struct ListItemEmptyView: View {
                                  viewStore.send(.createPlan(
                                         layer: layerIndex,
                                         row: rowIndex,
-                                        target: Plan(
-                                            id: "",
-                                            planTypeID: PlanType.emptyPlanType.id,
-                                            parentLaneID: nil,
-                                            periods: [:],
-                                            laneIDs: []
-                                        ),
+                                        target: Plan(id: "", planTypeID: ""),
                                         startDate: nil,
                                         endDate: nil
                                     ))

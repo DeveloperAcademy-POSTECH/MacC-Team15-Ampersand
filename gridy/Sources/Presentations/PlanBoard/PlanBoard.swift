@@ -86,8 +86,6 @@ struct PlanBoard: Reducer {
         // MARK: - plan type
         case createPlanType(planID: String)
         case createPlanTypeResponse(TaskResult<PlanType>)
-        case searchExistingPlanTypes(with: String)
-        case searchExistingPlanTypesResponse(TaskResult<[PlanType]>)
         case fetchAllPlanTypes
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
@@ -150,9 +148,9 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 state.keyword = ""
                 return .run { send in
-                    let createdID = try await apiService.createPlanType(
+                    try await apiService.createPlanType(
                         PlanType(
-                            id: "", /// APIService에서 자동 생성
+                            id: "",
                             title: keyword,
                             colorCode: colorCode
                         ), 
@@ -162,7 +160,7 @@ struct PlanBoard: Reducer {
                     await send(.createPlanTypeResponse(
                         TaskResult {
                             PlanType(
-                                id: createdID,
+                                id: "",
                                 title: keyword,
                                 colorCode: colorCode
                             )
@@ -190,53 +188,14 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .searchExistingPlanTypes(with: keyword):
-                state.keyword = keyword
-                let projectID = state.rootProject.id
-                return .run { send in
-                    await send(.searchExistingPlanTypesResponse(
-                        TaskResult {
-                            try await apiService.searchPlanTypes(keyword, projectID)
-                        }
-                    ))
-                }
-                
-            case let .searchExistingPlanTypesResponse(.success(response)):
-                state.searchPlanTypesResult = response
-                return .none
-                
                 // MARK: - plan
             case let .createPlan(layer, row, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 let projectID = state.rootProject.id
-                
-                var newPlan: Plan?
                 if let startDate = startDate, let endDate = endDate {
-                    newPlan = Plan(id: "", // APIService에서 자동 생성
-                                   planTypeID: target.planTypeID,
-                                   parentLaneID: target.parentLaneID,
-                                   periods: ["0": [startDate, endDate]],
-                                   description: target.description,
-                                   laneIDs: []
-                    )
                     state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
-                } else {
-                    newPlan = Plan(id: "", // APIService에서 자동 생성
-                                   planTypeID: target.planTypeID,
-                                   parentLaneID: target.parentLaneID,
-                                   periods: [:],
-                                   description: target.description,
-                                   laneIDs: []
-                    )
                 }
-                let planToBeCreated = newPlan!
-                return .run { send in
-                    await send(.createPlanResponse(
-                        TaskResult {
-                            try await apiService.createPlan(planToBeCreated, layer, row, projectID)
-                        }
-                    ), animation: .easeIn)
-                }
+                return .none
                 
             case let .createPlanResponse(.success(response)):
                 state.map = response
