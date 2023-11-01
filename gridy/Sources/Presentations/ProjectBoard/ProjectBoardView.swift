@@ -39,19 +39,16 @@ extension ProjectBoardView {
         Text("userSettingArea")
     }
 }
-
 extension ProjectBoardView {
     var boardSearchArea: some View {
         Text("boardSearchArea")
     }
 }
-
 extension ProjectBoardView {
     var projectListArea: some View {
         Text("projectListArea")
     }
 }
-
 extension ProjectBoardView {
     var listArea: some View {
         Text("listArea")
