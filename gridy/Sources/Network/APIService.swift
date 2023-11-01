@@ -118,6 +118,15 @@ extension APIService {
         },
         // MARK: - Plan
         createPlan: { plansToCreate, layerCount, projectID in
+            for plan in plansToCreate {
+                let data = ["id": plan.id,
+                            "planTypeID": plan.planTypeID,
+                            "childPlanID": plan.childPlanIDs,
+                            "periods": plan.periods,
+                            "totalPeriod": plan.totalPeriod,
+                            "description": plan.description] as [String: Any?]
+                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, data as [String: Any])
+            }
         },
         deletePlan: { planID, layerIndex, deleteAll, projectID in
         },
