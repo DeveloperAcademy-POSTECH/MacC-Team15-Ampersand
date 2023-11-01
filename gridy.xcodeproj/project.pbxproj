@@ -69,7 +69,6 @@
 		EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A402AC3CDC700C9AAF0 /* Utils.swift */; };
 		EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */; };
 		EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */; };
-		EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */; };
 		EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */; };
 		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
@@ -85,9 +84,12 @@
 		EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC712AF21D5500751FAE /* LoadingView.swift */; };
 		EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC732AF21DCF00751FAE /* UserSettingView.swift */; };
 		EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC752AF21DE000751FAE /* NotificationView.swift */; };
-		EED5EC782AF21E0E00751FAE /* CreateBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC772AF21E0E00751FAE /* CreateBoardView.swift */; };
+		EED5EC782AF21E0E00751FAE /* CreatePlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */; };
 		EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC792AF21F0900751FAE /* ShareImageView.swift */; };
 		EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */; };
+		EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC7F2AF2209D00751FAE /* TabBarView.swift */; };
+		EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC812AF2210700751FAE /* RightToolBarView.swift */; };
+		EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC832AF2233400751FAE /* CreateFolderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -144,7 +146,6 @@
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarLayoutTemp.swift; sourceTree = "<group>"; };
 		EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkingLayoutTemp.swift; sourceTree = "<group>"; };
-		EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarAreaView.swift; sourceTree = "<group>"; };
 		EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackPinkInYourAreaView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
@@ -160,9 +161,12 @@
 		EED5EC712AF21D5500751FAE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		EED5EC732AF21DCF00751FAE /* UserSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingView.swift; sourceTree = "<group>"; };
 		EED5EC752AF21DE000751FAE /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
-		EED5EC772AF21E0E00751FAE /* CreateBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateBoardView.swift; sourceTree = "<group>"; };
+		EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlanBoardView.swift; sourceTree = "<group>"; };
 		EED5EC792AF21F0900751FAE /* ShareImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareImageView.swift; sourceTree = "<group>"; };
 		EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingView.swift; sourceTree = "<group>"; };
+		EED5EC7F2AF2209D00751FAE /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
+		EED5EC812AF2210700751FAE /* RightToolBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarView.swift; sourceTree = "<group>"; };
+		EED5EC832AF2233400751FAE /* CreateFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -289,8 +293,8 @@
 			children = (
 				AD96ED3D2AD13AE4005D197B /* ProjectBoardView.swift */,
 				EED5EC732AF21DCF00751FAE /* UserSettingView.swift */,
-				EED5EC752AF21DE000751FAE /* NotificationView.swift */,
-				EED5EC772AF21E0E00751FAE /* CreateBoardView.swift */,
+				EED5EC832AF2233400751FAE /* CreateFolderView.swift */,
+				EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */,
 				ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */,
 				AD96ED412AD1BCAD005D197B /* ProjectItem.swift */,
 				EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */,
@@ -349,6 +353,10 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
+				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
+				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
+				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
+				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				EE909A442AC3CE0800C9AAF0 /* CalendarLayout */,
@@ -376,11 +384,8 @@
 		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
 			isa = PBXGroup;
 			children = (
-				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
-				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
-				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
-				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
 				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
+				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
 				EE909A522AC3CECD00C9AAF0 /* BlackPinkInYourArea */,
 				9784DB522AECEB66002EB52F /* LayerControlArea */,
 				EE909A512AC3CEC600C9AAF0 /* ListArea */,
@@ -467,7 +472,8 @@
 				EED5EC6D2AF21D2700751FAE /* SplashView.swift */,
 				EED5EC6F2AF21D4700751FAE /* LoginView.swift */,
 				EED5EC712AF21D5500751FAE /* LoadingView.swift */,
-				EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */,
+				EED5EC7F2AF2209D00751FAE /* TabBarView.swift */,
+				EED5EC752AF21DE000751FAE /* NotificationView.swift */,
 				8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */,
 				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
 				AD96ED612AD5B005005D197B /* BackgroundView.swift */,
@@ -616,7 +622,6 @@
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
 				9783F6D82AEFA04100176700 /* FirestoreService.swift in Sources */,
-				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
 				EE5C207C2AE15685005D2D7E /* ProjectSideItemView.swift in Sources */,
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
 				AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */,
@@ -632,7 +637,8 @@
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */,
-				EED5EC782AF21E0E00751FAE /* CreateBoardView.swift in Sources */,
+				EED5EC782AF21E0E00751FAE /* CreatePlanBoardView.swift in Sources */,
+				EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */,
 				EED5EC702AF21D4700751FAE /* LoginView.swift in Sources */,
 				EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */,
 				AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */,
@@ -655,8 +661,10 @@
 				EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */,
 				97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */,
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
+				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */,
+				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
 				EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
