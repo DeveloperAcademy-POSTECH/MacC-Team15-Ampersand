@@ -64,8 +64,8 @@ struct LineAreaView: View {
                                     endDate: endDate
                                 ))
                                 viewStore.send(.fetchAllLanes)
-                                isTextFieldEditing = true /// TextField와 입력된 Text가 보여지는 형태를 구분하기 위함.
-                                isTextFieldFocused = true /// TextField가 열리자마자 바로 입력될 수 있게하기 위함.
+                                isTextFieldEditing = true
+                                isTextFieldFocused = true
                             }
                         } label: {
                             Text("create Plan")
@@ -166,9 +166,6 @@ struct LineAreaView: View {
                         var planIDsInCurrentLayer = viewStore.map[String(prevLayerIndex)]!
                         var totalLanes = 0
                         
-                        Color.clear.onAppear {
-                            print(viewStore.lineAreaLaneIDs)
-                        }
                         // MARK: - 각 lane이 가지는 모든 childPlan의 periods에 접근
                         ForEach(Array(viewStore.lineAreaLaneIDs.enumerated()), id: \.offset) { index, laneID in
                             let lane = viewStore.existingLanes[laneID]!
