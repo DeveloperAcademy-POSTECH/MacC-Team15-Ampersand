@@ -12,6 +12,7 @@ struct ProjectBoardView: View {
     @State var bellButtonClicked = false
     @State var userSettingHover = false
     @State var userSettingClicked = false
+    @State private var isExpanded: Bool = true
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -24,7 +25,6 @@ struct ProjectBoardView: View {
                     calendarArea
                     borderSpacer(.horizontal)
                     boardSearchArea
-                    borderSpacer(.horizontal)
                     projectListArea
                 }
                 .frame(width: 280)
@@ -81,7 +81,18 @@ extension ProjectBoardView {
 }
 extension ProjectBoardView {
     var projectListArea: some View {
-        Text("projectListArea")
+        List {
+            Section("Projects") {
+                DisclosureGroup(isExpanded: $isExpanded) {
+                    ForEach(0..<4, id: \.self) { _ in
+                        Text("Folder")
+                    }
+                } label: {
+                    Label("Personal Project", systemImage: "person.crop.square.fill").foregroundStyle(.white)
+                }
+                .listRowSeparator(.hidden)
+            }
+        }
     }
 }
 extension ProjectBoardView {
