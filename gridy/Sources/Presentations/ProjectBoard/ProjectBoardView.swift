@@ -10,6 +10,8 @@ import ComposableArchitecture
 
 struct ProjectBoardView: View {
     @State var bellButtonClicked = false
+    @State var userSettingHover = false
+    @State var userSettingClicked = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -17,9 +19,11 @@ struct ProjectBoardView: View {
             borderSpacer(.horizontal)
             HStack(alignment: .top, spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    userSettingArea.frame(height: 60)
+                    userSettingArea
                     borderSpacer(.horizontal)
-                    boardSearchArea.frame(height: 60)
+                    calendarArea
+                    borderSpacer(.horizontal)
+                    boardSearchArea
                     borderSpacer(.horizontal)
                     projectListArea
                 }
@@ -31,12 +35,34 @@ struct ProjectBoardView: View {
         .sheet(isPresented: $bellButtonClicked) {
             NotificationView()
         }
+        .sheet(isPresented: $userSettingClicked) {
+            UserSettingView()
+        }
     }
 }
 
 extension ProjectBoardView {
     var userSettingArea: some View {
-        Text("userSettingArea")
+        HStack(alignment: .center, spacing: 8) {
+            Circle()
+                .foregroundStyle(.white)
+                .frame(width: 24, height: 24)
+                .padding(.leading, 8)
+            Text("HongGilDong").foregroundStyle(.white)
+            Image(systemName: "chevron.down").foregroundStyle(.white)
+        }
+        .padding(8)
+        .background {
+            if userSettingClicked || userSettingHover {
+                RoundedRectangle(cornerRadius: 8).foregroundStyle(.gray)
+                    .padding(.leading, 8)
+            }
+        }
+        .frame(height: 48)
+        .onHover { proxy in
+            userSettingHover = proxy
+        }
+        .onTapGesture { userSettingClicked.toggle() }
     }
 }
 extension ProjectBoardView {
@@ -47,6 +73,11 @@ extension ProjectBoardView {
 extension ProjectBoardView {
     var projectListArea: some View {
         Text("projectListArea")
+    }
+}
+extension ProjectBoardView {
+    var calendarArea: some View {
+        Text("CalendarArea")
     }
 }
 extension ProjectBoardView {
