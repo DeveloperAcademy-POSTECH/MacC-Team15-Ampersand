@@ -28,6 +28,9 @@ struct ProjectBoardView: View {
                 listArea
             }
         }
+        .sheet(isPresented: $bellButtonClicked) {
+            NotificationView()
+        }
     }
 }
 
