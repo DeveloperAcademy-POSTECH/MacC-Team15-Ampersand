@@ -44,8 +44,8 @@ struct LineAreaView: View {
                                         to: today
                                     )!.filteredDate
                                 )
+                                // TODO: - Create plan
                                 viewStore.send(.createPlan(
-                                    // TODO: - Need arguments #1, #2
                                     layer: 1,
                                     row: 1,
                                     target: Plan(id: "", planTypeID: ""),
@@ -239,7 +239,6 @@ struct LineAreaView: View {
                     viewStore.send(.windowSizeChanged(newSize))
                 }
                 .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
-                    // TODO: - Action에서 처리해야 될 것 같은데
                     viewStore.send(.gridSizeChanged(geometry.size))
                 }
                 .onContinuousHover { phase in
