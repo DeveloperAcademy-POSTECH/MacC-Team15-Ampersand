@@ -24,9 +24,9 @@ struct APIService {
     var deletePlanType: @Sendable (String, String) async throws -> Void
     
     /// Plan
-    var createPlan: @Sendable ([Plan], Int, String) async throws -> Void
+    var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
+    var createPlanOnLineArea: @Sendable (Plan, Plan, String) async throws -> Void
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
-    var updatePlanChild: @Sendable (Plan, Plan, String) async throws -> Void
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
     
@@ -43,9 +43,9 @@ struct APIService {
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
         deletePlanType: @escaping @Sendable (String, String) async throws -> Void,
         
-        createPlan: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
+        createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
+        createPlanOnLineArea: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
-        updatePlanChild: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
         
@@ -60,9 +60,9 @@ struct APIService {
         self.createPlanType = createPlanType
         self.deletePlanType = deletePlanType
         
-        self.createPlan = createPlan
+        self.createPlanOnListArea = createPlanOnListArea
+        self.createPlanOnLineArea = createPlanOnLineArea
         self.readAllPlans = readAllPlans
-        self.updatePlanChild = updatePlanChild
         self.updatePlanType = updatePlanType
         self.deletePlan = deletePlan
         
@@ -126,7 +126,7 @@ extension APIService {
             try await FirestoreService.deleteDocument(projectID, .planTypes, typeID)
         },
         // MARK: - Plan
-        createPlan: { plansToCreate, layerCount, projectID in
+        createPlanOnListArea: { plansToCreate, layerCount, projectID in
             let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
             var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
             for (index, plan) in plansToCreate.enumerated() {
@@ -139,11 +139,12 @@ extension APIService {
                 }
             }
         },
+        createPlanOnLineArea: { target, parent, projectID in
+            try await FirestoreService.setDocumentData(projectID, .plans, target.id, planToDictionary(target) as [String: Any])
+            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, planToDictionary(parent) as [String: Any])
+        },
         readAllPlans: { projectID in
             [:]
-        },
-        updatePlanChild: { target, parent, projectID in
-            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, planToDictionary(parent) as [String: Any])
         },
         updatePlanType: { targetPlanID, planTypeID, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": planTypeID])
