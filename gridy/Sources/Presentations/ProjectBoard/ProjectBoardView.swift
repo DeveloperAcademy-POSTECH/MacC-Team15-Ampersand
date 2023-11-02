@@ -20,19 +20,21 @@ struct ProjectBoardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             TabBarView(bellButtonClicked: $bellButtonClicked).frame(height: 36)
+                .zIndex(2)
             borderSpacer(.horizontal)
             HStack(alignment: .top, spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     userSettingArea
                     borderSpacer(.horizontal)
-                    calendarArea
+                    calendarArea.frame(height: 280)
                     borderSpacer(.horizontal)
                     boardSearchArea
                     projectListArea
                     Spacer()
                 }
-                .background(Color.sideBar)
+                .background(Color.sideBar.shadow(color: .black.opacity(0.2), radius: 16, x: 8))
                 .frame(width: 280)
+                .zIndex(1)
                 borderSpacer(.vertical)
                 listArea
             }
@@ -53,10 +55,11 @@ extension ProjectBoardView {
     var userSettingArea: some View {
         HStack(alignment: .center, spacing: 8) {
             Circle()
-                .foregroundStyle(Color.itemBackground)
+                .foregroundStyle(Color.blackWhite)
                 .frame(width: 24, height: 24)
             Text("HongGilDong")
                 .foregroundStyle(Color.title)
+                .fontWeight(.medium)
             Image(systemName: "chevron.down")
                 .foregroundStyle(Color.subtitle)
         }
@@ -80,49 +83,62 @@ extension ProjectBoardView {
 extension ProjectBoardView {
     var calendarArea: some View {
         RoundedRectangle(cornerRadius: 32)
-            .foregroundStyle(Color.itemBackground)
+            .foregroundStyle(Color.item)
             .aspectRatio(1, contentMode: .fit)
-            .overlay(Text("CalendarArea").foregroundStyle(.black))
+            .overlay(
+                Text("CalendarArea")
+                    .foregroundStyle(.black)
+            )
             .padding(16)
     }
 }
 extension ProjectBoardView {
     var boardSearchArea: some View {
         RoundedRectangle(cornerRadius: 8)
-            .foregroundStyle(Color.textField)
+            .foregroundStyle(Color.item)
             .frame(height: 32)
-            .overlay(Text("BoardSearchArea").foregroundStyle(.black))
+            .overlay(
+                Text("BoardSearchArea")
+                    .foregroundStyle(Color.textInactive)
+            )
             .padding(16)
     }
 }
 extension ProjectBoardView {
     var projectListArea: some View {
-        Section(header: Text("Projects").padding(.leading, 16).padding(.bottom, 8)) {
-            DisclosureGroup(isExpanded: $isExpanded) {
-                ForEach(0..<4, id: \.self) { index in
-                    Folder(id: index)
-                }
-            } label: {
-                HStack(alignment: .center, spacing: 0) {
-                    Rectangle()
-                        .foregroundStyle(.clear)
-                        .frame(width: 24, height: 24)
-                        .overlay(
-                            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                                .foregroundColor(Color.subtitle)
-                        )
-                    Label("Personal Project", systemImage: "person.crop.square.fill")
-                        .foregroundStyle(Color.title)
-                        .frame(height: 40)
-                    Spacer()
-                }
-                .padding(.leading, 16)
-                .background(listHover ? Color.itemSelected : .clear)
-                .onHover { proxy in
-                    listHover = proxy
+        Section(header:
+                    Text("Projects")
+            .fontWeight(.medium)
+            .padding(.leading, 16)
+            .padding(.bottom, 8)
+        ) {
+            ScrollView(showsIndicators: false) {
+                    DisclosureGroup(isExpanded: $isExpanded) {
+                        ForEach(0..<4, id: \.self) { index in
+                            Folder(id: index)
+                        }
+                    } label: {
+                        HStack(alignment: .center, spacing: 0) {
+                            Rectangle()
+                                .foregroundStyle(.clear)
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                        .foregroundColor(Color.subtitle)
+                                )
+                            Label("Personal Project", systemImage: "person.crop.square.fill")
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color.title)
+                                .frame(height: 40)
+                            Spacer()
+                        }
+                        .padding(.leading, 16)
+                        .background(listHover ? Color.itemHovered : .clear)
+                        .onHover { proxy in
+                            listHover = proxy
+                        }
                 }
             }
-            .listRowSeparator(.hidden)
             .disclosureGroupStyle(MyDisclosureStyle())
         }
     }
@@ -133,11 +149,14 @@ extension ProjectBoardView {
         var body: some View {
             HStack(alignment: .center, spacing: 0) {
                 Text("Folder")
+                    .foregroundStyle(Color.title)
+                    .font(.body)
+                    .fontWeight(.medium)
                 Spacer()
             }
-            .frame(height: 40)
             .padding(.leading, 64)
-            .background(folderHover ? Color.itemSelected : .clear)
+            .frame(height: 40)
+            .background(folderHover ? Color.itemHovered : .clear)
             .onHover { proxy in
                 folderHover = proxy
             }
@@ -159,29 +178,34 @@ extension ProjectBoardView {
         }
     }
 }
+
 extension ProjectBoardView {
     var listArea: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
                 Image(systemName: "chevron.left")
                     .foregroundStyle(Color.subtitle)
+                    .fontWeight(.medium)
                     .padding(8)
                     .frame(width: 32, height: 32)
                     .onTapGesture {
                         // TODO: - Back Button Clicked
                     }
-                Text("Folder").font(.title)
+                Text("Folder")
+                    .font(.title)
+                    .fontWeight(.medium)
                 Spacer()
                 Button {
                     planBoardButtonClicked = true
                 } label: {
                     RoundedRectangle(cornerRadius: 22)
-                        .foregroundStyle(planBoardButtonHover ? Color.purple : Color.button)
+                        .foregroundStyle(planBoardButtonHover ? Color.boardSelectedBorder : Color.button)
                         .shadow(color: .black.opacity(0.25), radius: 4, y: 4)
                         .frame(width: 125, height: 44)
                         .overlay(
                             Text("+ Plan Board")
                                 .font(.title3)
+                                .fontWeight(.medium)
                                 .foregroundStyle(Color.buttonText)
                         )
                 }
@@ -195,7 +219,7 @@ extension ProjectBoardView {
             }
             .padding(16)
             .padding(.trailing, 16)
-            ZStack(alignment: .topLeading) {
+            ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 32) {
                         ForEach(0..<20, id: \.self) { index in
@@ -204,15 +228,15 @@ extension ProjectBoardView {
                     }
                     .padding(32)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 32)
-                        .foregroundStyle(Color.sideBar)
-                    )
+                .background(Color.folder)
+                LinearGradient(colors: [.clear, .folder], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 48)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 32))
             .padding(.leading, 32)
             .padding([.trailing, .bottom], 16)
         }
-        .background(Color.textField)
+        .background(Color.project)
     }
     var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 240, maximum: 360), spacing: 32)]
@@ -225,14 +249,15 @@ extension ProjectBoardView {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(Color.itemBackground)
+                        .foregroundStyle(Color.board)
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(planBoardItemHover ? Color.itemSelectedBorder : .clear)
+                        .stroke(planBoardItemHover ? Color.boardHoveredBorder : .clear)
                 }
                 .aspectRatio(3/2, contentMode: .fit)
-                .shadow(color: planBoardItemHover ? .white.opacity(0.25) : .clear, radius: planBoardItemHover ? 4 : 0, y: planBoardItemHover ? 4 : 0)
+                .shadow(color: planBoardItemHover ? .black.opacity(0.25) : .clear, radius: planBoardItemHover ? 4 : 0, y: planBoardItemHover ? 4 : 0)
+                Spacer().frame(height: 8)
                 Text("Board Name")
-                    .font(.title)
+                    .fontWeight(.medium)
                     .font(.system(size: 18))
                     .foregroundStyle(Color.title)
                 Text("2023.10.01 ~ 2023.11.14")

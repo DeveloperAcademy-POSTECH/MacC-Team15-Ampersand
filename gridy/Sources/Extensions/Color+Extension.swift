@@ -45,10 +45,9 @@ extension Color {
         return 0x000000
     }
     
-    
+    static let gridyBW = Color("gridyBW")
     static let blackWhite = Color("blackWhite")
     static let border = Color("border")
-    static let textField = Color("textField")
     static let sideBar = Color("sideBar")
     static let textInactive = Color("textInactive")
     static let subtitle = Color("subtitle")
@@ -60,11 +59,13 @@ extension Color {
     static let tab = Color("tab")
     static let tabHovered = Color("tabHovered")
     static let tabLabel = Color("tabLabel")
-    static let itemBackground = Color("itemBackground")
+    static let project = Color("project")
+    static let folder = Color("folder")
+    static let board = Color("board")
+    static let boardHoveredBorder = Color("boardHoveredBorder")
+    static let boardSelectedBorder = Color("boardSelectedBorder")
+    static let item = Color("item")
     static let itemHovered = Color("itemHovered")
-    static let itemSelected = Color("itemSelected")
-    static let itemSelectedBorder = Color("itemSelectedBorder")
-    static let gridyBW = Color("gridyBW")
 
 //    static let purplegradient = 
 

@@ -58,6 +58,7 @@ extension TabBarView {
     var planBoardTab: some View {
         HStack(alignment: .center, spacing: 0) {
             Text("BoardNamed")
+                .fontWeight(.medium)
                 .padding(.leading, 16)
                 .foregroundStyle(planBoardTabClicked ? Color.title : planBoardTabHover ? Color.title : Color.title)
             Rectangle()
