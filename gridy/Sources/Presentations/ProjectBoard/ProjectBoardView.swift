@@ -185,6 +185,6 @@ extension ProjectBoardView {
 func borderSpacer(_ direction: Edge.Set) -> some View {
     Rectangle()
         .foregroundStyle(.black)
-        .frame(width: direction == .vertical ? 1 : .infinity)
-        .frame(height: direction == .horizontal ? 1 : .infinity)
+        .frame(width: direction == .vertical ? 1 : nil)
+        .frame(height: direction == .horizontal ? 1 : nil)
 }

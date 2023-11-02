@@ -61,6 +61,8 @@
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		D17800692AF35989002984CF /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* TimelineLayoutView.swift */; };
+		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
 		EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
@@ -70,7 +72,7 @@
 		EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */; };
 		EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */; };
 		EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */; };
-		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */; };
+		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
 		EE909A5E2AC3CFA600C9AAF0 /* LineIndexAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5D2AC3CFA600C9AAF0 /* LineIndexAreaView.swift */; };
 		EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */; };
@@ -139,6 +141,8 @@
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		D17800682AF35989002984CF /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
+		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
 		EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardSideView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
@@ -148,7 +152,7 @@
 		EE909A462AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarLayoutTemp.swift; sourceTree = "<group>"; };
 		EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkingLayoutTemp.swift; sourceTree = "<group>"; };
 		EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackPinkInYourAreaView.swift; sourceTree = "<group>"; };
-		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
+		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewDeprecated.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
 		EE909A5D2AC3CFA600C9AAF0 /* LineIndexAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineIndexAreaView.swift; sourceTree = "<group>"; };
 		EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAxisAreaView.swift; sourceTree = "<group>"; };
@@ -355,7 +359,8 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
-				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */,
+				D17800682AF35989002984CF /* TimelineLayoutView.swift */,
+				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
 				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
 				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
@@ -495,6 +500,7 @@
 			isa = PBXGroup;
 			children = (
 				EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */,
+				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */,
 			);
 			path = Deprecated;
 			sourceTree = "<group>";
@@ -617,6 +623,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */,
 				AD52FE9F2AC965EF00AA001F /* User.swift in Sources */,
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
 				AD2F7A092ADD5BD2006201AB /* Lane.swift in Sources */,
@@ -631,12 +638,13 @@
 				EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */,
 				EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */,
 				AD96ED6C2AD6FBBE005D197B /* PlanBoard.swift in Sources */,
-				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */,
+				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EE909A472AC3CE3C00C9AAF0 /* CalendarLayoutTemp.swift in Sources */,
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
 				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
+				D17800692AF35989002984CF /* TimelineLayoutView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,

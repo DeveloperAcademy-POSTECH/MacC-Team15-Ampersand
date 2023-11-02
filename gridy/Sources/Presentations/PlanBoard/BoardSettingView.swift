@@ -8,9 +8,27 @@
 import SwiftUI
 
 struct BoardSettingView: View {
+    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+        NavigationStack {
+            Text("BoardSettingView")
+                .scenePadding()
+        }
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Continue") {
+                    dismiss()
+                }
+            }
+        }
+        .frame(width: 600, height: 350)    }
 }
 
 #Preview {
