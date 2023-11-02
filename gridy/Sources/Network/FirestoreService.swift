@@ -40,6 +40,12 @@ struct FirestoreService {
         }
     }
 
+    static var deletedProjectCollectionPath: CollectionReference {
+        get throws {
+            return try basePath.collection("DeletedProjects")
+        }
+    }
+    
     static func collectionPath(
         _ projectID: String,
         _ collectionName: String

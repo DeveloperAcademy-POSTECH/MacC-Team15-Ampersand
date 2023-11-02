@@ -109,7 +109,11 @@ extension APIService {
             try FirestoreService.projectCollectionPath.document(id).updateData(["lastModifiedDate": Date()])
         },
         deleteProject: { id in
-            try FirestoreService.projectCollectionPath.document(id).delete()
+            let data = try await FirestoreService.projectCollectionPath.document(id).getDocument().data()
+            try await FirestoreService.projectCollectionPath.document(id).delete()
+            if let data = data {
+                try await  FirestoreService.deletedProjectCollectionPath.document(id).setData(data)
+            }
         },
         // MARK: - Plan type
         readAllPlanTypes: { projectID in
