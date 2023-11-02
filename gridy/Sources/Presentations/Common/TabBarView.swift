@@ -25,6 +25,7 @@ struct TabBarView: View {
             Spacer()
             notificationButton
         }
+        .background(Color.tabBar)
     }
 }
 
@@ -41,10 +42,10 @@ extension TabBarView {
 extension TabBarView {
     var homeButton: some View {
         Rectangle()
-            .foregroundStyle(homeButtonClicked ? .white : homeButtonHover ? .gray : .clear)
+            .foregroundStyle(homeButtonClicked ? Color.tabHovered : homeButtonHover ? Color.tabHovered : Color.clear)
             .overlay(
                 Image(systemName: "house.fill")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.tabLabel)
             )
             .frame(width: 36)
             .onHover { proxy in
@@ -58,15 +59,15 @@ extension TabBarView {
         HStack(alignment: .center, spacing: 0) {
             Text("BoardNamed")
                 .padding(.leading, 16)
-                .foregroundStyle(planBoardTabClicked ? .black : planBoardTabHover ? .black : .white)
+                .foregroundStyle(planBoardTabClicked ? Color.title : planBoardTabHover ? Color.title : Color.title)
             Rectangle()
                 .foregroundStyle(.clear)
                 .frame(width: 32)
                 .overlay(
-                    Image(systemName: "xmark").foregroundStyle(planBoardTabClicked ? .black : planBoardTabHover ? .black : .clear)
+                    Image(systemName: "xmark").foregroundStyle(planBoardTabClicked ? Color.title : planBoardTabHover ? Color.textInactive : .clear)
                 )
         }
-        .background(planBoardTabClicked ? .white : planBoardTabHover ? .gray : .clear)
+        .background(planBoardTabClicked ? Color.tabHovered : planBoardTabHover ? Color.tabHovered : Color.tab)
         .onHover { proxy in
             planBoardTabHover = proxy
         }
@@ -76,16 +77,25 @@ extension TabBarView {
 }
 extension TabBarView {
     var notificationButton: some View {
-        Rectangle()
-            .foregroundStyle(bellButtonClicked ? .white : bellButtonHover ? .gray : .clear)
-            .overlay(
-                Image(systemName: "bell.fill")
-                    .foregroundStyle(.black)
-            )
-            .frame(width: 48)
-            .onHover { proxy in
-                bellButtonHover = proxy
-            }
-            .onTapGesture { bellButtonClicked = true }
+        ZStack{
+            Rectangle()
+                .foregroundStyle(bellButtonClicked ? Color.tabHovered : bellButtonHover ? Color.tabHovered : Color.clear)
+                .overlay(
+                    Image(systemName: "bell.fill")
+                        .foregroundStyle(Color.title)
+                )
+                .frame(width: 48)
+                .onHover { proxy in
+                    bellButtonHover = proxy
+                }
+                .onTapGesture { bellButtonClicked = true }
+            Circle()
+                .foregroundColor(Color.red)
+                .frame(width: 5, height: 5)
+                .offset(x:3, y:-3)
+            
+            
+        }
+        
     }
 }

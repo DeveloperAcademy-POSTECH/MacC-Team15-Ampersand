@@ -49,7 +49,7 @@ extension Color {
     static let blackWhite = Color("blackWhite")
     static let border = Color("border")
     static let textField = Color("textField")
-    static let SideBar = Color("SideBar")
+    static let sideBar = Color("sideBar")
     static let textInactive = Color("textInactive")
     static let subtitle = Color("subtitle")
     static let title = Color("title")
@@ -66,5 +66,11 @@ extension Color {
     static let itemSelectedBorder = Color("itemSelectedBorder")
     static let gridyBW = Color("gridyBW")
 
+//    static let purplegradient = 
 
 }
+
+//extension LinearGradient {
+//    static let purpleGradient = LinearGradient(colors: [Color(hex: <#T##UInt#>)], startPoint: .topLeading, endPoint: .bottomTrailing)
+//}
+
