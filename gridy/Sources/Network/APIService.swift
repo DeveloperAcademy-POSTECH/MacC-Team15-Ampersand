@@ -29,7 +29,7 @@ struct APIService {
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var updatePlanPeriods: @Sendable (Plan, String) async throws -> Void
-    var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
+    var deletePlan: @Sendable ([Plan], String) async throws -> Void
     
     /// Layer
     var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
@@ -49,7 +49,7 @@ struct APIService {
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         updatePlanPeriods: @escaping @Sendable (Plan, String) async throws -> Void,
-        deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
+        deletePlan: @escaping @Sendable ([Plan], String) async throws -> Void,
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void
     ) {
@@ -164,7 +164,10 @@ extension APIService {
         updatePlanPeriods: { planToUpdate, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, planToUpdate.id, ["periods": planToUpdate.periods as Any])
         },
-        deletePlan: { planID, layerIndex, deleteAll, projectID in
+        deletePlan: { plansToUpdate, projectID in
+            for plan in plansToUpdate {
+                try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, ["childPlanIDs": plan.childPlanIDs as Any])
+            }
         },
         createLayer: { plansToUpdate, plansToCreate, projectID in
             for plan in plansToUpdate {
