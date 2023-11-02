@@ -132,7 +132,12 @@ extension APIService {
             try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, planToDictionary(parent) as [String: Any])
         },
         readAllPlans: { projectID in
-            [:]
+            let plans = try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
+            var results = [String: Plan]()
+            for plan in plans {
+                results[plan.id] = plan
+            }
+            return results
         },
         updatePlanType: { targetPlanID, planTypeID, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": planTypeID])
