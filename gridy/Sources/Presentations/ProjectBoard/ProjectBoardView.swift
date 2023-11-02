@@ -76,7 +76,10 @@ extension ProjectBoardView {
 }
 extension ProjectBoardView {
     var boardSearchArea: some View {
-        Text("boardSearchArea")
+        RoundedRectangle(cornerRadius: 8)
+            .frame(width: 264, height: 32)
+            .overlay(Text("BoardSearchArea").foregroundStyle(.black))
+            .padding(8)
     }
 }
 extension ProjectBoardView {
