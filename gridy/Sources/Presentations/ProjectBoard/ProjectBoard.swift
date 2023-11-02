@@ -121,7 +121,6 @@ struct ProjectBoard: Reducer {
                 
             case let .deleteProjectButtonTapped(id: id, action: .binding(\.$delete)):
                 return .run { send in
-                    try await apiService.deleteProject(id)
                     await send(.fetchAllProjects)
                 }
                 
