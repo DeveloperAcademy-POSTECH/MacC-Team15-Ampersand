@@ -46,7 +46,7 @@ struct APIService {
         createPlan: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanChild: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
-        updatePlanType: @escaping @Sendable (String, String, String)  async throws-> Void,
+        updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
         
         createLayer: @escaping @Sendable (Int, String) async throws -> [String: [String]]
@@ -75,14 +75,18 @@ extension APIService {
         // MARK: - Project
         createProject: { title in
             let id = try FirestoreService.projectCollectionPath.document().documentID
-            let data = ["id": id,
-                        "title": title,
-                        "ownerUid": try FirestoreService.uid,
-                        "createdDate": Date(),
-                        "lastModifiedDate": Date(),
-                        "map": ["0": [],
-                                "1": [],
-                                "2": []]] as [String: Any?]
+            let data = [
+                "id": id,
+                "title": title,
+                "ownerUid": try FirestoreService.uid,
+                "createdDate": Date(),
+                "lastModifiedDate": Date(),
+                "map": [
+                    "0": [],
+                    "1": [],
+                    "2": []
+                ]
+            ] as [String: Any?]
             try FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
         },
         readAllProjects: {
@@ -110,9 +114,11 @@ extension APIService {
         },
         createPlanType: { target, planID, projectID in
             let id = try FirestoreService.getNewDocumentID(projectID, .planTypes)
-            let data = ["id": id,
-                        "title": target.title,
-                        "colorCode": target.colorCode] as [String: Any]
+            let data = [
+                "id": id,
+                "title": target.title,
+                "colorCode": target.colorCode
+            ] as [String: Any]
             try await FirestoreService.setDocumentData(projectID, .planTypes, id, data)
             try await FirestoreService.updateDocumentData(projectID, .plans, planID, ["planTypeID": id])
         },
@@ -124,12 +130,14 @@ extension APIService {
             let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
             var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
             for (index, plan) in plansToCreate.enumerated() {
-                let data = ["id": plan.id,
-                            "planTypeID": plan.planTypeID,
-                            "childPlanID": plan.childPlanIDs,
-                            "periods": plan.periods,
-                            "totalPeriod": plan.totalPeriod,
-                            "description": plan.description] as [String: Any?]
+                let data = [
+                    "id": plan.id,
+                    "planTypeID": plan.planTypeID,
+                    "childPlanID": plan.childPlanIDs,
+                    "periods": plan.periods,
+                    "totalPeriod": plan.totalPeriod,
+                    "description": plan.description
+                ] as [String: Any?]
                 try await FirestoreService.setDocumentData(projectID, .plans, plan.id, data as [String: Any])
                 
                 /// must be root child
@@ -143,12 +151,14 @@ extension APIService {
             [:]
         },
         updatePlanChild: { target, parent, projectID in
-            let parentData = ["id": parent.id,
-                        "planTypeID": parent.planTypeID,
-                        "childPlanID": parent.childPlanIDs,
-                        "periods": parent.periods,
-                        "totalPeriod": parent.totalPeriod,
-                        "description": parent.description] as [String: Any?]
+            let parentData = [
+                "id": parent.id,
+                "planTypeID": parent.planTypeID,
+                "childPlanID": parent.childPlanIDs,
+                "periods": parent.periods,
+                "totalPeriod": parent.totalPeriod,
+                "description": parent.description
+            ] as [String: Any?]
             try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, parentData as [String: Any])
         },
         updatePlanType: { targetPlanID, planTypeID, projectID in
