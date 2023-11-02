@@ -48,7 +48,11 @@ struct LineAreaView: View {
                                 viewStore.send(.createPlan(
                                     layer: 1,
                                     row: 1,
-                                    target: Plan(id: "", planTypeID: ""),
+                                    target: Plan(
+                                        id: "",
+                                        planTypeID: "",
+                                        childPlanIDs: [:]
+                                    ),
                                     startDate: startDate,
                                     endDate: endDate
                                 ))

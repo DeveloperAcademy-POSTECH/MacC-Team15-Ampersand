@@ -20,7 +20,6 @@ struct APIService {
     /// Plan Type
     var readAllPlanTypes: (String) async throws -> [PlanType]
     var createPlanType: @Sendable (PlanType, String, String) async throws -> Void
-    var deletePlanType: @Sendable (String, String) async throws -> Void
     
     /// Plan
     var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
@@ -28,7 +27,6 @@ struct APIService {
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var updatePlanPeriods: @Sendable (Plan, String) async throws -> Void
-    var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
     
     /// Layer
     var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
@@ -40,14 +38,12 @@ struct APIService {
         
         readAllPlanTypes: @escaping (String) async throws -> [PlanType],
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
-        deletePlanType: @escaping @Sendable (String, String) async throws -> Void,
         
         createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
         createPlanOnLineArea: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         updatePlanPeriods: @escaping @Sendable (Plan, String) async throws -> Void,
-        deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void
     ) {
@@ -57,14 +53,12 @@ struct APIService {
         
         self.readAllPlanTypes = readAllPlanTypes
         self.createPlanType = createPlanType
-        self.deletePlanType = deletePlanType
         
         self.createPlanOnListArea = createPlanOnListArea
         self.createPlanOnLineArea = createPlanOnLineArea
         self.readAllPlans = readAllPlans
         self.updatePlanType = updatePlanType
         self.updatePlanPeriods = updatePlanPeriods
-        self.deletePlan = deletePlan
         
         self.createLayer = createLayer
     }
@@ -119,9 +113,6 @@ extension APIService {
             try await FirestoreService.setDocumentData(projectID, .planTypes, id, data)
             try await FirestoreService.updateDocumentData(projectID, .plans, planID, ["planTypeID": id])
         },
-        deletePlanType: { typeID, projectID in
-            try await FirestoreService.deleteDocument(projectID, .planTypes, typeID)
-        },
         // MARK: - Plan
         createPlanOnListArea: { plansToCreate, layerCount, projectID in
             let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
@@ -131,7 +122,7 @@ extension APIService {
                 
                 /// must be root child
                 if index % layerCount == 0 {
-                    rootPlan.childPlanIDs!["0"]![index / layerCount] = plan.id
+                    rootPlan.childPlanIDs["0"]![index / layerCount] = plan.id
                     try await FirestoreService.setDocumentData(projectID, .plans, rootPlanID, ["childPlanIDs": rootPlan.childPlanIDs as Any])
                 }
             }
@@ -148,8 +139,6 @@ extension APIService {
         },
         updatePlanPeriods: { planToUpdate, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, planToUpdate.id, ["periods": planToUpdate.periods as Any])
-        },
-        deletePlan: { planID, layerIndex, deleteAll, projectID in
         },
         createLayer: { plansToUpdate, plansToCreate, projectID in
             for plan in plansToUpdate {
