@@ -242,14 +242,16 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .createLayer(layerIndex):
-                let projectId = state.rootProject.id
-                return .run { send in
-                    await send(.createLayerResponse(
-                        TaskResult {
-                            try await apiService.createLayer(layerIndex, projectId)
-                        }
-                    ))}
+            case .createLayer:
+                // TODO: - 릴리와 작성
+//                let projectId = state.rootProject.id
+//                return .run { send in
+//                    await send(.createLayerResponse(
+//                        TaskResult {
+//                            try await apiService.createLayer(layerIndex, projectId)
+//                        }
+//                    ))}
+                return .none
                 
             case let .createLayerResponse(.success(response)):
                 state.map = response

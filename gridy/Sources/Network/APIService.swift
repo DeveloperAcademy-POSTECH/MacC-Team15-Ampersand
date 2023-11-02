@@ -31,7 +31,7 @@ struct APIService {
     var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
     
     /// Layer
-    var createLayer: @Sendable (Int, String) async throws -> [String: [String]]
+    var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
     
     init(
         createProject: @escaping (String) async throws -> Void,
@@ -49,7 +49,7 @@ struct APIService {
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
         
-        createLayer: @escaping @Sendable (Int, String) async throws -> [String: [String]]
+        createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -130,15 +130,7 @@ extension APIService {
             let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
             var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
             for (index, plan) in plansToCreate.enumerated() {
-                let data = [
-                    "id": plan.id,
-                    "planTypeID": plan.planTypeID,
-                    "childPlanID": plan.childPlanIDs,
-                    "periods": plan.periods,
-                    "totalPeriod": plan.totalPeriod,
-                    "description": plan.description
-                ] as [String: Any?]
-                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, data as [String: Any])
+                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan) as [String: Any])
                 
                 /// must be root child
                 if index % layerCount == 0 {
@@ -151,23 +143,31 @@ extension APIService {
             [:]
         },
         updatePlanChild: { target, parent, projectID in
-            let parentData = [
-                "id": parent.id,
-                "planTypeID": parent.planTypeID,
-                "childPlanID": parent.childPlanIDs,
-                "periods": parent.periods,
-                "totalPeriod": parent.totalPeriod,
-                "description": parent.description
-            ] as [String: Any?]
-            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, parentData as [String: Any])
+            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, planToDictionary(parent) as [String: Any])
         },
         updatePlanType: { targetPlanID, planTypeID, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": planTypeID])
         },
         deletePlan: { planID, layerIndex, deleteAll, projectID in
         },
-        createLayer: { _, _ in
-            [:]
+        createLayer: { plansToUpdate, plansToCreate, projectID in
+            for plan in plansToUpdate {
+                try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, ["childPlanIDs": plan.childPlanIDs as Any])
+            }
+            for plan in plansToCreate {
+                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan) as [String: Any])
+            }
         }
     )
+    
+    static func planToDictionary(_ plan: Plan) -> [String: Any?] {
+        [
+            "id": plan.id,
+            "planTypeID": plan.planTypeID,
+            "childPlanID": plan.childPlanIDs,
+            "periods": plan.periods,
+            "totalPeriod": plan.totalPeriod,
+            "description": plan.description
+        ]
+    }
 }
