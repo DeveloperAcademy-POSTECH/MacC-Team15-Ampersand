@@ -14,6 +14,7 @@ struct ProjectBoardView: View {
     @State var userSettingClicked = false
     @State var planBoardButtonHover = false
     @State var planBoardButtonClicked = false
+    @State var listHover = false
     @State private var isExpanded: Bool = true
     
     var body: some View {
@@ -52,7 +53,6 @@ extension ProjectBoardView {
             Circle()
                 .foregroundStyle(.white)
                 .frame(width: 24, height: 24)
-                .padding(.leading, 8)
             Text("HongGilDong").foregroundStyle(.white)
             Image(systemName: "chevron.down").foregroundStyle(.white)
         }
@@ -60,9 +60,9 @@ extension ProjectBoardView {
         .background {
             if userSettingClicked || userSettingHover {
                 RoundedRectangle(cornerRadius: 8).foregroundStyle(.gray)
-                    .padding(.leading, 8)
             }
         }
+        .padding(8)
         .frame(height: 48)
         .onHover { proxy in
             userSettingHover = proxy
@@ -74,31 +74,76 @@ extension ProjectBoardView {
     var calendarArea: some View {
         RoundedRectangle(cornerRadius: 32)
             .foregroundStyle(.white)
-            .frame(width: 248, height: 248)
-            .padding()
+            .aspectRatio(1, contentMode: .fit)
             .overlay(Text("CalendarArea").foregroundStyle(.black))
+            .padding(16)
     }
 }
 extension ProjectBoardView {
     var boardSearchArea: some View {
         RoundedRectangle(cornerRadius: 8)
-            .frame(width: 264, height: 32)
+            .frame(height: 32)
             .overlay(Text("BoardSearchArea").foregroundStyle(.black))
-            .padding(8)
+            .padding(16)
     }
 }
 extension ProjectBoardView {
     var projectListArea: some View {
-        List {
-            Section("Projects") {
-                DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(0..<4, id: \.self) { _ in
-                        Text("Folder")
-                    }
-                } label: {
-                    Label("Personal Project", systemImage: "person.crop.square.fill").foregroundStyle(.white)
+        Section(header: Text("Projects").padding(.leading, 16).padding(.bottom, 8)) {
+            DisclosureGroup(isExpanded: $isExpanded) {
+                ForEach(0..<4, id: \.self) { index in
+                    Folder(id: index)
                 }
-                .listRowSeparator(.hidden)
+            } label: {
+                HStack(alignment: .center, spacing: 0) {
+                    Rectangle()
+                        .foregroundStyle(.clear)
+                        .frame(width: 24, height: 24)
+                        .overlay(Image(systemName: isExpanded ? "chevron.down" : "chevron.right"))
+                    Label("Personal Project", systemImage: "person.crop.square.fill")
+                        .foregroundStyle(.white)
+                        .frame(height: 40)
+                    Spacer()
+                }
+                .padding(.leading, 16)
+                .background(listHover ? .gray : .clear)
+                .onHover { proxy in
+                    listHover = proxy
+                }
+            }
+            .listRowSeparator(.hidden)
+            .disclosureGroupStyle(MyDisclosureStyle())
+        }
+    }
+    private struct Folder: View {
+        @State var folderHover = false
+        var id: Int
+        
+        var body: some View {
+            HStack(alignment: .center, spacing: 0) {
+                Text("Folder")
+                Spacer()
+            }
+            .frame(height: 40)
+            .padding(.leading, 64)
+            .background(folderHover ? .gray : .clear)
+            .onHover { proxy in
+                folderHover = proxy
+            }
+        }
+    }
+    private struct MyDisclosureStyle: DisclosureGroupStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(alignment: .leading, spacing: 0) {
+                Button {
+                    configuration.isExpanded.toggle()
+                } label: {
+                    configuration.label
+                }
+                .buttonStyle(.plain)
+                if configuration.isExpanded {
+                    configuration.content
+                }
             }
         }
     }
@@ -107,7 +152,10 @@ extension ProjectBoardView {
     var listArea: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
-                Image(systemName: "chevron.left").foregroundStyle(.white).padding(8)
+                Image(systemName: "chevron.left")
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .frame(width: 32, height: 32)
                     .onTapGesture {
                         // TODO: - Back Button Clicked
                     }
@@ -120,9 +168,7 @@ extension ProjectBoardView {
                         .foregroundStyle(planBoardButtonHover ? .purple : .gray)
                         .shadow(color: .black.opacity(0.25), radius: 4, y: 4)
                         .frame(width: 125, height: 44)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
-                        .overlay(Text("+ Plan Board").foregroundStyle(.white))
+                        .overlay(Text("+ Plan Board").font(.title3).foregroundStyle(.white))
                 }
                 .buttonStyle(.link)
                 .scaleEffect(planBoardButtonHover ? 1.01 : 1)
@@ -132,30 +178,29 @@ extension ProjectBoardView {
                     }
                 }
             }
-            .padding(.top)
-            .padding(.bottom, 8)
-            ZStack(alignment: .topTrailing) {
+            .padding(16)
+            .padding(.trailing, 16)
+            ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 32)
                     .foregroundStyle(.black)
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 32) {
                         ForEach(0..<20, id: \.self) { index in
-                            ProjectBoardItem(id: index)
+                            PlanBoardItem(id: index)
                         }
                     }
-                    .padding(.top, 32)
+                    .padding(32)
                 }
-                .padding(.leading, 16)
             }
             .padding(.leading, 32)
+            .padding([.trailing, .bottom], 16)
         }
-        .padding([.trailing, .bottom], 16)
     }
     var columns: [GridItem] {
-        [GridItem(.adaptive(minimum: 240, maximum: 240), spacing: 32)]
+        [GridItem(.adaptive(minimum: 240, maximum: 360), spacing: 32)]
     }
-    private struct ProjectBoardItem: View {
-        @State var projectBoardItemHover: Bool = false
+    private struct PlanBoardItem: View {
+        @State var planBoardItemHover: Bool = false
         var id: Int
         
         var body: some View {
@@ -164,18 +209,18 @@ extension ProjectBoardView {
                     RoundedRectangle(cornerRadius: 16)
                         .foregroundStyle(.gray)
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(projectBoardItemHover ? .white : .clear)
+                        .stroke(planBoardItemHover ? .white : .clear)
                 }
-                .frame(width: 240, height: 160)
-                .shadow(color: projectBoardItemHover ? .white.opacity(0.25) : .clear, radius: projectBoardItemHover ? 4 : 0, y: projectBoardItemHover ? 4 : 0)
+                .aspectRatio(3/2, contentMode: .fit)
+                .shadow(color: planBoardItemHover ? .white.opacity(0.25) : .clear, radius: planBoardItemHover ? 4 : 0, y: planBoardItemHover ? 4 : 0)
                 Text("Board Name").font(.title)
                 Text("2023.10.01 ~ 2023.11.14").font(.caption)
                 Text("Last updated on 2023.10.17").font(.caption)
             }
-            .scaleEffect(projectBoardItemHover ? 1.01 : 1)
+            .scaleEffect(planBoardItemHover ? 1.01 : 1)
             .onHover { proxy in
                 withAnimation {
-                    projectBoardItemHover = proxy
+                    planBoardItemHover = proxy
                 }
             }
         }
