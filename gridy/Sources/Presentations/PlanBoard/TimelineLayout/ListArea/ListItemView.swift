@@ -116,13 +116,3 @@ struct ListItemView: View {
         }
     }
 }
-
-#Preview {
-    ListItemView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
-    )
-}

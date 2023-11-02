@@ -25,9 +25,10 @@ struct APIService {
     
     /// Plan
     var createPlan: @Sendable ([Plan], Int, String) async throws -> Void
-    var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
-    var updatePlan: @Sendable (String, String, String) async throws -> Void
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
+    var updatePlanChild: @Sendable (Plan, Plan, String) async throws -> Void
+    var updatePlanType: @Sendable (String, String, String) async throws -> Void
+    var deletePlan: @Sendable (String, Int, Bool, String) async throws -> Void
     
     /// Layer
     var createLayer: @Sendable (Int, String) async throws -> [String: [String]]
@@ -43,9 +44,10 @@ struct APIService {
         deletePlanType: @escaping @Sendable (String, String) async throws -> Void,
         
         createPlan: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
-        deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
-        updatePlan: @escaping @Sendable (String, String, String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
+        updatePlanChild: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
+        updatePlanType: @escaping @Sendable (String, String, String)  async throws-> Void,
+        deletePlan: @escaping @Sendable (String, Int, Bool, String) async throws -> Void,
         
         createLayer: @escaping @Sendable (Int, String) async throws -> [String: [String]]
     ) {
@@ -59,9 +61,10 @@ struct APIService {
         self.deletePlanType = deletePlanType
         
         self.createPlan = createPlan
-        self.deletePlan = deletePlan
-        self.updatePlan = updatePlan
         self.readAllPlans = readAllPlans
+        self.updatePlanChild = updatePlanChild
+        self.updatePlanType = updatePlanType
+        self.deletePlan = deletePlan
         
         self.createLayer = createLayer
     }
@@ -118,7 +121,9 @@ extension APIService {
         },
         // MARK: - Plan
         createPlan: { plansToCreate, layerCount, projectID in
-            for plan in plansToCreate {
+            let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
+            var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
+            for (index, plan) in plansToCreate.enumerated() {
                 let data = ["id": plan.id,
                             "planTypeID": plan.planTypeID,
                             "childPlanID": plan.childPlanIDs,
@@ -126,14 +131,30 @@ extension APIService {
                             "totalPeriod": plan.totalPeriod,
                             "description": plan.description] as [String: Any?]
                 try await FirestoreService.setDocumentData(projectID, .plans, plan.id, data as [String: Any])
+                
+                /// must be root child
+                if index % layerCount == 0 {
+                    rootPlan.childPlanIDs!["0"]![index / layerCount] = plan.id
+                    try await FirestoreService.setDocumentData(projectID, .plans, rootPlanID, ["childPlanIDs": rootPlan.childPlanIDs as Any])
+                }
             }
-        },
-        deletePlan: { planID, layerIndex, deleteAll, projectID in
-        },
-        updatePlan: { planID, planTypeID, projectID in
         },
         readAllPlans: { projectID in
             [:]
+        },
+        updatePlanChild: { target, parent, projectID in
+            let parentData = ["id": parent.id,
+                        "planTypeID": parent.planTypeID,
+                        "childPlanID": parent.childPlanIDs,
+                        "periods": parent.periods,
+                        "totalPeriod": parent.totalPeriod,
+                        "description": parent.description] as [String: Any?]
+            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, parentData as [String: Any])
+        },
+        updatePlanType: { targetPlanID, planTypeID, projectID in
+            try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": planTypeID])
+        },
+        deletePlan: { planID, layerIndex, deleteAll, projectID in
         },
         createLayer: { _, _ in
             [:]

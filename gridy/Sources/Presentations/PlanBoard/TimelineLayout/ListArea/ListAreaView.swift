@@ -96,7 +96,3 @@ struct ListAreaView: View {
         }
     }
 }
-
-#Preview {
-    ListAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
-}
