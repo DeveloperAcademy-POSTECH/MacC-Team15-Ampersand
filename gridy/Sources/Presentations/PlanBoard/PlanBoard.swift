@@ -21,14 +21,15 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var map: [String: [String]]
+        var rootPlan: Plan
+        var map: [[String]]
         var searchPlanTypesResult = [PlanType]()
-        var existingPlanTypes = [String: PlanType]()
+        var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
         var selectedColorCode = Color.red
-
+        
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
         var numOfScheduleAreaRow = 5
         
@@ -90,8 +91,9 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
         // MARK: - plan
+        case createPlanOnLine(layer: Int, row: Int, startDate: Date, endDate: Date)
         case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
-        case createPlanResponse(TaskResult<[String: [String]]>)
+        case createPlanResponse(TaskResult<[[String]]>)
         case updatePlan(planID: String, planTypeID: String)
         case fetchAllPlans
         case fetchAllPlansResponse(TaskResult<[String: Plan]>)
@@ -124,7 +126,7 @@ struct PlanBoard: Reducer {
         case showUpperLayer
         case showLowerLayer
         case createLayer(layerIndex: Int)
-        case createLayerResponse(TaskResult<[String: [String]]>)
+        case createLayerResponse(TaskResult<[[String]]>)
     }
     
     var body: some Reducer<State, Action> {
@@ -153,7 +155,7 @@ struct PlanBoard: Reducer {
                             id: "",
                             title: keyword,
                             colorCode: colorCode
-                        ), 
+                        ),
                         planID,
                         projectID
                     )
@@ -189,6 +191,84 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan
+            case let .createPlanOnLine(layer, row, startDate, endDate):
+                var plansToCreate = [Plan]()
+                var plansToUpdate = [Plan]()
+                
+                /// 1.  parentPlan인 map[layer][row]이 없는데 라인을 먼저 그은 경우: lane을 먼저 만들어야 함
+                var prevParentPlanID = state.rootPlan.id
+                var newDummyPlanID = UUID().uuidString
+                var currentLayerCount = state.map[layer].count
+                if currentLayerCount - 1 < row {
+                    for dummyCount in 0..<currentLayerCount {
+                        if dummyCount == 0 {
+                            state.rootPlan.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                            state.existingAllPlans[state.rootPlan.id]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                        } else {
+                            state.existingAllPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
+                        }
+                        let newDummyPlan = Plan(id: newDummyPlanID, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: [:])
+                        state.existingAllPlans[newDummyPlanID] = newDummyPlan
+                        state.map[dummyCount].append(newDummyPlanID)
+                        
+                        /// 다음 더미 생성을 위한 세팅
+                        prevParentPlanID = newDummyPlanID
+                        newDummyPlanID = UUID().uuidString
+                        
+                        /// DB에 생성해줄 플랜들 담아
+                        if dummyCount < currentLayerCount - 1, dummyCount > 0 {
+                            plansToCreate.append(state.existingAllPlans[prevParentPlanID]!)
+                        }
+                    }
+                }
+                
+                /// 2. (row, layer)에 플랜이 존재하는 경우: 새 플랜을 생성하고 childIDs에 넣어주면 된다.
+                var newPlanOnLineID = UUID().uuidString
+                var newPlanOnLine = Plan(
+                    id: newPlanOnLineID,
+                    planTypeID: PlanType.emptyPlanType.id,
+                    childPlanIDs: [:],
+                    periods: ["0": [startDate, endDate]]
+                )
+
+                var currentRow = 0
+                var laneStartAt = -1
+                for eachRowPlanID in state.map[layer] {
+                    if let plan = state.existingAllPlans[eachRowPlanID] {
+                        let countChildLane = plan.childPlanIDs.count
+                        if currentRow <= row,
+                            currentRow + countChildLane >= row {
+                            laneStartAt = currentRow - 1
+                            break
+                        }
+                        currentRow += countChildLane
+                    } else {
+                        fatalError("=== 📛 Map has semantic ERROR")
+                    }
+                }
+                
+                let laneIndexToCreate = row - laneStartAt
+                state.existingAllPlans[state.map[layer][row]]?.childPlanIDs["\(laneIndexToCreate)"]?.append(newPlanOnLineID)
+                
+                /// 3. parentPlan의 total period를 업데이트
+                if let prevTotalPeriod = state.existingAllPlans[state.map[layer][row]]?.totalPeriod {
+                    state.existingAllPlans[state.map[layer][row]]?.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
+                    state.existingAllPlans[state.map[layer][row]]?.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
+                } else {
+                    state.existingAllPlans[state.map[layer][row]]?.totalPeriod![0] = startDate
+                    state.existingAllPlans[state.map[layer][row]]?.totalPeriod![0] = endDate
+                }
+                
+                plansToCreate.append(newPlanOnLine)
+                plansToUpdate.append(state.rootPlan)
+                plansToUpdate.append(state.existingAllPlans[state.map[layer][row]]!)
+                let plansToCreateImmutable = plansToCreate
+                let plansToUpdateImmutable = plansToUpdate
+                let projectID = state.rootProject.id
+                return .run { _ in
+                    try await apiService.createPlanOnLineArea(plansToCreateImmutable, plansToUpdateImmutable, projectID)
+                }
+                
             case let .createPlan(layer, row, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 let projectID = state.rootProject.id
@@ -233,7 +313,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .showLowerLayer:
-                let firstShowingIndex = state.showingLayers.first!           
+                let firstShowingIndex = state.showingLayers.first!
                 if firstShowingIndex == 0 {
                     state.showingLayers.removeLast()
                 } else {

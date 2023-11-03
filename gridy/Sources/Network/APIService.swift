@@ -25,7 +25,7 @@ struct APIService {
     
     /// Plan
     var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
-    var createPlanOnLineArea: @Sendable (Plan, Plan, String) async throws -> Void
+    var createPlanOnLineArea: @Sendable ([Plan], [Plan], String) async throws -> Void
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var updatePlanPeriods: @Sendable (Plan, String) async throws -> Void
@@ -45,7 +45,7 @@ struct APIService {
         deletePlanType: @escaping @Sendable (String, String) async throws -> Void,
         
         createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
-        createPlanOnLineArea: @escaping @Sendable (Plan, Plan, String) async throws -> Void,
+        createPlanOnLineArea: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         updatePlanPeriods: @escaping @Sendable (Plan, String) async throws -> Void,
@@ -142,13 +142,17 @@ extension APIService {
                 /// must be root child
                 if index % layerCount == 0 {
                     rootPlan.childPlanIDs["0"]![index / layerCount] = plan.id
-                    try await FirestoreService.setDocumentData(projectID, .plans, rootPlanID, ["childPlanIDs": rootPlan.childPlanIDs as Any])
                 }
             }
+            try await FirestoreService.setDocumentData(projectID, .plans, rootPlanID, ["childPlanIDs": rootPlan.childPlanIDs as Any])
         },
-        createPlanOnLineArea: { target, parent, projectID in
-            try await FirestoreService.setDocumentData(projectID, .plans, target.id, planToDictionary(target) as [String: Any])
-            try await FirestoreService.updateDocumentData(projectID, .plans, parent.id, planToDictionary(parent) as [String: Any])
+        createPlanOnLineArea: { plansToCreate, plansToUpdate, projectID in
+            for plan in plansToCreate {
+                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan) as [String: Any])
+            }
+            for plan in plansToUpdate {
+                try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, planToDictionary(plan) as [String: Any])
+            }
         },
         readAllPlans: { projectID in
             let plans = try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
