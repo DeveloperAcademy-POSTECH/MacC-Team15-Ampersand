@@ -154,7 +154,6 @@ struct PlanBoard: Reducer {
                             title: keyword,
                             colorCode: colorCode
                         ), 
-                        planID,
                         projectID
                     )
                     await send(.createPlanTypeResponse(
