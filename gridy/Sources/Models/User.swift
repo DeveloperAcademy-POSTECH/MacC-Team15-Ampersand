@@ -12,8 +12,10 @@ struct User: Decodable {
     var email: String
     var firstName: String
     var lastName: String
-    
+
+    var job: String?
     var profileImageURL: String?
+
     var username: String {
         "\(firstName) \(lastName)"
     }
@@ -22,7 +24,8 @@ struct User: Decodable {
         uid: "",
         email: "dayo2n@gridy.do",
         firstName: "Dayeon",
-        lastName: "Moon"
+        lastName: "Moon",
+        job: "Developer"
     )
 }
 
