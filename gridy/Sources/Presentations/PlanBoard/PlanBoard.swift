@@ -134,10 +134,7 @@ struct PlanBoard: Reducer {
             switch action {
                 // MARK: - user action
             case .onAppear:
-                return .run { send in
-                    await send(.fetchAllPlans)
-                    await send(.fetchAllPlanTypes)
-                }
+                return .none
                 
             case let .selectColorCode(selectedColor):
                 state.selectedColorCode = selectedColor
@@ -608,10 +605,6 @@ struct PlanBoard: Reducer {
                 state.map = newMap
                 return .none
                 
-            default:
-                return .none
-            }
-            
             default:
                 return .none
             }
