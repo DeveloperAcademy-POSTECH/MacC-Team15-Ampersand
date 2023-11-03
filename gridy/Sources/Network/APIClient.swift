@@ -20,17 +20,20 @@ struct APIClient {
         _ crendential: AuthCredential
     ) async throws -> Void
     var signOut: () async throws -> Void
+    var updateProfileImage: @Sendable (String) async throws -> Void
     
     init(
         fetchUser: @escaping () async throws -> User?,
         signIn: @escaping @Sendable (AuthCredential) async throws -> Void,
         signUp: @escaping @Sendable (User, AuthCredential) async throws -> Void,
-        signOut: @escaping () async throws -> Void
+        signOut: @escaping () async throws -> Void,
+        updateProfileImage: @escaping @Sendable (String) async throws -> Void
     ) {
         self.fetchUser = fetchUser
         self.signIn = signIn
         self.signUp = signUp
         self.signOut = signOut
+        self.updateProfileImage = updateProfileImage
     }
 }
 
@@ -76,6 +79,11 @@ extension APIClient {
         
         signOut: {
             try Auth.auth().signOut()
+        },
+        updateProfileImage: { profileImageURL in
+            if let uid = Auth.auth().currentUser?.uid {
+                try await APIClient.clientCollection.document(uid).updateData(["profileImageURL": profileImageURL])
+            }
         }
     )
 }
@@ -87,13 +95,15 @@ extension APIClient {
             return User.mock
         }, signIn: { _ in
         }, signUp: { _, _ in
-        }, signOut: {}
+        }, signOut: {},
+        updateProfileImage: { _ in }
     )
     static let mockValue = Self(
         fetchUser: {
             return nil
         }, signIn: { _ in
         }, signUp: { _, _ in
-        }, signOut: {}
+        }, signOut: {},
+        updateProfileImage: { _ in }
     )
 }

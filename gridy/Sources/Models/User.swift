@@ -13,6 +13,7 @@ struct User: Decodable {
     var firstName: String
     var lastName: String
     
+    var profileImageURL: String?
     var username: String {
         "\(firstName) \(lastName)"
     }
