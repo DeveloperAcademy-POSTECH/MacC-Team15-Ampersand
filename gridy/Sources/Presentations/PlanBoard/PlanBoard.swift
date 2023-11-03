@@ -87,14 +87,11 @@ struct PlanBoard: Reducer {
         // MARK: - plan type
         case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
         case updatePlanType(layer: Int, row: Int, text: String, colorCode: UInt)
-//        case fetchAllPlanTypes
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String)
         case createPlanOnLine(layer: Int, row: Int, startDate: Date, endDate: Date)
-//        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case updatePlan(planID: String, planTypeID: String)
-//        case fetchAllPlans
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -168,37 +165,35 @@ struct PlanBoard: Reducer {
                 
             case let .updatePlanType(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
+                // TODO: - 릴리랑 로직 확인하기: ID가 map[layer][row]가 아니라 직접 계산해서 접근해야하지 않을지~?
                 let existingPlanID = state.map[layer][row]
                 let existingPlan = state.existingAllPlans[existingPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
-                let existingPlanType = state.existingPlanTypes.first(where: {$0.id == existingPlanTypeID})!
+                let existingPlanType = state.existingPlanTypes.first(where: { $0.id == existingPlanTypeID })!
                 
-                /// 똑같은게 들어온 경우 > 실행 안 함
-                if existingPlanType.id == state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})?.id {
-                    return .none
-                }
-                
-                /// planType이 없는 경우
-                if state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
+                /// planType이 있는 경우
+                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode })?.id {
+                    /// 똑같은게 들어온 경우 > 실행 안 함
+                    if foundPlanTypeID == existingPlanType.id { return .none }
+                    
+                    /// 동일 레인에 동일 타입의 플랜이 존재하면 기존 플랜의 periods를 추가하고 현 플랜은 삭제
+                    
+                    state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
+                    
+                    return .run { send in
+                        await send(.fetchMap)
+                        try await apiService.updatePlanType(
+                            existingPlanID,
+                            foundPlanTypeID,
+                            projectID
+                        )
+                    }
+                } else { /// planType이 없는 경우
                     return .run { send in
                         await send(
                             .createPlanType(layer: layer, row: row, text: text, colorCode: colorCode)
                         )
                     }
-                }
-                
-                /// planType이 있는 경우
-                let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
-                
-                state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
-                
-                return .run { send in
-                    await send(.fetchMap)
-                    try await apiService.updatePlanType(
-                        existingPlanID,
-                        foundPlanTypeID,
-                        projectID
-                    )
                 }
                 
                 // MARK: - plan
@@ -208,7 +203,7 @@ struct PlanBoard: Reducer {
                 }
                 
                 let projectID = state.rootProject.id
-
+                
                 var createdPlans: [Plan] = []
                 var createdPlanType = PlanType.mock
                 
@@ -313,14 +308,14 @@ struct PlanBoard: Reducer {
                     childPlanIDs: [:],
                     periods: ["0": [startDate, endDate]]
                 )
-
+                
                 var currentRow = 0
                 var laneStartAt = -1
                 for eachRowPlanID in state.map[layer] {
                     if let plan = state.existingAllPlans[eachRowPlanID] {
                         let countChildLane = plan.childPlanIDs.count
                         if currentRow <= row,
-                            currentRow + countChildLane >= row {
+                           currentRow + countChildLane >= row {
                             laneStartAt = currentRow - 1
                             break
                         }
@@ -351,13 +346,13 @@ struct PlanBoard: Reducer {
                 return .run { _ in
                     try await apiService.createPlanOnLineArea(plansToCreateImmutable, plansToUpdateImmutable, projectID)
                 }
-                    
+                
             case let .updatePlan(planID, planTypeID):
                 let projectID = state.rootProject.id
                 return .run { _ in
                     try await apiService.updatePlanType(planID, planTypeID, projectID)
                 }
-               
+                
                 // MARK: - listArea
             case .showUpperLayer:
                 let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
@@ -580,7 +575,7 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
-            
+                
             case .fetchMap:
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]
@@ -603,9 +598,6 @@ struct PlanBoard: Reducer {
                     tempLayer = []
                 }
                 state.map = newMap
-                return .none
-                
-            default:
                 return .none
             }
         }
