@@ -24,7 +24,7 @@ struct PlanBoard: Reducer {
         var rootPlan: Plan
         var map: [[String]]
         var searchPlanTypesResult = [PlanType]()
-        var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
+        var existingPlanTypes = [PlanType.emptyPlanType]
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
@@ -85,18 +85,16 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(planID: String)
-        case createPlanTypeResponse(TaskResult<PlanType>)
-        case fetchAllPlanTypes
-        case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
+        case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanType(layer: Int, row: Int, text: String, colorCode: UInt)
+//        case fetchAllPlanTypes
         
         // MARK: - plan
+        case createPlanOnList(layer: Int, row: Int, text: String)
         case createPlanOnLine(layer: Int, row: Int, startDate: Date, endDate: Date)
-        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
-        case createPlanResponse(TaskResult<[[String]]>)
+//        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case updatePlan(planID: String, planTypeID: String)
-        case fetchAllPlans
-        case fetchAllPlansResponse(TaskResult<[String: Plan]>)
+//        case fetchAllPlans
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -125,8 +123,10 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         case showUpperLayer
         case showLowerLayer
-        case createLayer(layerIndex: Int)
-        case createLayerResponse(TaskResult<[[String]]>)
+        case createLayerBtnClicked(layer: Int)
+        
+        // MARK: - map
+        case fetchMap
     }
     
     var body: some Reducer<State, Action> {
@@ -144,53 +144,139 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(planID):
-                let keyword = state.keyword
-                let colorCode = state.selectedColorCode.getUIntCode()
+            case let .createPlanType(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
-                state.keyword = ""
+                let existingPlanID = state.map[layer][row]
+                let existingPlan = state.existingAllPlans[existingPlanID]!
+                
+                let newPlanTypeID = UUID().uuidString
+                let newPlanType = PlanType(
+                    id: newPlanTypeID,
+                    title: text,
+                    colorCode: colorCode
+                )
+                
+                state.existingPlanTypes.append(newPlanType)
+                state.existingAllPlans[existingPlanID]!.planTypeID = newPlanTypeID
+                
                 return .run { send in
+                    await send(.fetchMap)
+                    
                     try await apiService.createPlanType(
-                        PlanType(
-                            id: "",
-                            title: keyword,
-                            colorCode: colorCode
-                        ),
+                        newPlanType,
+                        existingPlanID,
+                        projectID
+                    )
+                }
+                
+            case let .updatePlanType(layer, row, text, colorCode):
+                let projectID = state.rootProject.id
+                let existingPlanID = state.map[layer][row]
+                let existingPlan = state.existingAllPlans[existingPlanID]!
+                let existingPlanTypeID = existingPlan.planTypeID
+                let existingPlanType = state.existingPlanTypes.first(where: {$0.id == existingPlanTypeID})!
+                
+                /// 똑같은게 들어온 경우 > 실행 안 함
+                if existingPlanType.id == state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})?.id {
+                    return .none
+                }
+                
+                /// planType이 없는 경우
+                if state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
+                    return .run { send in
+                        await send(
+                            .createPlanType(layer: layer, row: row, text: text, colorCode: colorCode)
+                        )
+                    }
+                }
+                
+                /// planType이 있는 경우
+                let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
+                
+                state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    try await apiService.updatePlanType(
+                        existingPlanID,
+                        foundPlanTypeID,
+                        projectID
+                    )
+                }
+                
+                // MARK: - plan
+            case let .createPlanOnList(layer, row, text):
+                if text.isEmpty {
+                    return .none
+                }
+                
+                let projectID = state.rootProject.id
+
+                var createdPlans: [Plan] = []
+                var createdPlanType = PlanType.mock
+                
+                var parentPlanID = state.rootPlan.id
+                var newPlanID = UUID().uuidString
+                var childPlanID = UUID().uuidString
+                var newPlanTypeID = PlanType.emptyPlanType.id
+                
+                /// map에 dummy 생성
+                for rowIndex in state.map[layer].count...row {
+                    for layerIndex in 0...layer {
+                        
+                        /// 맨 마지막일 때는 text를 title로 하는 planType을 가지고 생성
+                        if (rowIndex == row - 1) && (layerIndex == layer - 1) {
+                            let newPlanType = PlanType(
+                                id: UUID().uuidString,
+                                title: text,
+                                colorCode: PlanType.emptyPlanType.colorCode
+                            )
+                            state.existingPlanTypes.append(newPlanType)
+                            createdPlanType = newPlanType
+                            newPlanTypeID = newPlanType.id
+                        }
+                        
+                        /// dummy로 넣어줄 plan 생성
+                        let newPlan = Plan(
+                            id: newPlanID,
+                            planTypeID: newPlanTypeID,
+                            childPlanIDs: ["0": layerIndex == layer ? [] : [childPlanID]]
+                        )
+                        state.existingAllPlans[newPlanID] = newPlan
+                        createdPlans.append(newPlan)
+                        
+                        /// 부모의 childPlan을 대체
+                        state.existingAllPlans[parentPlanID]!.childPlanIDs[String(rowIndex)] = [newPlanID]
+                        
+                        parentPlanID = newPlanID
+                        newPlanID = childPlanID
+                        childPlanID = UUID().uuidString
+                    }
+                    parentPlanID = state.rootPlan.id
+                    newPlanID = UUID().uuidString
+                    childPlanID = UUID().uuidString
+                }
+                
+                let plansToCreate = createdPlans
+                let layerIndex = layer
+                let newPlanType = createdPlanType
+                let planID = parentPlanID
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    try await apiService.createPlanOnListArea(
+                        plansToCreate,
+                        layerIndex,
+                        projectID
+                    )
+                    
+                    try await apiService.createPlanType(
+                        newPlanType,
                         planID,
                         projectID
                     )
-                    await send(.createPlanTypeResponse(
-                        TaskResult {
-                            PlanType(
-                                id: "",
-                                title: keyword,
-                                colorCode: colorCode
-                            )
-                        }
-                    ))
                 }
                 
-            case let .createPlanTypeResponse(.success(response)):
-                state.existingPlanTypes[response.id] = response
-                return .none
-                
-            case .fetchAllPlanTypes:
-                let projectID = state.rootProject.id
-                return .run { send in
-                    await send(.fetchAllPlanTypesResponse(
-                        TaskResult {
-                            try await apiService.readAllPlanTypes(projectID)
-                        }
-                    ))
-                }
-                
-            case let .fetchAllPlanTypesResponse(.success(responses)):
-                responses.forEach { response in
-                    state.existingPlanTypes[response.id] = response
-                }
-                return .none
-                
-                // MARK: - plan
             case let .createPlanOnLine(layer, row, startDate, endDate):
                 var plansToCreate = [Plan]()
                 var plansToUpdate = [Plan]()
@@ -268,39 +354,13 @@ struct PlanBoard: Reducer {
                 return .run { _ in
                     try await apiService.createPlanOnLineArea(plansToCreateImmutable, plansToUpdateImmutable, projectID)
                 }
-                
-            case let .createPlan(layer, row, target, startDate, endDate):
-                // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
-                let projectID = state.rootProject.id
-                if let startDate = startDate, let endDate = endDate {
-                    state.selectedDateRanges.append(SelectedDateRange(start: startDate, end: endDate))
-                }
-                return .none
-                
-            case let .createPlanResponse(.success(response)):
-                state.map = response
-                return .none
-                
+                    
             case let .updatePlan(planID, planTypeID):
                 let projectID = state.rootProject.id
                 return .run { _ in
                     try await apiService.updatePlanType(planID, planTypeID, projectID)
                 }
-                
-            case .fetchAllPlans:
-                let projectID = state.rootProject.id
-                return .run { send in
-                    await send(.fetchAllPlansResponse(
-                        TaskResult {
-                            try await apiService.readAllPlans(projectID)
-                        }
-                    ))
-                }
-                
-            case let .fetchAllPlansResponse(.success(response)):
-                state.existingAllPlans = response
-                return .none
-                
+               
                 // MARK: - listArea
             case .showUpperLayer:
                 let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
@@ -322,20 +382,50 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case .createLayer:
-                // TODO: - 릴리와 작성
-//                let projectId = state.rootProject.id
-//                return .run { send in
-//                    await send(.createLayerResponse(
-//                        TaskResult {
-//                            try await apiService.createLayer(layerIndex, projectId)
-//                        }
-//                    ))}
-                return .none
+            case let .createLayerBtnClicked(layer):
+                let projectID = state.rootProject.id
+                var updatedPlans: [Plan] = []
+                var createdPlans: [Plan] = []
                 
-            case let .createLayerResponse(.success(response)):
-                state.map = response
-                return .none
+                state.map.insert([], at: layer)
+                
+                let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer-1]
+                
+                for prevPlanID in prevLayerPlanIDs {
+                    let prevPlan = state.existingAllPlans[prevPlanID]!
+                    
+                    for index in 0..<prevPlan.childPlanIDs.count {
+                        let childPlanIDs = prevPlan.childPlanIDs[String(index)]!
+                        
+                        let newPlanID = UUID().uuidString
+                        let newPlan = Plan(id: newPlanID, planTypeID: "", childPlanIDs: [String(index): childPlanIDs])
+                        
+                        state.existingAllPlans[newPlanID] = newPlan
+                        createdPlans.append(newPlan)
+                        
+                        state.existingAllPlans[prevPlanID]!.childPlanIDs[String(index)] = [newPlanID]
+                        
+                        if prevPlanID != state.rootPlan.id {
+                            updatedPlans.append(state.existingAllPlans[prevPlanID]!)
+                        }
+                    }
+                    if prevPlanID == state.rootPlan.id && state.existingAllPlans[prevPlanID]!.childPlanIDs.isEmpty {
+                        updatedPlans.append(state.existingAllPlans[prevPlanID]!)
+                    }
+                }
+                
+                let plansToUpdate = updatedPlans
+                let plansToCreate = createdPlans
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    
+                    try await apiService.createLayer(
+                        plansToUpdate,
+                        plansToCreate,
+                        projectID
+                    )
+                }
                 
             case let .shiftSelectedCell(rowOffset, colOffset):
                 if !state.selectedGridRanges.isEmpty {
@@ -493,7 +583,35 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
+            
+            case .fetchMap:
+                var newMap: [[String]] = []
+                var planIDsQ: [String] = [state.rootPlan.id]
+                var tempLayer: [String] = []
                 
+                while !planIDsQ.isEmpty {
+                    for planID in planIDsQ {
+                        let plan = state.existingAllPlans[planID]!
+                        
+                        for index in 0..<plan.childPlanIDs.count {
+                            tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
+                        }
+                    }
+                    
+                    if !tempLayer.isEmpty {
+                        newMap.append(tempLayer)
+                    }
+                    planIDsQ.removeAll()
+                    planIDsQ.append(contentsOf: tempLayer)
+                    tempLayer = []
+                }
+                state.map = newMap
+                return .none
+                
+            default:
+                return .none
+            }
+            
             default:
                 return .none
             }
