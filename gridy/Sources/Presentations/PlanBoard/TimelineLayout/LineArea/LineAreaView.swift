@@ -45,17 +45,6 @@ struct LineAreaView: View {
                                     )!.filteredDate
                                 )
                                 // TODO: - Create plan
-                                viewStore.send(.createPlan(
-                                    layer: 1,
-                                    row: 1,
-                                    target: Plan(
-                                        id: "",
-                                        planTypeID: "",
-                                        childPlanIDs: [:]
-                                    ),
-                                    startDate: startDate,
-                                    endDate: endDate
-                                ))
                             }
                         } label: {
                             Text("create Plan")

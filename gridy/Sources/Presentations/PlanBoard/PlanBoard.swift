@@ -24,7 +24,7 @@ struct PlanBoard: Reducer {
         var rootPlan: Plan
         var map: [[String]]
         var searchPlanTypesResult = [PlanType]()
-        var existingPlanTypes = [PlanType.emptyPlanType]
+        var existingPlanTypes = [String: PlanType]()
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
@@ -87,14 +87,11 @@ struct PlanBoard: Reducer {
         // MARK: - plan type
         case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
         case updatePlanType(layer: Int, row: Int, text: String, colorCode: UInt)
-//        case fetchAllPlanTypes
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String)
         case createPlanOnLine(layer: Int, row: Int, startDate: Date, endDate: Date)
-//        case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case updatePlan(planID: String, planTypeID: String)
-//        case fetchAllPlans
         
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -134,6 +131,8 @@ struct PlanBoard: Reducer {
             switch action {
                 // MARK: - user action
             case .onAppear:
+                state.existingAllPlans = [state.rootPlan.id: state.rootPlan]
+                state.existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
                 return .none
                 
             case let .selectColorCode(selectedColor):
@@ -153,7 +152,7 @@ struct PlanBoard: Reducer {
                     colorCode: colorCode
                 )
                 
-                state.existingPlanTypes.append(newPlanType)
+                state.existingPlanTypes[newPlanTypeID] = newPlanType
                 state.existingAllPlans[existingPlanID]!.planTypeID = newPlanTypeID
                 
                 return .run { send in
@@ -171,15 +170,10 @@ struct PlanBoard: Reducer {
                 let existingPlanID = state.map[layer][row]
                 let existingPlan = state.existingAllPlans[existingPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
-                let existingPlanType = state.existingPlanTypes.first(where: {$0.id == existingPlanTypeID})!
-                
-                /// 똑같은게 들어온 경우 > 실행 안 함
-                if existingPlanType.id == state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})?.id {
-                    return .none
-                }
+                let existingPlanType = state.existingPlanTypes[existingPlanTypeID]
                 
                 /// planType이 없는 경우
-                if state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
+                if state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
                     return .run { send in
                         await send(
                             .createPlanType(layer: layer, row: row, text: text, colorCode: colorCode)
@@ -187,11 +181,15 @@ struct PlanBoard: Reducer {
                     }
                 }
                 
-                /// planType이 있는 경우
-                let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
+                /// planType이 있는데 나와 같은게 들어온 경우 > 실행 안 함
+                if existingPlanTypeID == state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id {
+                    return .none
+                }
                 
-                state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
-                
+                /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
+                let foundPlanTypeID = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
+                    state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
+               
                 return .run { send in
                     await send(.fetchMap)
                     try await apiService.updatePlanType(
@@ -210,7 +208,7 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
 
                 var createdPlans: [Plan] = []
-                var createdPlanType = PlanType.mock
+                var createdPlanType = PlanType.emptyPlanType
                 
                 var parentPlanID = state.rootPlan.id
                 var newPlanID = UUID().uuidString
@@ -219,35 +217,37 @@ struct PlanBoard: Reducer {
                 
                 /// map에 dummy 생성
                 for rowIndex in state.map[layer].count...row {
-                    for layerIndex in 0...layer {
-                        
+                    for layerIndex in 0..<state.map.count {
                         /// 맨 마지막일 때는 text를 title로 하는 planType을 가지고 생성
-                        if (rowIndex == row - 1) && (layerIndex == layer - 1) {
+                        if (rowIndex == row) && (layerIndex == layer) {
                             let newPlanType = PlanType(
                                 id: UUID().uuidString,
                                 title: text,
                                 colorCode: PlanType.emptyPlanType.colorCode
                             )
-                            state.existingPlanTypes.append(newPlanType)
-                            createdPlanType = newPlanType
+                            state.existingPlanTypes[newPlanType.id] = newPlanType
                             newPlanTypeID = newPlanType.id
+                            createdPlanType = newPlanType
                         }
                         
                         /// dummy로 넣어줄 plan 생성
                         let newPlan = Plan(
                             id: newPlanID,
                             planTypeID: newPlanTypeID,
-                            childPlanIDs: ["0": layerIndex == layer ? [] : [childPlanID]]
+                            childPlanIDs: ["0": layerIndex == state.map.count - 1 ? [] : [childPlanID]]
                         )
                         state.existingAllPlans[newPlanID] = newPlan
                         createdPlans.append(newPlan)
                         
-                        /// 부모의 childPlan을 대체
-                        state.existingAllPlans[parentPlanID]!.childPlanIDs[String(rowIndex)] = [newPlanID]
+                        if layerIndex == 0 {
+                            /// root의 childPlan에 넣어주어야 할 plan들
+                            state.existingAllPlans[parentPlanID]!.childPlanIDs[String(rowIndex)] = [newPlanID]
+                        }
                         
                         parentPlanID = newPlanID
                         newPlanID = childPlanID
                         childPlanID = UUID().uuidString
+                        newPlanTypeID = PlanType.emptyPlanType.id
                     }
                     parentPlanID = state.rootPlan.id
                     newPlanID = UUID().uuidString
@@ -388,6 +388,10 @@ struct PlanBoard: Reducer {
                 
                 let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer-1]
                 
+                if state.map.flatMap({ $0 }).isEmpty {
+                    return .none
+                }
+                
                 for prevPlanID in prevLayerPlanIDs {
                     let prevPlan = state.existingAllPlans[prevPlanID]!
                     
@@ -395,7 +399,7 @@ struct PlanBoard: Reducer {
                         let childPlanIDs = prevPlan.childPlanIDs[String(index)]!
                         
                         let newPlanID = UUID().uuidString
-                        let newPlan = Plan(id: newPlanID, planTypeID: "", childPlanIDs: [String(index): childPlanIDs])
+                        let newPlan = Plan(id: newPlanID, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": childPlanIDs])
                         
                         state.existingAllPlans[newPlanID] = newPlan
                         createdPlans.append(newPlan)
@@ -589,7 +593,6 @@ struct PlanBoard: Reducer {
                 while !planIDsQ.isEmpty {
                     for planID in planIDsQ {
                         let plan = state.existingAllPlans[planID]!
-                        
                         for index in 0..<plan.childPlanIDs.count {
                             tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
                         }

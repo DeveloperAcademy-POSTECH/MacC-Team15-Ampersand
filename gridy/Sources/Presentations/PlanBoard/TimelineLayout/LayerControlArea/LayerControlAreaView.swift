@@ -52,16 +52,12 @@ struct LayerControlAreaView: View {
                                 }
                                 .contextMenu {
                                     Button {
-                                        viewStore.send(
-                                            .createLayer(layerIndex: layer - 1)
-                                        )
+                                        
                                     } label: {
                                         Text("Add a lower layer")
                                     }
                                     Button {
-                                        viewStore.send(
-                                            .createLayer(layerIndex: layer)
-                                        )
+                                        
                                     } label: {
                                         Text("Add a upper layer")
                                     }
