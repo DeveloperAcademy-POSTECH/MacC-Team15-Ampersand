@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct BoardSettingView: View {
-    
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

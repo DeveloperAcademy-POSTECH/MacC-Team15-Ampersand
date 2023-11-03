@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import AppKit
 
 extension Color {
     init(
@@ -66,12 +65,4 @@ extension Color {
     static let boardSelectedBorder = Color("boardSelectedBorder")
     static let item = Color("item")
     static let itemHovered = Color("itemHovered")
-
-//    static let purplegradient = 
-
 }
-
-//extension LinearGradient {
-//    static let purpleGradient = LinearGradient(colors: [Color(hex: <#T##UInt#>)], startPoint: .topLeading, endPoint: .bottomTrailing)
-//}
-
