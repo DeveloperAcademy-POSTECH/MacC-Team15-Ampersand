@@ -13,7 +13,7 @@ import FirebaseFirestoreSwift
 /// Service CRUD
 struct APIService {
     /// Project
-    var createProject: (String) async throws -> Void
+    var createProject: (String, [Date]) async throws -> Void
     var readAllProjects: () async throws -> [Project]
     var updateProjectTitle: @Sendable (String, String) async throws -> Void
     var deleteProject: @Sendable (String) async throws -> Void
@@ -35,7 +35,7 @@ struct APIService {
     var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
     
     init(
-        createProject: @escaping (String) async throws -> Void,
+        createProject: @escaping (String, [Date]) async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         deleteProject: @escaping @Sendable (String) async throws -> Void,
@@ -76,21 +76,19 @@ struct APIService {
 extension APIService {
     static let liveValue = Self(
         // MARK: - Project
-        createProject: { title in
+        createProject: { title, period in
             let id = try FirestoreService.projectCollectionPath.document().documentID
+            let rootPlan = Plan(id: UUID().uuidString, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": []])
             let data = [
                 "id": id,
                 "title": title,
                 "ownerUid": try FirestoreService.uid,
-                "createdDate": Date(),
+                "period": [period[0], period[1]],
                 "lastModifiedDate": Date(),
-                "map": [
-                    "0": [],
-                    "1": [],
-                    "2": []
-                ]
+                "rootPlanID": rootPlan.id
             ] as [String: Any?]
-            try FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
+            try await FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
+            try await FirestoreService.setDocumentData(id, .plans, rootPlan.id, planToDictionary(rootPlan) as [String : Any])
         },
         readAllProjects: {
             do {

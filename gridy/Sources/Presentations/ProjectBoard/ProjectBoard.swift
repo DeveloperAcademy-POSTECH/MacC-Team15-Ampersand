@@ -54,7 +54,7 @@ struct ProjectBoard: Reducer {
             case .createNewProjectButtonTapped:
                 let title = state.title
                 return .run { send in
-                    try await apiService.createProject(title)
+                    try await apiService.createProject(title, [Date(), Date()])
                     await send(.fetchAllProjects)
                     await send(.setSheet(isPresented: false))
                 }
