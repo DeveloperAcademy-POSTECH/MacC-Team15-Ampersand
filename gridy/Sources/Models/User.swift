@@ -9,13 +9,19 @@ import Foundation
 
 struct User: Decodable {
     var uid: String
-    var username: String
     var email: String
+    var firstName: String
+    var lastName: String
+    
+    var username: String {
+        "\(firstName) \(lastName)"
+    }
     
     static let mock = User(
         uid: "",
-        username: "ZENA",
-        email: "dayo2n@gridy.do"
+        email: "dayo2n@gridy.do",
+        firstName: "Dayeon",
+        lastName: "Moon"
     )
 }
 

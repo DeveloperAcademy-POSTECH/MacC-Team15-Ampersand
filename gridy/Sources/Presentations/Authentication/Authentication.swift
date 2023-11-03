@@ -31,7 +31,7 @@ struct Authentication: Reducer {
     enum Action: Equatable, Sendable {
         case onAppear
         case createEncryptedNonce
-        case notYetRegistered(String, String, AuthCredential) // Then sign up
+        case notYetRegistered(User, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
         case fetchUserResponse(TaskResult<User?>)
@@ -58,10 +58,10 @@ struct Authentication: Reducer {
                 }
                 return .none
                 
-            case let .notYetRegistered(email, username, credential):
+            case let .notYetRegistered(user, credential):
                 return .run { send in
                     await send(.setProcessing(true))
-                    try await apiClient.signUp(email, username, credential)
+                    try await apiClient.signUp(user, credential)
                     await send(.fetchUser)
                 }
                 

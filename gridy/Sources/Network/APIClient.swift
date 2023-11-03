@@ -16,8 +16,7 @@ struct APIClient {
     var fetchUser: () async throws -> User?
     var signIn: @Sendable (_ credential: AuthCredential) async throws -> Void
     var signUp: @Sendable (
-        _ email: String,
-        _ username: String,
+        _ user: User,
         _ crendential: AuthCredential
     ) async throws -> Void
     var signOut: () async throws -> Void
@@ -25,7 +24,7 @@ struct APIClient {
     init(
         fetchUser: @escaping () async throws -> User?,
         signIn: @escaping @Sendable (AuthCredential) async throws -> Void,
-        signUp: @escaping @Sendable (String, String, AuthCredential) async throws -> Void,
+        signUp: @escaping @Sendable (User, AuthCredential) async throws -> Void,
         signOut: @escaping () async throws -> Void
     ) {
         self.fetchUser = fetchUser
@@ -58,12 +57,15 @@ extension APIClient {
             }
         },
         
-        signUp: { email, username, credential in
+        signUp: { user, credential in
             do {
                 let result = try await Auth.auth().signIn(with: credential)
-                let data = ["uid": result.user.uid,
-                            "username": username,
-                            "email": email] as [String: Any]
+                let data = [
+                    "uid": result.user.uid,
+                    "email": user.email,
+                    "firstName": user.firstName,
+                    "lastName": user.lastName
+                ] as [String: Any]
                 Task {
                     _ = try await APIClient.clientCollection.document(result.user.uid).setData(data)
                 }
@@ -84,14 +86,14 @@ extension APIClient {
         fetchUser: {
             return User.mock
         }, signIn: { _ in
-        }, signUp: { _, _, _ in
+        }, signUp: { _, _ in
         }, signOut: {}
     )
     static let mockValue = Self(
         fetchUser: {
             return nil
         }, signIn: { _ in
-        }, signUp: { _, _, _ in
+        }, signUp: { _, _ in
         }, signOut: {}
     )
 }
