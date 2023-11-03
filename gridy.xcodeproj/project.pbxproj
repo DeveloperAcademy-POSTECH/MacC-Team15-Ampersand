@@ -62,6 +62,7 @@
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		D167A06C2AF56C7500B70E5E /* ScrollSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D167A06B2AF56C7500B70E5E /* ScrollSampleView.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
 		EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
@@ -130,6 +131,7 @@
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		D167A06B2AF56C7500B70E5E /* ScrollSampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSampleView.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
 		EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardSideView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
@@ -319,6 +321,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		D167A06A2AF56C6100B70E5E /* ScrollSample */ = {
+			isa = PBXGroup;
+			children = (
+				D167A06B2AF56C7500B70E5E /* ScrollSampleView.swift */,
+			);
+			path = ScrollSample;
+			sourceTree = "<group>";
+		};
 		EE909A3F2AC3CDBF00C9AAF0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -331,6 +341,7 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
+				D167A06A2AF56C6100B70E5E /* ScrollSample */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 				EE909A442AC3CE0800C9AAF0 /* CalendarLayout */,
@@ -641,6 +652,7 @@
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,
+				D167A06C2AF56C7500B70E5E /* ScrollSampleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
