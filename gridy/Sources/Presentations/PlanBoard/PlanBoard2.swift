@@ -91,6 +91,7 @@ struct PlanBoard2: Reducer {
                 let plansToCreate = createdPlans
                 let layerIndex = layer
                 let newPlanType = createdPlanType
+                let planID = parentPlanID
                 
                 return .run { send in
                     await send(.fetchMap)
@@ -102,10 +103,10 @@ struct PlanBoard2: Reducer {
                     
                     try await apiService.createPlanType(
                         newPlanType,
+                        planID,
                         projectID
                     )
                 }
-                
                 
             case let .createPlanType(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
@@ -127,12 +128,7 @@ struct PlanBoard2: Reducer {
                     
                     try await apiService.createPlanType(
                         newPlanType,
-                        projectID
-                    )
-                    
-                    try await apiService.updatePlanType(
                         existingPlanID,
-                        newPlanTypeID,
                         projectID
                     )
                 }

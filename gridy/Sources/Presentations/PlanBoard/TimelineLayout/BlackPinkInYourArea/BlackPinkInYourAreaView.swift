@@ -22,11 +22,3 @@ struct BlackPinkInYourAreaView: View {
         }
     }
 }
-
-struct BlackPinkInYourAreaView_Previews: PreviewProvider {
-    static var previews: some View {
-        BlackPinkInYourAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        })
-    }
-}

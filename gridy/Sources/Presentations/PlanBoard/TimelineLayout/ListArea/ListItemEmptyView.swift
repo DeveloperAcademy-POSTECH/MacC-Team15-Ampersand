@@ -89,10 +89,14 @@ struct ListItemEmptyView: View {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
                                 .onSubmit {
-                                 viewStore.send(.createPlan(
+                                    viewStore.send(.createPlan(
                                         layer: layerIndex,
                                         row: rowIndex,
-                                        target: Plan(id: "", planTypeID: ""),
+                                        target: Plan(
+                                            id: "",
+                                            planTypeID: "",
+                                            childPlanIDs: [:]
+                                        ),
                                         startDate: nil,
                                         endDate: nil
                                     ))
@@ -118,14 +122,4 @@ struct ListItemEmptyView: View {
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
-}
-
-#Preview {
-    ListItemEmptyView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
-    )
 }

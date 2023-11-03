@@ -97,12 +97,6 @@ struct LayerControlAreaView: View {
     }
 }
 
-#Preview {
-    LayerControlAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-        PlanBoard()
-    })
-}
-
 struct LayerControlButton<Label: View>: View {
     var componentWidth: CGFloat
     var action: (() -> Void)?
