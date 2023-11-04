@@ -78,7 +78,6 @@ struct TimelineLayoutView: View {
     extension TimelineLayoutView {
         var blackPinkInYourArea: some View {
             Color.white
-            
         }
     }
     

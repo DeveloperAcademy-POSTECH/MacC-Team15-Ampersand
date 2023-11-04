@@ -249,7 +249,7 @@ extension ProjectBoardView {
     }
     
     private struct PlanBoardItem: View {
-        @State var planBoardItemHover: Bool = false
+        @State var planBoardItemHover = false
         var id: Int
         
         var body: some View {

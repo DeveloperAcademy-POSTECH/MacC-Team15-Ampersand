@@ -27,7 +27,8 @@ struct BoardSettingView: View {
                 }
             }
         }
-        .frame(width: 600, height: 350)    }
+        .frame(width: 600, height: 350)
+    }
 }
 
 #Preview {

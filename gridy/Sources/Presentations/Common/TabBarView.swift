@@ -84,7 +84,6 @@ extension TabBarView {
         }
         .onTapGesture {
             planBoardTabClicked = true
-            print("ZZ")
         }
     }
 }

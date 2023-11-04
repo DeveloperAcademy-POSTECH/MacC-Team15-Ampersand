@@ -25,7 +25,6 @@ struct TopToolBarArea: View {
             rightToolBarButton
             borderSpacer(.vertical)
             boardSettingButton
-            
         }
     }
 }
@@ -42,7 +41,9 @@ extension TopToolBarArea {
             .onHover { proxy in
                 shareImageHover = proxy
             }
-            .onTapGesture { shareImageClicked = true }
+            .onTapGesture {
+                shareImageClicked = true
+            }
     }
 }
 
