@@ -259,7 +259,10 @@ extension ProjectBoardView {
                         .foregroundStyle(Color.board)
                     RoundedRectangle(cornerRadius: 16)
                         .strokeBorder(planBoardItemHover ? Color.boardHoveredBorder : .clear)
-                        .shadow(color: planBoardItemHover ? .black.opacity(0.25) : .clear, radius: 8)
+                        .shadow(
+                            color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                            radius: 8
+                        )
                         .clipShape(
                             RoundedRectangle(cornerRadius: 16)
                         )
