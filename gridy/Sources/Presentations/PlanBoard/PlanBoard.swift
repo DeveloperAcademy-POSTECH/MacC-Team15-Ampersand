@@ -223,14 +223,22 @@ struct PlanBoard: Reducer {
                                         let index = periodsCount + Int(period.key)!
                                         state.existingAllPlans[planIDInLane]!.periods!["\(index)"] = period.value
                                     }
+                                    // TODO: - 11/3~11/4, 11/5~11/6과 같은 periods 처리
                                     /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
                                     state.existingAllPlans[parentPlanID]?.childPlanIDs[laneIndex]?.remove(at: lane.firstIndex(of: planID)!)
                                     let plansToUpdate = [state.existingAllPlans[parentPlanID]!, state.existingAllPlans[planIDInLane]!]
-                                    return .run { _ in
+                                    let plansToDelete = [state.existingAllPlans[planID]!]
+                                    state.existingAllPlans[planID] = nil
+                                    return .run { send in
                                         try await apiService.updatePlanTypeOnLine(
                                             plansToUpdate,
                                             projectID
                                         )
+                                        try await apiService.deletePlans(
+                                            plansToDelete,
+                                            projectID
+                                        )
+                                        await send(.fetchMap)
                                     }
                                 }
                             }

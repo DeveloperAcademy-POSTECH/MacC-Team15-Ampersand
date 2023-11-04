@@ -12,8 +12,9 @@ import FirebaseFirestoreSwift
 
 enum CollectionName: String {
     case plans = "Plans"
-    case lanes = "Lanes"
+    case deletePlans = "DeletedPlans"
     case planTypes = "PlanTypes"
+    case deletePlanTypes = "DeletedPlanTypes"
 }
 
 struct FirestoreService {
