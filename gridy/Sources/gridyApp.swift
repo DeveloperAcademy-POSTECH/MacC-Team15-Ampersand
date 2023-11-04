@@ -16,7 +16,9 @@ struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                ContentView()
+//                ContentView()
+                let viewModel = AutoCompleteViewModel()
+                ListContentView(autoCompleteViewModel: AutoCompleteViewModel())
             }
         }
     }
