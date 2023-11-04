@@ -460,11 +460,13 @@ struct PlanBoard: Reducer {
                     
                     for parentPlanID in parentPlanIDs {
                         let parentPlan = state.existingAllPlans[parentPlanID]!
-                        let childPlanIDs = parentPlan.childPlanIDs.values.flatMap { $0 }
+                        let childPlanIDs = parentPlan.childPlanIDs.flatMap { $0 }
+                        let sortedChildPlanIDs = childPlanIDs.sorted { Int($0.key)! < Int($1.key)! }
+                        let soltedChildPlanIDsArray = sortedChildPlanIDs.map { $0.value }.flatMap { $0 }
                         var newChildIDs: [String: [String]] = [:]
                         
-                        for childPlanIndex in 0..<childPlanIDs.count {
-                            let childPlanID = childPlanIDs[childPlanIndex]
+                        for childPlanIndex in 0..<soltedChildPlanIDsArray.count {
+                            let childPlanID = soltedChildPlanIDsArray[childPlanIndex]
                             let childPlan = state.existingAllPlans[childPlanID]!
                             let lanes = childPlan.childPlanIDs
                             
@@ -472,7 +474,6 @@ struct PlanBoard: Reducer {
                                 let index = newChildIDs.count
                                 newChildIDs[String(index)] = lane.value
                             }
-                            
                             state.existingAllPlans[childPlanID]?.childPlanIDs = ["0": []]
                         }
                         state.existingAllPlans[parentPlanID]!.childPlanIDs = newChildIDs

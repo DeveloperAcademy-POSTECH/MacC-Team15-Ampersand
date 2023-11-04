@@ -38,11 +38,11 @@ struct TempView: View {
                                 TextField("", text: $createRow)
                             
                             Text("Text:")
-                                TextField("", text: $createText)
+                                TextField("", text: $createRow)
                         }
                         Button {
                             viewStore.send(
-                                .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createText)
+                                .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createRow)
                             )
                             createLayer = ""
                             createRow = ""
@@ -64,11 +64,11 @@ struct TempView: View {
                                 TextField("", text: $updateRow)
                             
                             Text("Text:")
-                                TextField("", text: $updateText)
+                                TextField("", text: $updateRow)
                         }
                         Button {
                             viewStore.send(
-                                .updatePlanType(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateText, colorCode: PlanType.emptyPlanType.colorCode)
+                                .updatePlanType(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateRow, colorCode: PlanType.emptyPlanType.colorCode)
                             )
                             
                             updateLayer = ""
