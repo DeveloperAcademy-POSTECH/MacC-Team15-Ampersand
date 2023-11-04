@@ -312,7 +312,7 @@ struct LineAreaView: View {
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            if let newRange = temporarySelectedGridRange {
+                            if temporarySelectedGridRange != nil {
                                 temporarySelectedGridRange = nil
                             }
                             exceededDirection = [false, false, false, false]

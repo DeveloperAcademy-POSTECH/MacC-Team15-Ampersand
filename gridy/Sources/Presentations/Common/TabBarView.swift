@@ -32,13 +32,20 @@ struct TabBarView: View {
 extension TabBarView {
     var windowControlsButton: some View {
         HStack(alignment: .top, spacing: 8) {
-            Circle().foregroundStyle(.red).frame(width: 12, height: 12)
-            Circle().foregroundStyle(.yellow).frame(width: 12, height: 12)
-            Circle().foregroundStyle(.green).frame(width: 12, height: 12)
+            Circle()
+                .foregroundStyle(.red)
+                .frame(width: 12, height: 12)
+            Circle()
+                .foregroundStyle(.yellow)
+                .frame(width: 12, height: 12)
+            Circle()
+                .foregroundStyle(.green)
+                .frame(width: 12, height: 12)
         }
         .padding(.horizontal, 12)
     }
 }
+
 extension TabBarView {
     var homeButton: some View {
         Rectangle()
@@ -51,9 +58,12 @@ extension TabBarView {
             .onHover { proxy in
                 homeButtonHover = proxy
             }
-            .onTapGesture { homeButtonClicked = true }
+            .onTapGesture {
+                homeButtonClicked = true
+            }
     }
 }
+
 extension TabBarView {
     var planBoardTab: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -72,13 +82,16 @@ extension TabBarView {
         .onHover { proxy in
             planBoardTabHover = proxy
         }
-        .onTapGesture { planBoardTabClicked = true
-            print("ZZ")}
+        .onTapGesture {
+            planBoardTabClicked = true
+            print("ZZ")
+        }
     }
 }
+
 extension TabBarView {
     var notificationButton: some View {
-        ZStack{
+        ZStack {
             Rectangle()
                 .foregroundStyle(bellButtonClicked ? Color.tabHovered : bellButtonHover ? Color.tabHovered : Color.clear)
                 .overlay(
@@ -89,14 +102,13 @@ extension TabBarView {
                 .onHover { proxy in
                     bellButtonHover = proxy
                 }
-                .onTapGesture { bellButtonClicked = true }
+                .onTapGesture {
+                    bellButtonClicked = true
+                }
             Circle()
                 .foregroundColor(Color.red)
                 .frame(width: 5, height: 5)
-                .offset(x:3, y:-3)
-            
-            
+                .offset(x: 3, y: -3)
         }
-        
     }
 }

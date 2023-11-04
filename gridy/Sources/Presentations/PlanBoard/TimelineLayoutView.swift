@@ -23,9 +23,13 @@ struct TimelineLayoutView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TabBarView(bellButtonClicked: $bellButtonClicked).frame(height: 36)
+            TabBarView(bellButtonClicked: $bellButtonClicked)
+                .frame(height: 36)
             borderSpacer(.horizontal)
-            TopToolBarArea(shareImageClicked: $shareImageClicked, boardSettingClicked: $boardSettingClicked, rightToolBarClicked: $rightToolBarClicked).frame(height: 36)
+            TopToolBarArea(
+                shareImageClicked: $shareImageClicked, boardSettingClicked: $boardSettingClicked, rightToolBarClicked: $rightToolBarClicked
+            )
+                .frame(height: 36)
             HStack(alignment: .top, spacing: 0) {
                 scheduleIndexArea
                 borderSpacer(.vertical)
@@ -49,7 +53,6 @@ struct TimelineLayoutView: View {
                 borderSpacer(.vertical)
                 lineArea
             }
-            
         }
         .sheet(isPresented: $bellButtonClicked) {
             NotificationView()
@@ -69,14 +72,12 @@ struct TimelineLayoutView: View {
     extension TimelineLayoutView {
         var scheduleIndexArea: some View {
             Color.tabBar
-//                .frame(width:32, height:167)
         }
     }
     
     extension TimelineLayoutView {
         var blackPinkInYourArea: some View {
             Color.white
-            
             
         }
     }
@@ -119,5 +120,3 @@ struct TimelineLayoutView: View {
             Color.white
         }
     }
-    
-

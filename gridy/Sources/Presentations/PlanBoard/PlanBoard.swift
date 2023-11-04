@@ -16,6 +16,7 @@ enum LineAreaDragType {
 }
 
 struct PlanBoard: Reducer {
+    
     @Dependency(\.apiService) var apiService
     
     struct State: Equatable {

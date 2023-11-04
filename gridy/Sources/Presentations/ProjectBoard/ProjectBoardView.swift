@@ -15,7 +15,7 @@ struct ProjectBoardView: View {
     @State var planBoardButtonHover = false
     @State var planBoardButtonClicked = false
     @State var listHover = false
-    @State private var isExpanded: Bool = true
+    @State private var isExpanded = true
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -80,6 +80,7 @@ extension ProjectBoardView {
         }
     }
 }
+
 extension ProjectBoardView {
     var calendarArea: some View {
         RoundedRectangle(cornerRadius: 32)
@@ -92,6 +93,7 @@ extension ProjectBoardView {
             .padding(16)
     }
 }
+
 extension ProjectBoardView {
     var boardSearchArea: some View {
         RoundedRectangle(cornerRadius: 8)
@@ -104,6 +106,7 @@ extension ProjectBoardView {
             .padding(16)
     }
 }
+
 extension ProjectBoardView {
     var projectListArea: some View {
         Section(header:
@@ -113,35 +116,36 @@ extension ProjectBoardView {
             .padding(.bottom, 8)
         ) {
             ScrollView(showsIndicators: false) {
-                    DisclosureGroup(isExpanded: $isExpanded) {
-                        ForEach(0..<4, id: \.self) { index in
-                            Folder(id: index)
-                        }
-                    } label: {
-                        HStack(alignment: .center, spacing: 0) {
-                            Rectangle()
-                                .foregroundStyle(.clear)
-                                .frame(width: 24, height: 24)
-                                .overlay(
-                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                                        .foregroundColor(Color.subtitle)
-                                )
-                            Label("Personal Project", systemImage: "person.crop.square.fill")
-                                .fontWeight(.medium)
-                                .foregroundStyle(Color.title)
-                                .frame(height: 40)
-                            Spacer()
-                        }
-                        .padding(.leading, 16)
-                        .background(listHover ? Color.itemHovered : .clear)
-                        .onHover { proxy in
-                            listHover = proxy
-                        }
+                DisclosureGroup(isExpanded: $isExpanded) {
+                    ForEach(0..<4, id: \.self) { index in
+                        Folder(id: index)
+                    }
+                } label: {
+                    HStack(alignment: .center, spacing: 0) {
+                        Rectangle()
+                            .foregroundStyle(.clear)
+                            .frame(width: 24, height: 24)
+                            .overlay(
+                                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                    .foregroundColor(Color.subtitle)
+                            )
+                        Label("Personal Project", systemImage: "person.crop.square.fill")
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.title)
+                            .frame(height: 40)
+                        Spacer()
+                    }
+                    .padding(.leading, 16)
+                    .background(listHover ? Color.itemHovered : .clear)
+                    .onHover { proxy in
+                        listHover = proxy
+                    }
                 }
             }
             .disclosureGroupStyle(MyDisclosureStyle())
         }
     }
+    
     private struct Folder: View {
         @State var folderHover = false
         var id: Int
@@ -162,6 +166,7 @@ extension ProjectBoardView {
             }
         }
     }
+    
     private struct MyDisclosureStyle: DisclosureGroupStyle {
         func makeBody(configuration: Configuration) -> some View {
             VStack(alignment: .leading, spacing: 0) {
@@ -238,9 +243,11 @@ extension ProjectBoardView {
         }
         .background(Color.project)
     }
+    
     var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 240, maximum: 360), spacing: 32)]
     }
+    
     private struct PlanBoardItem: View {
         @State var planBoardItemHover: Bool = false
         var id: Int
