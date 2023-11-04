@@ -24,7 +24,7 @@ struct PlanBoard: Reducer {
         var rootPlan: Plan
         var map: [[String]]
         var searchPlanTypesResult = [PlanType]()
-        var existingPlanTypes = [PlanType.emptyPlanType]
+        var existingPlanTypes: [String: PlanType] = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
@@ -86,7 +86,8 @@ struct PlanBoard: Reducer {
         
         // MARK: - plan type
         case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
-        case updatePlanType(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnList(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnLine(planID: String, row: Int, text: String, colorCode: UInt)
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String)
@@ -151,7 +152,7 @@ struct PlanBoard: Reducer {
                     colorCode: colorCode
                 )
                 
-                state.existingPlanTypes.append(newPlanType)
+                state.existingPlanTypes[newPlanType.id] = newPlanType
                 state.existingAllPlans[existingPlanID]!.planTypeID = newPlanTypeID
                 
                 return .run { send in
@@ -164,20 +165,18 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            case let .updatePlanType(layer, row, text, colorCode):
+            case let .updatePlanTypeOnList(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
                 // TODO: - 릴리랑 로직 확인하기: ID가 map[layer][row]가 아니라 직접 계산해서 접근해야하지 않을지~?
                 let existingPlanID = state.map[layer][row]
                 let existingPlan = state.existingAllPlans[existingPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
-                let existingPlanType = state.existingPlanTypes.first(where: { $0.id == existingPlanTypeID })!
+                let existingPlanType = state.existingPlanTypes[existingPlanTypeID]!
                 
                 /// planType이 있는 경우
-                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.title == text && $0.colorCode  == colorCode })?.id {
+                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })?.key {
                     /// 똑같은게 들어온 경우 > 실행 안 함
                     if foundPlanTypeID == existingPlanType.id { return .none }
-                    
-                    /// 동일 레인에 동일 타입의 플랜이 존재하면 기존 플랜의 periods를 추가하고 현 플랜은 삭제
                     
                     state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
                     
@@ -195,6 +194,72 @@ struct PlanBoard: Reducer {
                             .createPlanType(layer: layer, row: row, text: text, colorCode: colorCode)
                         )
                     }
+                }
+                
+            case let .updatePlanTypeOnLine(planID, row, text, colorCode):
+                let projectID = state.rootProject.id
+                /// 이미 존재하는 타입이면 update만
+                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })?.key {
+                    /// 동일 레인에 동일 타입의 플랜이 존재하면 기존 플랜의 periods를 추가하고 현 플랜은 삭제
+                    var currentRowCount = -1
+                    let parentLayer = state.map.count == 1 ? state.map[0] : state.map[1]
+                    
+                    /// 부모부터 찾자
+                    for parentPlanID in parentLayer {
+                        let childLaneCount = state.existingAllPlans[parentPlanID]!.childPlanIDs.count
+                        /// plan이 속하는 row 발견
+                        if currentRowCount < row, row <= currentRowCount + childLaneCount {
+                            /// 그럼 이제는 해당하는 레인을 찾아보자
+                            let laneIndex = state.existingAllPlans[parentPlanID]!.childPlanIDs.first { $0.value.contains(planID) }!.key
+                            let lane = state.existingAllPlans[parentPlanID]!.childPlanIDs["\(laneIndex)"]!
+                            for planIDInLane in lane {
+                                if planIDInLane == planID { continue }
+                                
+                                /// 동일 타입의 플랜이 이미 존재한다면 플랜 본인을 삭제하고 periods만 추가
+                                if state.existingAllPlans[planIDInLane]!.planTypeID == foundPlanTypeID {
+                                    let periodsCount = state.existingAllPlans[planIDInLane]!.periods!.count
+                                    let periodsToTransplant = state.existingAllPlans[planID]!.periods!
+                                    for period in periodsToTransplant {
+                                        let index = periodsCount + Int(period.key)!
+                                        state.existingAllPlans[planIDInLane]!.periods!["\(index)"] = period.value
+                                    }
+                                    /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
+                                    state.existingAllPlans[parentPlanID]?.childPlanIDs[laneIndex]?.remove(at: lane.firstIndex(of: planID)!)
+                                    let plansToUpdate = [state.existingAllPlans[parentPlanID]!, state.existingAllPlans[planIDInLane]!]
+                                    return .run { _ in
+                                        try await apiService.updatePlanTypeOnLine(
+                                            plansToUpdate,
+                                            projectID
+                                        )
+                                    }
+                                }
+                            }
+                            /// 반복문이 끝났는데도 return되지 않았다면 같은 레인에 동일 타입의 플랜이 존재하지 않는 것이므로 updatePlanType만 해준다
+                            return .run { _ in
+                                try await apiService.updatePlanType(
+                                    planID,
+                                    foundPlanTypeID,
+                                    projectID
+                                )
+                            }
+                        }
+                        currentRowCount += childLaneCount
+                    }
+                }
+                /// 발견된 플랜타입이 없다면 무조건 create후 update
+                let targetPlanType = PlanType(
+                    id: UUID().uuidString,
+                    title: text,
+                    colorCode: colorCode
+                )
+                state.existingPlanTypes[targetPlanType.id] = targetPlanType
+                state.existingAllPlans[planID]!.planTypeID = targetPlanType.id
+                return .run { _ in
+                    try await apiService.createPlanType(
+                        targetPlanType, 
+                        planID,
+                        projectID
+                    )
                 }
                 
                 // MARK: - plan
@@ -224,7 +289,7 @@ struct PlanBoard: Reducer {
                                 title: text,
                                 colorCode: PlanType.emptyPlanType.colorCode
                             )
-                            state.existingPlanTypes.append(newPlanType)
+                            state.existingPlanTypes[newPlanType.id] = newPlanType
                             createdPlanType = newPlanType
                             newPlanTypeID = newPlanType.id
                         }
@@ -587,7 +652,7 @@ struct PlanBoard: Reducer {
                     for rootChildID in rootChildIDs {
                         let rootChildLanes = state.existingAllPlans[rootChildID]!.childPlanIDs
                         let rootChildLaneCount = rootChildLanes.count
-                        if laneCount <= row, row <= laneCount + rootChildLaneCount {
+                        if laneCount < row, row <= laneCount + rootChildLaneCount {
                             /// row 발견
                             if createOnTop {
                                 for index in stride(from: rootChildLaneCount - 1, through: -1, by: -1) {
@@ -607,6 +672,7 @@ struct PlanBoard: Reducer {
                                 await send(.fetchMap)
                             }
                         }
+                        laneCount += rootChildLaneCount
                     }
                 }
                 /// /// layer가 두개라면, root (layer0)의 child부터 순회
