@@ -69,12 +69,8 @@ struct AuthenticationView: View {
                                 
                                 /// Navige to Project Board View
                                 NavigationLink("프로젝트 보드로 가기") {
-                                    ProjectBoardView(
-                                        store: store.scope(
-                                            state: \.optionalProjectBoard,
-                                            action: { .optionalProjectBoard($0) }
-                                        )
-                                    )
+                                    // TODO: ProjectBoardView에 Store 복구하기
+                                    ProjectBoardView()
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.vertical, 10)
