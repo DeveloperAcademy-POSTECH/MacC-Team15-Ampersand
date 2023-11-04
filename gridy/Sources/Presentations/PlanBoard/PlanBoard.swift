@@ -131,6 +131,7 @@ struct PlanBoard: Reducer {
             switch action {
                 // MARK: - user action
             case .onAppear:
+                // TODO: - 삭제
                 state.existingAllPlans = [state.rootPlan.id: state.rootPlan]
                 state.existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
                 return .none
@@ -167,7 +168,25 @@ struct PlanBoard: Reducer {
                 
             case let .updatePlanType(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
-                let existingPlanID = state.map[layer][row]
+                
+                let planIDsArray = state.map[layer]
+                var planHeightsArray = [String: Int]()
+                for planID in planIDsArray {
+                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
+                    planHeightsArray[planID] = childPlanIDsArray.count
+                }
+                
+                var sumOfHeights = 0
+                var targetPlanID = ""
+                for planID in planIDsArray {
+                    sumOfHeights += planHeightsArray[planID]!
+                    if row < sumOfHeights {
+                        targetPlanID = planID
+                        break
+                    }
+                }
+                
+                let existingPlanID = targetPlanID
                 let existingPlan = state.existingAllPlans[existingPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
                 let existingPlanType = state.existingPlanTypes[existingPlanTypeID]
@@ -242,6 +261,7 @@ struct PlanBoard: Reducer {
                         if layerIndex == 0 {
                             /// root의 childPlan에 넣어주어야 할 plan들
                             state.existingAllPlans[parentPlanID]!.childPlanIDs[String(rowIndex)] = [newPlanID]
+                            state.rootPlan.childPlanIDs[String(rowIndex)] = [newPlanID]
                         }
                         
                         parentPlanID = newPlanID
