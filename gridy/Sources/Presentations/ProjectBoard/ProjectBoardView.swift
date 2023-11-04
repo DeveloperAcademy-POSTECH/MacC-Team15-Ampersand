@@ -260,7 +260,9 @@ extension ProjectBoardView {
                     RoundedRectangle(cornerRadius: 16)
                         .strokeBorder(planBoardItemHover ? Color.boardHoveredBorder : .clear)
                         .shadow(color: planBoardItemHover ? .black.opacity(0.25) : .clear, radius: 8)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 16)
+                        )
                 }
                 .aspectRatio(3/2, contentMode: .fit)
                 .shadow(color: planBoardItemHover ? .black.opacity(0.25) : .clear, radius: 4, y: 4)
