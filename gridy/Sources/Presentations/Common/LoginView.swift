@@ -44,6 +44,11 @@ struct LoginView: View {
                 }
             }
             .frame(width: 480, height: 400)
+            .shadow(
+                color: .black.opacity(0.25),
+                radius: 32,
+                y: 16
+            )
         }
     }
 }
