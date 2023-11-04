@@ -268,7 +268,10 @@ extension ProjectBoardView {
                         )
                 }
                 .aspectRatio(3/2, contentMode: .fit)
-                .shadow(color: planBoardItemHover ? .black.opacity(0.25) : .clear, radius: 4, y: 4)
+                .shadow(
+                    color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                    radius: 4, y: 4
+                )
                 Spacer().frame(height: 8)
                 Text("Board Name")
                     .fontWeight(.medium)
