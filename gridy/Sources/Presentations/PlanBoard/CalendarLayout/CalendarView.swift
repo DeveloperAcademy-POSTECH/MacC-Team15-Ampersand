@@ -14,18 +14,21 @@ struct DateValue: Identifiable {
 }
 
 struct CalendarView: View {
-    @State private var currentDate: Date = Date()
-    @State private var currentMonth: Int = 0
-    @State private var isDayClicked: Bool = false
-    @State private var selectedDate: DateValue = DateValue(day: 0, date: Date())
+    @State private var currentDate = Date()
+    @State private var currentMonth = 0
+    @State private var isDayClicked = false
+    @State private var selectedDate = DateValue(day: 0, date: Date())
     
     var body: some View {
+        
+        let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
+        let columns = Array(repeating: GridItem(.fixed(22)), count: 7)
+
         ZStack {
             RoundedRectangle(cornerRadius: 32)
                 .foregroundStyle(Color.item)
                 .padding()
             VStack(alignment: .center) {
-                let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
                 HStack(spacing: 16) {
                     Text(extraDate()[1])
                         .foregroundStyle(Color.title)
@@ -34,13 +37,13 @@ struct CalendarView: View {
                     Spacer()
                     Image(systemName: "chevron.left")
                         .font(.body)
-                        .foregroundColor(Color.subtitle)
+                        .foregroundStyle(Color.subtitle)
                         .onTapGesture {
                             currentMonth -= 1
                         }
                     Image(systemName: "chevron.right")
                         .font(.body)
-                        .foregroundColor(Color.subtitle)
+                        .foregroundStyle(Color.subtitle)
                         .onTapGesture {
                             currentMonth += 1
                         }
@@ -50,16 +53,13 @@ struct CalendarView: View {
                         Text(day)
                             .font(.callout)
                             .fontWeight(.semibold)
-                            .foregroundColor(day == "일" ? Color.subtitle : Color.title)
+                            .foregroundStyle(day == "일" ? Color.subtitle : Color.title)
                             .frame(width: 22, height: 22)
                     }
                 }
-                let columns = Array(repeating: GridItem(.fixed(22)), count: 7)
                 LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(extractDate()) { value in
-                        ZStack {
                             cardView(value: value)
-                        }
                     }
                 }
                 .onChange(of: currentMonth) { _ in
@@ -77,19 +77,19 @@ struct CalendarView: View {
             if value.day != -1 {
                 let isToday = Calendar.current.isDateInToday(value.date)
                 let comparisonResult = Calendar.current.compare(value.date, to: Date(), toGranularity: .day)
-                let isSunday = value.date.dayOfSunday() == 1  // 1은 일요일을 나타냅니다.
+                let isSunday = value.date.dayOfSunday() == 1  /// 1은 일요일을 나타냅니다.
                 Circle()
                     .frame(width: 28, height: 28)
-                    .foregroundColor(isToday ? Color.item : .clear)
+                    .foregroundStyle(isToday ? Color.title : .clear)
                 Text("\(value.day)")
                     .font(.title3)
                     .bold(isToday ? true : false)
-                    .foregroundColor(isSunday ? Color.subtitle : (isToday ? Color.itemSelected : Color.title))
+                    .foregroundStyle(isSunday ? Color.subtitle : (isToday ? Color.folder : Color.title))
             }
         }
     }
     
-    func extraDate() -> [String] {
+    private func extraDate() -> [String] {
         let formatter = DateFormatter()
         formatter.dateFormat = "YYYY MMMM"
         formatter.locale = Locale(identifier: "ko_KR")
@@ -98,18 +98,18 @@ struct CalendarView: View {
         return date.components(separatedBy: " ")
     }
     
-    func getCurrentMonth() -> Date  {
+    private func getCurrentMonth() -> Date  {
         let calendar = Calendar.current
-        //현재 달의 요일을 받아옴
+        ///현재 달의 요일을 받아옴
         guard let currentMonth = calendar.date(byAdding: .month, value:  self.currentMonth,to: Date()) else {
             return Date()
         }
         return currentMonth
     }
     
-    func extractDate() -> [DateValue] {
+    private func extractDate() -> [DateValue] {
         let calendar = Calendar.current
-        //현재 달의 요일을 받아옴
+        ///현재 달의 요일을 받아옴
         let currentMonth = getCurrentMonth()
         var days = currentMonth.getAllDates().compactMap { date -> DateValue in
             let day = calendar.component(.day, from: date)
@@ -143,4 +143,3 @@ extension Date {
 #Preview {
     CalendarView()
 }
-

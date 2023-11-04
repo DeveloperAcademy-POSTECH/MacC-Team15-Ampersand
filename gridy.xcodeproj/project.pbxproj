@@ -44,7 +44,6 @@
 		AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */; };
 		AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9B2AC95FBB00AA001F /* APIClient.swift */; };
 		AD52FE9F2AC965EF00AA001F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9E2AC965EF00AA001F /* User.swift */; };
-		AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */; };
 		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
 		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
@@ -62,6 +61,7 @@
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D167A0732AF6192400B70E5E /* GoogleService-Info.plist */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
 		EE4ADF5A2AD7CD8900D99AEA /* ProjectBoardSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
@@ -111,7 +111,6 @@
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +129,7 @@
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		D167A0732AF6192400B70E5E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
 		EE4ADF592AD7CD8900D99AEA /* ProjectBoardSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardSideView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
@@ -236,7 +236,7 @@
 		AD8ECB8C2ABC7CA10040A0B8 /* gridy */ = {
 			isa = PBXGroup;
 			children = (
-				AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */,
+				D167A0732AF6192400B70E5E /* GoogleService-Info.plist */,
 				8A1D0C4D2AC3F76900C7FCF8 /* Info.plist */,
 				AD8ECB9D2ABC7CC00040A0B8 /* Sources */,
 				AD8ECB9E2ABC7CC80040A0B8 /* Resources */,
@@ -549,12 +549,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */,
-				AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */,
 				8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */,
 				8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */,
 				8A5162462AC401EF00EEB1B4 /* Pretendard-Regular.otf in Resources */,
 				8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */,
 				8A1D0C542AC3FD0600C7FCF8 /* Pretendard-Thin.otf in Resources */,
+				D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
