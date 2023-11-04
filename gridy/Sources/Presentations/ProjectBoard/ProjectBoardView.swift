@@ -19,7 +19,8 @@ struct ProjectBoardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TabBarView(bellButtonClicked: $bellButtonClicked).frame(height: 36)
+            TabBarView(bellButtonClicked: $bellButtonClicked)
+                .frame(height: 36)
                 .zIndex(2)
             borderSpacer(.horizontal)
             HStack(alignment: .top, spacing: 0) {
@@ -32,7 +33,7 @@ struct ProjectBoardView: View {
                     projectListArea
                     Spacer()
                 }
-                .background(Color.sideBar.g(
+                .background(Color.sideBar.shadow(
                     color: .black.opacity(0.2),
                     radius: 16,
                     x: 8
@@ -113,8 +114,7 @@ extension ProjectBoardView {
 
 extension ProjectBoardView {
     var projectListArea: some View {
-        Section(header:
-                    Text("Projects")
+        Section(header: Text("Projects")
             .fontWeight(.medium)
             .padding(.leading, 16)
             .padding(.bottom, 8)
