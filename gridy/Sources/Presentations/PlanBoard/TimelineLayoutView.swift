@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct TimelineLayoutView: View {
     
-//    let store: StoreOf<PlanBoard>
+    //    let store: StoreOf<PlanBoard>
     
     @State var bellButtonClicked = false
     @State var shareImageClicked = false
@@ -29,7 +29,7 @@ struct TimelineLayoutView: View {
             TopToolBarArea(
                 shareImageClicked: $shareImageClicked, boardSettingClicked: $boardSettingClicked, rightToolBarClicked: $rightToolBarClicked
             )
-                .frame(height: 36)
+            .frame(height: 36)
             HStack(alignment: .top, spacing: 0) {
                 scheduleIndexArea
                 borderSpacer(.vertical)
@@ -68,54 +68,54 @@ struct TimelineLayoutView: View {
         }
     }
 }
-    
-    extension TimelineLayoutView {
-        var scheduleIndexArea: some View {
-            Color.tabBar
-        }
+
+extension TimelineLayoutView {
+    var scheduleIndexArea: some View {
+        Color.tabBar
     }
-    
-    extension TimelineLayoutView {
-        var blackPinkInYourArea: some View {
-            Color.white
-        }
+}
+
+extension TimelineLayoutView {
+    var blackPinkInYourArea: some View {
+        Color.white
     }
-    
-    extension TimelineLayoutView {
-        var scheduleArea: some View {
-            Color.white
-        }
+}
+
+extension TimelineLayoutView {
+    var scheduleArea: some View {
+        Color.white
     }
-    
-    extension TimelineLayoutView {
-        var extraArea: some View {
-            Color.white
-        }
+}
+
+extension TimelineLayoutView {
+    var extraArea: some View {
+        Color.white
     }
-    
-    extension TimelineLayoutView {
-        var listControlArea: some View {
-            Color.white
-        }
+}
+
+extension TimelineLayoutView {
+    var listControlArea: some View {
+        Color.white
     }
-    extension TimelineLayoutView {
-        var timeAxisArea: some View {
-            Color.white
-        }
+}
+extension TimelineLayoutView {
+    var timeAxisArea: some View {
+        Color.white
     }
-    extension TimelineLayoutView {
-        var lineIndexArea: some View {
-            Color.white
-        }
+}
+extension TimelineLayoutView {
+    var lineIndexArea: some View {
+        Color.white
     }
-    extension TimelineLayoutView {
-        var listArea: some View {
-            Color.white
-        }
+}
+extension TimelineLayoutView {
+    var listArea: some View {
+        Color.white
     }
-    
-    extension TimelineLayoutView {
-        var lineArea: some View {
-            Color.white
-        }
+}
+
+extension TimelineLayoutView {
+    var lineArea: some View {
+        Color.white
     }
+}
