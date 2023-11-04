@@ -21,7 +21,7 @@ struct APIClient {
     ) async throws -> Void
     var signOut: () async throws -> Void
     var updateJob: (_ job: String) async throws -> Void
-    var updateProfileImage: @Sendable (String) async throws -> Void
+    var updateProfileImage: @Sendable (NSImage) async throws -> String
     
     init(
         fetchUser: @escaping () async throws -> User?,
@@ -29,7 +29,7 @@ struct APIClient {
         signUp: @escaping @Sendable (User, AuthCredential) async throws -> Void,
         signOut: @escaping () async throws -> Void,
         updateJob: @escaping (_ job: String) async throws -> Void,
-        updateProfileImage: @escaping @Sendable (String) async throws -> Void
+        updateProfileImage: @escaping @Sendable (NSImage) async throws -> String
     ) {
         self.fetchUser = fetchUser
         self.signIn = signIn
@@ -91,10 +91,13 @@ extension APIClient {
             }
         },
         
-        updateProfileImage: { profileImageURL in
+        updateProfileImage: { nsImage in
             if let uid = Auth.auth().currentUser?.uid {
+                let profileImageURL = await ImageUploader.uploadImage(uid: uid, image: nsImage)
                 try await APIClient.clientCollection.document(uid).updateData(["profileImageURL": profileImageURL])
+                return profileImageURL
             }
+            return "⛔️ Upload ERROR"
         }
     )
 }
@@ -108,7 +111,7 @@ extension APIClient {
         }, signUp: { _, _ in
         }, signOut: {},
         updateJob: { _ in },
-        updateProfileImage: { _ in }
+        updateProfileImage: { _ in "" }
     )
     static let mockValue = Self(
         fetchUser: {
@@ -117,6 +120,6 @@ extension APIClient {
         }, signUp: { _, _ in
         }, signOut: {},
         updateJob: { _ in },
-        updateProfileImage: { _ in }
+        updateProfileImage: { _ in "" }
     )
 }

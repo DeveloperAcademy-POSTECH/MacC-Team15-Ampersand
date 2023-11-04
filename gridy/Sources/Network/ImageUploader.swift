@@ -9,7 +9,8 @@ import AppKit
 import FirebaseStorage
 
 struct ImageUploader {
-    static func uploadImage(uid: String, image: NSImage, completion: @escaping(String) -> Void) {
+    static func uploadImage(uid: String, image: NSImage) async -> String {
+        var imageURL = ""
         if let imageData = image.tiffRepresentation(using: .jpeg, factor: 0.5) {
             let filename = UUID().uuidString
             let ref = Storage.storage().reference(withPath: "\(uid)/\(filename)")
@@ -18,10 +19,12 @@ struct ImageUploader {
                 if let error = error { return }
                 
                 ref.downloadURL { url, _ in
-                    guard let imageUrl = url?.absoluteString else { return }
-                    completion(imageUrl)
+                    if let url = url?.absoluteString {
+                        imageURL = url
+                    }
                 }
             }
         }
+        return imageURL
     }
 }
