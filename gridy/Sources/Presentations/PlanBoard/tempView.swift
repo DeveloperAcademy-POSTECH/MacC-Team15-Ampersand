@@ -16,12 +16,12 @@ struct TempView: View {
         PlanBoard()
     }
     
-    @State var createLayer = "0"
-    @State var createRow = "0"
+    @State var createLayer = ""
+    @State var createRow = ""
     @State var createText = ""
     
-    @State var updateLayer = "0"
-    @State var updateRow = "0"
+    @State var updateLayer = ""
+    @State var updateRow = ""
     @State var updateText = ""
     
     var body: some View {
@@ -44,8 +44,8 @@ struct TempView: View {
                             viewStore.send(
                                 .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createText)
                             )
-                            createLayer = "0"
-                            createRow = "0"
+                            createLayer = ""
+                            createRow = ""
                             createText = ""
                         } label: {
                             Text("Create")
@@ -71,8 +71,8 @@ struct TempView: View {
                                 .updatePlanType(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateText, colorCode: PlanType.emptyPlanType.colorCode)
                             )
                             
-                            updateLayer = "0"
-                            updateRow = "0"
+                            updateLayer = ""
+                            updateRow = ""
                             updateText = ""
                         } label: {
                             Text("Update")
@@ -98,6 +98,25 @@ struct TempView: View {
                                 }
                                 
                                 Text("layer \(layerIndex)")
+                                    .contextMenu {
+                                        if viewStore.map.count != 1 {
+                                            Button {
+                                                viewStore.send(
+                                                    .deleteLayer(layer: layerIndex)
+                                                )
+                                            } label: {
+                                                Text("이 레이어 삭제")
+                                            }
+                                        }
+                                        
+                                        Button {
+                                            viewStore.send(
+                                                .deleteLayerText(layer: layerIndex)
+                                            )
+                                        } label: {
+                                            Text("이 레이어 글자만 삭제")
+                                        }
+                                    }
                                 
                                 Button {
                                     viewStore.send(
@@ -108,26 +127,37 @@ struct TempView: View {
                                     Text("+")
                                 }
                             }
-                            ForEach(0..<viewStore.map[layerIndex].count, id: \.self) { rowIndex in
-                                let planID = viewStore.map[layerIndex][rowIndex]
-                                let plan = viewStore.existingAllPlans[planID]!
-                                let planTypeID = plan.planTypeID
-                                let planType = viewStore.existingPlanTypes[planTypeID]!
-                                
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .strokeBorder(.blue)
-                                    
-                                    Text(planType.title)
-                                }
-                                .frame(width: 300, height: 20)
-                                .padding(4)
-                            }
+                            .frame(width: 300, height: 20)
                         }
                     }
                 }
-                .padding(.vertical)
-                Spacer()
+                
+                ScrollView {
+                    HStack {
+                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
+                            VStack {
+                                ForEach(0..<viewStore.map[layerIndex].count, id: \.self) { rowIndex in
+                                    let planID = viewStore.map[layerIndex][rowIndex]
+                                    let plan = viewStore.existingAllPlans[planID]!
+                                    let planTypeID = plan.planTypeID
+                                    let planType = viewStore.existingPlanTypes[planTypeID]!
+                                    
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .strokeBorder(.blue)
+                                        
+                                        Text(planType.title)
+                                    }
+                                    .frame(width: 300, height: 20)
+                                    .padding(4)
+                                }
+                            }
+                        }
+                        
+                    }
+                    .padding(.vertical)
+                    Spacer()
+                }
             }
             .onAppear {
                 viewStore.send(.onAppear)

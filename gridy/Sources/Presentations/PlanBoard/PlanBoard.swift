@@ -121,6 +121,8 @@ struct PlanBoard: Reducer {
         case showUpperLayer
         case showLowerLayer
         case createLayerBtnClicked(layer: Int)
+        case deleteLayer(layer: Int)
+        case deleteLayerText(layer: Int)
         
         // MARK: - map
         case fetchMap
@@ -448,6 +450,55 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
+            case let .deleteLayer(layer):
+                /// layer가 하나인데 layer 삭제를 했을 때는 view에서 막아야 함. 혹시나 해서.
+                if state.map.count == 1 {
+                    return .none
+                } else {
+                    /// layer 2개 일 때
+                    let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
+                    
+                    for parentPlanID in parentPlanIDs {
+                        let parentPlan = state.existingAllPlans[parentPlanID]!
+                        let childPlanIDs = parentPlan.childPlanIDs.values.flatMap { $0 }
+                        var newChildIDs: [String: [String]] = [:]
+                        
+                        for childPlanIndex in 0..<childPlanIDs.count {
+                            let childPlanID = childPlanIDs[childPlanIndex]
+                            let childPlan = state.existingAllPlans[childPlanID]!
+                            let lanes = childPlan.childPlanIDs
+                            
+                            for lane in lanes {
+                                let index = newChildIDs.count
+                                newChildIDs[String(index)] = lane.value
+                            }
+                            
+                            state.existingAllPlans[childPlanID]?.childPlanIDs = ["0": []]
+                        }
+                        state.existingAllPlans[parentPlanID]!.childPlanIDs = newChildIDs
+                        if parentPlanID == state.rootPlan.id {
+                            state.rootPlan.childPlanIDs = newChildIDs
+                        }
+                    }
+                }
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    // TODO: - api Service
+                }
+                
+            case let .deleteLayerText(layer):
+                let planIDsArray = state.map[layer]
+                
+                for planID in planIDsArray {
+                    state.existingAllPlans[planID]!.planTypeID = PlanType.emptyPlanType.id
+                }
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    // TODO: - api Service
+                }
+                
             case let .shiftSelectedCell(rowOffset, colOffset):
                 if !state.selectedGridRanges.isEmpty {
                     if !state.isShiftKeyPressed {
@@ -625,7 +676,7 @@ struct PlanBoard: Reducer {
                     planIDsQ.append(contentsOf: tempLayer)
                     tempLayer = []
                 }
-                state.map = newMap
+                state.map = newMap.isEmpty ? [[]] : newMap
                 return .none
                 
             default:
