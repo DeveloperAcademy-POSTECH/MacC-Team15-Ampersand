@@ -121,6 +121,7 @@ struct PlanBoard: Reducer {
         case showUpperLayer
         case showLowerLayer
         case createLayerBtnClicked(layer: Int)
+        case createLaneButtonClicked(row: Int, createOnTop: Bool)
         
         // MARK: - map
         case fetchMap
@@ -574,6 +575,77 @@ struct PlanBoard: Reducer {
                 )
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
+                return .none
+                
+            case let .createLaneButtonClicked(row, createOnTop):
+                /// row: 새로운 레인이 생성될 인덱스
+                let projectID = state.rootProject.id
+                var laneCount = -1
+                let rootChildIDs = state.rootPlan.childPlanIDs["0"]!
+                if state.map.count == 1 {
+                    /// layer가 하나뿐이라면,
+                    for rootChildID in rootChildIDs {
+                        let rootChildLanes = state.existingAllPlans[rootChildID]!.childPlanIDs
+                        let rootChildLaneCount = rootChildLanes.count
+                        if laneCount <= row, row <= laneCount + rootChildLaneCount {
+                            /// row 발견
+                            if createOnTop {
+                                for index in stride(from: rootChildLaneCount - 1, through: -1, by: -1) {
+                                    state.existingAllPlans[rootChildID]?.childPlanIDs["\(index + 1)"] = rootChildLanes["\(index)"]
+                                }
+                                state.existingAllPlans[rootChildID]!.childPlanIDs["0"] = []
+                            } else {
+                                state.existingAllPlans[rootChildID]!.childPlanIDs["\(rootChildLaneCount)"] = []
+                            }
+                            let planToUpdate = state.existingAllPlans[rootChildID]!
+                            return .run { send in
+                                try await apiService.createLane(
+                                    planToUpdate,
+                                    nil,
+                                    projectID
+                                )
+                                await send(.fetchMap)
+                            }
+                        }
+                    }
+                }
+                /// /// layer가 두개라면, root (layer0)의 child부터 순회
+                for rootChildID in rootChildIDs {
+                    /// layer 1의 plan들을 순회
+                    let rootChildPlan = state.existingAllPlans[rootChildID]!
+                    let firstLayerPlanIDs = rootChildPlan.childPlanIDs
+                    let mappingByPlanIDs = firstLayerPlanIDs.map { $0.value }.flatMap { $0 }
+                    for firstLayerPlanID in mappingByPlanIDs {
+                        let firstLayerPlanLanes = state.existingAllPlans[firstLayerPlanID]!.childPlanIDs
+                        let firstLayerPlanLaneCount = firstLayerPlanLanes.count
+                        if laneCount <= row, row <= laneCount + firstLayerPlanLaneCount {
+                            /// row 발견
+                            let newChildPlan = Plan(
+                                id: UUID().uuidString,
+                                planTypeID: PlanType.emptyPlanType.id,
+                                childPlanIDs: ["0": []]
+                            )
+                            state.existingAllPlans[newChildPlan.id] = newChildPlan
+                            if createOnTop {
+                                for index in stride(from: firstLayerPlanLaneCount - 1, through: -1, by: -1) {
+                                    state.existingAllPlans[rootChildID]?.childPlanIDs["\(index + 1)"] = firstLayerPlanLanes["\(index)"]
+                                }
+                                state.existingAllPlans[firstLayerPlanID]!.childPlanIDs["0"] = [newChildPlan.id]
+                            } else {
+                                state.existingAllPlans[firstLayerPlanID]!.childPlanIDs["\(firstLayerPlanLaneCount)"] = [newChildPlan.id]
+                            }
+                            let planToUpdate = state.existingAllPlans[firstLayerPlanID]!
+                            return .run { send in
+                                try await apiService.createLane(
+                                    planToUpdate,
+                                    newChildPlan,
+                                    projectID
+                                )
+                                await send(.fetchMap)
+                            }
+                        }
+                    }
+                }
                 return .none
                 
             case .fetchMap:
