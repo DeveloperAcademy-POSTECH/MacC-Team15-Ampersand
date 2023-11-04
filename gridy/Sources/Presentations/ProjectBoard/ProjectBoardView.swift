@@ -32,7 +32,11 @@ struct ProjectBoardView: View {
                     projectListArea
                     Spacer()
                 }
-                .background(Color.sideBar.shadow(color: .black.opacity(0.2), radius: 16, x: 8))
+                .background(Color.sideBar.g(
+                    color: .black.opacity(0.2),
+                    radius: 16,
+                    x: 8
+                ))
                 .frame(width: 280)
                 .zIndex(1)
                 borderSpacer(.vertical)
@@ -205,7 +209,11 @@ extension ProjectBoardView {
                 } label: {
                     RoundedRectangle(cornerRadius: 22)
                         .foregroundStyle(planBoardButtonHover ? Color.boardSelectedBorder : Color.button)
-                        .shadow(color: .black.opacity(0.25), radius: 4, y: 4)
+                        .shadow(
+                            color: .black.opacity(0.25),
+                            radius: 4,
+                            y: 4
+                        )
                         .frame(width: 125, height: 44)
                         .overlay(
                             Text("+ Plan Board")
@@ -270,7 +278,7 @@ extension ProjectBoardView {
                 .aspectRatio(3/2, contentMode: .fit)
                 .shadow(
                     color: planBoardItemHover ? .black.opacity(0.25) : .clear,
-                    radius: 4, 
+                    radius: 4,
                     y: 4
                 )
                 Spacer().frame(height: 8)
