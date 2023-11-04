@@ -33,7 +33,7 @@ extension NotificationView {
                     .fontWeight(.medium)
                     .foregroundStyle(.blue)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.link)
         }
         .padding(16)
         .background(Color.blackWhite)
@@ -43,28 +43,48 @@ extension NotificationView {
 extension NotificationView {
     var notifications: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
                 ForEach(0..<5) { index in
                     Notifications(id: index)
                 }
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
     }
     
     private struct Notifications: View {
         var id: Int
+        @State var notificationContentHover = false
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Notification Content \(id)")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Text("Date")
-                    .font(.callout)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.subtitle)
+            Button {
+                // TODO: - Notification Content Button
+            } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Notification Content \(id)")
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.title)
+                        Text("Date")
+                            .font(.callout)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.subtitle)
+                    }
+                    Spacer()
+                }
+            }
+            .padding(8)
+            .background(notificationContentHover ? Color.item : Color.itemHovered)
+            .clipShape(
+                RoundedRectangle(cornerRadius: 8)
+            )
+            .buttonStyle(.link)
+            .scaleEffect(notificationContentHover ? 1.02 : 1)
+            .onHover { proxy in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    notificationContentHover = proxy
+                }
             }
         }
     }
