@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var allPeriodsChecked = false
     @State private var startDateChecked = false
+    @State private var shareHovered = false
     @State private var cancelHovered = false
+    @State private var createHovered = false
+
     @State private var isStartDateHovered = false
     @State private var isEndDateHovered = false
     
@@ -72,10 +76,10 @@ struct ShareImageView: View {
 
             HStack(){
                 Button {
-                    dismiss()
+                    shareImage()
                 } label: {
                     RoundedRectangle(cornerRadius: 5)
-                        .foregroundStyle(Color.item)
+                        .foregroundStyle(shareHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
                         .overlay(
                             Text("Share")
@@ -83,7 +87,11 @@ struct ShareImageView: View {
                                 .foregroundStyle(Color.button)
                         )
                 }
+                
                 .buttonStyle(.link)
+                .onHover { hover in
+                    shareHovered = hover
+                }
                 Spacer()
                 Button {
                     dismiss()
@@ -105,7 +113,7 @@ struct ShareImageView: View {
                     dismiss()
                 } label: {
                     RoundedRectangle(cornerRadius: 5)
-                        .foregroundStyle(Color.item)
+                        .foregroundStyle(createHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
                         .overlay(
                             Text("Create")
@@ -114,6 +122,9 @@ struct ShareImageView: View {
                         )
                 }
                 .buttonStyle(.link)
+                .onHover { hover in
+                    createHovered = hover
+                }
             }
             .padding(.horizontal, 16)
         }
@@ -122,6 +133,13 @@ struct ShareImageView: View {
         .background(Color.gray.opacity(0.3))
         
     }
+    
+    /// Appkit을 이용한 share image
+    func shareImage() {
+            let image = NSImage()
+            let sharingServicePicker = NSSharingServicePicker(items: [image])
+            sharingServicePicker.show(relativeTo: NSRect(), of: NSApp.keyWindow!.contentView!, preferredEdge: .minY)
+        }
 }
 
 /// radio button custom
