@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State var profileHover = false
+    @State var profileClicked = false
     
     var body: some View {
         VStack(alignment: .center, spacing: 16) {
@@ -31,8 +32,9 @@ extension SettingsView {
                         .padding(.bottom, 6)
                         .background(
                             Rectangle()
-                                .foregroundStyle(.black.opacity(0.3))
+                                .foregroundStyle(.black)
                                 .frame(width: 96, height: 30)
+                                .blur(radius: 12)
                         )
                 }
             }
@@ -40,6 +42,7 @@ extension SettingsView {
             .onHover { proxy in
                 profileHover = proxy
             }
+            .onTapGesture { profileClicked = true }
     }
 }
 
