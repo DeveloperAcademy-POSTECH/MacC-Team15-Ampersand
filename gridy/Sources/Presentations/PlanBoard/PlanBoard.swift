@@ -85,7 +85,7 @@ struct PlanBoard: Reducer {
         case selectColorCode(Color)
         
         // MARK: - plan type
-        case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
+        case createPlanType(targetPlanID: String, text: String, colorCode: UInt)
         case updatePlanTypeOnList(layer: Int, row: Int, text: String, colorCode: UInt)
         case updatePlanTypeOnLine(planID: String, row: Int, text: String, colorCode: UInt)
         
@@ -126,6 +126,7 @@ struct PlanBoard: Reducer {
         case deleteLayer(layer: Int)
         case deleteLayerText(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
+        case deleteLane(row: Int)
 
         // MARK: - map
         case fetchMap
@@ -146,10 +147,8 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - plan type
-            case let .createPlanType(layer, row, text, colorCode):
+            case let .createPlanType(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
-                let existingPlanID = state.map[layer][row]
-                let existingPlan = state.existingAllPlans[existingPlanID]!
                 
                 let newPlanTypeID = UUID().uuidString
                 let newPlanType = PlanType(
@@ -159,14 +158,14 @@ struct PlanBoard: Reducer {
                 )
                 
                 state.existingPlanTypes[newPlanTypeID] = newPlanType
-                state.existingAllPlans[existingPlanID]!.planTypeID = newPlanTypeID
+                state.existingAllPlans[targetPlanID]!.planTypeID = newPlanTypeID
                 
                 return .run { send in
                     await send(.fetchMap)
                     
                     try await apiService.createPlanType(
                         newPlanType,
-                        existingPlanID,
+                        targetPlanID,
                         projectID
                     )
                 }
@@ -194,13 +193,12 @@ struct PlanBoard: Reducer {
                 let existingPlanID = targetPlanID
                 let existingPlan = state.existingAllPlans[existingPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
-                let existingPlanType = state.existingPlanTypes[existingPlanTypeID]
                 
                 /// planType이 없는 경우
                 if state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
                     return .run { send in
                         await send(
-                            .createPlanType(layer: layer, row: row, text: text, colorCode: colorCode)
+                            .createPlanType(targetPlanID: existingPlanID, text: text, colorCode: colorCode)
                         )
                     }
                 }
@@ -637,6 +635,55 @@ struct PlanBoard: Reducer {
                     // TODO: - api Service
                 }
                 
+            case let .deleteLane(row):
+                let layer = state.map.count - 1
+                
+                let planIDsArray = state.map[layer]
+                var planHeightsArray = [String: Int]()
+                for planID in planIDsArray {
+                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
+                    planHeightsArray[planID] = childPlanIDsArray.count
+                }
+                
+                var sumOfHeights = 0
+                var targetPlanID = ""
+                for planID in planIDsArray {
+                    sumOfHeights += planHeightsArray[planID]!
+                    if row < sumOfHeights {
+                        targetPlanID = planID
+                        break
+                    }
+                }
+                
+                /// 내가 속한 부모 Plan
+                let targetParentPlanID = targetPlanID
+                let targetParentPlan = state.existingAllPlans[targetParentPlanID]!
+                
+                /// 내 row가 내가 속한 부모 Plan의 childIDs에서 몇번째인지 계산하는 로직
+                let rowDifference = (sumOfHeights - 1) - row
+                let targetKey = (targetParentPlan.childPlanIDs.count - 1) - rowDifference
+                
+                /// 내 부모가 내 lane만 들고 있었을 경우
+                if state.existingAllPlans[targetParentPlanID]!.childPlanIDs.count == 1 {
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0":[]]
+                } else {
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: String(targetKey))
+                    /// 인덱스에 맞게 key를 다시 부여한다.
+                    let sortedChildPlanIDs = state.existingAllPlans[targetParentPlanID]!.childPlanIDs.sorted { Int($0.key)! < Int($1.key)! }
+                    var orderedChildPlanIDs = [String: [String]]()
+                    
+                    for index in 0..<sortedChildPlanIDs.count {
+                        orderedChildPlanIDs[String(index)] = sortedChildPlanIDs[index].value
+                    }
+                    
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs = orderedChildPlanIDs
+                }
+            
+                return .run { send in
+                    // TODO: - apiService
+                    await(.fetchMap)
+                }
+                
             case let .deleteLayerText(layer):
                 let planIDsArray = state.map[layer]
                 
@@ -899,6 +946,7 @@ struct PlanBoard: Reducer {
                     tempLayer = []
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
+                print(state.map)
                 return .none
             }
         }

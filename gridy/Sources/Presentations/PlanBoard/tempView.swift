@@ -27,6 +27,8 @@ struct TempView: View {
     @State var deleteLayer = ""
     @State var deleteRow = ""
     
+    @State var laneRow = ""
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
@@ -54,8 +56,8 @@ struct TempView: View {
                             Text("Create")
                         }
                     }
-                    .padding()
                     .frame(width: 300)
+                    .padding()
                     
                     VStack {
                         Text("Update Plan At")
@@ -98,10 +100,44 @@ struct TempView: View {
                                 .deletePlanOnList(layer: Int(deleteLayer)!, row: Int(deleteRow)!)
                             )
                         } label: {
-                            Text("Update")
+                            Text("Delete")
                         }
                     }
-                    .frame(width: 300)
+                    .frame(width: 200)
+                    .padding()
+                    
+                    VStack {
+                        Text("create UpperLane At")
+                        HStack {
+                            Text("Row:")
+                                TextField("", text: $laneRow)
+                        }
+                        Button {
+                            viewStore.send(
+                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: true)
+                            )
+                        } label: {
+                            Text("Create")
+                        }
+                    }
+                    .frame(width: 200)
+                    .padding()
+                    
+                    VStack {
+                        Text("create lowerLane At")
+                        HStack {
+                            Text("Row:")
+                                TextField("", text: $laneRow)
+                        }
+                        Button {
+                            viewStore.send(
+                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: false)
+                            )
+                        } label: {
+                            Text("Create")
+                        }
+                    }
+                    .frame(width: 200)
                     .padding()
                 }
                 .padding(.vertical)
@@ -154,7 +190,6 @@ struct TempView: View {
                         }
                     }
                 }
-                
                 ScrollView {
                     HStack {
                         ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
@@ -171,12 +206,11 @@ struct TempView: View {
                                         
                                         Text(planType.title)
                                     }
-                                    .frame(width: 300, height: 20)
+                                    .frame(width: 300, height: CGFloat(plan.childPlanIDs.count) * 20)
                                     .padding(4)
                                 }
                             }
                         }
-                        
                     }
                     .padding(.vertical)
                     Spacer()
