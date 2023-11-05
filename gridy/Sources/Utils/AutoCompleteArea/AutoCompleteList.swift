@@ -11,9 +11,9 @@ class AutoCompleteViewModel: ObservableObject {
     
     @Published var suggestions: [String] = ["Lo-Fi Design", "Hi-Fi Design", "Logo Design", "Lozi", "Lion", "HIHI", "HISO"]
     @Published var filteredSuggestions: [String] = []
-    @Published var hoveredSuggestion: String? = nil
-    @Published var isSelectionCompleted: Bool = false
-    @Published var inputText: String = "" {
+    @Published var hoveredSuggestion: String?
+    @Published var isSelectionCompleted = false
+    @Published var inputText = "" {
         didSet { filterSuggestions() }
     }
     func filterSuggestions() {
@@ -40,7 +40,7 @@ struct SuggestionRow: View {
     var suggestion: String
     @ObservedObject var viewModel: AutoCompleteViewModel
     var lineAreaGridHeight: CGFloat
-
+    
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 6)
@@ -48,7 +48,7 @@ struct SuggestionRow: View {
                 .foregroundColor(Color.orange)
             
             Spacer()
-                .frame(width : 10)
+                .frame(width: 10)
             
             VStack(alignment: .leading) {
                 Text(suggestion)
@@ -126,7 +126,7 @@ struct ListView: View {
     let lineAreaGridHeight: CGFloat
     
     var body: some View {
-        ZStack(){
+        ZStack {
             GeometryReader { geometry in
                 ZStack {
                     // MARK: - 초기 상태.
@@ -193,8 +193,8 @@ struct ListView: View {
                     
                     // MARK: - 더블 클릭 된 상태.
                     /// 호버링 상태를 추적하지 않는다. 텍스트 필드가 활성화 된다. 엔터를 누르면 텍스트가 변경되고, esc를 누르면 이전 text를 보여주는 초기 상태로 돌아간다.
-                    if isEditing{
-                        ZStack(alignment: .top){
+                    if isEditing {
+                        ZStack(alignment: .top) {
                             Rectangle()
                                 .strokeBorder(Color.clear)
                                 .overlay {
@@ -229,7 +229,7 @@ struct ListView: View {
                                     }
                                 }
                             
-                            if !autoCompleteViewModel.filteredSuggestions.isEmpty && !autoCompleteViewModel.isSelectionCompleted   {
+                            if !autoCompleteViewModel.filteredSuggestions.isEmpty && !autoCompleteViewModel.isSelectionCompleted {
                                 AutoCompleteView(viewModel: autoCompleteViewModel, lineAreaGridHeight: geometry.size.height)
                                     .offset(y: geometry.size.height)
                             }
