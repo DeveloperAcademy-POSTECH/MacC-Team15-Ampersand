@@ -24,7 +24,7 @@ struct PlanBoard: Reducer {
         var rootPlan: Plan
         var map: [[String]]
         var searchPlanTypesResult = [PlanType]()
-        var existingPlanTypes = [String: PlanType]()
+        var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
@@ -86,7 +86,8 @@ struct PlanBoard: Reducer {
         
         // MARK: - plan type
         case createPlanType(layer: Int, row: Int, text: String, colorCode: UInt)
-        case updatePlanType(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnList(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnLine(planID: String, row: Int, text: String, colorCode: UInt)
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String)
@@ -121,10 +122,11 @@ struct PlanBoard: Reducer {
         case showUpperLayer
         case showLowerLayer
         case createLayerBtnClicked(layer: Int)
+        case createLaneButtonClicked(row: Int, createOnTop: Bool)
         case deleteLayer(layer: Int)
         case deleteLayerText(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
-        
+
         // MARK: - map
         case fetchMap
     }
@@ -169,9 +171,9 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            case let .updatePlanType(layer, row, text, colorCode):
+            case let .updatePlanTypeOnList(layer, row, text, colorCode):
                 let projectID = state.rootProject.id
-                
+
                 let planIDsArray = state.map[layer]
                 var planHeightsArray = [String: Int]()
                 for planID in planIDsArray {
@@ -220,6 +222,72 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                 }
+
+            case let .updatePlanTypeOnLine(planID, row, text, colorCode):
+                let projectID = state.rootProject.id
+                /// 이미 존재하는 타입이면 update만
+                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })?.key {
+                    /// 동일 레인에 동일 타입의 플랜이 존재하면 기존 플랜의 periods를 추가하고 현 플랜은 삭제
+                    var currentRowCount = -1
+                    let parentLayer = state.map.count == 1 ? state.map[0] : state.map[1]
+                    
+                    /// 부모부터 찾자
+                    for parentPlanID in parentLayer {
+                        let childLaneCount = state.existingAllPlans[parentPlanID]!.childPlanIDs.count
+                        /// plan이 속하는 row 발견
+                        if currentRowCount < row, row <= currentRowCount + childLaneCount {
+                            /// 그럼 이제는 해당하는 레인을 찾아보자
+                            let laneIndex = state.existingAllPlans[parentPlanID]!.childPlanIDs.first { $0.value.contains(planID) }!.key
+                            let lane = state.existingAllPlans[parentPlanID]!.childPlanIDs["\(laneIndex)"]!
+                            for planIDInLane in lane {
+                                if planIDInLane == planID { continue }
+                                
+                                /// 동일 타입의 플랜이 이미 존재한다면 플랜 본인을 삭제하고 periods만 추가
+                                if state.existingAllPlans[planIDInLane]!.planTypeID == foundPlanTypeID {
+                                    let periodsCount = state.existingAllPlans[planIDInLane]!.periods!.count
+                                    let periodsToTransplant = state.existingAllPlans[planID]!.periods!
+                                    for period in periodsToTransplant {
+                                        let index = periodsCount + Int(period.key)!
+                                        state.existingAllPlans[planIDInLane]!.periods!["\(index)"] = period.value
+                                    }
+                                    /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
+                                    state.existingAllPlans[parentPlanID]?.childPlanIDs[laneIndex]?.remove(at: lane.firstIndex(of: planID)!)
+                                    let plansToUpdate = [state.existingAllPlans[parentPlanID]!, state.existingAllPlans[planIDInLane]!]
+                                    return .run { _ in
+                                        try await apiService.updatePlanTypeOnLine(
+                                            plansToUpdate,
+                                            projectID
+                                        )
+                                    }
+                                }
+                            }
+                            /// 반복문이 끝났는데도 return되지 않았다면 같은 레인에 동일 타입의 플랜이 존재하지 않는 것이므로 updatePlanType만 해준다
+                            return .run { _ in
+                                try await apiService.updatePlanType(
+                                    planID,
+                                    foundPlanTypeID,
+                                    projectID
+                                )
+                            }
+                        }
+                        currentRowCount += childLaneCount
+                    }
+                }
+                /// 발견된 플랜타입이 없다면 무조건 create후 update
+                let targetPlanType = PlanType(
+                    id: UUID().uuidString,
+                    title: text,
+                    colorCode: colorCode
+                )
+                state.existingPlanTypes[targetPlanType.id] = targetPlanType
+                state.existingAllPlans[planID]!.planTypeID = targetPlanType.id
+                return .run { _ in
+                    try await apiService.createPlanType(
+                        targetPlanType, 
+                        planID,
+                        projectID
+                    )
+                }
                 
                 // MARK: - plan
             case let .createPlanOnList(layer, row, text):
@@ -228,7 +296,6 @@ struct PlanBoard: Reducer {
                 }
                 
                 let projectID = state.rootProject.id
-
                 var createdPlans: [Plan] = []
                 var createdPlanType = PlanType.emptyPlanType
                 
@@ -343,7 +410,7 @@ struct PlanBoard: Reducer {
                     if let plan = state.existingAllPlans[eachRowPlanID] {
                         let countChildLane = plan.childPlanIDs.count
                         if currentRow <= row,
-                            currentRow + countChildLane >= row {
+                           currentRow + countChildLane >= row {
                             laneStartAt = currentRow - 1
                             break
                         }
@@ -374,13 +441,13 @@ struct PlanBoard: Reducer {
                 return .run { _ in
                     try await apiService.createPlanOnLineArea(plansToCreateImmutable, plansToUpdateImmutable, projectID)
                 }
-                    
+                
             case let .updatePlan(planID, planTypeID):
                 let projectID = state.rootProject.id
                 return .run { _ in
                     try await apiService.updatePlanType(planID, planTypeID, projectID)
                 }
-               
+                
                 // MARK: - listArea
             case .showUpperLayer:
                 let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
@@ -704,7 +771,79 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
-            
+                
+            case let .createLaneButtonClicked(row, createOnTop):
+                /// row: 새로운 레인이 생성될 인덱스
+                let projectID = state.rootProject.id
+                var laneCount = -1
+                let rootChildIDs = state.rootPlan.childPlanIDs["0"]!
+                if state.map.count == 1 {
+                    /// layer가 하나뿐이라면,
+                    for rootChildID in rootChildIDs {
+                        let rootChildLanes = state.existingAllPlans[rootChildID]!.childPlanIDs
+                        let rootChildLaneCount = rootChildLanes.count
+                        if laneCount < row, row <= laneCount + rootChildLaneCount {
+                            /// row 발견
+                            if createOnTop {
+                                for index in stride(from: rootChildLaneCount - 1, through: -1, by: -1) {
+                                    state.existingAllPlans[rootChildID]?.childPlanIDs["\(index + 1)"] = rootChildLanes["\(index)"]
+                                }
+                                state.existingAllPlans[rootChildID]!.childPlanIDs["0"] = []
+                            } else {
+                                state.existingAllPlans[rootChildID]!.childPlanIDs["\(rootChildLaneCount)"] = []
+                            }
+                            let planToUpdate = state.existingAllPlans[rootChildID]!
+                            return .run { send in
+                                try await apiService.createLane(
+                                    planToUpdate,
+                                    nil,
+                                    projectID
+                                )
+                                await send(.fetchMap)
+                            }
+                        }
+                        laneCount += rootChildLaneCount
+                    }
+                }
+                /// /// layer가 두개라면, root (layer0)의 child부터 순회
+                for rootChildID in rootChildIDs {
+                    /// layer 1의 plan들을 순회
+                    let rootChildPlan = state.existingAllPlans[rootChildID]!
+                    let firstLayerPlanIDs = rootChildPlan.childPlanIDs
+                    let mappingByPlanIDs = firstLayerPlanIDs.map { $0.value }.flatMap { $0 }
+                    for firstLayerPlanID in mappingByPlanIDs {
+                        let firstLayerPlanLanes = state.existingAllPlans[firstLayerPlanID]!.childPlanIDs
+                        let firstLayerPlanLaneCount = firstLayerPlanLanes.count
+                        if laneCount <= row, row <= laneCount + firstLayerPlanLaneCount {
+                            /// row 발견
+                            let newChildPlan = Plan(
+                                id: UUID().uuidString,
+                                planTypeID: PlanType.emptyPlanType.id,
+                                childPlanIDs: ["0": []]
+                            )
+                            state.existingAllPlans[newChildPlan.id] = newChildPlan
+                            if createOnTop {
+                                for index in stride(from: firstLayerPlanLaneCount - 1, through: -1, by: -1) {
+                                    state.existingAllPlans[rootChildID]?.childPlanIDs["\(index + 1)"] = firstLayerPlanLanes["\(index)"]
+                                }
+                                state.existingAllPlans[firstLayerPlanID]!.childPlanIDs["0"] = [newChildPlan.id]
+                            } else {
+                                state.existingAllPlans[firstLayerPlanID]!.childPlanIDs["\(firstLayerPlanLaneCount)"] = [newChildPlan.id]
+                            }
+                            let planToUpdate = state.existingAllPlans[firstLayerPlanID]!
+                            return .run { send in
+                                try await apiService.createLane(
+                                    planToUpdate,
+                                    newChildPlan,
+                                    projectID
+                                )
+                                await send(.fetchMap)
+                            }
+                        }
+                    }
+                }
+                return .none
+                
             case .fetchMap:
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]
@@ -726,9 +865,6 @@ struct PlanBoard: Reducer {
                     tempLayer = []
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
-                return .none
-                
-            default:
                 return .none
             }
         }

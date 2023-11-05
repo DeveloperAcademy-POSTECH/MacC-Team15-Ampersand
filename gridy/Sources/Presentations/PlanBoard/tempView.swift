@@ -71,7 +71,7 @@ struct TempView: View {
                         }
                         Button {
                             viewStore.send(
-                                .updatePlanType(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateRow, colorCode: PlanType.emptyPlanType.colorCode)
+                                .updatePlanTypeOnList(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateRow, colorCode: PlanType.emptyPlanType.colorCode)
                             )
                             
                             updateLayer = ""

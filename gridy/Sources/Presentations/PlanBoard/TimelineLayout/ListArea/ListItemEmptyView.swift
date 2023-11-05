@@ -89,7 +89,10 @@ struct ListItemEmptyView: View {
                             // TODO: Plan type 수정 -> 생성하는 flow
                             TextField("Editing", text: $editingText, axis: .vertical )
                                 .onSubmit {
-                                    
+                                    // TODO: - createPlan
+                                    isEditing = false
+                                    isTextFieldFocused = false
+                                    editingText = ""
                                 }
                                 .multilineTextAlignment(.center)
                                 .font(.custom("Pretendard-Medium", size: fontSize))
