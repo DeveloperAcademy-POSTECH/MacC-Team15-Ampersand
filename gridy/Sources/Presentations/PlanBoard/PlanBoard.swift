@@ -781,9 +781,10 @@ struct PlanBoard: Reducer {
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
                 
-            case let .dragToChangePeriod(planID, originDate, updatedDate):
-                let periodIndex = state.existingAllPlans[planID]?.periods?.first(where: { $0.value == originDate })!.key
-                state.existingAllPlans[planID]!.periods![periodIndex!]! = updatedDate
+            case let .dragToChangePeriod(planID, originPeriod, updatedPeriod):
+                if originPeriod == updatedPeriod { return .none }
+                let periodIndex = state.existingAllPlans[planID]?.periods?.first(where: { $0.value == originPeriod })!.key
+                state.existingAllPlans[planID]!.periods![periodIndex!]! = updatedPeriod
                 
                 var foundParentID: String?
                 /// 부모 plan의 totalPeriod를 업데이트
@@ -791,8 +792,8 @@ struct PlanBoard: Reducer {
                     var parentPlan = state.existingAllPlans[parentPlanID]!
                     if parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(planID) {
                         foundParentID = parentPlanID
-                        parentPlan.totalPeriod![0] = min(parentPlan.totalPeriod![0], updatedDate[0])
-                        parentPlan.totalPeriod![1] = min(parentPlan.totalPeriod![1], updatedDate[1])
+                        parentPlan.totalPeriod![0] = min(parentPlan.totalPeriod![0], updatedPeriod[0])
+                        parentPlan.totalPeriod![1] = min(parentPlan.totalPeriod![1], updatedPeriod[1])
                         break
                     }
                 }
