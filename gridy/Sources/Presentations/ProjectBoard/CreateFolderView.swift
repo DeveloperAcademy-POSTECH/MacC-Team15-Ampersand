@@ -41,7 +41,7 @@ extension CreateFolderView {
 extension CreateFolderView {
     var cancel: some View {
         Button {
-            // TODO: - Logout Cancel Button
+            // TODO: - Cancel Button
         } label: {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(cancelHover ? Color.buttonHovered : Color.button)
