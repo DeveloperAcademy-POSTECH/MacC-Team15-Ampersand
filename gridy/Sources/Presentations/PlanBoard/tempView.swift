@@ -13,8 +13,8 @@ struct TempView: View {
         rootProject: Project(id: "project1", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), rootPlanID: ""),
         rootPlan: Plan(id: "0000", planTypeID: "0000", childPlanIDs: [:]),
         map: [[]])) {
-        PlanBoard()
-    }
+            PlanBoard()
+        }
     
     @State var createLayer = ""
     @State var createRow = ""
@@ -29,6 +29,9 @@ struct TempView: View {
     
     @State var laneRow = ""
     
+    @State var fromRow = ""
+    @State var toRow = ""
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
@@ -37,13 +40,13 @@ struct TempView: View {
                         Text("Create Plan At")
                         HStack {
                             Text("Layer:")
-                                TextField("", text: $createLayer)
+                            TextField("", text: $createLayer)
                             
                             Text("Row:")
-                                TextField("", text: $createRow)
+                            TextField("", text: $createRow)
                             
                             Text("Text:")
-                                TextField("", text: $createRow)
+                            TextField("", text: $createRow)
                         }
                         Button {
                             viewStore.send(
@@ -63,13 +66,13 @@ struct TempView: View {
                         Text("Update Plan At")
                         HStack {
                             Text("Layer:")
-                                TextField("", text: $updateLayer)
+                            TextField("", text: $updateLayer)
                             
                             Text("Row:")
-                                TextField("", text: $updateRow)
+                            TextField("", text: $updateRow)
                             
                             Text("Text:")
-                                TextField("", text: $updateRow)
+                            TextField("", text: $updateRow)
                         }
                         Button {
                             viewStore.send(
@@ -90,10 +93,10 @@ struct TempView: View {
                         Text("delete Plan At")
                         HStack {
                             Text("Layer:")
-                                TextField("", text: $deleteLayer)
+                            TextField("", text: $deleteLayer)
                             
                             Text("Row:")
-                                TextField("", text: $deleteRow)
+                            TextField("", text: $deleteRow)
                         }
                         Button {
                             viewStore.send(
@@ -106,15 +109,53 @@ struct TempView: View {
                     .frame(width: 200)
                     .padding()
                     
+                    //                    VStack {
+                    //                        Text("create UpperLane At")
+                    //                        HStack {
+                    //                            Text("Row:")
+                    //                                TextField("", text: $laneRow)
+                    //                        }
+                    //                        Button {
+                    //                            viewStore.send(
+                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: true)
+                    //                            )
+                    //                        } label: {
+                    //                            Text("Create")
+                    //                        }
+                    //                    }
+                    //                    .frame(width: 200)
+                    //                    .padding()
+                    //
+                    //                    VStack {
+                    //                        Text("create lowerLane At")
+                    //                        HStack {
+                    //                            Text("Row:")
+                    //                                TextField("", text: $laneRow)
+                    //                        }
+                    //                        Button {
+                    //                            viewStore.send(
+                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: false)
+                    //                            )
+                    //                        } label: {
+                    //                            Text("Create")
+                    //                        }
+                    //                    }
+                    //                    .frame(width: 200)
+                    //                    .padding()
+                    
                     VStack {
-                        Text("create UpperLane At")
+                        Text("deleteLane")
                         HStack {
-                            Text("Row:")
-                                TextField("", text: $laneRow)
+                            Text("from:")
+                            TextField("", text: $fromRow)
+                            
+                            Text("to:")
+                            TextField("", text: $toRow)
                         }
+
                         Button {
                             viewStore.send(
-                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: true)
+                                .deleteLaneConents(rows: [Int(fromRow)!, Int(toRow)!])
                             )
                         } label: {
                             Text("Create")
@@ -123,22 +164,6 @@ struct TempView: View {
                     .frame(width: 200)
                     .padding()
                     
-                    VStack {
-                        Text("create lowerLane At")
-                        HStack {
-                            Text("Row:")
-                                TextField("", text: $laneRow)
-                        }
-                        Button {
-                            viewStore.send(
-                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: false)
-                            )
-                        } label: {
-                            Text("Create")
-                        }
-                    }
-                    .frame(width: 200)
-                    .padding()
                 }
                 .padding(.vertical)
                 
@@ -170,7 +195,7 @@ struct TempView: View {
                                         
                                         Button {
                                             viewStore.send(
-                                                .deleteLayerText(layer: layerIndex)
+                                                .deleteLayerContents(layer: layerIndex)
                                             )
                                         } label: {
                                             Text("이 레이어 글자만 삭제")

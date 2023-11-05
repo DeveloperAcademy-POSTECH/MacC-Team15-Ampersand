@@ -124,9 +124,10 @@ struct PlanBoard: Reducer {
         case createLayerBtnClicked(layer: Int)
         case createLaneButtonClicked(row: Int, createOnTop: Bool)
         case deleteLayer(layer: Int)
-        case deleteLayerText(layer: Int)
+        case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
-        case deleteLane(row: Int)
+        case deleteLaneOnLine(row: Int)
+        case deleteLaneConents(rows: [Int])
 
         // MARK: - map
         case fetchMap
@@ -171,6 +172,7 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .updatePlanTypeOnList(layer, row, text, colorCode):
+                // TODO: - 만약 layer에서의 내 index를 준다면 existingPlanID = map[layer][row]
                 let projectID = state.rootProject.id
 
                 let planIDsArray = state.map[layer]
@@ -635,7 +637,7 @@ struct PlanBoard: Reducer {
                     // TODO: - api Service
                 }
                 
-            case let .deleteLane(row):
+            case let .deleteLaneOnLine(row):
                 let layer = state.map.count - 1
                 
                 let planIDsArray = state.map[layer]
@@ -684,7 +686,7 @@ struct PlanBoard: Reducer {
                     await send(.fetchMap)
                 }
                 
-            case let .deleteLayerText(layer):
+            case let .deleteLayerContents(layer):
                 let planIDsArray = state.map[layer]
                 
                 for planID in planIDsArray {
@@ -694,6 +696,93 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.fetchMap)
                     // TODO: - api Service
+                }
+                
+            case let .deleteLaneConents(rows):
+                let startRow = rows[0]
+                let endRow = rows[1]
+                
+                var changedPlanIDS = [String]()
+                
+                /// 선택된 row에 보이는 childPlanIDs를 빈 레인으로 갈아끼워줌
+                let layer = state.map.count - 1
+                let planIDsArray = state.map[layer]
+                var planHeightsArray = [String: Int]()
+                
+                for planID in planIDsArray {
+                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
+                    planHeightsArray[planID] = childPlanIDsArray.count
+                }
+            
+                for row in startRow...endRow {
+                    var sumOfHeights = 0
+                    var targetPlanID = ""
+                    
+                    for planID in planIDsArray {
+                        sumOfHeights += planHeightsArray[planID]!
+                        if row < sumOfHeights {
+                            targetPlanID = planID
+                            break
+                        }
+                    }
+                    
+                    /// 내가 속한 부모 Plan
+                    let targetParentPlan = state.existingAllPlans[targetPlanID]!
+                    
+                    /// 내 row가 내가 속한 부모 Plan의 childIDs에서 몇번째인지 계산하는 로직
+                    let rowDifference = (sumOfHeights - 1) - row
+                    let targetKey = (targetParentPlan.childPlanIDs.count - 1) - rowDifference
+                    
+                    state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)] = []
+                    changedPlanIDS.append(targetPlanID)
+                }
+                
+                /// 상위 레이어에 대해서도 row값이 어떤 plan인지 찾아줌
+                let upperPlanIDsArray = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
+                var upperPlanHeightsArray = [String: Int]()
+                
+                for upperPlanID in upperPlanIDsArray {
+                    let childPlanIDsArray = state.existingAllPlans[upperPlanID]!.childPlanIDs
+                    upperPlanHeightsArray[upperPlanID] = childPlanIDsArray.count
+                }
+                
+                for row in startRow...endRow {
+                    var sumOfHeights = 0
+                    var targetPlanID = ""
+                    
+                    for upperPlanID in upperPlanIDsArray {
+                        sumOfHeights += upperPlanHeightsArray[upperPlanID]!
+                        if row < sumOfHeights {
+                            targetPlanID = upperPlanID
+                            break
+                        }
+                    }
+                    
+                    /// 내가 속한 부모 Plan
+                    changedPlanIDS.append(targetPlanID)
+                }
+                
+                /// 한 플랜의 레인들 중 몇 개가 변경 되었는지
+                var numOfChangePerPlan = [String: Int]()
+                
+                for planID in changedPlanIDS {
+                    if let count = numOfChangePerPlan[planID] {
+                        numOfChangePerPlan[planID] = count + 1
+                    } else {
+                        numOfChangePerPlan[planID] = 1
+                    }
+                }
+                
+                /// 한 ID당 변경된 레인의 개수가 내 chilidIDs.count와 같다면, 내가 가진 모든 lane이 []이 된 것이므로 내 planType은 empty가 되어야 함
+                for planID in numOfChangePerPlan.keys {
+                    if numOfChangePerPlan[planID] == state.existingAllPlans[planID]!.childPlanIDs.count {
+                        state.existingAllPlans[planID]?.planTypeID = PlanType.emptyPlanType.id
+                    }
+                }
+                
+                return .run { send in
+                    // TODO: - apiService
+                    await send(.fetchMap)
                 }
                 
             case let .shiftSelectedCell(rowOffset, colOffset):
