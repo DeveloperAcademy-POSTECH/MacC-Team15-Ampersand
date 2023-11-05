@@ -123,6 +123,7 @@ struct PlanBoard: Reducer {
         case createLayerBtnClicked(layer: Int)
         case deleteLayer(layer: Int)
         case deleteLayerText(layer: Int)
+        case deletePlanOnList(layer: Int, row: Int)
         
         // MARK: - map
         case fetchMap
@@ -482,6 +483,53 @@ struct PlanBoard: Reducer {
                         }
                     }
                 }
+                
+                return .run { send in
+                    await send(.fetchMap)
+                    // TODO: - api Service
+                }
+            
+            case let .deletePlanOnList(layer, row):
+                
+                /// clicke된 위치에 있는 planID 찾기
+                let planIDsArray = state.map[layer]
+                var planHeightsArray = [String: Int]()
+                for planID in planIDsArray {
+                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
+                    planHeightsArray[planID] = childPlanIDsArray.count
+                }
+                
+                var sumOfHeights = 0
+                var targetPlanID = ""
+                for planID in planIDsArray {
+                    sumOfHeights += planHeightsArray[planID]!
+                    if row < sumOfHeights {
+                        targetPlanID = planID
+                        break
+                    }
+                }
+                
+                /// clicked Plan의 부모에서 clickedPlan의 위치 찾기
+                let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
+                var targetParentPlanID = ""
+                var targetChildPlanIDsArray = [String: [String]]()
+                
+                for parentPlanID in parentPlanIDs {
+                    let parentPlan = state.existingAllPlans[parentPlanID]!
+                    let childPlanIDs = parentPlan.childPlanIDs
+                    
+                    for childPlanIDsArray in childPlanIDs where childPlanIDsArray.value.contains(targetPlanID) {
+                        targetParentPlanID = parentPlanID
+                        targetChildPlanIDsArray[childPlanIDsArray.key] = childPlanIDsArray.value
+                        break
+                    }
+                }
+                
+                    /// 부모의 레인들 중 내가 속한 레인에서 나를 뺀다
+                    /// 부모의 레인에서 나를 빼고 그 레인이 비었는데, 부모가 나 말고 다른 레인들을 들고 있을 경우 그 레인을 제거 해준다
+                    /// 레인을 제거하고 childPlanIDs 가 딕셔너리이므로, 0부터 다시 keyt값을 부여해준다
+               
+                    /// 부모의 레인에서 나를 빼고 그 레인이 비었는데, 부모가 나 말고 다른 레인을 들지 않은 경우 그 레인을 넣어준다
                 
                 return .run { send in
                     await send(.fetchMap)

@@ -24,6 +24,9 @@ struct TempView: View {
     @State var updateRow = ""
     @State var updateText = ""
     
+    @State var deleteLayer = ""
+    @State var deleteRow = ""
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
@@ -74,6 +77,26 @@ struct TempView: View {
                             updateLayer = ""
                             updateRow = ""
                             updateText = ""
+                        } label: {
+                            Text("Update")
+                        }
+                    }
+                    .frame(width: 300)
+                    .padding()
+                    
+                    VStack {
+                        Text("delete Plan At")
+                        HStack {
+                            Text("Layer:")
+                                TextField("", text: $deleteLayer)
+                            
+                            Text("Row:")
+                                TextField("", text: $deleteRow)
+                        }
+                        Button {
+                            viewStore.send(
+                                .deletePlanOnList(layer: Int(deleteLayer)!, row: Int(deleteRow)!)
+                            )
                         } label: {
                             Text("Update")
                         }
