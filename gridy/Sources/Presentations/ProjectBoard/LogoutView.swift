@@ -32,6 +32,7 @@ struct LogoutView: View {
             RoundedRectangle(cornerRadius: 16)
                 .foregroundStyle(Color.blackWhite)
         )
+        .frame(width: 260, height: 120)
     }
 }
 
@@ -42,7 +43,7 @@ extension LogoutView {
         } label: {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(cancelHover ? Color.buttonHovered : Color.button)
-                .frame(width: 110, height: 32)
+                .frame(height: 32)
                 .overlay(
                     Text("Cancel")
                         .font(.body)
@@ -64,7 +65,7 @@ extension LogoutView {
         } label: {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(logoutHover ? Color.buttonHovered : Color.button)
-                .frame(width: 110, height: 32)
+                .frame(height: 32)
                 .overlay(
                     Text("Logout")
                         .font(.body)
