@@ -36,7 +36,6 @@ class AutoCompleteViewModel: ObservableObject {
     }
 }
 
-
 struct SuggestionRow: View {
     var suggestion: String
     @ObservedObject var viewModel: AutoCompleteViewModel
@@ -241,4 +240,3 @@ struct ListView: View {
         }
     }
 }
-
