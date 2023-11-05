@@ -283,7 +283,7 @@ struct PlanBoard: Reducer {
                 state.existingAllPlans[planID]!.planTypeID = targetPlanType.id
                 return .run { _ in
                     try await apiService.createPlanType(
-                        targetPlanType, 
+                        targetPlanType,
                         planID,
                         projectID
                     )
@@ -579,7 +579,7 @@ struct PlanBoard: Reducer {
                 /// clicked Plan의 부모에서 clickedPlan의 위치 찾기
                 let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 var targetParentPlanID = ""
-                var targetChildPlanIDsArray = [String: [String]]()
+                var targetKey = ""
                 
                 for parentPlanID in parentPlanIDs {
                     let parentPlan = state.existingAllPlans[parentPlanID]!
@@ -587,16 +587,50 @@ struct PlanBoard: Reducer {
                     
                     for childPlanIDsArray in childPlanIDs where childPlanIDsArray.value.contains(targetPlanID) {
                         targetParentPlanID = parentPlanID
-                        targetChildPlanIDsArray[childPlanIDsArray.key] = childPlanIDsArray.value
+                        targetKey = childPlanIDsArray.key
                         break
                     }
                 }
                 
-                    /// 부모의 레인들 중 내가 속한 레인에서 나를 뺀다
-                    /// 부모의 레인에서 나를 빼고 그 레인이 비었는데, 부모가 나 말고 다른 레인들을 들고 있을 경우 그 레인을 제거 해준다
-                    /// 레인을 제거하고 childPlanIDs 가 딕셔너리이므로, 0부터 다시 keyt값을 부여해준다
-               
-                    /// 부모의 레인에서 나를 빼고 그 레인이 비었는데, 부모가 나 말고 다른 레인을 들지 않은 경우 그 레인을 넣어준다
+                /// 현재 listArea에 보여지는 Plan들은 부모의 childIDs 배열에서 한 lane에 나만 속해있다. 하나의 레인에 나 외에 다른 플랜들이 있는 상황은 가정하지 않음.
+                /// 따라서 부모의 레인들 중 내가 속한 레인에서 나를 빼면 그 레인은 당연히 0이 됨.
+                
+                /// 부모가 내 레인만 들고 있었을 경우
+                if state.existingAllPlans[targetParentPlanID]!.childPlanIDs.count == 1 {
+                    if targetParentPlanID == state.rootPlan.id {
+                        state.existingAllPlans[targetParentPlanID]!.childPlanIDs = [:]
+                        if state.map.count != 1 {
+                            var newMap: [[String]] = []
+                            for index in 0..<state.map.count {
+                                newMap.append([])
+                            }
+                            state.map = newMap
+                            return .none
+                        }
+                    } else {
+                        let newPlanID = UUID().uuidString
+                        let newPlan = Plan(
+                            id: newPlanID,
+                            planTypeID: PlanType.emptyPlanType.id,
+                            childPlanIDs: ["0": []]
+                            )
+                        
+                        state.existingAllPlans[newPlanID] = newPlan
+                        state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
+                    }
+                } else {
+                    /// 부모의 childPlanIDs에서 내 레인을 제거하고
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
+                    /// 인덱스에 맞게 key를 다시 부여한다.
+                    let sortedChildPlanIDs = state.existingAllPlans[targetParentPlanID]!.childPlanIDs.sorted { Int($0.key)! < Int($1.key)! }
+                    var orderedChildPlanIDs = [String: [String]]()
+                    
+                    for index in 0..<sortedChildPlanIDs.count {
+                        orderedChildPlanIDs[String(index)] = sortedChildPlanIDs[index].value
+                    }
+                    
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs = orderedChildPlanIDs
+                }
                 
                 return .run { send in
                     await send(.fetchMap)
