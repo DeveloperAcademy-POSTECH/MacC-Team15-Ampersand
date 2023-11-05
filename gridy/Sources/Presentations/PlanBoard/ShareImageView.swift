@@ -40,18 +40,14 @@ struct ShareImageView: View {
                     VStack(alignment: .leading) {
                         HStack(spacing: 8) {
                             RadioButton(isSelected: periodSelection == .allPeriods)
-                                .onTapGesture {
-                                    periodSelection = .allPeriods
-                                }
+                                .onTapGesture {periodSelection = .allPeriods}
                                 .padding(.leading, 16)
                             Text("기간 모두")
                                 .foregroundColor(Color.title)
                         }
                         HStack {
                             RadioButton(isSelected: periodSelection == .setPeriods)
-                                .onTapGesture {
-                                    periodSelection = .setPeriods
-                                }
+                                .onTapGesture {periodSelection = .setPeriods}
                                 .padding(.leading, 16)
                             Text("기간 설정")
                                 .foregroundColor(Color.title)
