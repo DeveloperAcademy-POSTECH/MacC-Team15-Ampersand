@@ -117,6 +117,7 @@ struct PlanBoard: Reducer {
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
+        case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         
         // MARK: - list area
         case showUpperLayer
@@ -257,7 +258,7 @@ struct PlanBoard: Reducer {
                                     let plansToDelete = [state.existingAllPlans[planID]!]
                                     state.existingAllPlans[planID] = nil
                                     return .run { send in
-                                        try await apiService.updatePlanTypeOnLine(
+                                        try await apiService.updatePlans(
                                             plansToUpdate,
                                             projectID
                                         )
@@ -779,6 +780,28 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
+                
+            case let .dragToChangePeriod(planID, originDate, updatedDate):
+                let periodIndex = state.existingAllPlans[planID]?.periods?.first(where: { $0.value == originDate })!.key
+                state.existingAllPlans[planID]!.periods![periodIndex!]! = updatedDate
+                
+                var foundParentID: String?
+                /// 부모 plan의 totalPeriod를 업데이트
+                for parentPlanID in state.map[state.map.count-1] {
+                    var parentPlan = state.existingAllPlans[parentPlanID]!
+                    if parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(planID) {
+                        foundParentID = parentPlanID
+                        parentPlan.totalPeriod![0] = min(parentPlan.totalPeriod![0], updatedDate[0])
+                        parentPlan.totalPeriod![1] = min(parentPlan.totalPeriod![1], updatedDate[1])
+                        break
+                    }
+                }
+                
+                let plansToUpdate = [state.existingAllPlans[planID]!, state.existingAllPlans[foundParentID!]!]
+                let projectID = state.rootProject.id
+                return .run { _ in
+                    try await apiService.updatePlans(plansToUpdate, projectID)
+                }
                 
             case let .createLaneButtonClicked(row, createOnTop):
                 /// row: 새로운 레인이 생성될 인덱스

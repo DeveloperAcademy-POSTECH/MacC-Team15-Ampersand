@@ -28,8 +28,7 @@ struct APIService {
     var createPlanOnLineArea: @Sendable ([Plan], [Plan], String) async throws -> Void
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
-    var updatePlanTypeOnLine: @Sendable ([Plan], String) async throws -> Void
-    var updatePlanPeriods: @Sendable (Plan, String) async throws -> Void
+    var updatePlans: @Sendable ([Plan], String) async throws -> Void
     var deletePlans: @Sendable ([Plan], String) async throws -> Void
     
     /// Layer
@@ -52,8 +51,7 @@ struct APIService {
         createPlanOnLineArea: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
-        updatePlanTypeOnLine: @escaping @Sendable ([Plan], String) async throws -> Void,
-        updatePlanPeriods: @escaping @Sendable (Plan, String) async throws -> Void,
+        updatePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         deletePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
@@ -73,8 +71,7 @@ struct APIService {
         self.createPlanOnLineArea = createPlanOnLineArea
         self.readAllPlans = readAllPlans
         self.updatePlanType = updatePlanType
-        self.updatePlanTypeOnLine = updatePlanTypeOnLine
-        self.updatePlanPeriods = updatePlanPeriods
+        self.updatePlans = updatePlans
         self.deletePlans = deletePlans
         
         self.createLayer = createLayer
@@ -172,13 +169,10 @@ extension APIService {
         updatePlanType: { targetPlanID, planTypeID, projectID in
             try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": planTypeID])
         },
-        updatePlanTypeOnLine: { plansToUpdate, projectID in
+        updatePlans: { plansToUpdate, projectID in
             for plan in plansToUpdate {
                 try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
             }
-        },
-        updatePlanPeriods: { planToUpdate, projectID in
-            try await FirestoreService.updateDocumentData(projectID, .plans, planToUpdate.id, ["periods": planToUpdate.periods as Any])
         },
         deletePlans: { plansToUpdate, projectID in
             for plan in plansToUpdate {
