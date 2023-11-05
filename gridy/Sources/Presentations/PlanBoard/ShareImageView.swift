@@ -8,16 +8,23 @@
 import SwiftUI
 import AppKit
 
+enum PeriodSelection {
+    case allPeriods
+    case setPeriods
+}
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var allPeriodsChecked = false
-    @State private var startDateChecked = false
+    @State private var periodSelection: PeriodSelection = .allPeriods
+
     @State private var shareHovered = false
     @State private var cancelHovered = false
     @State private var createHovered = false
-
     @State private var isStartDateHovered = false
     @State private var isEndDateHovered = false
+    @State private var selectedStartDate: Date = Date()
+    @State private var isStartDatePickerPresented: Bool = false
+    @State private var selectedEndDate: Date = Date()
+    @State private var isEndDatePickerPresented: Bool = false
     
     var body: some View {
         VStack(spacing : 16){
@@ -32,38 +39,78 @@ struct ShareImageView: View {
                 .overlay(){
                     VStack(alignment:.leading) {
                         HStack(spacing : 8) {
-                            RadioButton(isSelected: $allPeriodsChecked)
+                            RadioButton(isSelected: periodSelection == .allPeriods)
+                                .onTapGesture {
+                                    periodSelection = .allPeriods
+                                }
                                 .padding(.leading, 16)
                             Text("기간 모두")
                                 .foregroundColor(Color.title)
                         }
                         HStack() {
-                            RadioButton(isSelected: $startDateChecked)
+                            RadioButton(isSelected: periodSelection == .setPeriods)
+                                .onTapGesture {
+                                    periodSelection = .setPeriods
+                                }
                                 .padding(.leading, 16)
                             Text("기간 설정")
                                 .foregroundColor(Color.title)
                             Spacer()
                                 .frame(width:16)
-                            
-                            Text("시작 : 2023.10.05.")
-                                .foregroundColor(Color.title)
-                                .frame(width: 132, height: 32)
-                                .background(isStartDateHovered ? Color.itemHovered : Color.clear)
-                                .cornerRadius(5)
-                                .onHover { hover in
-                                    isStartDateHovered = hover
+                            Button(action: {
+                                isStartDatePickerPresented = true
+                            }) {
+                                Text("시작 : \(formattedDate(date: selectedStartDate))")
+                                    .foregroundColor(Color.title)
+                                    .frame(width: 132, height: 32)
+                                    .background(isStartDateHovered ? Color.itemHovered : Color.clear)
+                                    .cornerRadius(5)
+                                    .onHover { hover in
+                                        isStartDateHovered = hover
+                                    }
+                            }
+                            .buttonStyle(.link)
+                            .background(Color.clear)
+                            .disabled(periodSelection == .allPeriods)
+                            .popover(isPresented: $isStartDatePickerPresented) {
+                                VStack {
+                                    DatePicker("", selection: $selectedStartDate, displayedComponents: [.date])
+                                        .datePickerStyle(GraphicalDatePickerStyle())
+                                        .labelsHidden()
+                                    Button("Done", action: {
+                                        isStartDatePickerPresented = false
+                                    })
                                 }
+                                .padding()
+                            }
                             Spacer()
                                 .frame(width:8)
-
-                            Text("종료 : 2023.11.25.")
-                                .foregroundColor(Color.title)
-                                .frame(width: 132, height: 32)
-                                .background(isEndDateHovered ? Color.itemHovered : Color.clear)
-                                .cornerRadius(5)
-                                .onHover { hover in
-                                    isEndDateHovered = hover
+                            Button(action: {
+                                isEndDatePickerPresented = true
+                            }) {
+                                Text("종료 : \(formattedDate(date: selectedEndDate))")
+                                    .foregroundColor(Color.title)
+                                    .frame(width: 132, height: 32)
+                                    .background(isEndDateHovered ? Color.itemHovered : Color.clear)
+                                    .cornerRadius(5)
+                                    .onHover { hover in
+                                        isEndDateHovered = hover
+                                    }
+                            }
+                            .buttonStyle(.link)
+                            .background(Color.clear)
+                            .disabled(periodSelection == .allPeriods)
+                            .popover(isPresented: $isEndDatePickerPresented) {
+                                VStack {
+                                    DatePicker("", selection: $selectedEndDate, displayedComponents: [.date])
+                                        .datePickerStyle(GraphicalDatePickerStyle())
+                                        .labelsHidden()
+                                    Button("Done", action: {
+                                        isEndDatePickerPresented = false
+                                    })
                                 }
+                                .padding()
+                            }
                             Spacer()
                         }
                     }
@@ -73,7 +120,7 @@ struct ShareImageView: View {
             
             borderSpacer(.horizontal)
                 .padding(.horizontal, 16)
-
+            
             HStack(){
                 Button {
                     shareImage()
@@ -87,7 +134,6 @@ struct ShareImageView: View {
                                 .foregroundStyle(Color.button)
                         )
                 }
-                
                 .buttonStyle(.link)
                 .onHover { hover in
                     shareHovered = hover
@@ -131,20 +177,24 @@ struct ShareImageView: View {
         .frame(width: 468, height: 523)
         .padding(16)
         .background(Color.gray.opacity(0.3))
-        
     }
     
     /// Appkit을 이용한 share image
     func shareImage() {
-            let image = NSImage()
-            let sharingServicePicker = NSSharingServicePicker(items: [image])
-            sharingServicePicker.show(relativeTo: NSRect(), of: NSApp.keyWindow!.contentView!, preferredEdge: .minY)
-        }
+        let image = NSImage()
+        let sharingServicePicker = NSSharingServicePicker(items: [image])
+        sharingServicePicker.show(relativeTo: NSRect(), of: NSApp.keyWindow!.contentView!, preferredEdge: .minY)
+    }
+    func formattedDate(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd."
+        return formatter.string(from: date)
+    }
 }
 
 /// radio button custom
 struct RadioButton: View {
-    @Binding var isSelected: Bool
+    var isSelected: Bool
     
     var body: some View {
         ZStack {
@@ -160,9 +210,6 @@ struct RadioButton: View {
                     .fill(Color.white)
                     .frame(width: 6, height: 6)
             }
-        }
-        .onTapGesture {
-            isSelected.toggle()
         }
     }
 }
