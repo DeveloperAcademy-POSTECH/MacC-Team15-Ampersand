@@ -11,9 +11,8 @@ import ComposableArchitecture
 struct ContentView: View {
     var body: some View {
         ZStack {
-//            BackgroundView()
-//            AuthenticationView()
-            CalendarView()
+            BackgroundView()
+            AuthenticationView()
         }
     }
 }

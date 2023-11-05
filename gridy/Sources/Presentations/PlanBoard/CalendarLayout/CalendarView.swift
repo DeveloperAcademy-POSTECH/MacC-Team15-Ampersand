@@ -23,7 +23,7 @@ struct CalendarView: View {
         
         let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
         let columns = Array(repeating: GridItem(.fixed(22)), count: 7)
-
+        
         ZStack {
             RoundedRectangle(cornerRadius: 32)
                 .foregroundStyle(Color.item)
@@ -59,7 +59,7 @@ struct CalendarView: View {
                 }
                 LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(extractDate()) { value in
-                            cardView(value: value)
+                        cardView(value: value)
                     }
                 }
                 .onChange(of: currentMonth) { _ in
@@ -98,10 +98,10 @@ struct CalendarView: View {
         return date.components(separatedBy: " ")
     }
     
-    private func getCurrentMonth() -> Date  {
+    private func getCurrentMonth() -> Date {
         let calendar = Calendar.current
-        ///현재 달의 요일을 받아옴
-        guard let currentMonth = calendar.date(byAdding: .month, value:  self.currentMonth,to: Date()) else {
+        /// 현재 달의 요일을 받아옴
+        guard let currentMonth = calendar.date(byAdding: .month, value: self.currentMonth, to: Date()) else {
             return Date()
         }
         return currentMonth
@@ -109,7 +109,7 @@ struct CalendarView: View {
     
     private func extractDate() -> [DateValue] {
         let calendar = Calendar.current
-        ///현재 달의 요일을 받아옴
+        /// 현재 달의 요일을 받아옴
         let currentMonth = getCurrentMonth()
         var days = currentMonth.getAllDates().compactMap { date -> DateValue in
             let day = calendar.component(.day, from: date)
@@ -126,7 +126,7 @@ struct CalendarView: View {
 extension Date {
     func getAllDates() -> [Date] {
         let calendar = Calendar.current
-        let startDate = calendar.date(from: Calendar.current.dateComponents([.year,.month], from: self))!
+        let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
         var range = calendar.range(of: .day, in: .month, for: startDate)!
         range.removeLast()
         return range.compactMap { day -> Date in
