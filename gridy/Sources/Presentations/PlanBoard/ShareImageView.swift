@@ -15,30 +15,30 @@ enum PeriodSelection {
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var periodSelection: PeriodSelection = .allPeriods
-
+    
     @State private var shareHovered = false
     @State private var cancelHovered = false
     @State private var createHovered = false
     @State private var isStartDateHovered = false
     @State private var isEndDateHovered = false
-    @State private var selectedStartDate: Date = Date()
-    @State private var isStartDatePickerPresented: Bool = false
-    @State private var selectedEndDate: Date = Date()
-    @State private var isEndDatePickerPresented: Bool = false
+    @State private var selectedStartDate = Date()
+    @State private var isStartDatePickerPresented = false
+    @State private var selectedEndDate = Date()
+    @State private var isEndDatePickerPresented = false
     
     var body: some View {
-        VStack(spacing : 16){
+        VStack(spacing: 16) {
             RoundedRectangle(cornerRadius: 8)
                 .overlay(
                     Text("Thumbnail")
                         .foregroundStyle(Color.subtitle) /// Color #747474로 바꿔야함
                 )
                 .foregroundStyle(Color.item)
-                .frame(width:436, height:330)
+                .frame(width: 436, height: 330)
             RoundedRectangle(cornerRadius: 8)
-                .overlay(){
-                    VStack(alignment:.leading) {
-                        HStack(spacing : 8) {
+                .overlay {
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 8) {
                             RadioButton(isSelected: periodSelection == .allPeriods)
                                 .onTapGesture {
                                     periodSelection = .allPeriods
@@ -47,7 +47,7 @@ struct ShareImageView: View {
                             Text("기간 모두")
                                 .foregroundColor(Color.title)
                         }
-                        HStack() {
+                        HStack {
                             RadioButton(isSelected: periodSelection == .setPeriods)
                                 .onTapGesture {
                                     periodSelection = .setPeriods
@@ -56,7 +56,7 @@ struct ShareImageView: View {
                             Text("기간 설정")
                                 .foregroundColor(Color.title)
                             Spacer()
-                                .frame(width:16)
+                                .frame(width: 16)
                             Button(action: {
                                 isStartDatePickerPresented = true
                             }) {
@@ -84,7 +84,7 @@ struct ShareImageView: View {
                                 .padding()
                             }
                             Spacer()
-                                .frame(width:8)
+                                .frame(width: 8)
                             Button(action: {
                                 isEndDatePickerPresented = true
                             }) {
@@ -116,12 +116,12 @@ struct ShareImageView: View {
                     }
                 }
                 .foregroundStyle(Color.item)
-                .frame(width:436, height:88)
+                .frame(width: 436, height: 88)
             
             borderSpacer(.horizontal)
                 .padding(.horizontal, 16)
             
-            HStack(){
+            HStack {
                 Button {
                     shareImage()
                 } label: {
