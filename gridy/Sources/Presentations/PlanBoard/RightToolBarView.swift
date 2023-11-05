@@ -9,25 +9,12 @@ import SwiftUI
 
 struct RightToolBarView: View {
     @Environment(\.dismiss) private var dismiss
-
+    
     var body: some View {
-        NavigationStack {
-            Text("RightToolBarView")
-                .scenePadding()
+        HStack(alignment: .top, spacing: 0) {
+            planBoardBorder(.vertical, 2)
+            Color.rightToolBar
         }
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
-                    dismiss()
-                }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Continue") {
-                    dismiss()
-                }
-            }
-        }
-        .frame(width: 600, height: 350)
     }
 }
 

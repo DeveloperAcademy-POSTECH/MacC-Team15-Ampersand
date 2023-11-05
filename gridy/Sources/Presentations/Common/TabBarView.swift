@@ -8,24 +8,27 @@
 import SwiftUI
 
 struct TabBarView: View {
-    @State var homeButtonHover: Bool = false
-    @State var homeButtonClicked: Bool = false
-    @State var planBoardTabHover: Bool = false
-    @State var planBoardTabClicked: Bool = false
-    @State var bellButtonHover: Bool = false
-    @Binding var bellButtonClicked: Bool
+    @EnvironmentObject var viewModel: PlanBoardViewModel
+    @Binding var isNotificationButtonClicked: Bool
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             windowControlsButton
-            borderSpacer(.vertical)
+            systemBorder(.vertical)
             homeButton
-            borderSpacer(.vertical)
-            planBoardTab
+            systemBorder(.vertical)
+            ForEach(0...2, id: \.self) { index in
+                TabItemView(index: index)
+                    .environmentObject(viewModel)
+                systemBorder(.vertical)
+            }
             Spacer()
             notificationButton
         }
         .background(Color.tabBar)
+        .sheet(isPresented: $isNotificationButtonClicked) {
+            NotificationView()
+        }
     }
 }
 
@@ -48,42 +51,20 @@ extension TabBarView {
 
 extension TabBarView {
     var homeButton: some View {
-        Rectangle()
-            .foregroundStyle(homeButtonClicked ? Color.tabHovered : homeButtonHover ? Color.tabHovered : Color.clear)
-            .overlay(
-                Image(systemName: "house.fill")
-                    .foregroundStyle(Color.tabLabel)
-            )
-            .frame(width: 36)
-            .onHover { proxy in
-                homeButtonHover = proxy
-            }
-            .onTapGesture {
-                homeButtonClicked = true
-            }
-    }
-}
-
-extension TabBarView {
-    var planBoardTab: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Text("BoardNamed")
-                .fontWeight(.medium)
-                .padding(.leading, 16)
-                .foregroundStyle(planBoardTabClicked ? Color.title : planBoardTabHover ? Color.title : Color.title)
+        ZStack {
             Rectangle()
-                .foregroundStyle(.clear)
-                .frame(width: 32)
-                .overlay(
-                    Image(systemName: "xmark").foregroundStyle(planBoardTabClicked ? Color.title : planBoardTabHover ? Color.textInactive : .clear)
+                .foregroundStyle(
+                    viewModel.hoveredItem == .homeButton || viewModel.tabBarViewClickedItem == .homeButton ? Color.tabHovered : .clear
                 )
+            Image(systemName: "house.fill")
+                .foregroundStyle(Color.tabLabel)
         }
-        .background(planBoardTabClicked ? Color.tabHovered : planBoardTabHover ? Color.tabHovered : Color.tab)
+        .frame(width: 36)
         .onHover { proxy in
-            planBoardTabHover = proxy
+            viewModel.hoveredItem = proxy ? .homeButton : ""
         }
         .onTapGesture {
-            planBoardTabClicked = true
+            viewModel.tabBarViewClickedItem = (viewModel.tabBarViewClickedItem == .homeButton) ? "" : .homeButton
         }
     }
 }
@@ -92,22 +73,65 @@ extension TabBarView {
     var notificationButton: some View {
         ZStack {
             Rectangle()
-                .foregroundStyle(bellButtonClicked ? Color.tabHovered : bellButtonHover ? Color.tabHovered : Color.clear)
+                .foregroundStyle(
+                    viewModel.hoveredItem == .notificationButton || isNotificationButtonClicked ? Color.tabHovered : .clear
+                )
                 .overlay(
                     Image(systemName: "bell.fill")
                         .foregroundStyle(Color.title)
                 )
                 .frame(width: 48)
                 .onHover { proxy in
-                    bellButtonHover = proxy
+                    viewModel.hoveredItem = proxy ? .notificationButton : ""
                 }
                 .onTapGesture {
-                    bellButtonClicked = true
+                    isNotificationButtonClicked.toggle()
                 }
             Circle()
                 .foregroundColor(Color.red)
                 .frame(width: 5, height: 5)
                 .offset(x: 3, y: -3)
+        }
+    }
+}
+
+struct TabItemView: View {
+    @EnvironmentObject var viewModel: PlanBoardViewModel
+    @State var isDeleteButtonHovered = false
+    let index: Int
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 0) {
+            Text("BoardName\(index)")
+                .fontWeight(.medium)
+                .padding(.leading, 16)
+                .foregroundStyle(
+                    viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ? Color.title : Color.subtitle
+                )
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(width: 32)
+                .overlay(
+                    Image(systemName: "xmark")
+                        .foregroundStyle(
+                            isDeleteButtonHovered ? 
+                            Color.title :
+                                viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ?
+                            Color.textInactive : Color.clear
+                        )
+                    )
+                .onHover { proxy in
+                    isDeleteButtonHovered = proxy
+                }
+        }
+        .background(
+            viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ? Color.tabHovered : Color.tabBar
+        )
+        .onHover { proxy in
+            viewModel.hoveredItem = proxy ? "tabName:\(index)" : ""
+        }
+        .onTapGesture {
+            viewModel.tabBarViewClickedItem = (viewModel.tabBarViewClickedItem == "tabName:\(index)") ? "" : "tabName:\(index)"
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  TopToolBarArea.swift
+//  TopToolBarView.swift
 //  gridy
 //
 //  Created by Jin Sang woo on 11/2/23.
@@ -7,74 +7,90 @@
 
 import SwiftUI
 
-struct TopToolBarArea: View {
-    
-    @Binding var shareImageClicked: Bool
-    @Binding var boardSettingClicked: Bool
-    @Binding var rightToolBarClicked: Bool
-    @State var shareImageHover = false
-    @State var boardSettingHover = false
-    @State var rightToolBarHover = false
+struct TopToolBarView: View {
+    @EnvironmentObject var viewModel: PlanBoardViewModel
+    @Binding var isNotificationPresented: Bool
+    @Binding var isShareImagePresented: Bool
+    @Binding var isBoardSettingPresented: Bool
+    @Binding var isRightToolBarPresented: Bool
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             Spacer()
-            borderSpacer(.vertical)
-            imageButton
-            borderSpacer(.vertical)
-            rightToolBarButton
-            borderSpacer(.vertical)
+            planBoardBorder(.vertical)
+            shareImageButton
+            planBoardBorder(.vertical)
             boardSettingButton
+            planBoardBorder(.vertical)
+            rightToolBarButton
+        }
+        .background(Color.topToolBar)
+        .sheet(isPresented: $isBoardSettingPresented) {
+            ShareImageView()
+        }
+        .sheet(isPresented: $isBoardSettingPresented) {
+            BoardSettingView()
         }
     }
 }
 
-extension TopToolBarArea {
-    var imageButton: some View {
+extension TopToolBarView {
+    var shareImageButton: some View {
         Rectangle()
-            .foregroundStyle(shareImageClicked ? .white : shareImageHover ? .gray : .clear)
+            .foregroundStyle(
+                viewModel.hoveredItem == .shareImageButton || isShareImagePresented ? Color.topToolItem : .clear
+            )
             .overlay(
                 Image(systemName: "photo.fill")
                     .foregroundStyle(.black)
             )
             .frame(width: 48)
             .onHover { proxy in
-                shareImageHover = proxy
+                viewModel.hoveredItem = proxy ? .shareImageButton : ""
             }
             .onTapGesture {
-                shareImageClicked = true
+                isBoardSettingPresented.toggle()
             }
     }
 }
 
-extension TopToolBarArea {
-    var rightToolBarButton: some View {
-        Rectangle()
-            .foregroundStyle(boardSettingClicked ? .white : boardSettingHover ? .gray : .clear)
-            .overlay(
-                Image(systemName: "rectangle.portrait.and.arrow.forward")
-                    .foregroundStyle(.black)
-            )
-            .frame(width: 48)
-            .onHover { proxy in
-                boardSettingHover = proxy
-            }
-            .onTapGesture { boardSettingClicked = true }
-    }
-}
-
-extension TopToolBarArea {
+extension TopToolBarView {
     var boardSettingButton: some View {
         Rectangle()
-            .foregroundStyle(rightToolBarClicked ? .white : rightToolBarHover ? .gray : .clear)
+            .foregroundStyle(
+                viewModel.hoveredItem == .boardSettingButton || isBoardSettingPresented ? Color.topToolItem : .clear
+            )
             .overlay(
                 Image(systemName: "square.and.pencil")
                     .foregroundStyle(.black)
             )
             .frame(width: 48)
             .onHover { proxy in
-                rightToolBarHover = proxy
+                viewModel.hoveredItem = proxy ? .boardSettingButton : ""
             }
-            .onTapGesture { rightToolBarClicked = true }
+            .onTapGesture {
+                isBoardSettingPresented.toggle()
+            }
+    }
+}
+
+extension TopToolBarView {
+    var rightToolBarButton: some View {
+        Rectangle()
+            .foregroundStyle(
+                viewModel.hoveredItem == .rightToolBarButton ? Color.topToolItem : .clear
+            )
+            .overlay(
+                Image(systemName: "rectangle.portrait.and.arrow.forward")
+                    .foregroundStyle(.black)
+            )
+            .frame(width: 48)
+            .onHover { proxy in
+                viewModel.hoveredItem = proxy ? .rightToolBarButton : ""
+            }
+            .onTapGesture {
+                isRightToolBarPresented.toggle()
+            }
+        
     }
 }
