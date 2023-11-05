@@ -681,7 +681,7 @@ struct PlanBoard: Reducer {
             
                 return .run { send in
                     // TODO: - apiService
-                    await(.fetchMap)
+                    await send(.fetchMap)
                 }
                 
             case let .deleteLayerText(layer):
