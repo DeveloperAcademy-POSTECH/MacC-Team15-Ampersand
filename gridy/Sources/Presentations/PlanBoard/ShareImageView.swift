@@ -40,24 +40,24 @@ struct ShareImageView: View {
                     VStack(alignment: .leading) {
                         HStack(spacing: 8) {
                             RadioButton(isSelected: periodSelection == .allPeriods)
-                                .onTapGesture {periodSelection = .allPeriods}
+                                .onTapGesture { periodSelection = .allPeriods }
                                 .padding(.leading, 16)
                             Text("기간 모두")
-                                .foregroundColor(Color.title)
+                                .foregroundStyle(Color.title)
                         }
                         HStack {
                             RadioButton(isSelected: periodSelection == .setPeriods)
-                                .onTapGesture {periodSelection = .setPeriods}
+                                .onTapGesture { periodSelection = .setPeriods }
                                 .padding(.leading, 16)
                             Text("기간 설정")
-                                .foregroundColor(Color.title)
+                                .foregroundStyle(Color.title)
                             Spacer()
                                 .frame(width: 16)
                             Button(action: {
                                 isStartDatePickerPresented = true
                             }) {
                                 Text("시작 : \(formattedDate(date: selectedStartDate))")
-                                    .foregroundColor(Color.title)
+                                    .foregroundStyle(Color.title)
                                     .frame(width: 132, height: 32)
                                     .background(isStartDateHovered ? Color.itemHovered : Color.clear)
                                     .cornerRadius(5)
@@ -85,7 +85,7 @@ struct ShareImageView: View {
                                 isEndDatePickerPresented = true
                             }) {
                                 Text("종료 : \(formattedDate(date: selectedEndDate))")
-                                    .foregroundColor(Color.title)
+                                    .foregroundStyle(Color.title)
                                     .frame(width: 132, height: 32)
                                     .background(isEndDateHovered ? Color.itemHovered : Color.clear)
                                     .cornerRadius(5)
@@ -118,9 +118,9 @@ struct ShareImageView: View {
                 .padding(.horizontal, 16)
             
             HStack {
-                Button {
+                Button(action: {
                     shareImage()
-                } label: {
+                }) {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(shareHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
@@ -135,9 +135,9 @@ struct ShareImageView: View {
                     shareHovered = hover
                 }
                 Spacer()
-                Button {
+                Button(action: {
                     dismiss()
-                } label: {
+                }) {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(cancelHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
@@ -151,9 +151,9 @@ struct ShareImageView: View {
                 .onHover { hover in
                     cancelHovered = hover
                 }
-                Button {
+                Button(action: {
                     dismiss()
-                } label: {
+                }) {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(createHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
