@@ -85,6 +85,7 @@
 		EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC812AF2210700751FAE /* RightToolBarView.swift */; };
 		EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC832AF2233400751FAE /* CreateFolderView.swift */; };
 		EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */; };
+		EEEF68242AF76858000B3CAF /* LogoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEF68232AF76858000B3CAF /* LogoutView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -157,6 +158,7 @@
 		EED5EC812AF2210700751FAE /* RightToolBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarView.swift; sourceTree = "<group>"; };
 		EED5EC832AF2233400751FAE /* CreateFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderView.swift; sourceTree = "<group>"; };
 		EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardViewDeprecated.swift; sourceTree = "<group>"; };
+		EEEF68232AF76858000B3CAF /* LogoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,6 +294,7 @@
 				EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */,
 				EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */,
 				EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */,
+				EEEF68232AF76858000B3CAF /* LogoutView.swift */,
 			);
 			path = ProjectBoard;
 			sourceTree = "<group>";
@@ -560,6 +563,7 @@
 				EE5C20992AE2B004005D2D7E /* ProjectEditView.swift in Sources */,
 				EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */,
 				8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */,
+				EEEF68242AF76858000B3CAF /* LogoutView.swift in Sources */,
 				AD96ED442AD30312005D197B /* APIError.swift in Sources */,
 				97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */,
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
