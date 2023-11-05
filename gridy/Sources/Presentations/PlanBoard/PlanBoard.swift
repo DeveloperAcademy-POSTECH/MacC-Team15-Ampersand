@@ -127,6 +127,7 @@ struct PlanBoard: Reducer {
         case deleteLayer(layer: Int)
         case deleteLayerText(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
+        case mergePlans(layer: Int, planIDs: [String])
 
         // MARK: - map
         case fetchMap
@@ -875,6 +876,72 @@ struct PlanBoard: Reducer {
                     }
                 }
                 return .none
+                
+            case let .mergePlans(layer, planIDs):
+                var planIDsToUpdate = Set<String>()
+                if planIDs.count < 1 { return .none }
+
+                var currentTopPlanChildCount = state.existingAllPlans[planIDs[0]]!.childPlanIDs.count
+                
+                for (index, planID) in planIDs.enumerated() {
+                    if index == 0 { continue }
+                    
+                    /// 1. 최상위 플랜에 child들을 모두 병합
+                    let childPlanIDsToAppend = state.existingAllPlans[planID]!.childPlanIDs
+                    for (key, childValue) in childPlanIDsToAppend {
+                        state.existingAllPlans[planIDs[0]]!.childPlanIDs["\(currentTopPlanChildCount + Int(key)!)"] = childValue
+                    }
+                    currentTopPlanChildCount += childPlanIDsToAppend.count
+                    
+                    /// 2. 병합된 플랜들을 map에서 삭제
+                    state.map[layer].remove(at: state.map[layer].firstIndex(of: planID)!)
+                    
+                    /// 3 병합된 플랜들을 부모에서 삭제
+                    if layer == 0 {
+                        /// root에서 삭제
+                        state.rootPlan.childPlanIDs["0"]!.remove(at: state.rootPlan.childPlanIDs["0"]!.firstIndex(of: planID)!)
+                        state.existingAllPlans[state.rootPlan.id] = state.rootPlan
+                        planIDsToUpdate.insert(state.rootPlan.id)
+                    } else {
+                        for parentID in state.map[layer-1] {
+                            let parentPlan = state.existingAllPlans[parentID]!
+                            
+                            /// 부모를 발견했다
+                            if parentPlan.childPlanIDs.map({$0.value}).flatMap({$0}).contains(planID) {
+                                /// 부모가 가진 레인이 하나이고, 그 레인 내에 차일드가 병합된 플랜 하나라면 빈 레인으로 갈아끼워준다
+                                if parentPlan.childPlanIDs.count == 1,
+                                   parentPlan.childPlanIDs["0"]!.count == 1 {
+                                    state.existingAllPlans[parentID]?.childPlanIDs["0"] = []
+                                    planIDsToUpdate.insert(parentID)
+                                    break
+                                }
+                                
+                                let laneIndex = parentPlan.childPlanIDs.first(where: { $0.value.contains(planID) })!.key
+                                let indexInLane = parentPlan.childPlanIDs[laneIndex]!.firstIndex(of: planID)!
+                                /// 병합된 플랜이 속한 레인에 child가 이거 하나라면 레인을 삭제하고 나머지 레인들을 다시 정렬
+                                if parentPlan.childPlanIDs[laneIndex]!.count == 1 {
+                                    for currentLaneIndex in Int(laneIndex)!..<parentPlan.childPlanIDs.count {
+                                        state.existingAllPlans[parentID]!.childPlanIDs["\(currentLaneIndex)"] = state.existingAllPlans[parentID]!.childPlanIDs["\(currentLaneIndex + 1)"]
+                                    }
+                                    state.existingAllPlans[parentID]!.childPlanIDs["\(parentPlan.childPlanIDs.count - 1)"] = nil
+                                } else { /// 아니라면 해당 레인에서 병합된 플랜만 삭제
+                                    state.existingAllPlans[parentID]!.childPlanIDs[laneIndex]!.remove(at: indexInLane)
+                                }
+                                planIDsToUpdate.insert(parentID)
+                                break
+                            }
+                        }
+                    }
+                }
+                planIDsToUpdate.insert(planIDs[0])
+                let projectID = state.rootProject.id
+                let plansToUpdate = planIDsToUpdate.map { state.existingAllPlans[$0]! }
+                let plansToDelete = planIDs[1..<planIDs.count].map { state.existingAllPlans[$0]! }
+                return .run { send in
+                    try await apiService.updatePlans(plansToUpdate, projectID)
+                    try await apiService.deletePlansCompletely(plansToDelete, projectID)
+                    await send(.fetchMap)
+                }
                 
             case .fetchMap:
                 var newMap: [[String]] = []

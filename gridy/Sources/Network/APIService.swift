@@ -30,6 +30,7 @@ struct APIService {
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var updatePlans: @Sendable ([Plan], String) async throws -> Void
     var deletePlans: @Sendable ([Plan], String) async throws -> Void
+    var deletePlansCompletely: @Sendable ([Plan], String) async throws -> Void
     
     /// Layer
     var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
@@ -53,6 +54,7 @@ struct APIService {
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         updatePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         deletePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
+        deletePlansCompletely: @escaping @Sendable ([Plan], String) async throws -> Void,
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         
@@ -73,6 +75,7 @@ struct APIService {
         self.updatePlanType = updatePlanType
         self.updatePlans = updatePlans
         self.deletePlans = deletePlans
+        self.deletePlansCompletely = deletePlansCompletely
         
         self.createLayer = createLayer
         
@@ -174,10 +177,15 @@ extension APIService {
                 try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
             }
         },
-        deletePlans: { plansToUpdate, projectID in
-            for plan in plansToUpdate {
+        deletePlans: { plansToMove, projectID in
+            for plan in plansToMove {
                 try await FirestoreService.deleteDocument(projectID, .plans, plan.id)
                 try await FirestoreService.setDocumentData(projectID, .deletePlans, plan.id, planToDictionary(plan))
+            }
+        },
+        deletePlansCompletely: { plansToDelete, projectID in
+            for plan in plansToDelete {
+                try await FirestoreService.deleteDocument(projectID, .plans, plan.id)
             }
         },
         createLayer: { plansToUpdate, plansToCreate, projectID in
