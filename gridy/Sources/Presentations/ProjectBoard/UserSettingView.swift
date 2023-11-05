@@ -22,17 +22,25 @@ struct UserSettingView: View {
     @State var darkClicked = false
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.blackWhite.opacity(0.5))
-            VStack(alignment: .center, spacing: 8) {
-                profile.padding(.bottom, 24)
-                theme
-                settings
-                logOut
+        HStack(alignment: .bottom, spacing: 0) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.blackWhite.opacity(0.5))
+                VStack(alignment: .center, spacing: 8) {
+                    profile.padding(.bottom, 24)
+                    theme
+                    settings
+                    logOut
+                }
+            }
+            .frame(width: 264, height: 300)
+            if themeClicked {
+                themeSelect
+                    .padding(.bottom, 8)
+            } else {
+                Spacer().frame(width: 170)
             }
         }
-        .frame(width: 264, height: 300)
     }
 }
 
@@ -222,6 +230,10 @@ extension UserSettingView {
         }
         .padding(16)
         .frame(width: 170, height: 168)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.blackWhite.opacity(0.3))
+        )
     }
 }
 
