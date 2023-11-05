@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import AppKit
 
 extension Color {
     init(

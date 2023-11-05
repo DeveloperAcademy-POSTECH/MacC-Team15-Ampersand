@@ -1,14 +1,13 @@
 //
-//  BackgroundView.swift
+//  SplashView.swift
 //  gridy
 //
-//  Created by 제나 on 10/11/23.
+//  Created by xnoag on 11/1/23.
 //
 
 import SwiftUI
 
-struct BackgroundView: View {
-    
+struct SplashView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
@@ -22,4 +21,8 @@ struct BackgroundView: View {
                 .opacity(colorScheme == .dark ? 0.3 : 0.3)
         }
     }
+}
+
+#Preview {
+    SplashView()
 }
