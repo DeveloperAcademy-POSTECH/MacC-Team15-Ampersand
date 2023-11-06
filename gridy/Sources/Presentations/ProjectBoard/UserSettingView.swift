@@ -9,38 +9,24 @@ import SwiftUI
 
 struct UserSettingView: View {
     @State var themeHover = false
-    @State var themeClicked = false
     @State var settingsHover = false
     @State var settingsClicked = false
     @State var logOutHover = false
     @State var logOutClicked = false
-    @State var automaticHover = false
-    @State var automaticClicked = false
-    @State var lightHover = false
-    @State var lightClicked = false
-    @State var darkHover = false
-    @State var darkClicked = false
+    @Binding var themeClicked: Bool
     
     var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .foregroundStyle(Color.blackWhite.opacity(0.5))
-                VStack(alignment: .center, spacing: 8) {
-                    profile.padding(.bottom, 24)
-                    theme
-                    settings
-                    logOut
-                }
-            }
-            .frame(width: 264, height: 300)
-            if themeClicked {
-                themeSelect
-                    .padding(.bottom, 8)
-            } else {
-                Spacer().frame(width: 170)
+        ZStack {
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.blackWhite.opacity(0.5))
+            VStack(alignment: .center, spacing: 8) {
+                profile.padding(.bottom, 24)
+                theme
+                settings
+                logOut
             }
         }
+        .frame(width: 264, height: 300)
     }
 }
 
@@ -151,92 +137,4 @@ extension UserSettingView {
         }
         .padding(.horizontal, 16)
     }
-}
-
-extension UserSettingView {
-    var themeSelect: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 0) {
-                Text("Automatic")
-                    .font(.title3)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(automaticClicked ? Color.title : .clear)
-            }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(automaticClicked ? Color.blackWhite : automaticHover ? Color.blackWhite : .clear)
-            )
-            .onHover { proxy in
-                automaticHover = proxy
-            }
-            .onTapGesture {
-                automaticClicked = true
-                lightClicked = false
-                darkClicked = false
-            }
-            
-            HStack(alignment: .center, spacing: 0) {
-                Text("Light")
-                    .font(.title3)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(lightClicked ? Color.title : .clear)
-            }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(lightClicked ? Color.blackWhite : lightHover ? Color.blackWhite : .clear)
-            )
-            .onHover { proxy in
-                lightHover = proxy
-            }
-            .onTapGesture {
-                automaticClicked = false
-                lightClicked = true
-                darkClicked = false
-            }
-            
-            HStack(alignment: .center, spacing: 0) {
-                Text("Dark")
-                    .font(.title3)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(darkClicked ? Color.title : .clear)
-            }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(darkClicked ? Color.blackWhite : darkHover ? Color.blackWhite : .clear)
-            )
-            .onHover { proxy in
-                darkHover = proxy
-            }
-            .onTapGesture {
-                automaticClicked = false
-                lightClicked = false
-                darkClicked = true
-            }
-        }
-        .padding(16)
-        .frame(width: 170, height: 168)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.blackWhite.opacity(0.3))
-        )
-    }
-}
-
-#Preview {
-    UserSettingView()
 }

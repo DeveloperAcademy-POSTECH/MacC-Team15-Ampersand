@@ -24,6 +24,9 @@ struct TabBarView: View {
             planBoardTab
             Spacer()
             notificationButton
+                .popover(isPresented: $bellButtonClicked, attachmentAnchor: .point(.bottom)) {
+                    NotificationView()
+                }
         }
         .background(Color.tabBar)
     }
