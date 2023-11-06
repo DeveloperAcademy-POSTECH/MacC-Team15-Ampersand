@@ -12,10 +12,10 @@ enum PeriodSelection {
     case allPeriods
     case setPeriods
 }
+/// 한 struct 안에 코드가 너무 길어서 function을 빼려고 했는데 일단은 여기 다 넣어놓겠습니다.
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var periodSelection: PeriodSelection = .allPeriods
-    
     @State private var shareHovered = false
     @State private var cancelHovered = false
     @State private var createHovered = false
@@ -26,13 +26,22 @@ struct ShareImageView: View {
     @State private var selectedEndDate = Date()
     @State private var isEndDatePickerPresented = false
     
+    @Environment(\.colorScheme) var colorScheme
+    @State var capture: NSImage?
+    
     var body: some View {
         VStack(spacing: 16) {
             RoundedRectangle(cornerRadius: 8)
-                .overlay(
-                    Text("Thumbnail")
-                        .foregroundStyle(Color.subtitle) /// Color #747474로 바꿔야함
-                )
+                .overlay {
+                    if ImageRenderer(content: TimelineLayoutView()).nsImage != nil {
+                        Image(nsImage: ImageRenderer(content: TimelineLayoutView()).nsImage!)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Text("Thumbnail")
+                            .foregroundStyle(Color.subtitle)
+                    }
+                }
                 .foregroundStyle(Color.item)
                 .frame(width: 436, height: 330)
             RoundedRectangle(cornerRadius: 8)
@@ -152,13 +161,13 @@ struct ShareImageView: View {
                     cancelHovered = hover
                 }
                 Button(action: {
-                    dismiss()
+                    saveImage()
                 }) {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(createHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
                         .overlay(
-                            Text("Create")
+                            Text("Save")
                                 .font(.system(size: 13))
                                 .foregroundStyle(Color.button)
                         )
@@ -176,15 +185,53 @@ struct ShareImageView: View {
     }
     
     /// Appkit을 이용한 share image
-    func shareImage() {
-        let image = NSImage()
-        let sharingServicePicker = NSSharingServicePicker(items: [image])
-        sharingServicePicker.show(relativeTo: NSRect(), of: NSApp.keyWindow!.contentView!, preferredEdge: .minY)
+    @MainActor func shareImage() {
+        if let contentView = NSApp.keyWindow?.contentView {
+            let image = ImageRenderer(content: TimelineLayoutView().environment(\.colorScheme, colorScheme)).nsImage
+            let sharingServicePicker = NSSharingServicePicker(items: [image!])
+            
+            sharingServicePicker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
+        }
     }
+    
     func formattedDate(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd."
         return formatter.string(from: date)
+    }
+    
+    @MainActor func saveImage() {
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.png]
+        savePanel.canCreateDirectories = true
+        savePanel.isExtensionHidden = false
+        savePanel.title = "Save your image"
+        savePanel.message = "Choose a folder and a name to store the image."
+        savePanel.begin { response in
+            if response == .OK, let url = savePanel.url {
+                let renderer = ImageRenderer(content: TimelineLayoutView().environment(\.colorScheme, self.colorScheme))
+                if let image = renderer.nsImage {
+                    self.savePNG(image: image, url: url)
+                } else {
+                    print("Could not generate image from TimelineLayoutView")
+                }
+            }
+        }
+    }
+    
+    func savePNG(image: NSImage, url: URL) {
+        guard let tiffData = image.tiffRepresentation,
+              let bitmapImage = NSBitmapImageRep(data: tiffData),
+              let pngData = bitmapImage.representation(using: .png, properties: [:]) else {
+            print("Failed to create PNG representation of image")
+            return
+        }
+        do {
+            try pngData.write(to: url)
+            print("Image successfully saved to \(url.path)")
+        } catch {
+            print("Error saving image: \(error.localizedDescription)")
+        }
     }
 }
 

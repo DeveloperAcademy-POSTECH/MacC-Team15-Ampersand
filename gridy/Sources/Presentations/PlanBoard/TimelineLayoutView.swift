@@ -54,6 +54,7 @@ struct TimelineLayoutView: View {
                 lineArea
             }
         }
+        .frame(width: 1511, height: 934)
         .sheet(isPresented: $bellButtonClicked) {
             NotificationView()
         }
