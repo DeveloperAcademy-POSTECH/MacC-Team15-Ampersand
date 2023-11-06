@@ -14,6 +14,10 @@ struct AuthenticationView: View {
         Authentication()
             ._printChanges()
     }
+    let projectBoardstore = Store(initialState: ProjectBoard.State()) {
+        ProjectBoard()
+            ._printChanges()
+    }
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -70,7 +74,7 @@ struct AuthenticationView: View {
                                 /// Navige to Project Board View
                                 NavigationLink("프로젝트 보드로 가기") {
                                     // TODO: ProjectBoardView에 Store 복구하기
-//                                    ProjectBoardView()
+                                    ProjectBoardView(store: projectBoardstore)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.vertical, 10)

@@ -6,28 +6,30 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct TabBarView: View {
-    @EnvironmentObject var viewModel: PlanBoardViewModel
-    @Binding var isNotificationButtonClicked: Bool
+    let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            windowControlsButton
-            systemBorder(.vertical)
-            homeButton
-            systemBorder(.vertical)
-            ForEach(0...2, id: \.self) { index in
-                TabItemView(index: index)
-                    .environmentObject(viewModel)
+        WithViewStore(store, observe: { $0 }) { _ in
+            HStack(alignment: .center, spacing: 0) {
+                windowControlsButton
                 systemBorder(.vertical)
+                homeButton
+                systemBorder(.vertical)
+                ForEach(0...2, id: \.self) { index in
+                    TabItemView(
+                        store: store,
+                        index: index
+                    )
+                    systemBorder(.vertical)
+                }
+                Spacer()
+                systemBorder(.vertical)
+                notificationButton
             }
-            Spacer()
-            notificationButton
-        }
-        .background(Color.tabBar)
-        .sheet(isPresented: $isNotificationButtonClicked) {
-            NotificationView()
+            .background(Color.tabBar)
         }
     }
 }
@@ -51,87 +53,124 @@ extension TabBarView {
 
 extension TabBarView {
     var homeButton: some View {
-        ZStack {
-            Rectangle()
-                .foregroundStyle(
-                    viewModel.hoveredItem == .homeButton || viewModel.tabBarViewClickedItem == .homeButton ? Color.tabHovered : .clear
-                )
-            Image(systemName: "house.fill")
-                .foregroundStyle(Color.tabLabel)
-        }
-        .frame(width: 36)
-        .onHover { proxy in
-            viewModel.hoveredItem = proxy ? .homeButton : ""
-        }
-        .onTapGesture {
-            viewModel.tabBarViewClickedItem = (viewModel.tabBarViewClickedItem == .homeButton) ? "" : .homeButton
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(
+                        viewStore.hoveredItem == .homeButton ||
+                        viewStore.tabBarFocusGroupClickedItem == .homeButton ?
+                        Color.tabHovered : .clear
+                    )
+                Image(systemName: "house.fill")
+                    .foregroundStyle(Color.tabLabel)
+            }
+            .frame(width: 36)
+            .onHover { proxy in
+                viewStore.send(.hoveredItem(name: proxy ? .homeButton : ""))
+            }
+            .onTapGesture {
+                viewStore.send(.clickedItem(
+                    focusGroup: .tabBarFocusGroup,
+                    name: .homeButton
+                ))
+            }
         }
     }
 }
 
 extension TabBarView {
     var notificationButton: some View {
-        ZStack {
-            Rectangle()
-                .foregroundStyle(
-                    viewModel.hoveredItem == .notificationButton || isNotificationButtonClicked ? Color.tabHovered : .clear
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isNotificationPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isNotificationPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .notificationButton,
+                            bool: newValue
+                        ))
+                    }
                 )
-                .overlay(
-                    Image(systemName: "bell.fill")
-                        .foregroundStyle(Color.title)
-                )
-                .frame(width: 48)
-                .onHover { proxy in
-                    viewModel.hoveredItem = proxy ? .notificationButton : ""
-                }
-                .onTapGesture {
-                    isNotificationButtonClicked.toggle()
-                }
-            Circle()
-                .foregroundColor(Color.red)
-                .frame(width: 5, height: 5)
-                .offset(x: 3, y: -3)
+            }
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(
+                        viewStore.hoveredItem == .notificationButton ||
+                        viewStore.isNotificationPresented ?
+                        Color.tabHovered : .clear
+                    )
+                    .overlay(
+                        Image(systemName: "bell.fill")
+                            .foregroundStyle(Color.title)
+                    )
+                    .frame(width: 48)
+                    .onHover { proxy in
+                        viewStore.send(.hoveredItem(name: proxy ? .notificationButton : ""))
+                    }
+                    .onTapGesture {
+                        viewStore.send(.popoverPresent(
+                            button: .notificationButton,
+                            bool: true
+                        ))
+                    }
+                Circle()
+                    .foregroundColor(Color.red)
+                    .frame(width: 5, height: 5)
+                    .offset(x: 3, y: -3)
+            }
+            .sheet(isPresented: isNotificationPresented) {
+                NotificationView()
+            }
         }
     }
 }
 
 struct TabItemView: View {
-    @EnvironmentObject var viewModel: PlanBoardViewModel
+    let store: StoreOf<ProjectBoard>
     @State var isDeleteButtonHovered = false
     let index: Int
     
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Text("BoardName\(index)")
-                .fontWeight(.medium)
-                .padding(.leading, 16)
-                .foregroundStyle(
-                    viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ? Color.title : Color.subtitle
-                )
-            Rectangle()
-                .foregroundStyle(.clear)
-                .frame(width: 32)
-                .overlay(
-                    Image(systemName: "xmark")
-                        .foregroundStyle(
-                            isDeleteButtonHovered ? 
-                            Color.title :
-                                viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ?
-                            Color.textInactive : Color.clear
-                        )
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack(alignment: .center, spacing: 0) {
+                Text("BoardName\(index)")
+                    .fontWeight(.medium)
+                    .padding(.leading, 16)
+                    .foregroundStyle(
+                        viewStore.hoveredItem == "tabName:\(index)" ||
+                        viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                        Color.tabLabel : Color.tabLabelInactive
                     )
-                .onHover { proxy in
-                    isDeleteButtonHovered = proxy
-                }
-        }
-        .background(
-            viewModel.hoveredItem == "tabName:\(index)" || viewModel.tabBarViewClickedItem == "tabName:\(index)" ? Color.tabHovered : Color.tabBar
-        )
-        .onHover { proxy in
-            viewModel.hoveredItem = proxy ? "tabName:\(index)" : ""
-        }
-        .onTapGesture {
-            viewModel.tabBarViewClickedItem = (viewModel.tabBarViewClickedItem == "tabName:\(index)") ? "" : "tabName:\(index)"
+                Rectangle()
+                    .foregroundStyle(.clear)
+                    .frame(width: 32)
+                    .overlay(
+                        Image(systemName: "xmark")
+                            .foregroundStyle(
+                                isDeleteButtonHovered ?
+                                Color.tabLabel : viewStore.hoveredItem == "tabName:\(index)" ||
+                                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                                Color.subtitle : Color.clear
+                            )
+                    )
+                    .onHover { proxy in
+                        isDeleteButtonHovered = proxy
+                    }
+            }
+            .background(
+                viewStore.hoveredItem == "tabName:\(index)" ||
+                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                Color.tabHovered : Color.tabBar
+            )
+            .onHover { proxy in
+                viewStore.send(.hoveredItem(name: proxy ? "tabName:\(index)" : ""))
+            }
+            .onTapGesture {
+                viewStore.send(.clickedItem(
+                    focusGroup: .tabBarFocusGroup,
+                    name: "tabName:\(index)"
+                ))
+            }
         }
     }
 }

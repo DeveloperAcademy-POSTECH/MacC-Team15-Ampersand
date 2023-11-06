@@ -58,6 +58,7 @@ extension Color {
     static let tab = Color("tab")
     static let tabHovered = Color("tabHovered")
     static let tabLabel = Color("tabLabel")
+    static let tabLabelInactive = Color("tabLabelInactive")
     static let project = Color("project")
     static let folder = Color("folder")
     static let board = Color("board")
