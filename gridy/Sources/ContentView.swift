@@ -12,7 +12,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             SplashView()
-//            AuthenticationView()
+//            AuthenticationView() /// 일단 주석처리 해놨습니다.
             LoginView()
         }
     }
