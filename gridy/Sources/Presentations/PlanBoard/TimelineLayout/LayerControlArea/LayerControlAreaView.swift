@@ -22,9 +22,7 @@ struct LayerControlAreaView: View {
                     HStack(spacing: 2) {
                         // MARK: - 엎기 >
                         LayerControlButton(componentWidth: 28) {
-                            viewStore.send(
-                                .showLowerLayer
-                            )
+                            
                         } label: {
                             Image(systemName: "arrow.forward")
                                 .font(.custom("Pretendard-Medium", size: 12))
@@ -77,9 +75,7 @@ struct LayerControlAreaView: View {
                         
                         // MARK: - < 엎기
                         LayerControlButton(componentWidth: 28) {
-                            viewStore.send(
-                                .showUpperLayer
-                            )
+                           
                         } label: {
                             Image(systemName: "arrow.backward")
                                 .font(.custom("Pretendard-Medium", size: 12))
