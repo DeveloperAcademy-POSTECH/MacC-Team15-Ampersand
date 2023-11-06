@@ -336,7 +336,6 @@
 		ADACF6052AC26C4D008AADFA /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				8A6DC56A2AF626B70059ADAB /* Components.swift */,
 				ADACF6092AC26CDF008AADFA /* Color+Extension.swift */,
 				AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */,
 				AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */,
@@ -400,6 +399,7 @@
 		EE909A692AC3D20D00C9AAF0 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8A6DC56A2AF626B70059ADAB /* Components.swift */,
 				EED5EC6D2AF21D2700751FAE /* SplashView.swift */,
 				EED5EC6F2AF21D4700751FAE /* LoginView.swift */,
 				EED5EC712AF21D5500751FAE /* LoadingView.swift */,
