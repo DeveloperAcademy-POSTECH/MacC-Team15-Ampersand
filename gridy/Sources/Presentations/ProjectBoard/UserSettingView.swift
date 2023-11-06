@@ -16,15 +16,11 @@ struct UserSettingView: View {
     @Binding var themeClicked: Bool
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.blackWhite.opacity(0.5))
-            VStack(alignment: .center, spacing: 8) {
-                profile.padding(.bottom, 24)
-                theme
-                settings
-                logOut
-            }
+        VStack(alignment: .center, spacing: 8) {
+            profile.padding(.bottom, 24)
+            theme
+            settings
+            logOut
         }
         .frame(width: 264, height: 300)
     }
