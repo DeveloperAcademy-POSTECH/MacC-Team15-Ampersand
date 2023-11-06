@@ -24,6 +24,7 @@ struct APIService {
     var deletePlanType: @Sendable (String, String) async throws -> Void
     
     /// Plan
+    var createPlans: @Sendable ([Plan], String) async throws -> Void
     var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
     var createPlanOnLineArea: @Sendable ([Plan], [Plan], String) async throws -> Void
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
@@ -48,6 +49,7 @@ struct APIService {
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
         deletePlanType: @escaping @Sendable (String, String) async throws -> Void,
         
+        createPlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
         createPlanOnLineArea: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
@@ -69,6 +71,7 @@ struct APIService {
         self.createPlanType = createPlanType
         self.deletePlanType = deletePlanType
         
+        self.createPlans = createPlans
         self.createPlanOnListArea = createPlanOnListArea
         self.createPlanOnLineArea = createPlanOnLineArea
         self.readAllPlans = readAllPlans
@@ -140,6 +143,11 @@ extension APIService {
             try await FirestoreService.deleteDocument(projectID, .planTypes, typeID)
         },
         // MARK: - Plan
+        createPlans: { plansToCreate, projectID in
+            for plan in plansToCreate {
+                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
+            }
+        },
         createPlanOnListArea: { plansToCreate, layerCount, projectID in
             let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
             var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
