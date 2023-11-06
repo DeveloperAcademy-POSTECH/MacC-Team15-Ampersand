@@ -17,14 +17,13 @@ struct LoginView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
+            VStack(spacing: 16) {
                 ZStack {
                     lottie
                     VStack(alignment: .center, spacing: 8) {
                         gridyLogo
                         version
                     }
-                    .padding(.bottom, 16)
                     .padding(.top, 32)
                 }
                 ZStack {
