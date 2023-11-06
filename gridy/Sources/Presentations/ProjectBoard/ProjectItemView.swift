@@ -104,7 +104,7 @@
 //                    Text("Delete")
 //                }
 //            }
-//            .onHover { proxy in
+//            .onHover { isHovered in
 //                DispatchQueue.main.async {
 //                    withAnimation(.easeInOut(duration: 0.1)) {
 //                        _ = viewStore.send(

@@ -15,7 +15,7 @@ struct TopToolBarView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { _ in
             HStack(alignment: .center, spacing: 0) {
-                Text("\(tabID)")
+                Text(tabID)
                     .font(.title)
                 Spacer()
                 planBoardBorder(.vertical)
@@ -55,8 +55,8 @@ extension TopToolBarView {
                         .foregroundStyle(.black)
                 )
                 .frame(width: 48)
-                .onHover { proxy in
-                    viewStore.send(.hoveredItem(name: proxy ? .shareImageButton : ""))
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .shareImageButton : ""))
                 }
                 .onTapGesture {
                     viewStore.send(.popoverPresent(
@@ -96,8 +96,8 @@ extension TopToolBarView {
                         .foregroundStyle(.black)
                 )
                 .frame(width: 48)
-                .onHover { proxy in
-                    viewStore.send(.hoveredItem(name: proxy ? .boardSettingButton : ""))
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .boardSettingButton : ""))
                 }
                 .onTapGesture {
                     viewStore.send(.popoverPresent(
@@ -125,8 +125,8 @@ extension TopToolBarView {
                         .foregroundStyle(.black)
                 )
                 .frame(width: 48)
-                .onHover { proxy in
-                    viewStore.send(.hoveredItem(name: proxy ? .rightToolBarButton : ""))
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .rightToolBarButton : ""))
                 }
                 .onTapGesture {
                     viewStore.send(.popoverPresent(

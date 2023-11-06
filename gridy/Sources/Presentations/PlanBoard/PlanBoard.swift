@@ -500,16 +500,3 @@ struct PlanBoard: Reducer {
         }
     }
 }
-
-extension String {
-    // MARK: - FocusGroups
-    static let topToolBarFocusGroup = "topToolBarFocusGroup"
-    static let sheetsButtonFocusGroup = "sheetsButtonFocusGroup"
-    
-    // MARK: - FocusedItemNames
-    
-    // MARK: - PopOverButtonNames
-    static let shareImageButton = "shareImageButton"
-    static let boardSettingButton = "boardSettingButton"
-    static let rightToolBarButton = "rightToolBarButton"
-}

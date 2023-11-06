@@ -203,21 +203,3 @@ struct ProjectBoard: Reducer {
         }
     }
 }
-
-extension String {
-    // MARK: - FocusGroups
-    static let tabBarFocusGroup = "tabBarFocusGroup"
-    static let projectListFocusGroup = "projectListFocusGroup"
-    static let folderListFocusGroup = "folderListFocusGroup"
-    static let boardListFocusGroup = "boardListFocusGroup"
-    static let folderLazyVGridFocusGroup = "folderLazyVGridFocusGroup"
-    static let boardLazyVGridFocusGroup = "boardLazyVGridFocusGroup"
-    
-    // MARK: - FocusedItemNames
-    static let homeButton = "homeButton"
-    
-    // MARK: - PopOverButtonNames
-    static let notificationButton = "notificationButton"
-    static let userSettingButton = "userSettingButton"
-    static let createPlanBoardButton = "createPlanBoardButton"
-}

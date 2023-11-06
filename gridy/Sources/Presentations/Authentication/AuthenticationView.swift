@@ -97,7 +97,9 @@ struct AuthenticationView: View {
             .background(
                 RoundedRectangle(cornerRadius: 30)
                     .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 24)
+                    .shadow(
+                        color: .black.opacity(0.2),
+                        radius: 24)
             )
             .onAppear {
                 viewStore.send(.onAppear)

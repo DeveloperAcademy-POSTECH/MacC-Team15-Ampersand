@@ -101,8 +101,8 @@ extension ProjectBoardView {
             }
             .padding(8)
             .frame(height: 48)
-            .onHover { proxy in
-                viewStore.send(.hoveredItem(name: proxy ? .userSettingButton : "")
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .userSettingButton : "")
                 )
             }
             .onTapGesture {
@@ -181,9 +181,9 @@ extension ProjectBoardView {
                             viewStore.projectListFocusGroupClickedItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
-                        .onHover { proxy in
+                        .onHover { isHovered in
                             viewStore.send(.hoveredItem(
-                                name: proxy ? "personalProject" : ""
+                                name: isHovered ? "personalProject" : ""
                             )
                             )
                         }
@@ -218,9 +218,9 @@ extension ProjectBoardView {
                 .background(viewStore.hoveredItem == "folderId_\(id)" ||
                             viewStore.folderListFocusGroupClickedItem == "folderId_\(id)" ?
                             Color.itemHovered.opacity(0.5) : .clear)
-                .onHover { proxy in
+                .onHover { isHovered in
                     viewStore.send(.hoveredItem(
-                        name: proxy ?
+                        name: isHovered ?
                         "folderId_\(id)" : "")
                     )
                 }
@@ -303,8 +303,8 @@ extension ProjectBoardView {
                     }
                     .buttonStyle(.link)
                     .scaleEffect(viewStore.hoveredItem == .createPlanBoardButton ? 1.01 : 1)
-                    .onHover { proxy in
-                        viewStore.send(.hoveredItem(name: proxy ? .createPlanBoardButton : ""))
+                    .onHover { isHovered in
+                        viewStore.send(.hoveredItem(name: isHovered ? .createPlanBoardButton : ""))
                     }
                 }
                 .padding(16)
@@ -379,9 +379,9 @@ extension ProjectBoardView {
                         .foregroundStyle(Color.textInactive)
                 }
                 .scaleEffect(planBoardItemHover ? 1.02 : 1)
-                .onHover { proxy in
+                .onHover { isHovered in
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        planBoardItemHover = proxy
+                        planBoardItemHover = isHovered
                     }
                 }
             }

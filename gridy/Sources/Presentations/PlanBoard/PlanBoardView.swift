@@ -52,9 +52,11 @@ struct PlanBoardView: View {
                     .zIndex(1)
                     .background(
                         Color.white
-                            .shadow(color: .black.opacity(0.25),
-                                    radius: 8,
-                                    x: 4)
+                            .shadow(
+                                color: .black.opacity(0.25),
+                                radius: 8,
+                                x: 4
+                            )
                     )
                     GeometryReader { _ in
                         VStack(alignment: .leading, spacing: 0) {
@@ -73,13 +75,15 @@ struct PlanBoardView: View {
                             .zIndex(1)
                             .background(
                                 Color.white
-                                    .shadow(color: .black.opacity(0.25),
-                                            radius: 8,
-                                            x: -4)
+                                    .shadow(
+                                        color: .black.opacity(0.25),
+                                        radius: 8,
+                                        x: -4
+                                    )
                             )
                     }
                 }
-            }            
+            }
         }
     }
 }

@@ -65,8 +65,8 @@ extension TabBarView {
                     .foregroundStyle(Color.tabLabel)
             }
             .frame(width: 36)
-            .onHover { proxy in
-                viewStore.send(.hoveredItem(name: proxy ? .homeButton : ""))
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .homeButton : ""))
             }
             .onTapGesture {
                 viewStore.send(.clickedItem(
@@ -104,8 +104,8 @@ extension TabBarView {
                             .foregroundStyle(Color.title)
                     )
                     .frame(width: 48)
-                    .onHover { proxy in
-                        viewStore.send(.hoveredItem(name: proxy ? .notificationButton : ""))
+                    .onHover { isHovered in
+                        viewStore.send(.hoveredItem(name: isHovered ? .notificationButton : ""))
                     }
                     .onTapGesture {
                         viewStore.send(.popoverPresent(
@@ -153,8 +153,8 @@ struct TabItemView: View {
                                 Color.subtitle : Color.clear
                             )
                     )
-                    .onHover { proxy in
-                        isDeleteButtonHovered = proxy
+                    .onHover { isHovered in
+                        isDeleteButtonHovered = isHovered
                     }
             }
             .background(
@@ -162,8 +162,8 @@ struct TabItemView: View {
                 viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
                 Color.tabHovered : Color.tabBar
             )
-            .onHover { proxy in
-                viewStore.send(.hoveredItem(name: proxy ? "tabName:\(index)" : ""))
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? "tabName:\(index)" : ""))
             }
             .onTapGesture {
                 viewStore.send(.clickedItem(
