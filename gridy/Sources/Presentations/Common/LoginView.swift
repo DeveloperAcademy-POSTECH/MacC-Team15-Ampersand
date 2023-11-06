@@ -39,7 +39,20 @@ struct LoginView: View {
                             .fontWeight(.regular)
                             .foregroundStyle(Color.subtitle)
                             .padding(.bottom, 50)
-                        SignInWithAppleButtonView(store: store)
+                        if viewStore.successToSignIn {
+                            NavigationLink("프로젝트 보드로 가기") {
+                                // TODO: ProjectBoardView에 Store 복구하기
+                                ProjectBoardView()
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .frame(width: 392, height: 60)
+                            .clipShape(
+                                .rect(cornerRadius: 60)
+                            )
+                            .border(.red)
+                        } else {
+                            SignInWithAppleButtonView(store: store)
+                        }
                     }
                 }
             }
@@ -49,6 +62,9 @@ struct LoginView: View {
                 radius: 32,
                 y: 16
             )
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
     }
 }
