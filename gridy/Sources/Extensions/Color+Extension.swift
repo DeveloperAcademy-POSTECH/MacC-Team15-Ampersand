@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import AppKit
 
 extension Color {
     init(
@@ -44,4 +43,26 @@ extension Color {
         }
         return 0x000000
     }
+    
+    static let gridyBW = Color("gridyBW")
+    static let blackWhite = Color("blackWhite")
+    static let border = Color("border")
+    static let sideBar = Color("sideBar")
+    static let textInactive = Color("textInactive")
+    static let subtitle = Color("subtitle")
+    static let title = Color("title")
+    static let button = Color("button")
+    static let buttonHovered = Color("buttonHovered")
+    static let buttonText = Color("buttonText")
+    static let tabBar = Color("tabBar")
+    static let tab = Color("tab")
+    static let tabHovered = Color("tabHovered")
+    static let tabLabel = Color("tabLabel")
+    static let project = Color("project")
+    static let folder = Color("folder")
+    static let board = Color("board")
+    static let boardHoveredBorder = Color("boardHoveredBorder")
+    static let boardSelectedBorder = Color("boardSelectedBorder")
+    static let item = Color("item")
+    static let itemHovered = Color("itemHovered")
 }

@@ -16,9 +16,7 @@ struct GridyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-//                ContentView()
-                ListView(layerIndex: 0, rowIndex: 0, lineAreaGridHeight: 20)
-                    .environmentObject(AutoCompleteViewModel())
+                ContentView()
             }
         }
     }
