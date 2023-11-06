@@ -30,8 +30,8 @@ struct APIService {
     var readAllPlans: @Sendable (String) async throws -> [String: Plan]
     var updatePlanType: @Sendable (String, String, String) async throws -> Void
     var updatePlans: @Sendable ([Plan], String) async throws -> Void
-    var updatePlanPeriods: @Sendable (Plan, String) async throws -> Void
-    var deletePlan: @Sendable ([Plan], String) async throws -> Void
+    var deletePlans: @Sendable ([Plan], String) async throws -> Void
+    var deletePlansCompletely: @Sendable ([Plan], String) async throws -> Void
     
     /// Layer
     var createLayer: @Sendable ([Plan], [Plan], String) async throws -> Void
@@ -55,8 +55,8 @@ struct APIService {
         readAllPlans: @escaping @Sendable (String) async throws -> [String: Plan],
         updatePlanType: @escaping @Sendable (String, String, String)  async throws -> Void,
         updatePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
-        updatePlanPeriods: @escaping @Sendable (Plan, String) async throws -> Void,
-        deletePlan: @escaping @Sendable ([Plan], String) async throws -> Void,
+        deletePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
+        deletePlansCompletely: @escaping @Sendable ([Plan], String) async throws -> Void,
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         
@@ -77,8 +77,8 @@ struct APIService {
         self.readAllPlans = readAllPlans
         self.updatePlanType = updatePlanType
         self.updatePlans = updatePlans
-        self.updatePlanPeriods = updatePlanPeriods
-        self.deletePlan = deletePlan
+        self.deletePlans = deletePlans
+        self.deletePlansCompletely = deletePlansCompletely
         
         self.createLayer = createLayer
         
@@ -100,8 +100,8 @@ extension APIService {
                 "lastModifiedDate": Date(),
                 "rootPlanID": rootPlan.id
             ] as [String: Any?]
-            try await FirestoreService.projectCollectionPath.document(id).setData(data)
-            try await FirestoreService.setDocumentData(id, .plans, rootPlan.id, planToDictionary(rootPlan) as [String : Any])
+            try await FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
+            try await FirestoreService.setDocumentData(id, .plans, rootPlan.id, planToDictionary(rootPlan))
         },
         readAllProjects: {
             do {
@@ -185,12 +185,15 @@ extension APIService {
                 try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
             }
         },
-        updatePlanPeriods: { planToUpdate, projectID in
-            try await FirestoreService.updateDocumentData(projectID, .plans, planToUpdate.id, ["periods": planToUpdate.periods as Any])
+        deletePlans: { plansToMove, projectID in
+            for plan in plansToMove {
+                try await FirestoreService.deleteDocument(projectID, .plans, plan.id)
+                try await FirestoreService.setDocumentData(projectID, .deletePlans, plan.id, planToDictionary(plan))
+            }
         },
-        deletePlan: { plansToUpdate, projectID in
-            for plan in plansToUpdate {
-                try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, ["childPlanIDs": plan.childPlanIDs as Any])
+        deletePlansCompletely: { plansToDelete, projectID in
+            for plan in plansToDelete {
+                try await FirestoreService.deleteDocument(projectID, .plans, plan.id)
             }
         },
         createLayer: { plansToUpdate, plansToCreate, projectID in
