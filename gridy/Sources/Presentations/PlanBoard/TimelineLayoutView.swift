@@ -54,6 +54,7 @@ struct TimelineLayoutView: View {
                 lineArea
             }
         }
+        /// 실제로는 지정되지 않지만 기능 확인하는 용인 frame
         .frame(width: 1511, height: 934)
         .sheet(isPresented: $bellButtonClicked) {
             NotificationView()
