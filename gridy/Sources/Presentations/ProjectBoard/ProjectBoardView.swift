@@ -318,7 +318,7 @@ extension ProjectBoardView {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 0) {
                 Text("Automatic")
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.title)
                 Spacer()
@@ -342,7 +342,7 @@ extension ProjectBoardView {
             
             HStack(alignment: .center, spacing: 0) {
                 Text("Light")
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.title)
                 Spacer()
@@ -366,7 +366,7 @@ extension ProjectBoardView {
             
             HStack(alignment: .center, spacing: 0) {
                 Text("Dark")
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.title)
                 Spacer()

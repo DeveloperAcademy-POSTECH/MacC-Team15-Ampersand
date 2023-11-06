@@ -63,15 +63,11 @@
 		D17800692AF35989002984CF /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* TimelineLayoutView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
+		EE3E22182AF9155E00D82F59 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E22172AF9155D00D82F59 /* CalendarView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
 		EE5C207C2AE15685005D2D7E /* ProjectSideItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */; };
 		EE5C20992AE2B004005D2D7E /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */; };
 		EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A402AC3CDC700C9AAF0 /* Utils.swift */; };
-		EE909A472AC3CE3C00C9AAF0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */; };
-		EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */; };
-		EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */; };
-		EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */; };
-		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */; };
 		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
 		EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */; };
@@ -142,15 +138,12 @@
 		D17800682AF35989002984CF /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
+		EE3E22172AF9155D00D82F59 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
 		EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSideItemView.swift; sourceTree = "<group>"; };
 		EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkingLayoutTemp.swift; sourceTree = "<group>"; };
-		EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarAreaView.swift; sourceTree = "<group>"; };
-		EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackPinkInYourAreaView.swift; sourceTree = "<group>"; };
-		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewDeprecated.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
 		EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAxisAreaView.swift; sourceTree = "<group>"; };
@@ -244,6 +237,7 @@
 			children = (
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
+				EE3E22152AF9152A00D82F59 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -346,6 +340,22 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		EE3E22152AF9152A00D82F59 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		EE3E22162AF9155D00D82F59 /* CalendarLayout */ = {
+			isa = PBXGroup;
+			children = (
+				EE3E22172AF9155D00D82F59 /* CalendarView.swift */,
+			);
+			path = CalendarLayout;
+			sourceTree = "<group>";
+		};
 		EE909A3F2AC3CDBF00C9AAF0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -358,6 +368,7 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
+				EE3E22162AF9155D00D82F59 /* CalendarLayout */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				D17800682AF35989002984CF /* TimelineLayoutView.swift */,
 				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
@@ -369,22 +380,6 @@
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 			);
 			path = PlanBoard;
-			sourceTree = "<group>";
-		};
-		EE909A432AC3CDF800C9AAF0 /* ThinkingLayout */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */,
-			);
-			path = ThinkingLayout;
-			sourceTree = "<group>";
-		};
-		EE909A442AC3CE0800C9AAF0 /* CalendarLayout */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
-			);
-			path = CalendarLayout;
 			sourceTree = "<group>";
 		};
 		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
@@ -563,11 +558,11 @@
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
 				AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */,
 				EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */,
+				EE3E22182AF9155E00D82F59 /* CalendarView.swift in Sources */,
 				EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */,
 				AD96ED6C2AD6FBBE005D197B /* PlanBoard.swift in Sources */,
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
-				EE909A472AC3CE3C00C9AAF0 /* CalendarView.swift in Sources */,
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
 				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,

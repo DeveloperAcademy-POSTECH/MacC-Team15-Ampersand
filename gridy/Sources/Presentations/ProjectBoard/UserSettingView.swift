@@ -64,7 +64,7 @@ extension UserSettingView {
             HStack(alignment: .center, spacing: 8) {
                 Image(systemName: "circle.lefthalf.filled")
                 Text("Theme")
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.title)
                 Spacer()
@@ -90,7 +90,7 @@ extension UserSettingView {
         HStack(alignment: .center, spacing: 8) {
             Image(systemName: "gear")
             Text("Settings")
-                .font(.title3)
+                .font(.headline)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.title)
             Spacer()
@@ -117,7 +117,7 @@ extension UserSettingView {
         HStack(alignment: .center, spacing: 8) {
             Image(systemName: "rectangle.portrait.and.arrow.right.fill")
             Text("Logout")
-                .font(.title3)
+                .font(.headline)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.title)
             Spacer()
