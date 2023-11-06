@@ -17,8 +17,8 @@ struct GridyApp: App {
         WindowGroup {
             NavigationStack {
 //                ContentView()
-                let viewModel = AutoCompleteViewModel()
-                ListContentView(autoCompleteViewModel: AutoCompleteViewModel())
+                ListView(layerIndex: 0, rowIndex: 0, lineAreaGridHeight: 20)
+                    .environmentObject(AutoCompleteViewModel())
             }
         }
     }
