@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1D0C4F2AC3F79300C7FCF8 /* Font.swift */; };
 		8A1D0C542AC3FD0600C7FCF8 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A1D0C532AC3FD0600C7FCF8 /* Pretendard-Thin.otf */; };
+		8A3FF43C2AF93E2B002919DB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8A3FF43B2AF93E2A002919DB /* Info.plist */; };
+		8A3FF4402AF9401F002919DB /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FF43F2AF9401F002919DB /* CalendarView.swift */; };
 		8A5162462AC401EF00EEB1B4 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162452AC401EF00EEB1B4 /* Pretendard-Regular.otf */; };
 		8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162472AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf */; };
 		8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */; };
@@ -44,7 +46,6 @@
 		AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */; };
 		AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9B2AC95FBB00AA001F /* APIClient.swift */; };
 		AD52FE9F2AC965EF00AA001F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9E2AC965EF00AA001F /* User.swift */; };
-		AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */; };
 		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
 		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
@@ -61,6 +62,7 @@
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D167A0732AF6192400B70E5E /* GoogleService-Info.plist */; };
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
@@ -89,9 +91,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8A1D0C4D2AC3F76900C7FCF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A1D0C4F2AC3F79300C7FCF8 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
 		8A1D0C532AC3FD0600C7FCF8 /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
+		8A3FF43B2AF93E2A002919DB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8A3FF43F2AF9401F002919DB /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarView.swift; path = gridy/Sources/Presentations/PlanBoard/CalendarView.swift; sourceTree = SOURCE_ROOT; };
 		8A5162452AC401EF00EEB1B4 /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
 		8A5162472AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lexend-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
@@ -116,7 +119,6 @@
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,6 +136,7 @@
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		D167A0732AF6192400B70E5E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
@@ -141,6 +144,7 @@
 		EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSideItemView.swift; sourceTree = "<group>"; };
 		EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewDeprecated.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
 		EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAxisAreaView.swift; sourceTree = "<group>"; };
@@ -196,6 +200,14 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
+		8A3FF4392AF93D9D002919DB /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		975A62092ACE930500DE31AB /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -232,6 +244,7 @@
 			children = (
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
+				8A3FF4392AF93D9D002919DB /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -246,8 +259,8 @@
 		AD8ECB8C2ABC7CA10040A0B8 /* gridy */ = {
 			isa = PBXGroup;
 			children = (
-				AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */,
-				8A1D0C4D2AC3F76900C7FCF8 /* Info.plist */,
+				D167A0732AF6192400B70E5E /* GoogleService-Info.plist */,
+				8A3FF43B2AF93E2A002919DB /* Info.plist */,
 				AD8ECB9D2ABC7CC00040A0B8 /* Sources */,
 				AD8ECB9E2ABC7CC80040A0B8 /* Resources */,
 			);
@@ -361,6 +374,7 @@
 		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
 			isa = PBXGroup;
 			children = (
+				8A3FF43F2AF9401F002919DB /* CalendarView.swift */,
 				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
 				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
 				EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */,
@@ -483,13 +497,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A3FF43C2AF93E2B002919DB /* Info.plist in Resources */,
 				AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */,
-				AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */,
 				8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */,
 				8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */,
 				8A5162462AC401EF00EEB1B4 /* Pretendard-Regular.otf in Resources */,
 				8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */,
 				8A1D0C542AC3FD0600C7FCF8 /* Pretendard-Thin.otf in Resources */,
+				D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +595,7 @@
 				AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */,
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
+				8A3FF4402AF9401F002919DB /* CalendarView.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -741,6 +757,8 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
+				INFOPLIST_PREPROCESS = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -776,6 +794,8 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "‘Gridy’가 공휴일을 표시하는 기능을 사용하기 위해 캘린더에 접근하도록 허용합니다.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
+				INFOPLIST_PREPROCESS = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
