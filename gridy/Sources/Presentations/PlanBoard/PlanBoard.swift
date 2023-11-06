@@ -119,6 +119,7 @@ struct PlanBoard: Reducer {
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
+        case dragToMoveLine(Int, Int)
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
         case escapeSelectedCell
@@ -498,7 +499,7 @@ struct PlanBoard: Reducer {
                         laneCount += rootChildLaneCount
                     }
                 }
-                /// /// layer가 두개라면, root (layer0)의 child부터 순회
+                /// layer가 두개라면, root (layer0)의 child부터 순회
                 for rootChildID in rootChildIDs {
                     /// layer 1의 plan들을 순회
                     let rootChildPlan = state.existingAllPlans[rootChildID]!
@@ -967,6 +968,81 @@ struct PlanBoard: Reducer {
                 let plansToUpdate = [state.existingAllPlans[planID]!, state.existingAllPlans[foundParentID!]!]
                 let projectID = state.rootProject.id
                 return .run { _ in
+                    try await apiService.updatePlans(plansToUpdate, projectID)
+                }
+                
+            case let .dragToMoveLine(sourceIndexToMove, destinationIndexToMove):
+                if sourceIndexToMove == destinationIndexToMove { return .none }
+                let projectID = state.rootProject.id
+                /// 옮기려는 레인의 부모플랜과 그 child 내에서의 인덱스를 구함
+                let parentLayer = state.map[state.map.count - 1]
+                var laneCount = -1
+                var foundSourceParentPlan = state.rootPlan
+                var foundDestinationParentPlan: Plan?
+                var sourceLaneIndexInParent = 0
+                var destinationLaneIndexInParent = 0
+                
+                for parentPlanID in parentLayer {
+                    let parentPlan = state.existingAllPlans[parentPlanID]!
+                    let childCount = parentPlan.childPlanIDs.count
+                    if laneCount < sourceIndexToMove, sourceIndexToMove <= laneCount + childCount {
+                        foundSourceParentPlan = parentPlan
+                        sourceLaneIndexInParent = laneCount + 1 - sourceIndexToMove
+                    }
+                    if laneCount + 1 < destinationIndexToMove, destinationIndexToMove < laneCount + childCount {
+                        foundDestinationParentPlan = parentPlan
+                        destinationLaneIndexInParent = laneCount + 1 - destinationIndexToMove
+                    }
+                    laneCount += childCount
+                }
+                
+                if let foundDestinationParentPlan = foundDestinationParentPlan {
+                    /// source와 dest의 부모가 같다면 child 내에서만 순서 바꾸어주면 됨
+                    if foundDestinationParentPlan.id == foundSourceParentPlan.id {
+                        /// 위에 있던 것을 아래로 옮겨줄 때
+                        if sourceLaneIndexInParent < destinationLaneIndexInParent {
+                            for laneIndex in sourceLaneIndexInParent..<destinationLaneIndexInParent {
+                                state.existingAllPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(laneIndex)"] = foundDestinationParentPlan.childPlanIDs["\(laneIndex + 1)"]
+                            }
+                            state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(destinationLaneIndexInParent)"] = foundSourceParentPlan.childPlanIDs["\(sourceLaneIndexInParent)"]
+                        } else {
+                            /// 아래에 있던 것을 위로 옮겨줄 때
+                            for laneIndex in stride(from: sourceLaneIndexInParent - 1, through: destinationLaneIndexInParent - 1, by: -1) {
+                                state.existingAllPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(laneIndex + 1)"] = foundDestinationParentPlan.childPlanIDs["\(laneIndex)"]
+                            }
+                            state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(destinationLaneIndexInParent)"] = foundSourceParentPlan.childPlanIDs["\(sourceLaneIndexInParent)"]
+                        }
+                    } else { /// source와 dest의 부모가 다르지만, 발견된 destination의 부모가 있다면 해당 부모의 child로 편입
+                        for laneIndex in destinationLaneIndexInParent+1..<foundDestinationParentPlan.childPlanIDs.count {
+                            state.existingAllPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(laneIndex)"] = foundDestinationParentPlan.childPlanIDs["\(laneIndex+1)"]
+                        }
+                        state.existingAllPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(destinationLaneIndexInParent)"] = foundSourceParentPlan.childPlanIDs["\(sourceLaneIndexInParent)"]
+                        
+                        // !!!: - 중복코드 (바로 아래)
+                        /// 기존 source 부모의 child에서 삭제
+                        for laneIndex in sourceLaneIndexInParent+1..<foundSourceParentPlan.childPlanIDs.count {
+                            state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(laneIndex-1)"] = foundSourceParentPlan.childPlanIDs["\(laneIndex)"]
+                        }
+                        state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(foundSourceParentPlan.childPlanIDs.count - 1)"] = nil
+                    }
+                } else {
+                    // !!!: - 중복코드 (바로 윗줄)
+                    /// 기존 source 부모의 child에서 삭제
+                    for laneIndex in sourceLaneIndexInParent+1..<foundSourceParentPlan.childPlanIDs.count {
+                        state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(laneIndex-1)"] = foundSourceParentPlan.childPlanIDs["\(laneIndex)"]
+                    }
+                    state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(foundSourceParentPlan.childPlanIDs.count - 1)"] = nil
+                    let plansToUpdate = [state.existingAllPlans[foundSourceParentPlan.id]!]
+                    return .run { send in
+                        await send(.createLaneButtonClicked(row: destinationIndexToMove, createOnTop: true))
+                        await send(.fetchMap)
+                        try await apiService.updatePlans(plansToUpdate, projectID)
+                    }
+                }
+                
+                let plansToUpdate = [state.existingAllPlans[foundSourceParentPlan.id]!, state.existingAllPlans[foundDestinationParentPlan!.id]!]
+                return .run { send in
+                    await send(.fetchMap)
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
                 
