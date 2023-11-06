@@ -43,7 +43,6 @@
 		AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */; };
 		AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9B2AC95FBB00AA001F /* APIClient.swift */; };
 		AD52FE9F2AC965EF00AA001F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9E2AC965EF00AA001F /* User.swift */; };
-		AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */; };
 		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
 		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
@@ -60,6 +59,7 @@
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
+		D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D167A0732AF6192400B70E5E /* GoogleService-Info.plist */; };
 		D17800692AF35989002984CF /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* TimelineLayoutView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
@@ -67,6 +67,11 @@
 		EE5C207C2AE15685005D2D7E /* ProjectSideItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */; };
 		EE5C20992AE2B004005D2D7E /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */; };
 		EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A402AC3CDC700C9AAF0 /* Utils.swift */; };
+		EE909A472AC3CE3C00C9AAF0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */; };
+		EE909A492AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */; };
+		EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */; };
+		EE909A562AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */; };
+		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */; };
 		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
 		EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */; };
@@ -116,7 +121,6 @@
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,6 +138,7 @@
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
+		D167A0732AF6192400B70E5E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D17800682AF35989002984CF /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
@@ -141,6 +146,11 @@
 		EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSideItemView.swift; sourceTree = "<group>"; };
 		EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		EE909A402AC3CDC700C9AAF0 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkingLayoutTemp.swift; sourceTree = "<group>"; };
+		EE909A532AC3CEF200C9AAF0 /* TabBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarAreaView.swift; sourceTree = "<group>"; };
+		EE909A552AC3CF1200C9AAF0 /* BlackPinkInYourAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackPinkInYourAreaView.swift; sourceTree = "<group>"; };
+		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewDeprecated.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
 		EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAxisAreaView.swift; sourceTree = "<group>"; };
@@ -248,7 +258,7 @@
 		AD8ECB8C2ABC7CA10040A0B8 /* gridy */ = {
 			isa = PBXGroup;
 			children = (
-				AD52FEBD2AC9E70E00AA001F /* GoogleService-Info.plist */,
+				D167A0732AF6192400B70E5E /* GoogleService-Info.plist */,
 				8A1D0C4D2AC3F76900C7FCF8 /* Info.plist */,
 				AD8ECB9D2ABC7CC00040A0B8 /* Sources */,
 				AD8ECB9E2ABC7CC80040A0B8 /* Resources */,
@@ -359,6 +369,22 @@
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 			);
 			path = PlanBoard;
+			sourceTree = "<group>";
+		};
+		EE909A432AC3CDF800C9AAF0 /* ThinkingLayout */ = {
+			isa = PBXGroup;
+			children = (
+				EE909A482AC3CE4500C9AAF0 /* ThinkingLayoutTemp.swift */,
+			);
+			path = ThinkingLayout;
+			sourceTree = "<group>";
+		};
+		EE909A442AC3CE0800C9AAF0 /* CalendarLayout */ = {
+			isa = PBXGroup;
+			children = (
+				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
+			);
+			path = CalendarLayout;
 			sourceTree = "<group>";
 		};
 		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
@@ -487,12 +513,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD8ECB922ABC7CA20040A0B8 /* Assets.xcassets in Resources */,
-				AD52FEBE2AC9E70E00AA001F /* GoogleService-Info.plist in Resources */,
 				8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */,
 				8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */,
 				8A5162462AC401EF00EEB1B4 /* Pretendard-Regular.otf in Resources */,
 				8A51624D2AC41D7100EEB1B4 /* Localizable.strings in Resources */,
 				8A1D0C542AC3FD0600C7FCF8 /* Pretendard-Thin.otf in Resources */,
+				D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +567,7 @@
 				AD96ED6C2AD6FBBE005D197B /* PlanBoard.swift in Sources */,
 				EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */,
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
+				EE909A472AC3CE3C00C9AAF0 /* CalendarView.swift in Sources */,
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
 				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
