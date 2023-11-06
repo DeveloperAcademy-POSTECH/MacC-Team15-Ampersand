@@ -12,6 +12,7 @@ enum PeriodSelection {
     case allPeriods
     case setPeriods
 }
+
 /// 한 struct 안에 코드가 너무 길어서 function을 빼려고 했는데 일단은 여기 다 넣어놓겠습니다.
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
