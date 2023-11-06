@@ -49,7 +49,6 @@ struct LoginView: View {
                             .clipShape(
                                 .rect(cornerRadius: 60)
                             )
-                            .border(.red)
                         } else {
                             SignInWithAppleButtonView(store: store)
                         }
