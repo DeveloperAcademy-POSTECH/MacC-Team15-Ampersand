@@ -205,8 +205,8 @@ struct PlanBoard: Reducer {
                 }
                 /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
                 let foundPlanTypeID = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
-                    state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
-               
+                state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
+                
                 return .run { send in
                     await send(.fetchMap)
                     try await apiService.updatePlanType(
@@ -215,7 +215,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                 }
-
+                
             case let .updatePlanTypeOnLine(planID, row, text, colorCode):
                 let projectID = state.rootProject.id
                 /// 이미 존재하는 타입이면 update만
@@ -388,7 +388,7 @@ struct PlanBoard: Reducer {
                     childPlanIDs: [:],
                     periods: ["0": [startDate, endDate]]
                 )
-
+                
                 var currentRow = 0
                 var laneStartAt = -1
                 for eachRowPlanID in state.map[layer] {
@@ -548,7 +548,7 @@ struct PlanBoard: Reducer {
                     let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                     for parentPlanID in parentPlanIDs {
                         let parentPlan = state.existingAllPlans[parentPlanID]!
-                        let childPlanIDs = parentPlan.childPlanIDs.flatMap { $0 }
+                        let childPlanIDs = parentPlan.childPlanIDs.compactMap { $0 }
                         let sortedChildPlanIDs = childPlanIDs.sorted { Int($0.key)! < Int($1.key)! }
                         let soltedChildPlanIDsArray = sortedChildPlanIDs.map { $0.value }.flatMap { $0 }
                         var newChildIDs: [String: [String]] = [:]
@@ -595,7 +595,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                 }
-            
+                
             case let .deletePlanOnList(layer, row):
                 let projectID = state.rootProject.id
                 var createdPlans: [Plan] = []
@@ -647,21 +647,21 @@ struct PlanBoard: Reducer {
                             state.map = newMap
                             return .none
                         }
-                    /// 부모가 root가 아닐 경우: Layer가 1 이상
+                        /// 부모가 root가 아닐 경우: Layer가 1 이상
                     } else {
                         let newPlanID = UUID().uuidString
                         let newPlan = Plan(
                             id: newPlanID,
                             planTypeID: PlanType.emptyPlanType.id,
                             childPlanIDs: ["0": []]
-                            )
+                        )
                         /// 새로운 plan을 만들어서 부모의 childPlans에 갈아끼워 준다.
                         state.existingAllPlans[newPlanID] = newPlan
                         createdPlans.append(newPlan)
                         state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
                         updatedPlans.append(state.existingAllPlans[targetParentPlanID]!)
                     }
-                /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingAllPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -718,7 +718,7 @@ struct PlanBoard: Reducer {
                 let targetKey = (targetParentPlan.childPlanIDs.count - 1) - rowDifference
                 /// 내 부모가 내 lane만 들고 있었을 경우
                 if state.existingAllPlans[targetParentPlanID]!.childPlanIDs.count == 1 {
-                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0":[]]
+                    state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
                 } else {
                     state.existingAllPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: String(targetKey))
                     /// 인덱스에 맞게 key를 다시 부여한다.
@@ -757,7 +757,7 @@ struct PlanBoard: Reducer {
                     let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
                     planHeightsArray[planID] = childPlanIDsArray.count
                 }
-            
+                
                 for row in startRow...endRow {
                     var sumOfHeights = 0
                     var targetPlanID = ""
@@ -810,11 +810,9 @@ struct PlanBoard: Reducer {
                     }
                 }
                 /// 한 ID당 변경된 레인의 개수가 내 chilidIDs.count와 같다면, 내가 가진 모든 lane이 []이 된 것이므로 내 planType은 empty가 되어야 함
-                for planID in numOfChangePerPlan.keys {
-                    if numOfChangePerPlan[planID] == state.existingAllPlans[planID]!.childPlanIDs.count {
+                for planID in numOfChangePerPlan.keys where numOfChangePerPlan[planID] == state.existingAllPlans[planID]!.childPlanIDs.count {
                         state.existingAllPlans[planID]!.planTypeID = PlanType.emptyPlanType.id
                         updatedPlans.append(state.existingAllPlans[planID]!)
-                    }
                 }
                 let plansToUpdate = updatedPlans
                 return .run { send in
@@ -825,11 +823,11 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                 }
-            
+                
             case let .mergePlans(layer, planIDs):
                 var planIDsToUpdate = Set<String>()
                 if planIDs.count < 1 { return .none }
-
+                
                 var currentTopPlanChildCount = state.existingAllPlans[planIDs[0]]!.childPlanIDs.count
                 
                 for (index, planID) in planIDs.enumerated() {
@@ -892,7 +890,7 @@ struct PlanBoard: Reducer {
                     await send(.fetchMap)
                 }
                 
-            // MARK: - TimelineLayout
+                // MARK: - TimelineLayout
             case let .isShiftKeyPressed(isPressed):
                 state.isShiftKeyPressed = isPressed
                 return .none
@@ -901,7 +899,7 @@ struct PlanBoard: Reducer {
                 state.isCommandKeyPressed = isPressed
                 return .none
                 
-            // MARK: - GridSizeController
+                // MARK: - GridSizeController
             case let .changeWidthButtonTapped(diff):
                 state.gridWidth += diff
                 return .none
@@ -910,13 +908,13 @@ struct PlanBoard: Reducer {
                 state.lineAreaGridHeight += diff
                 return .none
                 
-            // MARK: - scheduleAreaView
+                // MARK: - scheduleAreaView
             case let .magnificationChangedInScheduleArea(value):
                 state.gridWidth = min(max(state.gridWidth * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 return .none
-            
-            // MARK: - LineAreaView
+                
+                // MARK: - LineAreaView
             case let .dragGestureChanged(dragType, updatedRange):
                 switch dragType {
                 case .pressNothing:
