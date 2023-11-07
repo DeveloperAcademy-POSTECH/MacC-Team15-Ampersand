@@ -15,6 +15,9 @@ enum CollectionName: String {
     case deletePlans = "DeletedPlans"
     case planTypes = "PlanTypes"
     case deletePlanTypes = "DeletedPlanTypes"
+    
+    case feedback = "Feedback"
+    case notice = "Notice"
 }
 
 struct FirestoreService {
@@ -33,6 +36,10 @@ struct FirestoreService {
             let firestore = Firestore.firestore().collection("ProjectCollection")
             return firestore.document(try uid)
         }
+    }
+    
+    static func independentPath(_ collection: CollectionName) -> CollectionReference {
+        return Firestore.firestore().collection(collection.rawValue)
     }
     
     static var projectCollectionPath: CollectionReference {

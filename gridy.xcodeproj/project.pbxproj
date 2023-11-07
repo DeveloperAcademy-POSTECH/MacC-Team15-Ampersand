@@ -25,7 +25,6 @@
 		9772081A2AF4A2C30096769F /* tempView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977208192AF4A2C30096769F /* tempView.swift */; };
 		97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemView.swift */; };
 		9784DB542AECEB88002EB52F /* LayerControlAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */; };
-		97BD1B672AD14F8C000F00FA /* ScrollDatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */; };
 		97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C419DB2AE2CAEB00501321 /* ListAreaView.swift */; };
 		AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */; };
 		AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BD2AD7766200E3CC07 /* PlanType.swift */; };
@@ -63,6 +62,7 @@
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
 		ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACF6092AC26CDF008AADFA /* Color+Extension.swift */; };
 		ADCBA9F42AF58603000BBD1C /* ImageUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCBA9F32AF58603000BBD1C /* ImageUploader.swift */; };
+		ADCBA9F62AFA9B36000BBD1C /* Notice.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCBA9F52AFA9B36000BBD1C /* Notice.swift */; };
 		D167A0742AF6192400B70E5E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D167A0732AF6192400B70E5E /* GoogleService-Info.plist */; };
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
@@ -112,11 +112,9 @@
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
 		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
-
 		977208192AF4A2C30096769F /* tempView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tempView.swift; sourceTree = "<group>"; };
 		97806BB42AE15ACC0044FA0C /* ListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemView.swift; sourceTree = "<group>"; };
 		9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerControlAreaView.swift; sourceTree = "<group>"; };
-		97BD1B662AD14F8C000F00FA /* ScrollDatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDatePickerView.swift; sourceTree = "<group>"; };
 		97C419DB2AE2CAEB00501321 /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
 		AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		AD06C4BD2AD7766200E3CC07 /* PlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanType.swift; sourceTree = "<group>"; };
@@ -143,6 +141,7 @@
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 		ADCBA9F32AF58603000BBD1C /* ImageUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploader.swift; sourceTree = "<group>"; };
+		ADCBA9F52AFA9B36000BBD1C /* Notice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notice.swift; sourceTree = "<group>"; };
 		D167A0732AF6192400B70E5E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
@@ -218,6 +217,7 @@
 				AD96ED3B2AD1183A005D197B /* Project.swift */,
 				AD06C4BF2AD7767700E3CC07 /* Plan.swift */,
 				AD06C4BD2AD7766200E3CC07 /* PlanType.swift */,
+				ADCBA9F52AFA9B36000BBD1C /* Notice.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -558,9 +558,9 @@
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
 				AD74DAA12AEF9E4F00618FCC /* FirestoreService.swift in Sources */,
-				EE909A542AC3CEF200C9AAF0 /* TabBarAreaView.swift in Sources */,
 				EE5C207C2AE15685005D2D7E /* ProjectSideItemView.swift in Sources */,
 				AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */,
+				ADCBA9F62AFA9B36000BBD1C /* Notice.swift in Sources */,
 				AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */,
 				EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */,
 				EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */,

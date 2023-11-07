@@ -39,6 +39,12 @@ struct APIService {
     /// Lane
     var createLane: @Sendable (Plan, Plan?, String) async throws -> Void
     
+    /// Feedback
+    var sendFeedback: @Sendable (String) async throws -> Void
+    
+    /// Notice
+    var readAllNotices: @Sendable () async throws -> [Notice]
+    
     init(
         createProject: @escaping (String, [Date]) async throws -> Void,
         readAllProjects: @escaping () async throws -> [Project],
@@ -60,7 +66,11 @@ struct APIService {
         
         createLayer: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
         
-        createLane: @escaping @Sendable (Plan, Plan?, String) async throws -> Void
+        createLane: @escaping @Sendable (Plan, Plan?, String) async throws -> Void,
+        
+        sendFeedback: @escaping @Sendable (String) async throws -> Void,
+        
+        readAllNotices: @escaping @Sendable () async throws -> [Notice]
     ) {
         self.createProject = createProject
         self.readAllProjects = readAllProjects
@@ -83,6 +93,10 @@ struct APIService {
         self.createLayer = createLayer
         
         self.createLane = createLane
+        
+        self.sendFeedback = sendFeedback
+        
+        self.readAllNotices = readAllNotices
     }
 }
 
@@ -215,6 +229,15 @@ extension APIService {
             if let planToCreate = planToCreate {
                 try await FirestoreService.setDocumentData(projectID, .plans, planToCreate.id, planToDictionary(planToCreate))
             }
+        },
+        sendFeedback: { contents in
+        },
+        readAllNotices: {
+            return try await FirestoreService
+                .independentPath(.notice)
+                .getDocuments()
+                .documents
+                .map { try $0.data(as: Notice.self) }
         }
     )
     
