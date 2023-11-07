@@ -40,9 +40,9 @@ struct ListItemEmptyView: View {
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .padding(.horizontal, 8)
                         )
-                        .onHover { phase in
+                        .onHover { isHovered in
                             if !isSelected && !isEditing {
-                                isHovering = phase
+                                isHovering = isHovered
                             }
                         }
                         .onTapGesture {

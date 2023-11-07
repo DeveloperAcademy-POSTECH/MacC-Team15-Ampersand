@@ -25,10 +25,26 @@ struct ProjectBoard: Reducer {
         var projectIdToEdit = ""
         @BindingState var title = ""
         var tappedProjectID: ProjectItem.State.ID?
+        
+        // MARK: - FocusGroupClickedItems
+        var hoveredItem = ""
+        var tabBarFocusGroupClickedItem = String.homeButton
+        var projectListFocusGroupClickedItem = "personalProject"
+        var folderListFocusGroupClickedItem = ""
+        var folderLazyVGridFocusGroupClickedItem = ""
+        var boardLazyVGridFocusGroupClickedItem = ""
+        
+        // MARK: - Sheets
+        var isNotificationPresented = false
+        var isUserSettingPresented = false
+        var isCreatePlanBoardPresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
         case onAppear
+        case hoveredItem(name: String)
+        case clickedItem(focusGroup: String, name: String)
+        case popoverPresent(button: String, bool: Bool)
         case createNewProjectButtonTapped
         case readAllButtonTapped
         case fetchAllProjects
@@ -50,6 +66,40 @@ struct ProjectBoard: Reducer {
                 return .run { send in
                     await send(.fetchAllProjects)
                 }
+                
+            case let .hoveredItem(name: hoveredItem):
+                state.hoveredItem = hoveredItem
+                return .none
+                
+            case let .clickedItem(focusGroup: focusGroup, name: clickedItem):
+                switch focusGroup {
+                case .tabBarFocusGroup:
+                    state.tabBarFocusGroupClickedItem = clickedItem
+                case .projectListFocusGroup:
+                    state.projectListFocusGroupClickedItem = clickedItem
+                case .folderListFocusGroup:
+                    state.folderListFocusGroupClickedItem = clickedItem
+                case .folderLazyVGridFocusGroup:
+                    state.folderLazyVGridFocusGroupClickedItem = clickedItem
+                case .boardLazyVGridFocusGroup:
+                    state.boardLazyVGridFocusGroupClickedItem = clickedItem
+                default:
+                    break
+                }
+                return .none
+                
+            case let .popoverPresent(button: buttonName, bool: bool):
+                switch buttonName {
+                case .notificationButton:
+                    state.isNotificationPresented = bool
+                case .userSettingButton:
+                    state.isUserSettingPresented = bool
+                case .createPlanBoardButton:
+                    state.isCreatePlanBoardPresented = bool
+                default:
+                    break
+                }
+                return .none
                 
             case .createNewProjectButtonTapped:
                 let title = state.title

@@ -1,80 +1,139 @@
 //
-//  TopToolBarArea.swift
+//  TopToolBarView.swift
 //  gridy
 //
 //  Created by Jin Sang woo on 11/2/23.
 //
 
 import SwiftUI
+import ComposableArchitecture
 
-struct TopToolBarArea: View {
-    
-    @Binding var shareImageClicked: Bool
-    @Binding var boardSettingClicked: Bool
-    @Binding var rightToolBarClicked: Bool
-    @State var shareImageHover = false
-    @State var boardSettingHover = false
-    @State var rightToolBarHover = false
+struct TopToolBarView: View {
+    let store: StoreOf<PlanBoard>
+    let tabID: String
     
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Spacer()
-            borderSpacer(.vertical)
-            imageButton
-            borderSpacer(.vertical)
-            rightToolBarButton
-            borderSpacer(.vertical)
-            boardSettingButton
+        WithViewStore(store, observe: { $0 }) { _ in
+            HStack(alignment: .center, spacing: 0) {
+                Text(tabID)
+                    .font(.title)
+                Spacer()
+                planBoardBorder(.vertical)
+                shareImageButton
+                planBoardBorder(.vertical)
+                boardSettingButton
+                planBoardBorder(.vertical)
+                rightToolBarButton
+            }
+            .background(Color.topToolBar)
         }
     }
 }
 
-extension TopToolBarArea {
-    var imageButton: some View {
-        Rectangle()
-            .foregroundStyle(shareImageClicked ? .white : shareImageHover ? .gray : .clear)
-            .overlay(
-                Image(systemName: "photo.fill")
-                    .foregroundStyle(.black)
-            )
-            .frame(width: 48)
-            .onHover { proxy in
-                shareImageHover = proxy
+extension TopToolBarView {
+    var shareImageButton: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isShareImagePresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isShareImagePresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .shareImageButton,
+                            bool: newValue
+                        ))
+                    }
+                )
             }
-            .onTapGesture {
-                shareImageClicked = true
-            }
+            Rectangle()
+                .foregroundStyle(
+                    viewStore.hoveredItem == .shareImageButton ||
+                    viewStore.isShareImagePresented ?
+                    Color.topToolItem : .clear
+                )
+                .overlay(
+                    Image(systemName: "photo.fill")
+                        .foregroundStyle(.black)
+                )
+                .frame(width: 48)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .shareImageButton : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.popoverPresent(
+                        button: .shareImageButton,
+                        bool: true
+                    ))
+                }
+                .sheet(isPresented: isShareImagePresented) {
+                    ShareImageView()
+                }
+        }
     }
 }
 
-extension TopToolBarArea {
-    var rightToolBarButton: some View {
-        Rectangle()
-            .foregroundStyle(boardSettingClicked ? .white : boardSettingHover ? .gray : .clear)
-            .overlay(
-                Image(systemName: "rectangle.portrait.and.arrow.forward")
-                    .foregroundStyle(.black)
-            )
-            .frame(width: 48)
-            .onHover { proxy in
-                boardSettingHover = proxy
-            }
-            .onTapGesture { boardSettingClicked = true }
-    }
-}
-
-extension TopToolBarArea {
+extension TopToolBarView {
     var boardSettingButton: some View {
-        Rectangle()
-            .foregroundStyle(rightToolBarClicked ? .white : rightToolBarHover ? .gray : .clear)
-            .overlay(
-                Image(systemName: "square.and.pencil")
-                    .foregroundStyle(.black)
-            )
-            .frame(width: 48)
-            .onHover { proxy in
-                rightToolBarHover = proxy
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isBoardSettingPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isBoardSettingPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .boardSettingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
             }
-            .onTapGesture { rightToolBarClicked = true }
+            Rectangle()
+                .foregroundStyle(
+                    viewStore.hoveredItem == .boardSettingButton ||
+                    viewStore.isBoardSettingPresented ?
+                    Color.topToolItem : .clear
+                )
+                .overlay(
+                    Image(systemName: "square.and.pencil")
+                        .foregroundStyle(.black)
+                )
+                .frame(width: 48)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .boardSettingButton : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.popoverPresent(
+                        button: .boardSettingButton,
+                        bool: true
+                    ))
+                }
+                .sheet(isPresented: isBoardSettingPresented) {
+                    BoardSettingView()
+                }
+        }
+    }
+}
+
+extension TopToolBarView {
+    var rightToolBarButton: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Rectangle()
+                .foregroundStyle(
+                    viewStore.hoveredItem == .rightToolBarButton ?
+                    Color.topToolItem : .clear
+                )
+                .overlay(
+                    Image(systemName: "rectangle.portrait.and.arrow.forward")
+                        .foregroundStyle(.black)
+                )
+                .frame(width: 48)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .rightToolBarButton : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.popoverPresent(
+                        button: .rightToolBarButton,
+                        bool: !viewStore.isRightToolBarPresented
+                    ))
+                }
+        }
     }
 }
