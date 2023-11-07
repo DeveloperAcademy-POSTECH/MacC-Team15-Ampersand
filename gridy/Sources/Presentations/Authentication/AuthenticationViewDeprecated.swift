@@ -1,5 +1,5 @@
 //
-//  AuthenticationView.swift
+//  AuthenticationViewDeprecated.swift
 //  gridy
 //
 //  Created by 제나 on 2023/09/29.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AuthenticationView: View {
+struct AuthenticationViewDeprecated: View {
     
     let store = Store(initialState: Authentication.State()) {
         Authentication()
@@ -108,8 +108,8 @@ struct AuthenticationView: View {
     }
 }
 
-struct AuthenticationView_Previews: PreviewProvider {
+struct AuthenticationViewDeprecated_Previews: PreviewProvider {
     static var previews: some View {
-        AuthenticationView()
+        AuthenticationViewDeprecated()
     }
 }

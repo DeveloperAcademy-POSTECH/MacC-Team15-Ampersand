@@ -10,7 +10,6 @@
 		8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1D0C4F2AC3F79300C7FCF8 /* Font.swift */; };
 		8A1D0C542AC3FD0600C7FCF8 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A1D0C532AC3FD0600C7FCF8 /* Pretendard-Thin.otf */; };
 		8A3FF43C2AF93E2B002919DB /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8A3FF43B2AF93E2A002919DB /* Info.plist */; };
-		8A3FF4402AF9401F002919DB /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FF43F2AF9401F002919DB /* CalendarView.swift */; };
 		8A5162462AC401EF00EEB1B4 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162452AC401EF00EEB1B4 /* Pretendard-Regular.otf */; };
 		8A5162482AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162472AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf */; };
 		8A51624A2AC404E600EEB1B4 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */; };
@@ -46,7 +45,7 @@
 		AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */; };
 		AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9B2AC95FBB00AA001F /* APIClient.swift */; };
 		AD52FE9F2AC965EF00AA001F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9E2AC965EF00AA001F /* User.swift */; };
-		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
+		AD68907D2AC707D800539A5C /* AuthenticationViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */; };
 		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
@@ -66,6 +65,7 @@
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */; };
+		EE3E22272AFA091100D82F59 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E22262AFA091000D82F59 /* CalendarView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */; };
 		EE5C207C2AE15685005D2D7E /* ProjectSideItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */; };
 		EE5C20992AE2B004005D2D7E /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */; };
@@ -77,7 +77,7 @@
 		EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
 		EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6D2AF21D2700751FAE /* SplashView.swift */; };
-		EED5EC702AF21D4700751FAE /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* LoginView.swift */; };
+		EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */; };
 		EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC712AF21D5500751FAE /* LoadingView.swift */; };
 		EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC732AF21DCF00751FAE /* UserSettingView.swift */; };
 		EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC752AF21DE000751FAE /* NotificationView.swift */; };
@@ -88,6 +88,8 @@
 		EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC812AF2210700751FAE /* RightToolBarView.swift */; };
 		EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC832AF2233400751FAE /* CreateFolderView.swift */; };
 		EED5EC8C2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */; };
+		EEEF68242AF76858000B3CAF /* LogoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEF68232AF76858000B3CAF /* LogoutView.swift */; };
+		EEEF68262AF776A9000B3CAF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEF68252AF776A9000B3CAF /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,7 +121,7 @@
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewDeprecated.swift; sourceTree = "<group>"; };
 		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemView.swift; sourceTree = "<group>"; };
+		EE3E22262AFA091000D82F59 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainView.swift; sourceTree = "<group>"; };
 		EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSideItemView.swift; sourceTree = "<group>"; };
 		EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
@@ -152,7 +155,7 @@
 		EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
-		EED5EC6F2AF21D4700751FAE /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		EED5EC712AF21D5500751FAE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		EED5EC732AF21DCF00751FAE /* UserSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingView.swift; sourceTree = "<group>"; };
 		EED5EC752AF21DE000751FAE /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
@@ -163,6 +166,8 @@
 		EED5EC812AF2210700751FAE /* RightToolBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarView.swift; sourceTree = "<group>"; };
 		EED5EC832AF2233400751FAE /* CreateFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderView.swift; sourceTree = "<group>"; };
 		EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardViewDeprecated.swift; sourceTree = "<group>"; };
+		EEEF68232AF76858000B3CAF /* LogoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutView.swift; sourceTree = "<group>"; };
+		EEEF68252AF776A9000B3CAF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,14 +205,6 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
-		8A3FF4392AF93D9D002919DB /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		975A62092ACE930500DE31AB /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -232,7 +229,7 @@
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				AD68907C2AC707D800539A5C /* AuthenticationView.swift */,
+				AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */,
 				AD68907E2AC7F1AD00539A5C /* Authentication.swift */,
 				AD96ED632AD5BF94005D197B /* SignInWithAppleButtonView.swift */,
 			);
@@ -244,7 +241,7 @@
 			children = (
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
-				8A3FF4392AF93D9D002919DB /* Recovered References */,
+				EE3E22152AF9152A00D82F59 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -299,6 +296,7 @@
 				AD96ED3D2AD13AE4005D197B /* ProjectBoardView.swift */,
 				EED5EC732AF21DCF00751FAE /* UserSettingView.swift */,
 				EED5EC832AF2233400751FAE /* CreateFolderView.swift */,
+				EEEF68252AF776A9000B3CAF /* SettingsView.swift */,
 				EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */,
 				ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */,
 				AD96ED412AD1BCAD005D197B /* ProjectItem.swift */,
@@ -307,6 +305,7 @@
 				EE5C20982AE2B004005D2D7E /* ProjectEditView.swift */,
 				EE5C207B2AE15685005D2D7E /* ProjectSideItemView.swift */,
 				EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainView.swift */,
+				EEEF68232AF76858000B3CAF /* LogoutView.swift */,
 			);
 			path = ProjectBoard;
 			sourceTree = "<group>";
@@ -345,6 +344,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		EE3E22152AF9152A00D82F59 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		EE909A3F2AC3CDBF00C9AAF0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -357,6 +364,7 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
+				EE3E22262AFA091000D82F59 /* CalendarView.swift */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				D17800682AF35989002984CF /* PlanBoardView.swift */,
 				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
@@ -401,7 +409,7 @@
 			children = (
 				8A6DC56A2AF626B70059ADAB /* Components.swift */,
 				EED5EC6D2AF21D2700751FAE /* SplashView.swift */,
-				EED5EC6F2AF21D4700751FAE /* LoginView.swift */,
+				EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */,
 				EED5EC712AF21D5500751FAE /* LoadingView.swift */,
 				EED5EC7F2AF2209D00751FAE /* TabBarView.swift */,
 				EED5EC752AF21DE000751FAE /* NotificationView.swift */,
@@ -562,7 +570,7 @@
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EED5EC782AF21E0E00751FAE /* CreatePlanBoardView.swift in Sources */,
 				EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */,
-				EED5EC702AF21D4700751FAE /* LoginView.swift in Sources */,
+				EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */,
 				EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */,
 				8A6DC56B2AF626B70059ADAB /* Components.swift in Sources */,
 				AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */,
@@ -579,12 +587,15 @@
 				EE5C20992AE2B004005D2D7E /* ProjectEditView.swift in Sources */,
 				EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */,
 				8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */,
+				EEEF68242AF76858000B3CAF /* LogoutView.swift in Sources */,
 				AD96ED442AD30312005D197B /* APIError.swift in Sources */,
 				97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */,
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
+				EEEF68262AF776A9000B3CAF /* SettingsView.swift in Sources */,
 				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
+				EE3E22272AFA091100D82F59 /* CalendarView.swift in Sources */,
 				EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
@@ -592,10 +603,9 @@
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
-				AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */,
+				AD68907D2AC707D800539A5C /* AuthenticationViewDeprecated.swift in Sources */,
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
-				8A3FF4402AF9401F002919DB /* CalendarView.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

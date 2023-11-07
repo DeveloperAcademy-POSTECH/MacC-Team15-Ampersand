@@ -9,10 +9,27 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TabBarView: View {
+    @State var homeButtonHover = false
+    @State var homeButtonClicked = false
+    @State var planBoardTabHover = false
+    @State var planBoardTabClicked = false
+    @State var bellButtonHover = false
+    @Binding var bellButtonClicked: Bool
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isNotificationPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isNotificationPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .notificationButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             HStack(alignment: .center, spacing: 0) {
                 windowControlsButton
                 systemBorder(.vertical)
@@ -28,6 +45,9 @@ struct TabBarView: View {
                 Spacer()
                 systemBorder(.vertical)
                 notificationButton
+                    .popover(isPresented: isNotificationPresented, attachmentAnchor: .point(.bottom)) {
+                        NotificationView()
+                    }
             }
             .background(Color.tabBar)
         }
@@ -117,9 +137,6 @@ extension TabBarView {
                     .foregroundColor(Color.red)
                     .frame(width: 5, height: 5)
                     .offset(x: 3, y: -3)
-            }
-            .sheet(isPresented: isNotificationPresented) {
-                NotificationView()
             }
         }
     }

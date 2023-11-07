@@ -51,11 +51,13 @@ struct SignInWithAppleButtonView: View {
                     print("\(error.localizedDescription)")
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .frame(width: 200, height: 100)
-//            .onAppear {
-//                viewStore.send(.onAppear)
-//            }
+            .frame(width: 392, height: 60)
+            .clipShape(
+                .rect(cornerRadius: 60)
+            )
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
     }
 }

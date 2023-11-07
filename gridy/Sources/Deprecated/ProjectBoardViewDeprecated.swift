@@ -211,7 +211,7 @@
 //                                    style: .continuous
 //                                )
 //                            )
-//                            
+//                         
 //                            HStack {
 //                                Text(viewStore.project.title)
 //                                    .font(.custom("Pretendard-Bold", size: 20))

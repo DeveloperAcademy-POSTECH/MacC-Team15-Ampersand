@@ -1,47 +1,45 @@
 //
-//  CreateFolderView.swift
+//  LogoutView.swift
 //  gridy
 //
-//  Created by xnoag on 11/1/23.
+//  Created by xnoag on 11/5/23.
 //
 
 import SwiftUI
 
-struct CreateFolderView: View {
-    @State var folderName = ""
+struct LogoutView: View {
     @State var cancelHover = false
-    @State var createHover = false
+    @State var logoutHover = false
     
     var body: some View {
-        VStack(alignment: .center, spacing: 24) {
-            folderNameTextField
+        VStack(alignment: .center, spacing: 8) {
+            Text("Logout Message")
+                .font(.headline)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.title)
+            Text("Logout Message")
+                .font(.subheadline)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.subtitle)
+                .padding(.bottom, 16)
             HStack(alignment: .center, spacing: 8) {
                 cancel
-                create
+                logout
             }
         }
-        .padding(24)
-        .frame(width: 480, height: 160)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.blackWhite)
+        )
+        .frame(width: 260, height: 120)
     }
 }
 
-extension CreateFolderView {
-    var folderNameTextField: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .foregroundStyle(Color.item)
-            .frame(height: 48)
-            .overlay(
-                TextField("Folder Name", text: $folderName)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-            )
-    }
-}
-
-extension CreateFolderView {
+extension LogoutView {
     var cancel: some View {
         Button {
-            // TODO: - Cancel Button
+            // TODO: - Logout Cancel Button
         } label: {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(cancelHover ? Color.buttonHovered : Color.button)
@@ -60,16 +58,16 @@ extension CreateFolderView {
     }
 }
 
-extension CreateFolderView {
-    var create: some View {
+extension LogoutView {
+    var logout: some View {
         Button {
-            // TODO: - Create Button
+            // TODO: - Logout Button
         } label: {
             RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(createHover ? Color.buttonHovered : Color.button)
+                .foregroundStyle(logoutHover ? Color.buttonHovered : Color.button)
                 .frame(height: 32)
                 .overlay(
-                    Text("Create")
+                    Text("Logout")
                         .font(.body)
                         .fontWeight(.regular)
                         .foregroundStyle(Color.buttonText)
@@ -77,11 +75,11 @@ extension CreateFolderView {
         }
         .buttonStyle(.link)
         .onHover { isHovered in
-            createHover = isHovered
+            logoutHover = isHovered
         }
     }
 }
 
 #Preview {
-    CreateFolderView()
+    LogoutView()
 }
