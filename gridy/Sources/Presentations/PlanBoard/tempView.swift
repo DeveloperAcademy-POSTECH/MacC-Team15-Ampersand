@@ -50,7 +50,7 @@ struct TempView: View {
                         }
                         Button {
                             viewStore.send(
-                                .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createRow)
+                                .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createRow, colorCode: nil)
                             )
                             createLayer = ""
                             createRow = ""
