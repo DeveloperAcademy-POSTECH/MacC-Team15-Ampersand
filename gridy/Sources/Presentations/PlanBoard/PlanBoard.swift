@@ -77,12 +77,24 @@ struct PlanBoard: Reducer {
         var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
+        
+        // MARK: - FocusGroupClickedItems
+        var hoveredItem = ""
+        var topToolBarFocusGroupClickedItem = ""
+        
+        // MARK: - Sheets
+        var isShareImagePresented = false
+        var isBoardSettingPresented = false
+        var isRightToolBarPresented = true
     }
     
     enum Action: Equatable {
         // MARK: - user action
         case onAppear
         case selectColorCode(Color)
+        case hoveredItem(name: String)
+        case clickedItem(focusGroup: String, name: String)
+        case popoverPresent(button: String, bool: Bool)
         
         // MARK: - plan type
         case createPlanType(targetPlanID: String, text: String, colorCode: UInt)
@@ -140,6 +152,7 @@ struct PlanBoard: Reducer {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+    
                 // MARK: - user action
             case .onAppear:
                 // TODO: - 삭제
@@ -150,6 +163,32 @@ struct PlanBoard: Reducer {
                 
             case let .selectColorCode(selectedColor):
                 state.selectedColorCode = selectedColor
+                return .none
+                
+            case let .hoveredItem(name: hoveredItem):
+                state.hoveredItem = hoveredItem
+                return .none
+                
+            case let .clickedItem(focusGroup: focusGroup, name: clickedItem):
+                switch focusGroup {
+                case .topToolBarFocusGroup:
+                    state.topToolBarFocusGroupClickedItem = clickedItem
+                default:
+                    break
+                }
+                return .none
+                
+            case let .popoverPresent(button: buttonName, bool: bool):
+                switch buttonName {
+                case .shareImageButton:
+                    state.isShareImagePresented = bool
+                case .boardSettingButton:
+                    state.isBoardSettingPresented = bool
+                case .rightToolBarButton:
+                    state.isRightToolBarPresented = bool
+                default:
+                    break
+                }
                 return .none
                 
                 // MARK: - plan type

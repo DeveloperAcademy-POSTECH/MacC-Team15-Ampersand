@@ -34,14 +34,15 @@ struct ListItemEmptyView: View {
                     Rectangle()
                         .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
                         .overlay(
+                            // TODO: - editingText로 변경
                             Text("\(rowIndex)")
                                 .lineLimit(2)
                                 .font(.custom("Pretendard-Regular", size: fontSize))
                                 .padding(.horizontal, 8)
                         )
-                        .onHover { phase in
+                        .onHover { isHovered in
                             if !isSelected && !isEditing {
-                                isHovering = phase
+                                isHovering = isHovered
                             }
                         }
                         .onTapGesture {
@@ -87,9 +88,14 @@ struct ListItemEmptyView: View {
                         .strokeBorder(Color.blue)
                         .overlay {
                             // TODO: Plan type 수정 -> 생성하는 flow
-                            TextField("Editing", text: $editingText, axis: .vertical )
+                            TextField("Editing", text: $editingText, axis: .vertical)
                                 .onSubmit {
-                                    // TODO: - createPlan
+                                    viewStore.send(.createPlanOnList(
+                                        layer: layerIndex,
+                                        row: rowIndex,
+                                        text: editingText,
+                                        colorCode: nil)
+                                    )
                                     isEditing = false
                                     isTextFieldFocused = false
                                     editingText = ""
@@ -105,6 +111,7 @@ struct ListItemEmptyView: View {
                                     editingText = prevText
                                     isEditing = false
                                     isTextFieldFocused = false
+                                    isHovering = false
                                 }
                         }
                 }
