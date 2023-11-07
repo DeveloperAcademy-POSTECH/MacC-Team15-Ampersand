@@ -1250,8 +1250,9 @@ struct PlanBoard: Reducer {
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]
                 var tempLayer: [String] = []
+                var totalLoop = 0
                 
-                while !planIDsQ.isEmpty {
+                while !planIDsQ.isEmpty && totalLoop < 3{
                     for planID in planIDsQ {
                         let plan = state.existingAllPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
@@ -1264,6 +1265,7 @@ struct PlanBoard: Reducer {
                     planIDsQ.removeAll()
                     planIDsQ.append(contentsOf: tempLayer)
                     tempLayer = []
+                    totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
                 return .none
