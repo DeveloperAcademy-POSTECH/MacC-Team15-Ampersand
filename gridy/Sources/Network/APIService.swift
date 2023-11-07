@@ -231,6 +231,11 @@ extension APIService {
             }
         },
         sendFeedback: { contents in
+            if let uid = Auth.auth().currentUser?.uid {
+                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": uid, "contents": contents])
+            } else {
+                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": "???", "contents": contents])
+            }
         },
         readAllNotices: {
             return try await FirestoreService
