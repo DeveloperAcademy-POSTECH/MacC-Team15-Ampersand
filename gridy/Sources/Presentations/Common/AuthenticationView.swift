@@ -17,7 +17,7 @@ struct AuthenticationView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 16) {
+            VStack(spacing: 0) {
                 ZStack {
                     lottie
                     VStack(alignment: .center, spacing: 8) {
@@ -25,6 +25,7 @@ struct AuthenticationView: View {
                         version
                     }
                     .padding(.top, 32)
+                    .padding(.bottom, 16)
                 }
                 ZStack {
                     loginBack
