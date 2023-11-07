@@ -99,6 +99,7 @@ struct PlanBoard: Reducer {
         case deleteLayer(layer: Int)
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
+        case deletePlanOnLine(selectedRanges: [SelectedGridRange])
         case deleteLaneOnLine(row: Int)
         case deleteLaneConents(rows: [Int])
         case mergePlans(layer: Int, planIDs: [String])
@@ -304,14 +305,20 @@ struct PlanBoard: Reducer {
                     for layerIndex in 0..<state.map.count {
                         /// 맨 마지막일 때는 text를 title로 하는 planType을 가지고 생성
                         if (rowIndex == row) && (layerIndex == layer) {
-                            let newPlanType = PlanType(
-                                id: UUID().uuidString,
-                                title: text,
-                                colorCode: colorCode ?? PlanType.emptyPlanType.colorCode
-                            )
-                            state.existingPlanTypes[newPlanType.id] = newPlanType
-                            newPlanTypeID = newPlanType.id
-                            createdPlanType = newPlanType
+                            /// 이미 있는 planType일 경우
+                            if let foundPlanTypeID = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == PlanType.emptyPlanType.colorCode})?.id {
+                                newPlanTypeID = foundPlanTypeID
+                            } else {
+                                /// 새로운 planType을 생성해야 하는 경우
+                                let newPlanType = PlanType(
+                                    id: UUID().uuidString,
+                                    title: text,
+                                    colorCode: PlanType.emptyPlanType.colorCode
+                                )
+                                state.existingPlanTypes[newPlanType.id] = newPlanType
+                                newPlanTypeID = newPlanType.id
+                                createdPlanType = newPlanType
+                            }
                         }
                         /// dummy로 넣어줄 plan 생성
                         let newPlan = Plan(
@@ -358,12 +365,14 @@ struct PlanBoard: Reducer {
                         )
                         
                     } else {
-                        /// colorCode가 없으면 새 타입을 생성하고, emptyType일 planID의 타입을 생성된 타입으로 변경합다.
-                        try await apiService.createPlanType(
-                            newPlanType,
-                            planID,
-                            projectID
-                        )
+                        /// colorCode가 없으면 새 타입을 생성하고, emptyType일 planID의 타입을 생성된 타입으로 변경한다.
+                        if newPlanType != PlanType.emptyPlanType {
+                            try await apiService.createPlanType(
+                                newPlanType,
+                                planID,
+                                projectID
+                            )
+                        }
                     }
                 }
                 
@@ -558,7 +567,8 @@ struct PlanBoard: Reducer {
                 
             case let .deleteLayer(layer):
                 let projectID = state.rootProject.id
-                var updatedPlans: [Plan] = []
+                var deletedPlans = [Plan]()
+                var updatedPlans = [Plan]()
                 /// layer가 하나인데 layer 삭제를 했을 때는 view에서 막아야 함. 혹시나 해서.
                 if state.map.count == 1 {
                     return .none
@@ -578,9 +588,9 @@ struct PlanBoard: Reducer {
                                 let index = newChildIDs.count
                                 newChildIDs[String(index)] = lane.value
                             }
-                            /// 사라지는 layer에 속한 plan들의 childPlanIDs를 비워줌
-                            state.existingAllPlans[childPlanID]!.childPlanIDs = ["0": []]
-                            updatedPlans.append(childPlan)
+                            /// 사라지는 layer에 속한 plan들 삭제
+                            state.existingAllPlans[childPlanID] = nil
+                            deletedPlans.append(childPlan)
                         }
                         state.existingAllPlans[parentPlanID]!.childPlanIDs = newChildIDs
                         updatedPlans.append(parentPlan)
@@ -590,12 +600,19 @@ struct PlanBoard: Reducer {
                     }
                 }
                 let plansToUpdate = updatedPlans
+                let plansToDelete = deletedPlans
                 return .run { send in
                     await send(.fetchMap)
                     try await apiService.updatePlans(
                         plansToUpdate,
                         projectID
                     )
+                    if !plansToDelete.isEmpty {
+                        try await apiService.deletePlans(
+                            plansToDelete,
+                            projectID
+                        )
+                    }
                 }
                 
             case let .deleteLayerContents(layer):
@@ -617,34 +634,31 @@ struct PlanBoard: Reducer {
                 
             case let .deletePlanOnList(layer, row):
                 let projectID = state.rootProject.id
-                var createdPlans: [Plan] = []
-                var updatedPlans: [Plan] = []
-                
-                /// clicke된 위치에 있는 planID 찾기
-                let planIDsArray = state.map[layer]
+                var createdPlans = [Plan]()
+                var updatedPlans = [Plan]()
+                var deletedPlans = [Plan]()
+                /// layer에 있는 plan들의 높이 구하기
                 var planHeightsArray = [String: Int]()
-                for planID in planIDsArray {
+                for planID in state.map[layer] {
                     let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
                     planHeightsArray[planID] = childPlanIDsArray.count
                 }
-                
+                /// click된 위치에 있는 planID 찾기
                 var sumOfHeights = 0
                 var targetPlanID = ""
-                for planID in planIDsArray {
+                for planID in state.map[layer] {
                     sumOfHeights += planHeightsArray[planID]!
                     if row < sumOfHeights {
                         targetPlanID = planID
                         break
                     }
                 }
-                
                 /// clicked Plan의 부모에서 clickedPlan의 위치 찾기
                 let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 var targetParentPlanID = ""
                 var targetKey = ""
                 for parentPlanID in parentPlanIDs {
-                    let parentPlan = state.existingAllPlans[parentPlanID]!
-                    let childPlanIDs = parentPlan.childPlanIDs
+                    let childPlanIDs = state.existingAllPlans[parentPlanID]!.childPlanIDs
                     for childPlanIDsArray in childPlanIDs where childPlanIDsArray.value.contains(targetPlanID) {
                         targetParentPlanID = parentPlanID
                         targetKey = childPlanIDsArray.key
@@ -678,9 +692,8 @@ struct PlanBoard: Reducer {
                         state.existingAllPlans[newPlanID] = newPlan
                         createdPlans.append(newPlan)
                         state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
-                        updatedPlans.append(state.existingAllPlans[targetParentPlanID]!)
                     }
-                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingAllPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -692,8 +705,30 @@ struct PlanBoard: Reducer {
                     }
                     state.existingAllPlans[targetParentPlanID]!.childPlanIDs = orderedChildPlanIDs
                 }
+                updatedPlans.append(state.existingAllPlans[targetParentPlanID]!)
+                
+                /// 삭제한 plan과 그 하위 플랜들을 삭제해줌.
+                let deletedPlanID = state.existingAllPlans[targetParentPlanID]!.childPlanIDs[targetKey]!.last!
+                var planIDsQ: [String] = [deletedPlanID]
+                var tempLayer: [String] = []
+                while !planIDsQ.isEmpty {
+                    for planID in planIDsQ {
+                        deletedPlans.append(state.existingAllPlans[planID]!)
+                        let plan = state.existingAllPlans[planID]!
+                        for index in 0..<plan.childPlanIDs.count {
+                            tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
+                        }
+                    }
+                    planIDsQ.removeAll()
+                    planIDsQ.append(contentsOf: tempLayer)
+                }
+                for deletedPlan in deletedPlans {
+                    state.existingAllPlans[deletedPlan.id] = nil
+                }
+                
                 let plansToCreate = createdPlans
                 let plansToUpdate = updatedPlans
+                let plansToDelete = deletedPlans
                 return .run { send in
                     await send(.fetchMap)
                     if !plansToCreate.isEmpty {
@@ -706,11 +741,132 @@ struct PlanBoard: Reducer {
                         plansToUpdate,
                         projectID
                     )
+                    try await apiService.deletePlans(
+                        plansToDelete,
+                        projectID
+                    )
+                }
+                
+            case let .deletePlanOnLine(selectedRanges):
+                let projectID = state.rootProject.id
+                var updatedPlans = [Plan]()
+                var deletedPlans = [Plan]()
+                let layer = state.map.count - 1
+                
+                /// 리스트에서 보여주는 마지막 Row의 높이를 계산
+                var planHeightsArray = [String: Int]()
+                for planID in state.map[layer] {
+                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
+                    planHeightsArray[planID] = childPlanIDsArray.count
+                }
+                
+                /// 선택된 범위의 개수만큼 순회한다.
+                for selectedRange in selectedRanges {
+                    let startRow = min(selectedRange.start.row, selectedRange.end.row)
+                    let endRow = max(selectedRange.start.row, selectedRange.end.row)
+                    // TODO: - 기준 날짜로 대체
+                    let startDate = Calendar.current.date(byAdding: .day, 
+                                                          value: min(selectedRange.start.col, selectedRange.end.col),
+                                                          to: Date().filteredDate)!
+                    let endDate = Calendar.current.date(byAdding: .day, 
+                                                        value: max(selectedRange.start.col, selectedRange.end.col),
+                                                        to: Date().filteredDate)!
+                    /// 범위 내의 row마다 순회한다.
+                    for row in startRow...endRow {
+                        /// row가 어떤 Plan을 가리키고
+                        var sumOfHeights = 0
+                        var targetPlanID = ""
+                        for planID in state.map[layer] {
+                            sumOfHeights += planHeightsArray[planID]!
+                            if row < sumOfHeights {
+                                targetPlanID = planID
+                                break
+                            }
+                        }
+                        /// 몇 번째 레인인지 계산한다
+                        let targetPlan = state.existingAllPlans[targetPlanID]!
+                        let rowDifference = (sumOfHeights - 1) - row
+                        let targetKey = (targetPlan.childPlanIDs.count - 1) - rowDifference
+                        /// 해당 레인에 있는 planID마다 순회한다
+                        let childIDs = state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)]!
+                        for planID in childIDs {
+                            /// period가 있는 plan이라면 period만큼 순회한다.
+                            if let periods = state.existingAllPlans[planID]!.periods {
+                                for period in periods {
+                                    let start = period.value[0]
+                                    let end = period.value[1]
+                                    
+                                    if end < startDate || start > endDate {
+                                        /// period가 범위 밖에 있는 경우 > 아무것도 안 함
+                                        break
+                                    } else if (start < startDate) && (end <= endDate) {
+                                        /// period의 끝 날짜가 범위에 걸친 경우 >  끝 날짜를 startDate로 업데이트 해줌
+                                        state.existingAllPlans[planID]!.periods![period.key] = [start, startDate]
+                                    } else if (start >= startDate) && (end > endDate) {
+                                        /// period의 시작 날짜가 범위에 걸친 경우 > 시작 날짜를 endDate로 업데이트 해줌
+                                        state.existingAllPlans[planID]!.periods![period.key] = [endDate, end]
+                                    } else if (start >= startDate) && (end <= endDate) {
+                                        /// period가 범위 내에 속할 경우 > period 삭제
+                                        state.existingAllPlans[planID]!.periods!.removeValue(forKey: String(period.key))
+                                        /// 만약 plan이 가진 periods가 없어졌으면
+                                        if state.existingAllPlans[planID]!.periods!.isEmpty {
+                                            /// updatedPlans에 삭제할 plan의 ID 있다면 삭제해주고
+                                            if let index = updatedPlans.firstIndex(where: { $0.id == planID }) {
+                                                updatedPlans.remove(at: index)
+                                            }
+                                            /// 삭제할 plan에 추가
+                                            state.existingAllPlans[planID] = nil
+                                            deletedPlans.append(state.existingAllPlans[planID]!)
+                                            /// 나를 들고 있는 plan의 childPlans에서 나를 빼주고(lane은 남아있음), updatedPlans에 나를 들고 있는 plan 추가
+                                            if var array = state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)] {
+                                                array = array.filter { $0 != planID }
+                                                state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)]! = array
+                                            }
+                                        } else {
+                                            /// period 원소들을 key값에 따라 정렬해줌
+                                            let sortedPeriods = state.existingAllPlans[planID]!.periods!.sorted { Int($0.key)! < Int($1.key)! }
+                                            var orderedPeriods = [String: [Date]]()
+                                            for index in 0..<sortedPeriods.count {
+                                                orderedPeriods[String(index)] = sortedPeriods[index].value
+                                            }
+                                            state.existingAllPlans[planID]!.periods = orderedPeriods
+                                        }
+                                    } else if (start < startDate) && (end > endDate) {
+                                        /// period 내에 범위가 속할 경우 [시작날짜, startDate], [endDate, end]로 나눠줌
+                                        state.existingAllPlans[planID]!.periods![period.key] = [start, startDate]
+                                        let lastIndex = state.existingAllPlans[planID]!.periods!.count
+                                        state.existingAllPlans[planID]!.periods![String(lastIndex)] = [endDate, end]
+                                    }
+                                    if updatedPlans.firstIndex(where: { $0.id == planID }) == nil {
+                                        updatedPlans.append(state.existingAllPlans[planID]!)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                let plansToUpdate = updatedPlans
+                let plansToDelete = deletedPlans
+                return .run { send in
+                    await send(.fetchMap)
+                    if !plansToUpdate.isEmpty {
+                        try await apiService.updatePlans(
+                            plansToUpdate,
+                            projectID
+                        )
+                    }
+                    if !plansToDelete.isEmpty {
+                        try await apiService.deletePlans(
+                            plansToDelete,
+                            projectID
+                        )
+                    }
                 }
                 
             case let .deleteLaneOnLine(row):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
+                var deletedPlans = [Plan]()
                 let layer = state.map.count - 1
                 
                 let planIDsArray = state.map[layer]
@@ -735,6 +891,10 @@ struct PlanBoard: Reducer {
                 /// 내 row가 내가 속한 부모 Plan의 childIDs에서 몇번째인지 계산
                 let rowDifference = (sumOfHeights - 1) - row
                 let targetKey = (targetParentPlan.childPlanIDs.count - 1) - rowDifference
+                for planID in state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)]! {
+                    state.existingAllPlans[planID] = nil
+                    deletedPlans.append(state.existingAllPlans[planID]!)
+                }
                 /// 내 부모가 내 lane만 들고 있었을 경우
                 if state.existingAllPlans[targetParentPlanID]!.childPlanIDs.count == 1 {
                     state.existingAllPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
@@ -750,18 +910,25 @@ struct PlanBoard: Reducer {
                 }
                 updatedPlans.append(state.existingAllPlans[targetParentPlanID]!)
                 let plansToUpdate = updatedPlans
+                let plansToDelete = deletedPlans
                 return .run { send in
                     await send(.fetchMap)
-                    
                     try await apiService.updatePlans(
                         plansToUpdate,
                         projectID
                     )
+                    if !plansToDelete.isEmpty {
+                        try await apiService.deletePlans(
+                            plansToDelete,
+                            projectID
+                        )
+                    }
                 }
                 
             case let .deleteLaneConents(rows):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
+                var deletedPlans = [Plan]()
                 
                 let startRow = rows[0]
                 let endRow = rows[1]
@@ -795,6 +962,11 @@ struct PlanBoard: Reducer {
                     /// lane을 빈 lane으로 갈아끼워 줌
                     state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)] = []
                     updatedPlans.append(state.existingAllPlans[targetPlanID]!)
+                    /// lane에 속한 plan들은 삭제해줌
+                    for planID in state.existingAllPlans[targetPlanID]!.childPlanIDs[String(targetKey)]! {
+                        state.existingAllPlans[planID] = nil
+                        deletedPlans.append(state.existingAllPlans[planID]!)
+                    }
                     changedPlanIDs.append(targetPlanID)
                 }
                 
@@ -975,7 +1147,7 @@ struct PlanBoard: Reducer {
                 /// 부모 plan의 totalPeriod를 업데이트
                 for parentPlanID in state.map[state.map.count-1] {
                     var parentPlan = state.existingAllPlans[parentPlanID]!
-                    if parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(planID) {
+                    if parentPlan.childPlanIDs.map({$0.value}).flatMap({$0}).contains(planID) {
                         foundParentID = parentPlanID
                         parentPlan.totalPeriod![0] = min(parentPlan.totalPeriod![0], updatedPeriod[0])
                         parentPlan.totalPeriod![1] = min(parentPlan.totalPeriod![1], updatedPeriod[1])
@@ -1354,8 +1526,9 @@ struct PlanBoard: Reducer {
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]
                 var tempLayer: [String] = []
+                var totalLoop = 0
                 
-                while !planIDsQ.isEmpty {
+                while !planIDsQ.isEmpty && totalLoop < 3 {
                     for planID in planIDsQ {
                         let plan = state.existingAllPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
@@ -1368,6 +1541,7 @@ struct PlanBoard: Reducer {
                     planIDsQ.removeAll()
                     planIDsQ.append(contentsOf: tempLayer)
                     tempLayer = []
+                    totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
                 return .none
