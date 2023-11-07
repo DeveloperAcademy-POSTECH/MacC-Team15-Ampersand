@@ -70,9 +70,9 @@ extension CreatePlanBoardView {
                 DatePicker("", selection: $selectedStartDate, displayedComponents: [.date])
                     .datePickerStyle(GraphicalDatePickerStyle())
                     .labelsHidden()
-                Button("Done", action: {
+                Button("Done") {
                     startDatePickerPresented = false
-                })
+                }
             }
             .padding()
         }
@@ -101,9 +101,9 @@ extension CreatePlanBoardView {
                 DatePicker("", selection: $selectedEndDate, displayedComponents: [.date])
                     .datePickerStyle(GraphicalDatePickerStyle())
                     .labelsHidden()
-                Button("Done", action: {
+                Button("Done") {
                     endDatePickerPresented = false
-                })
+                }
             }
             .padding()
         }
