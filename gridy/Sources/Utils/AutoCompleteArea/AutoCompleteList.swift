@@ -40,9 +40,22 @@ class AutoCompleteViewModel: ObservableObject {
     }
 }
 
-struct SuggestionRow: View {
+struct AutoCompleteView: View {
     @EnvironmentObject var viewModel: AutoCompleteViewModel
     
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(viewModel.filteredSuggestions, id: \.self) { suggestion in
+                SuggestionRow(suggestion: suggestion)
+//                    .padding()
+                    .background(viewModel.hoveredSuggestion == suggestion ? Color.gray.opacity(0.2) : Color.clear)
+            }
+        }
+    }
+}
+
+struct SuggestionRow: View {
+    @EnvironmentObject var viewModel: AutoCompleteViewModel
     var suggestion: String
     
     var body: some View {
@@ -50,14 +63,11 @@ struct SuggestionRow: View {
             RoundedRectangle(cornerRadius: 6)
                 .frame(width: 5)
                 .foregroundStyle(Color.orange)
-            
             Spacer()
                 .frame(width: 10)
-            
             Text(suggestion)
                 .font(.system(size: 16))
                 .foregroundStyle(viewModel.hoveredSuggestion == suggestion ? Color.blue : Color.gray.opacity(0.85))
-            
             Spacer()
             Circle()
                 .foregroundStyle(Color.gray.opacity(0.01))
@@ -68,25 +78,12 @@ struct SuggestionRow: View {
                         .foregroundStyle(Color.gray)
                 )
         }
-        .onHover { hovering in
-            viewModel.setHoveredSuggestion(hovering ? suggestion : nil)
+        .padding()
+        .onHover { isHovered in
+            viewModel.setHoveredSuggestion(isHovered ? suggestion : nil)
         }
         .onTapGesture {
             viewModel.updateSelectedText(with: suggestion)
-        }
-    }
-}
-
-struct AutoCompleteView: View {
-    @EnvironmentObject var viewModel: AutoCompleteViewModel
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            ForEach(viewModel.filteredSuggestions, id: \.self) { suggestion in
-                SuggestionRow(suggestion: suggestion)
-                    .padding()
-                    .background(viewModel.hoveredSuggestion == suggestion ? Color.gray.opacity(0.2) : Color.clear)
-            }
         }
     }
 }
@@ -112,7 +109,6 @@ struct ListView: View {
     @State private var textFieldHeight: CGFloat = 0
     
     @EnvironmentObject var autoCompleteViewModel: AutoCompleteViewModel
-    let lineAreaGridHeight: CGFloat
     
     var body: some View {
         VStack(spacing: 10) {
@@ -221,7 +217,7 @@ struct ListView: View {
                 }
             }
             .frame(height: 50)
-            .border(.green, width: 9)
+            .background(Color.gray.opacity(0.3))
         }
     }
 }
