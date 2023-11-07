@@ -44,31 +44,29 @@ struct SuggestionRow: View {
     @EnvironmentObject var viewModel: AutoCompleteViewModel
     
     var suggestion: String
-    var lineAreaGridHeight: CGFloat
     
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 6)
-                .frame(width: 5, height: lineAreaGridHeight)
-                .foregroundColor(Color.orange)
+                .frame(width: 5)
+                .foregroundStyle(Color.orange)
             
             Spacer()
                 .frame(width: 10)
             
-            VStack(alignment: .leading) {
-                Text(suggestion)
-                    .font(.system(size: 16))
-                    .foregroundColor(viewModel.hoveredSuggestion == suggestion ? Color.blue : Color.gray.opacity(0.85))
-            }
+            Text(suggestion)
+                .font(.system(size: 16))
+                .foregroundStyle(viewModel.hoveredSuggestion == suggestion ? Color.blue : Color.gray.opacity(0.85))
+            
             Spacer()
             Circle()
+                .foregroundStyle(Color.gray.opacity(0.01))
                 .frame(width: 28, height: 28)
                 .overlay(
                     Image(systemName: "info.circle")
                         .imageScale(.large)
-                        .foregroundColor(Color.gray)
+                        .foregroundStyle(Color.gray)
                 )
-                .foregroundColor(Color.gray.opacity(0.01))
         }
         .onHover { hovering in
             viewModel.setHoveredSuggestion(hovering ? suggestion : nil)
@@ -81,13 +79,11 @@ struct SuggestionRow: View {
 
 struct AutoCompleteView: View {
     @EnvironmentObject var viewModel: AutoCompleteViewModel
-    let lineAreaGridHeight: CGFloat
     
     var body: some View {
         VStack(spacing: 0) {
             ForEach(viewModel.filteredSuggestions, id: \.self) { suggestion in
-                SuggestionRow(suggestion: suggestion, lineAreaGridHeight: lineAreaGridHeight)
-                    .frame(height: lineAreaGridHeight)
+                SuggestionRow(suggestion: suggestion)
                     .padding()
                     .background(viewModel.hoveredSuggestion == suggestion ? Color.gray.opacity(0.2) : Color.clear)
             }
@@ -201,14 +197,6 @@ struct ListView: View {
                                             isTextFieldFocused = false
                                             // TODO: - PlanType Title Change
                                         }
-                                        .overlay(
-                                            GeometryReader { geometry in
-                                                Color.clear
-                                                    .onAppear {
-                                                        self.textFieldHeight = geometry.size.height
-                                                    }
-                                            }
-                                        )
                                         .multilineTextAlignment(.center)
                                         .font(.custom("Pretendard-Medium", size: fontSize))
                                         .textFieldStyle(.plain)
@@ -224,7 +212,7 @@ struct ListView: View {
                                     }
                                 
                                 if !autoCompleteViewModel.filteredSuggestions.isEmpty && !autoCompleteViewModel.isSelectionCompleted {
-                                    AutoCompleteView(lineAreaGridHeight: geometry.size.height)
+                                    AutoCompleteView()
                                         .offset(y: geometry.size.height)
                                 }
                             }
@@ -232,7 +220,7 @@ struct ListView: View {
                     }
                 }
             }
-            .frame(height: listViewHeight)
+            .frame(height: 50)
             .border(.green, width: 9)
         }
     }
