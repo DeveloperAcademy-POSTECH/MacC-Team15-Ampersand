@@ -9,11 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TabBarView: View {
-    @State var homeButtonHover = false
     @State var homeButtonClicked = false
-    @State var planBoardTabHover = false
     @State var planBoardTabClicked = false
-    @State var bellButtonHover = false
     @Binding var bellButtonClicked: Bool
     let store: StoreOf<ProjectBoard>
     
@@ -144,7 +141,6 @@ extension TabBarView {
 
 struct TabItemView: View {
     let store: StoreOf<ProjectBoard>
-    @State var isDeleteButtonHovered = false
     let index: Int
     
     var body: some View {
@@ -164,14 +160,14 @@ struct TabItemView: View {
                     .overlay(
                         Image(systemName: "xmark")
                             .foregroundStyle(
-                                isDeleteButtonHovered ?
+                                viewStore.hoveredItem == .tabItemDeleteButton ?
                                 Color.tabLabel : viewStore.hoveredItem == "tabName:\(index)" ||
                                 viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
                                 Color.subtitle : Color.clear
                             )
                     )
                     .onHover { isHovered in
-                        isDeleteButtonHovered = isHovered
+                        viewStore.send(.hoveredItem(name: isHovered ? .tabItemDeleteButton : ""))
                     }
             }
             .background(

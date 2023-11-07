@@ -29,6 +29,10 @@ extension String {
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
     
+    /* EtcButtonNames */
+    static let galleryBackButton = "galleryBackButton"
+    static let tabItemDeleteButton = "tabItemDeleteButton"
+    
     // MARK: - PlanBoard
     /* FocusGroups */
     static let topToolBarFocusGroup = "topToolBarFocusGroup"
