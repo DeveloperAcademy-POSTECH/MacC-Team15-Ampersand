@@ -28,7 +28,7 @@ struct PlanBoard: Reducer {
         
         var keyword = ""
         var selectedColorCode = Color.red
-
+        
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
         var numOfScheduleAreaRow = 5
         
@@ -76,12 +76,24 @@ struct PlanBoard: Reducer {
         var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
+        
+        // MARK: - FocusGroupClickedItems
+        var hoveredItem = ""
+        var topToolBarFocusGroupClickedItem = ""
+        
+        // MARK: - Sheets
+        var isShareImagePresented = false
+        var isBoardSettingPresented = false
+        var isRightToolBarPresented = true
     }
     
     enum Action: Equatable {
         // MARK: - user action
         case onAppear
         case selectColorCode(Color)
+        case hoveredItem(name: String)
+        case clickedItem(focusGroup: String, name: String)
+        case popoverPresent(button: String, bool: Bool)
         
         // MARK: - plan type
         case createPlanType(planID: String)
@@ -127,11 +139,14 @@ struct PlanBoard: Reducer {
         case showLowerLayer
         case createLayer(layerIndex: Int)
         case createLayerResponse(TaskResult<[String: [String]]>)
+        
+        case setSheet(Bool)
     }
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+    
                 // MARK: - user action
             case .onAppear:
                 return .run { send in
@@ -141,6 +156,32 @@ struct PlanBoard: Reducer {
                 
             case let .selectColorCode(selectedColor):
                 state.selectedColorCode = selectedColor
+                return .none
+                
+            case let .hoveredItem(name: hoveredItem):
+                state.hoveredItem = hoveredItem
+                return .none
+                
+            case let .clickedItem(focusGroup: focusGroup, name: clickedItem):
+                switch focusGroup {
+                case .topToolBarFocusGroup:
+                    state.topToolBarFocusGroupClickedItem = clickedItem
+                default:
+                    break
+                }
+                return .none
+                
+            case let .popoverPresent(button: buttonName, bool: bool):
+                switch buttonName {
+                case .shareImageButton:
+                    state.isShareImagePresented = bool
+                case .boardSettingButton:
+                    state.isBoardSettingPresented = bool
+                case .rightToolBarButton:
+                    state.isRightToolBarPresented = bool
+                default:
+                    break
+                }
                 return .none
                 
                 // MARK: - plan type
@@ -155,7 +196,7 @@ struct PlanBoard: Reducer {
                             id: "", /// APIService에서 자동 생성
                             title: keyword,
                             colorCode: colorCode
-                        ), 
+                        ),
                         planID,
                         projectID
                     )
@@ -274,7 +315,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .showLowerLayer:
-                let firstShowingIndex = state.showingLayers.first!           
+                let firstShowingIndex = state.showingLayers.first!
                 if firstShowingIndex == 0 {
                     state.showingLayers.removeLast()
                 } else {

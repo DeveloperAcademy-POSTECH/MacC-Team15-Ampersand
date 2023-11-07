@@ -212,6 +212,7 @@
 //                                )
 //                            )
 //                            
+//                            
 //                            HStack {
 //                                Text(viewStore.project.title)
 //                                    .font(.custom("Pretendard-Bold", size: 20))
@@ -256,11 +257,11 @@
 //                    Text("Delete")
 //                }
 //            }
-//            .onHover { proxy in
+//            .onHover { isHovered in
 //                DispatchQueue.main.async {
 //                    withAnimation(.easeInOut(duration: 0.1)) {
 //                        _ = viewStore.send(
-//                            .isHovering(hovered: proxy)
+//                            .isHovering(hovered: action)
 //                        )
 //                    }
 //                }

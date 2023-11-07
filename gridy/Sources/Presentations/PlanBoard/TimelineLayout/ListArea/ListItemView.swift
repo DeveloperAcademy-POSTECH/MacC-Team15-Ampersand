@@ -47,9 +47,9 @@ struct ListItemView: View {
                                     }
                                 }
                         )
-                        .onHover { phase in
+                        .onHover { isHovered in
                             if !isSelected && !isEditing {
-                                isHovering = phase
+                                isHovering = isHovered
                             }
                         }
                         .onTapGesture {

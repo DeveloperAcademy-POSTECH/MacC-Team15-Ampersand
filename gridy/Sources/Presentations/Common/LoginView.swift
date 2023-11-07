@@ -41,7 +41,12 @@ struct LoginView: View {
                         if viewStore.successToSignIn {
                             NavigationLink("프로젝트 보드로 가기") {
                                 // TODO: ProjectBoardView에 Store 복구하기
-                                ProjectBoardView()
+                                ProjectBoardView(
+                                    store: store.scope(
+                                        state: \.optionalProjectBoard,
+                                        action: { .optionalProjectBoard($0) }
+                                    )
+                                )
                             }
                             .buttonStyle(PlainButtonStyle())
                             .frame(width: 392, height: 60)
