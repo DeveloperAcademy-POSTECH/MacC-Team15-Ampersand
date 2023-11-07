@@ -13,7 +13,7 @@ enum PeriodSelection {
     case setPeriods
 }
 
-/// 한 struct 안에 코드가 너무 길어서 function을 빼려고 했는데 일단은 여기 다 넣어놓겠습니다.
+// TODO: 한 struct 안에 코드가 너무 길어서 function을 빼려고 했는데 일단은 여기 다 넣어놓겠습니다.
 struct ShareImageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var periodSelection: PeriodSelection = .allPeriods
@@ -27,8 +27,8 @@ struct ShareImageView: View {
     @State private var selectedEndDate = Date()
     @State private var isEndDatePickerPresented = false
     
-    @Environment(\.colorScheme) var colorScheme
-    @State var capture: NSImage?
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var capture: NSImage?
     
     var body: some View {
         VStack(spacing: 16) {
@@ -63,10 +63,10 @@ struct ShareImageView: View {
                                 .foregroundStyle(Color.title)
                             Spacer()
                                 .frame(width: 16)
-                            Button(action: {
+                            Button {
                                 isStartDatePickerPresented = true
-                            }) {
-                                Text("시작 : \(formattedDate(date: selectedStartDate))")
+                            } label: {
+                                Text("시작 : \(selectedStartDate.formattedDate)")
                                     .foregroundStyle(Color.title)
                                     .frame(width: 132, height: 32)
                                     .background(isStartDateHovered ? Color.itemHovered : Color.clear)
@@ -91,10 +91,10 @@ struct ShareImageView: View {
                             }
                             Spacer()
                                 .frame(width: 8)
-                            Button(action: {
+                            Button {
                                 isEndDatePickerPresented = true
-                            }) {
-                                Text("종료 : \(formattedDate(date: selectedEndDate))")
+                            } label: {
+                                Text("종료 : \(selectedEndDate.formattedDate)")
                                     .foregroundStyle(Color.title)
                                     .frame(width: 132, height: 32)
                                     .background(isEndDateHovered ? Color.itemHovered : Color.clear)
@@ -128,9 +128,9 @@ struct ShareImageView: View {
                 .padding(.horizontal, 16)
             
             HStack {
-                Button(action: {
+                Button {
                     shareImage()
-                }) {
+                } label: {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(shareHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
@@ -145,9 +145,9 @@ struct ShareImageView: View {
                     shareHovered = hover
                 }
                 Spacer()
-                Button(action: {
+                Button {
                     dismiss()
-                }) {
+                } label: {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(cancelHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
@@ -161,9 +161,9 @@ struct ShareImageView: View {
                 .onHover { hover in
                     cancelHovered = hover
                 }
-                Button(action: {
+                Button {
                     saveImage()
-                }) {
+                } label: {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundStyle(createHovered ? Color.itemHovered : Color.item)
                         .frame(width: 80, height: 24)
@@ -186,7 +186,7 @@ struct ShareImageView: View {
     }
     
     /// Appkit을 이용한 share image
-    @MainActor func shareImage() {
+    @MainActor private func shareImage() {
         if let contentView = NSApp.keyWindow?.contentView {
             let image = ImageRenderer(content: TimelineLayoutView().environment(\.colorScheme, colorScheme)).nsImage
             let sharingServicePicker = NSSharingServicePicker(items: [image!])
@@ -195,13 +195,7 @@ struct ShareImageView: View {
         }
     }
     
-    func formattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd."
-        return formatter.string(from: date)
-    }
-    
-    @MainActor func saveImage() {
+    @MainActor private func saveImage() {
         let savePanel = NSSavePanel()
         savePanel.allowedContentTypes = [.png]
         savePanel.canCreateDirectories = true
@@ -209,29 +203,30 @@ struct ShareImageView: View {
         savePanel.title = "Save your image"
         savePanel.message = "Choose a folder and a name to store the image."
         savePanel.begin { response in
-            if response == .OK, let url = savePanel.url {
-                let renderer = ImageRenderer(content: TimelineLayoutView().environment(\.colorScheme, self.colorScheme))
+            if response == .OK,
+                let url = savePanel.url {
+                let renderer = ImageRenderer(content: TimelineLayoutView())
                 if let image = renderer.nsImage {
                     self.savePNG(image: image, url: url)
                 } else {
-                    print("Could not generate image from TimelineLayoutView")
+                    print("=== Could not generate image from TimelineLayoutView ❓")
                 }
             }
         }
     }
     
-    func savePNG(image: NSImage, url: URL) {
+    private func savePNG(image: NSImage, url: URL) {
         guard let tiffData = image.tiffRepresentation,
               let bitmapImage = NSBitmapImageRep(data: tiffData),
               let pngData = bitmapImage.representation(using: .png, properties: [:]) else {
-            print("Failed to create PNG representation of image")
+            print("=== Failed to create PNG representation of image ‼️")
             return
         }
         do {
             try pngData.write(to: url)
-            print("Image successfully saved to \(url.path)")
+            print("=== Image successfully saved to \(url.path) ☑️")
         } catch {
-            print("Error saving image: \(error.localizedDescription)")
+            print("=== Error saving image: \(error.localizedDescription) ❌")
         }
     }
 }
