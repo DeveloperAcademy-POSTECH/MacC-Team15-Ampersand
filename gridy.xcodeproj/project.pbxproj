@@ -45,7 +45,7 @@
 		AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */; };
 		AD52FE9C2AC95FBB00AA001F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9B2AC95FBB00AA001F /* APIClient.swift */; };
 		AD52FE9F2AC965EF00AA001F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52FE9E2AC965EF00AA001F /* User.swift */; };
-		AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationView.swift */; };
+		AD68907D2AC707D800539A5C /* AuthenticationViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */; };
 		AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD68907E2AC7F1AD00539A5C /* Authentication.swift */; };
 		AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */; };
 		AD8ECB902ABC7CA10040A0B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8ECB8F2ABC7CA10040A0B8 /* ContentView.swift */; };
@@ -77,7 +77,7 @@
 		EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */; };
 		EEA539812AC400400000383F /* TimelineLayoutContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA539802AC400400000383F /* TimelineLayoutContentView.swift */; };
 		EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6D2AF21D2700751FAE /* SplashView.swift */; };
-		EED5EC702AF21D4700751FAE /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* LoginView.swift */; };
+		EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */; };
 		EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC712AF21D5500751FAE /* LoadingView.swift */; };
 		EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC732AF21DCF00751FAE /* UserSettingView.swift */; };
 		EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC752AF21DE000751FAE /* NotificationView.swift */; };
@@ -121,7 +121,7 @@
 		AD52FE992AC95F3300AA001F /* DependencyValues+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DependencyValues+Extension.swift"; sourceTree = "<group>"; };
 		AD52FE9B2AC95FBB00AA001F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		AD52FE9E2AC965EF00AA001F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		AD68907C2AC707D800539A5C /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewDeprecated.swift; sourceTree = "<group>"; };
 		AD68907E2AC7F1AD00539A5C /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		AD8ECB8A2ABC7CA10040A0B8 /* gridy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gridy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD8ECB8D2ABC7CA10040A0B8 /* GridyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridyApp.swift; sourceTree = "<group>"; };
@@ -155,7 +155,7 @@
 		EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarAreaView.swift; sourceTree = "<group>"; };
 		EEA539802AC400400000383F /* TimelineLayoutContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutContentView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
-		EED5EC6F2AF21D4700751FAE /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		EED5EC712AF21D5500751FAE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		EED5EC732AF21DCF00751FAE /* UserSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingView.swift; sourceTree = "<group>"; };
 		EED5EC752AF21DE000751FAE /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
@@ -229,7 +229,7 @@
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				AD68907C2AC707D800539A5C /* AuthenticationView.swift */,
+				AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */,
 				AD68907E2AC7F1AD00539A5C /* Authentication.swift */,
 				AD96ED632AD5BF94005D197B /* SignInWithAppleButtonView.swift */,
 			);
@@ -409,7 +409,7 @@
 			children = (
 				8A6DC56A2AF626B70059ADAB /* Components.swift */,
 				EED5EC6D2AF21D2700751FAE /* SplashView.swift */,
-				EED5EC6F2AF21D4700751FAE /* LoginView.swift */,
+				EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */,
 				EED5EC712AF21D5500751FAE /* LoadingView.swift */,
 				EED5EC7F2AF2209D00751FAE /* TabBarView.swift */,
 				EED5EC752AF21DE000751FAE /* NotificationView.swift */,
@@ -570,7 +570,7 @@
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
 				EED5EC782AF21E0E00751FAE /* CreatePlanBoardView.swift in Sources */,
 				EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */,
-				EED5EC702AF21D4700751FAE /* LoginView.swift in Sources */,
+				EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */,
 				EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */,
 				8A6DC56B2AF626B70059ADAB /* Components.swift in Sources */,
 				AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */,
@@ -603,7 +603,7 @@
 				EE909A412AC3CDC700C9AAF0 /* Utils.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
-				AD68907D2AC707D800539A5C /* AuthenticationView.swift in Sources */,
+				AD68907D2AC707D800539A5C /* AuthenticationViewDeprecated.swift in Sources */,
 				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,

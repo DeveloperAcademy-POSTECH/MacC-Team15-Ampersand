@@ -1,5 +1,5 @@
 //
-//  LoginView.swift
+//  AuthenticationView.swift
 //  gridy
 //
 //  Created by xnoag on 11/1/23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct LoginView: View {
+struct AuthenticationView: View {
     
     let store = Store(initialState: Authentication.State()) {
         Authentication()
@@ -72,7 +72,7 @@ struct LoginView: View {
     }
 }
 
-extension LoginView {
+extension AuthenticationView {
     var lottie: some View {
         Rectangle()
             .clipShape(
@@ -88,7 +88,7 @@ extension LoginView {
     }
 }
 
-extension LoginView {
+extension AuthenticationView {
     var gridyLogo: some View {
         Image("gridy-logo")
             .resizable()
@@ -102,7 +102,7 @@ extension LoginView {
     }
 }
 
-extension LoginView {
+extension AuthenticationView {
     var version: some View {
         Text("Pre-release")
             .font(.callout)
@@ -115,7 +115,7 @@ extension LoginView {
     }
 }
 
-extension LoginView {
+extension AuthenticationView {
     var loginBack: some View {
         Rectangle()
             .clipShape(
@@ -131,5 +131,5 @@ extension LoginView {
 }
 
 #Preview {
-    LoginView()
+    AuthenticationView()
 }
