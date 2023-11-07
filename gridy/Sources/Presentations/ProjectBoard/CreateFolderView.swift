@@ -54,8 +54,8 @@ extension CreateFolderView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            cancelHover = proxy
+        .onHover { isHovered in
+            cancelHover = isHovered
         }
     }
 }
@@ -76,8 +76,8 @@ extension CreateFolderView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            createHover = proxy
+        .onHover { isHovered in
+            createHover = isHovered
         }
     }
 }

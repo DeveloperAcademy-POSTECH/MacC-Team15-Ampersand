@@ -81,9 +81,9 @@ extension NotificationView {
             )
             .buttonStyle(.link)
             .scaleEffect(notificationContentHover ? 1.02 : 1)
-            .onHover { proxy in
+            .onHover { isHovered in
                 withAnimation(.easeInOut(duration: 0.1)) {
-                    notificationContentHover = proxy
+                    notificationContentHover = isHovered
                 }
             }
         }

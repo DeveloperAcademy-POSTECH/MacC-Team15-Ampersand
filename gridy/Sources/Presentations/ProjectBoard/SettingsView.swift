@@ -52,8 +52,8 @@ extension SettingsView {
                 }
             }
             .clipShape(Circle())
-            .onHover { proxy in
-                profileHover = proxy
+            .onHover { isHovered in
+                profileHover = isHovered
             }
             .onTapGesture { profileClicked = true }
     }
@@ -92,8 +92,8 @@ extension SettingsView {
                             .padding(.leading, 8)
                     }
                 }
-                .onHover { proxy in
-                    textFieldHover = proxy
+                .onHover { isHovered in
+                    textFieldHover = isHovered
                 }
                 .onTapGesture {
                     textFieldSubmit = false
@@ -141,8 +141,8 @@ extension SettingsView {
                     )
             }
             .buttonStyle(.link)
-            .onHover { proxy in
-                exitButtonHover = proxy
+            .onHover { isHovered in
+                exitButtonHover = isHovered
             }
             Spacer()
         }

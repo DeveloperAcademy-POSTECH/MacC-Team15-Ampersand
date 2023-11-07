@@ -52,8 +52,8 @@ extension LogoutView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            cancelHover = proxy
+        .onHover { isHovered in
+            cancelHover = isHovered
         }
     }
 }
@@ -74,8 +74,8 @@ extension LogoutView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            logoutHover = proxy
+        .onHover { isHovered in
+            logoutHover = isHovered
         }
     }
 }

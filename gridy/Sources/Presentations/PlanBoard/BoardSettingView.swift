@@ -126,8 +126,8 @@ extension BoardSettingView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            cancelHover = proxy
+        .onHover { isHovered in
+            cancelHover = isHovered
         }
     }
 }
@@ -148,8 +148,8 @@ extension BoardSettingView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            createHover = proxy
+        .onHover { isHovered in
+            createHover = isHovered
         }
     }
 }

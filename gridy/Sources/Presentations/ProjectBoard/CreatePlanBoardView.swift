@@ -133,8 +133,8 @@ extension CreatePlanBoardView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            cancelHover = proxy
+        .onHover { isHovered in
+            cancelHover = isHovered
         }
     }
 }
@@ -155,8 +155,8 @@ extension CreatePlanBoardView {
                 )
         }
         .buttonStyle(.link)
-        .onHover { proxy in
-            createHover = proxy
+        .onHover { isHovered in
+            createHover = isHovered
         }
     }
 }

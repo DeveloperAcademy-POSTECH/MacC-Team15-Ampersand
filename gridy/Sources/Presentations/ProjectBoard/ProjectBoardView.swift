@@ -428,8 +428,8 @@ extension ProjectBoardView {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(automaticClicked ? Color.blackWhite : automaticHover ? Color.blackWhite : .clear)
             )
-            .onHover { proxy in
-                automaticHover = proxy
+            .onHover { isHovered in
+                automaticHover = isHovered
             }
             .onTapGesture {
                 automaticClicked = true
@@ -452,8 +452,8 @@ extension ProjectBoardView {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(lightClicked ? Color.blackWhite : lightHover ? Color.blackWhite : .clear)
             )
-            .onHover { proxy in
-                lightHover = proxy
+            .onHover { isHovered in
+                lightHover = isHovered
             }
             .onTapGesture {
                 automaticClicked = false
@@ -476,8 +476,8 @@ extension ProjectBoardView {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(darkClicked ? Color.blackWhite : darkHover ? Color.blackWhite : .clear)
             )
-            .onHover { proxy in
-                darkHover = proxy
+            .onHover { isHovered in
+                darkHover = isHovered
             }
             .onTapGesture {
                 automaticClicked = false

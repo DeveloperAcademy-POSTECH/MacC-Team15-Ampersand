@@ -72,8 +72,8 @@ extension UserSettingView {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(themeHover ? Color.blackWhite : .clear)
             )
-            .onHover { proxy in
-                themeHover = proxy
+            .onHover { isHovered in
+                themeHover = isHovered
             }
             .onTapGesture { themeClicked = true }
             .padding(.horizontal, 16)
@@ -97,8 +97,8 @@ extension UserSettingView {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(settingsClicked ? Color.blackWhite : settingsHover ? Color.blackWhite : .clear)
         )
-        .onHover { proxy in
-            settingsHover = proxy
+        .onHover { isHovered in
+            settingsHover = isHovered
         }
         .onTapGesture {
             themeClicked = false
@@ -124,8 +124,8 @@ extension UserSettingView {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(logOutClicked ? Color.blackWhite : logOutHover ? Color.blackWhite : .clear)
         )
-        .onHover { proxy in
-            logOutHover = proxy
+        .onHover { isHovered in
+            logOutHover = isHovered
         }
         .onTapGesture {
             settingsClicked = false
