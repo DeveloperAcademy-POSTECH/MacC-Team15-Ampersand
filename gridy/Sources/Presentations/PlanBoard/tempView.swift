@@ -50,7 +50,12 @@ struct TempView: View {
                         }
                         Button {
                             viewStore.send(
-                                .createPlanOnList(layer: Int(createLayer)!, row: Int(createRow)!, text: createRow, colorCode: nil)
+                                .createPlanOnList(
+                                    layer: Int(createLayer)!,
+                                    row: Int(createRow)!,
+                                    text: createRow,
+                                    colorCode: nil
+                                )
                             )
                             createLayer = ""
                             createRow = ""
@@ -76,7 +81,12 @@ struct TempView: View {
                         }
                         Button {
                             viewStore.send(
-                                .updatePlanTypeOnList(layer: Int(updateLayer)!, row: Int(updateRow)!, text: updateRow, colorCode: PlanType.emptyPlanType.colorCode)
+                                .updatePlanTypeOnList(
+                                    layer: Int(updateLayer)!,
+                                    row: Int(updateRow)!,
+                                    text: updateRow,
+                                    colorCode: PlanType.emptyPlanType.colorCode
+                                )
                             )
                             
                             updateLayer = ""
@@ -100,7 +110,10 @@ struct TempView: View {
                         }
                         Button {
                             viewStore.send(
-                                .deletePlanOnList(layer: Int(deleteLayer)!, row: Int(deleteRow)!)
+                                .deletePlanOnList(
+                                    layer: Int(deleteLayer)!,
+                                    row: Int(deleteRow)!
+                                )
                             )
                         } label: {
                             Text("Delete")
