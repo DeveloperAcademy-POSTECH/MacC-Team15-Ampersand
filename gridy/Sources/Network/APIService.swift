@@ -102,6 +102,12 @@ extension APIService {
             ] as [String: Any?]
             try await FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
             try await FirestoreService.setDocumentData(id, .plans, rootPlan.id, planToDictionary(rootPlan))
+            let planTypeData = [
+                "id": PlanType.emptyPlanType.id,
+                "title": PlanType.emptyPlanType.title,
+                "colorCode": PlanType.emptyPlanType.colorCode
+            ] as [String: Any]
+            try await FirestoreService.setDocumentData(id, .planTypes, PlanType.emptyPlanType.id, planTypeData)
         },
         readAllProjects: {
             do {

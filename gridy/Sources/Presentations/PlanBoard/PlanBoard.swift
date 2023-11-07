@@ -1252,7 +1252,7 @@ struct PlanBoard: Reducer {
                 var tempLayer: [String] = []
                 var totalLoop = 0
                 
-                while !planIDsQ.isEmpty && totalLoop < 3{
+                while !planIDsQ.isEmpty && totalLoop < 3 {
                     for planID in planIDsQ {
                         let plan = state.existingAllPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
