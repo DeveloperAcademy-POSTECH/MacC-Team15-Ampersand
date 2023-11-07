@@ -53,7 +53,7 @@ extension CreatePlanBoardView {
         Button {
             startDatePickerPresented = true
         } label: {
-            Text("시작 : \(formattedDate(date: selectedStartDate))")
+            Text("시작 : \(selectedStartDate.formattedDate)")
                 .foregroundStyle(Color.title)
                 .frame(width: 132, height: 32)
                 .background(
@@ -77,13 +77,6 @@ extension CreatePlanBoardView {
             .padding()
         }
     }
-    
-    func formattedDate(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd."
-        return formatter.string(from: date)
-    }
-    
 }
 
 extension CreatePlanBoardView {
@@ -91,7 +84,7 @@ extension CreatePlanBoardView {
         Button {
             endDatePickerPresented = true
         } label: {
-            Text("종료 : \(formattedDate(date: selectedEndDate))")
+            Text("종료 : \(selectedEndDate.formattedDate)")
                 .foregroundStyle(Color.title)
                 .frame(width: 132, height: 32)
                 .background(
