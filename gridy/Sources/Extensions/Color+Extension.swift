@@ -82,4 +82,5 @@ extension Color {
     static let weekend = Color("weekend")
     static let planBoardBorder = Color("planBoardBorder")
     static let rightToolBar = Color("rightToolBar")
+    static let hoveredCell = Color("hoveredCell")
 }

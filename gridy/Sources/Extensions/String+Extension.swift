@@ -33,6 +33,11 @@ extension String {
     /* FocusGroups */
     static let topToolBarFocusGroup = "topToolBarFocusGroup"
     static let sheetsButtonFocusGroup = "sheetsButtonFocusGroup"
+    static let lineAreaFocusGroup = "lineAreaFocusGroup"
+    static let timeAxisAreaFocusGroup = "timeAxisAreaFocusGroup"
+    static let scheduleAreaFocusGroup = "scheduleAreaFocusGroup"
+    static let listAreaFocusGroup = "listAreaFocusGroup"
+    static let rightToolBarFocusGroup = "rightToolBarFocusGroup"
     
     /* FocusedItemNames */
 

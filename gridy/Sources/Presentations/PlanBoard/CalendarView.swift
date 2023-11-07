@@ -14,61 +14,62 @@ struct DateValue: Identifiable {
 }
 
 struct CalendarView: View {
-    @State private var currentDate = Date()
-    @State private var currentMonth = 0
-    @State private var isDayClicked = false
-    @State private var selectedDate = DateValue(day: 0, date: Date())
+    @State private var currentDate: Date = Date()
+    @State private var currentMonth: Int = 0
+    @State private var isDayClicked: Bool = false
+    @State private var selectedDate: DateValue = DateValue(day: 0, date: Date())
+    let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
     
     var body: some View {
-        
-        let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
-        let columns = Array(repeating: GridItem(.fixed(22)), count: 7)
-        
-        ZStack {
-            RoundedRectangle(cornerRadius: 32)
-                .foregroundStyle(Color.item)
-                .padding()
-            VStack(alignment: .center) {
-                HStack(spacing: 16) {
-                    Text(extraDate()[1])
-                        .foregroundStyle(Color.title)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    Image(systemName: "chevron.left")
-                        .font(.body)
-                        .foregroundStyle(Color.subtitle)
-                        .onTapGesture {
-                            currentMonth -= 1
+        RoundedRectangle(cornerRadius: 32)
+            .foregroundStyle(.white)
+            .frame(width: 248, height: 248)
+            .overlay {
+                GeometryReader { _ in
+                    VStack(alignment: .center, spacing: 4) {
+                        HStack(alignment: .center, spacing: 16) {
+                            Text(extraDate()[1])
+                                .foregroundStyle(Color.black)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Image(systemName: "chevron.left")
+                                .font(.body)
+                                .foregroundColor(Color.gray)
+                                .onTapGesture {
+                                    currentMonth -= 1
+                                }
+                            Image(systemName: "chevron.right")
+                                .font(.body)
+                                .foregroundColor(Color.gray)
+                                .onTapGesture {
+                                    currentMonth += 1
+                                }
                         }
-                    Image(systemName: "chevron.right")
-                        .font(.body)
-                        .foregroundStyle(Color.subtitle)
-                        .onTapGesture {
-                            currentMonth += 1
+                        .padding(.horizontal, 24)
+                        HStack(alignment: .top, spacing: 5) {
+                            ForEach(days, id: \.self) { day in
+                                Text(day)
+                                    .font(.callout)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(day == "일" ? Color.gray : Color.black)
+                                    .frame(width: 25, height: 25)
+                            }
                         }
-                }
-                HStack(spacing: 8) {
-                    ForEach(days, id: \.self) { day in
-                        Text(day)
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(day == "일" ? Color.subtitle : Color.title)
-                            .frame(width: 22, height: 22)
+                        let columns = Array(repeating: GridItem(.fixed(25), spacing: 5), count: 7)
+                        LazyVGrid(columns: columns, spacing: extractDate().count > 35 ? 0 : 6) {
+                            ForEach(extractDate()) { value in
+                                cardView(value: value)
+                            }
+                        }
+                        .onChange(of: currentMonth) { _ in
+                            currentDate = getCurrentMonth()
+                        }
+                        Spacer()
                     }
                 }
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(extractDate()) { value in
-                        cardView(value: value)
-                    }
-                }
-                .onChange(of: currentMonth) { _ in
-                    currentDate = getCurrentMonth()
-                }
+                .offset(y: 24)
             }
-            .fixedSize()
-        }
-        .aspectRatio(1, contentMode: .fit)
     }
     
     @ViewBuilder
@@ -77,19 +78,19 @@ struct CalendarView: View {
             if value.day != -1 {
                 let isToday = Calendar.current.isDateInToday(value.date)
                 let comparisonResult = Calendar.current.compare(value.date, to: Date(), toGranularity: .day)
-                let isSunday = value.date.dayOfSunday() == 1  /// 1은 일요일을 나타냅니다.
+                let isSunday = value.date.dayOfSunday() == 1
                 Circle()
-                    .frame(width: 28, height: 28)
-                    .foregroundStyle(isToday ? Color.title : .clear)
+                    .frame(width: 25, height: 25)
+                    .foregroundColor(isToday ? Color.black : .clear)
                 Text("\(value.day)")
                     .font(.title3)
                     .bold(isToday ? true : false)
-                    .foregroundStyle(isSunday ? Color.subtitle : (isToday ? Color.folder : Color.title))
+                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : Color.black)
             }
         }
     }
     
-    private func extraDate() -> [String] {
+    func extraDate() -> [String] {
         let formatter = DateFormatter()
         formatter.dateFormat = "YYYY MMMM"
         formatter.locale = Locale(identifier: "ko_KR")
@@ -98,18 +99,17 @@ struct CalendarView: View {
         return date.components(separatedBy: " ")
     }
     
-    private func getCurrentMonth() -> Date {
+    func getCurrentMonth() -> Date {
         let calendar = Calendar.current
         /// 현재 달의 요일을 받아옴
-        guard let currentMonth = calendar.date(byAdding: .month, value: self.currentMonth, to: Date()) else {
+        guard let currentMonth = calendar.date(byAdding: .month, value : self.currentMonth, to: Date()) else {
             return Date()
         }
         return currentMonth
     }
     
-    private func extractDate() -> [DateValue] {
+    func extractDate() -> [DateValue] {
         let calendar = Calendar.current
-        /// 현재 달의 요일을 받아옴
         let currentMonth = getCurrentMonth()
         var days = currentMonth.getAllDates().compactMap { date -> DateValue in
             let day = calendar.component(.day, from: date)
@@ -128,7 +128,6 @@ extension Date {
         let calendar = Calendar.current
         let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
         var range = calendar.range(of: .day, in: .month, for: startDate)!
-        range.removeLast()
         return range.compactMap { day -> Date in
             return calendar.date(byAdding: .day, value: day - 1, to: startDate)!
         }
@@ -143,3 +142,4 @@ extension Date {
 #Preview {
     CalendarView()
 }
+

@@ -33,8 +33,8 @@ struct PlanBoard: Reducer {
         var numOfScheduleAreaRow = 5
         
         /// 그리드 Path의 두께를 결정합니다. Line Area, ScheduleArea에서 따르고 있으며, ListArea는 별도의 Stroke를 가질 것으로 생각됩니다.
-        var columnStroke = CGFloat(0.1)
-        var rowStroke = CGFloat(0.5)
+        var columnStroke = CGFloat(1)
+        var rowStroke = CGFloat(1)
         
         /// 그리드의 사이즈에 대한 변수들입니다. RightToolBarArea에서 변수를 조정할 수 있습니다. Magnificationn과 min/maxSIze는 사용자가 확대했을 때 최대 최소 크기를 지정하기 위해 필요한 제한 값입니다.
         let minGridSize = CGFloat(20)
@@ -71,6 +71,9 @@ struct PlanBoard: Reducer {
         /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
+        
+        ///TimeAxisArea에서 사용
+        var holidays = [Date]()
         
         // MARK: - list area
         var showingLayers = [0]
@@ -114,7 +117,7 @@ struct PlanBoard: Reducer {
         case shiftToToday
         case escapeSelectedCell
         
-        // MARK: - TimelineLayout
+        // MARK: - PlanBoard
         case isShiftKeyPressed(Bool)
         case isCommandKeyPressed(Bool)
         
@@ -271,6 +274,24 @@ struct PlanBoard: Reducer {
                     )
                 }
                 let planToBeCreated = newPlan!
+                
+                /// 처음위치로 돌아오는 로직이나, 사용성에 맞는 코드인지 검토 필요
+                if let lastSelected = state.selectedGridRanges.last {
+                    state.selectedGridRanges = [SelectedGridRange(
+                        start: (lastSelected.start.row, lastSelected.start.col),
+                        end: (lastSelected.start.row, lastSelected.start.col)
+                    )]
+                }
+                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
+                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
+                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                }
+                if Int(state.selectedGridRanges.last!.start.row) < state.shiftedRow ||
+                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
+                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                }
+                
                 return .run { send in
                     await send(.createPlanResponse(
                         TaskResult {
