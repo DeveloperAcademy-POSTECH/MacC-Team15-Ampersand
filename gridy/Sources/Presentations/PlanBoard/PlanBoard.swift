@@ -193,6 +193,16 @@ struct PlanBoard: Reducer {
                 // MARK: - plan type
             case let .createPlanType(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
+                if let originType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode == colorCode}) {
+                    return .run { _ in
+                        try await apiService.updatePlanType(
+                            targetPlanID,
+                            originType.id,
+                            projectID
+                        )
+                    }
+                }
+                
                 let newPlanTypeID = UUID().uuidString
                 let newPlanType = PlanType(
                     id: newPlanTypeID,
@@ -203,7 +213,6 @@ struct PlanBoard: Reducer {
                 state.existingAllPlans[targetPlanID]!.planTypeID = newPlanTypeID
                 
                 return .run { send in
-                    await send(.fetchMap)
                     try await apiService.createPlanType(
                         newPlanType,
                         targetPlanID,
