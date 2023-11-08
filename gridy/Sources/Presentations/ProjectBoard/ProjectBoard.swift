@@ -173,7 +173,6 @@ struct ProjectBoard: Reducer {
                 /// 보여지고 있는 시트를 지웠을 경우
                 var clickedProjectID = ""
                 if state.tabBarFocusGroupClickedItem == projectID {
-                    print(state.projects[id: state.showingProjects.last!]!.project.title)
                     clickedProjectID = state.showingProjects.last!
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
