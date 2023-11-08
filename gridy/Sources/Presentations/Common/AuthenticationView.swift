@@ -10,10 +10,7 @@ import ComposableArchitecture
 
 struct AuthenticationView: View {
     
-    let store = Store(initialState: Authentication.State()) {
-        Authentication()
-            ._printChanges()
-    }
+    let store: StoreOf<Authentication>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -40,16 +37,10 @@ struct AuthenticationView: View {
                             .foregroundStyle(Color.subtitle)
                             .padding(.bottom, 50)
                         if viewStore.successToSignIn {
-                            NavigationLink("프로젝트 보드로 가기") {
-                                // TODO: ProjectBoardView에 Store 복구하기
-                                ProjectBoardView(
-                                    store: store.scope(
-                                        state: \.optionalProjectBoard,
-                                        action: { .optionalProjectBoard($0) }
-                                    )
-                                )
+                            Button("프로젝트 보드로 가기") {
+                                viewStore.send(.goBtnClicked(clicked: true))
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .buttonStyle(.plain)
                             .frame(width: 392, height: 60)
                             .clipShape(
                                 .rect(cornerRadius: 60)
@@ -132,5 +123,7 @@ extension AuthenticationView {
 }
 
 #Preview {
-    AuthenticationView()
+    AuthenticationView(store: Store(initialState: Authentication.State()) {
+        Authentication()
+    })
 }
