@@ -9,10 +9,30 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ContentView: View {
+    
+    let store = Store(initialState: Authentication.State()) {
+        Authentication()
+            ._printChanges()
+    }
+    
     var body: some View {
-        ZStack {
-            SplashView()
-            AuthenticationView()
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                if !viewStore.isShowingProjectBoard {
+                    ZStack {
+                        SplashView()
+                        AuthenticationView(store: store)
+                    }
+                    
+                } else {
+                    ProjectBoardView(
+                        store: store.scope(
+                            state: \.optionalProjectBoard,
+                            action: { .optionalProjectBoard($0) }
+                        )
+                    )
+                }
+            }
         }
     }
 }

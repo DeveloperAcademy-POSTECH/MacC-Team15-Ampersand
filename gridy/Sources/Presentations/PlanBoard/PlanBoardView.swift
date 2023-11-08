@@ -14,13 +14,12 @@ struct PlanBoardView: View {
     @State private var timer: Timer?
     
     let store: StoreOf<PlanBoard>
-    let tabID: String
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 0) {
                 systemBorder(.horizontal)
-                TopToolBarView(store: store, tabID: tabID)
+                TopToolBarView(store: store)
                     .frame(height: 48)
                     .zIndex(2)
                 planBoardBorder(.horizontal)

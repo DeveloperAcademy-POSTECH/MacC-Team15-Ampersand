@@ -23,6 +23,7 @@ struct Authentication: Reducer {
         var successToSignIn = false
         var authenticatedUser = User.mock
         var isProceeding = false
+        var isShowingProjectBoard = false
         
         /// Navigation
         var optionalProjectBoard = ProjectBoard.State()
@@ -38,6 +39,7 @@ struct Authentication: Reducer {
         case setProcessing(Bool)
         
         /// Navigation
+        case goBtnClicked(clicked: Bool)
         case optionalProjectBoard(ProjectBoard.Action)
         case setNavigation(isActive: Bool)
     }
@@ -86,7 +88,6 @@ struct Authentication: Reducer {
             case let .fetchUserResponse(.success(response)):
                 state.authenticatedUser = response ?? User.mock
                 state.successToSignIn = true
-                // TODO: - navigation 로직 수정필요 @제나
                 return .none
                 
             case .fetchUserResponse(.failure):
@@ -106,6 +107,10 @@ struct Authentication: Reducer {
                 
             case .setNavigation(isActive: false):
                 return .cancel(id: CancelID.load)
+                
+            case let .goBtnClicked(clicked):
+                state.isShowingProjectBoard = clicked
+                return .none
                 
             case .optionalProjectBoard:
                 return .none

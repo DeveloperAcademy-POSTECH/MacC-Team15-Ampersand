@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct CreatePlanBoardView: View {
+    let store: StoreOf<ProjectBoard>
     @State var projectName = ""
     @State var cancelHover = false
     @State var createHover = false
@@ -37,14 +39,25 @@ struct CreatePlanBoardView: View {
 
 extension CreatePlanBoardView {
     var folderNameTextField: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .foregroundStyle(Color.item)
-            .frame(height: 48)
-            .overlay(
-                TextField("Project Name", text: $projectName)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-            )
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.item)
+                .frame(height: 48)
+                .overlay(
+                    TextField("Project Name", 
+                              text: viewStore.binding(
+                                  get: \.title,
+                                  send: { .titleChanged($0) }
+                              ))
+                        .textFieldStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .onSubmit {
+                            if !viewStore.title.isEmpty {
+                                viewStore.send(.createNewProjectButtonTapped)
+                            }
+                        }
+                )
+        }
     }
 }
 
@@ -134,26 +147,24 @@ extension CreatePlanBoardView {
 
 extension CreatePlanBoardView {
     var create: some View {
-        Button {
-            // TODO: - Create Button
-        } label: {
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(createHover ? Color.buttonHovered : Color.button)
-                .frame(height: 32)
-                .overlay(
-                    Text("Create")
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.buttonText)
-                )
-        }
-        .buttonStyle(.link)
-        .onHover { isHovered in
-            createHover = isHovered
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                viewStore.send(.createNewProjectButtonTapped)
+            } label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(createHover ? Color.buttonHovered : Color.button)
+                    .frame(height: 32)
+                    .overlay(
+                        Text("Create")
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.buttonText)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                createHover = isHovered
+            }
         }
     }
-}
-
-#Preview {
-    CreatePlanBoardView()
 }
