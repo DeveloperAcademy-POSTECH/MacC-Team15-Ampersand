@@ -58,6 +58,7 @@ struct ProjectBoard: Reducer {
         
         case sendFeedback(String)
         case fetchNotice
+        case fetchNoticeResponse(TaskResult<[Notice]>)
         
         case binding(BindingAction<State>)
         case setSheet(isPresented: Bool)
@@ -144,9 +145,6 @@ struct ProjectBoard: Reducer {
                 state.successToFetchData = true
                 return .none
                 
-            case .fetchAllProjectsResponse(.failure):
-                return .none
-                
             case let .setProcessing(isInProgress):
                 state.isInProgress = isInProgress
                 return .none
@@ -179,9 +177,16 @@ struct ProjectBoard: Reducer {
                 }
                 
             case .fetchNotice:
-                return .none
+                return .run { send in
+                    await send(.fetchNoticeResponse(
+                        TaskResult {
+                            try await apiService.readAllNotices()
+                        }
+                    ))
+                }
                 
-            case .binding:
+            case let .fetchNoticeResponse(.success(response)):
+                state.notices = response
                 return .none
                 
             case .deleteProjectButtonTapped(id: _, action: .binding(\.$delete)):
@@ -208,7 +213,7 @@ struct ProjectBoard: Reducer {
                 }
                 return .none
                 
-            case .deleteProjectButtonTapped:
+            default:
                 return .none
             }
         }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Notice: Decodable {
+struct Notice: Decodable, Equatable {
     let issuedDate: Date
     var contents: String
 }
