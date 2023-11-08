@@ -393,7 +393,7 @@ extension ProjectBoardView {
                         .font(.caption)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.subtitle)
-                    Text(viewStore.project.lastModifiedDate.formattedDate)
+                    Text("Last updated on \(viewStore.project.lastModifiedDate.formattedDate)")
                         .font(.caption)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color.textInactive)
