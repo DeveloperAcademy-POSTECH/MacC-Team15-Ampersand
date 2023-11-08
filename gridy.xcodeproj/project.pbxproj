@@ -229,7 +229,6 @@
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */,
 				AD68907E2AC7F1AD00539A5C /* Authentication.swift */,
 				AD96ED632AD5BF94005D197B /* SignInWithAppleButtonView.swift */,
 			);
@@ -422,6 +421,7 @@
 				EE5C207B2AE15685005D2D7E /* ProjectSideItemViewDeprecated.swift */,
 				AD96ED3F2AD1BC17005D197B /* ProjectCreationViewDeprecated.swift */,
 				EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainViewDeprecated.swift */,
+				AD68907C2AC707D800539A5C /* AuthenticationViewDeprecated.swift */,
 			);
 			path = Deprecated;
 			sourceTree = "<group>";

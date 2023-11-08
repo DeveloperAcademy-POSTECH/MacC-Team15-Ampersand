@@ -40,7 +40,7 @@ struct AuthenticationView: View {
                             Button("프로젝트 보드로 가기") {
                                 viewStore.send(.goBtnClicked(clicked: true))
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .buttonStyle(.plain)
                             .frame(width: 392, height: 60)
                             .clipShape(
                                 .rect(cornerRadius: 60)
