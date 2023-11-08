@@ -15,10 +15,18 @@ enum LineAreaDragType {
     case pressBoth
 }
 
+enum PlanBoardAreaName {
+    case scheduleArea
+    case timeAxisArea
+    case listArea
+    case lineArea
+}
+
 struct PlanBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
     
+    // MARK: - State
     struct State: Equatable {
         var rootProject: Project
         var map: [String: [String]]
@@ -29,42 +37,53 @@ struct PlanBoard: Reducer {
         var keyword = ""
         var selectedColorCode = Color.red
         
-        /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
-        var numOfScheduleAreaRow = 5
-        
-        /// 그리드 Path의 두께를 결정합니다. Line Area, ScheduleArea에서 따르고 있으며, ListArea는 별도의 Stroke를 가질 것으로 생각됩니다.
+        /// 그리드 규격에 대한 변수들입니다.
         var columnStroke = CGFloat(1)
         var rowStroke = CGFloat(1)
-        
-        /// 그리드의 사이즈에 대한 변수들입니다. RightToolBarArea에서 변수를 조정할 수 있습니다. Magnificationn과 min/maxSIze는 사용자가 확대했을 때 최대 최소 크기를 지정하기 위해 필요한 제한 값입니다.
+        var gridWidth = CGFloat(50)
         let minGridSize = CGFloat(20)
         let maxGridSize = CGFloat(70)
-        var gridWidth = CGFloat(45)
-        var scheduleAreaGridHeight = CGFloat(45)
-        var lineAreaGridHeight = CGFloat(45)
-        // TODO: - 나중에 추가될 코드 ... 헨리가 뭔가 준비만 해뒀다고 했음!
-        //        var horizontalMagnification = CGFloat(1.0)
-        //         var verticalMagnification = CGFloat(1.0)
+        var lineAreaGridHeight = CGFloat(50)
+        var scheduleAreaGridHeight = CGFloat(25)
         
-        /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다. 아직은 RightToolBarArea에서 확인용으로만 사용하고 있습니다.
-        var hoverLocation: CGPoint = .zero
-        var hoveringCellRow = 0
-        var hoveringCellCol = 0
-        var isHovering = false
+        /// hover나 click된 영역을 구분합니다.
+        var hoveredArea: PlanBoardAreaName?
+        var clickedArea: PlanBoardAreaName?
+        
+        /// ScheduleArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var scheduleAreaHoveredCellLocation: CGPoint = .zero
+        var scheduleAreaHoveredCellRow = 0
+        var scheduleAreaHoveredCellCol = 0
+ 
+        /// TimeAxisArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var timeAxisAreaHoveredCellLocation: CGPoint = .zero
+        var timeAxisAreaHoveredCellRow = 0
+        var timeAxisAreaHoveredCellCol = 0
+        
+        /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var listAreaHoveredCellLocation: CGPoint = .zero
+        var listAreaHoveredCellRow = 0
+        var listAreaHoveredCellCol = 0
+        
+        /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var lineAreaHoveredCellLocation: CGPoint = .zero
+        var lineAreaHoveredCellRow = 0
+        var lineAreaHoveredCellCol = 0
         
         /// 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
+        var temporarySelectedGridRange: SelectedGridRange?
         var selectedGridRanges: [SelectedGridRange] = []
         var selectedDateRanges: [SelectedDateRange] = []
+        var exceededDirection = [false, false, false, false]
         
-        /// 뷰의 GeometryReader값의 변화에 따라 Max 그리드 갯수가 변호합니다.
-        var maxLineAreaRow = 0
+        /// GeometryReader proxy값의 변화에 따라 Max 그리드 갯수가 변화합니다.
         var maxCol = 0
+        var maxLineAreaRow = 0
+        var maxScheduleAreaRow = 6
         
-        /// 뷰가 움직인 크기를 나타내는 변수입니다.
+        /// 뷰가 움직인 크기를 나타내는 변수입니다. ListArea, LineArea가 공유합니다.
         var shiftedRow = 0
         var shiftedCol = 0
-        
-        /// 마우스로 드래그 할 때 화면 밖으로 벗어난 치수를 담고있는 변수입니다만, 현재 shiftedRow/Col과 역할이 비슷하여 하나로 합치는 것을 고려 중입니다.
         var exceededRow = 0
         var exceededCol = 0
         
@@ -72,33 +91,40 @@ struct PlanBoard: Reducer {
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
         
-        ///TimeAxisArea에서 사용
+        /// TimeAxisArea에서 사용
         var holidays = [Date]()
         
-        // MARK: - list area
+        // TODO: 내용 이전하고 삭제하기
+        var hoverLocation: CGPoint = .zero
+        var hoveringCellRow = 0
+        var hoveringCellCol = 0
+        var isHovering = false
+
+        /// ListArea
         var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
         
-        // MARK: - FocusGroupClickedItems
+        /// ListArea
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
         
-        // MARK: - Sheets
+        /// ListArea
         var isShareImagePresented = false
         var isBoardSettingPresented = false
         var isRightToolBarPresented = true
     }
     
+    // MARK: - Action
     enum Action: Equatable {
-        // MARK: - user action
+        /// UserAction
         case onAppear
         case selectColorCode(Color)
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
         
-        // MARK: - plan type
+        /// PlanType
         case createPlanType(planID: String)
         case createPlanTypeResponse(TaskResult<PlanType>)
         case searchExistingPlanTypes(with: String)
@@ -106,7 +132,7 @@ struct PlanBoard: Reducer {
         case fetchAllPlanTypes
         case fetchAllPlanTypesResponse(TaskResult<[PlanType]>)
         
-        // MARK: - plan
+        /// Plan
         case createPlan(layer: Int, row: Int, target: Plan, startDate: Date?, endDate: Date?)
         case createPlanResponse(TaskResult<[String: [String]]>)
         case updatePlan(planID: String, planTypeID: String)
@@ -117,18 +143,18 @@ struct PlanBoard: Reducer {
         case shiftToToday
         case escapeSelectedCell
         
-        // MARK: - PlanBoard
+        /// PlanBoard
         case isShiftKeyPressed(Bool)
         case isCommandKeyPressed(Bool)
         
-        // MARK: - GridSizeController
+        /// GridSizeController
         case changeWidthButtonTapped(CGFloat)
         case changeHeightButtonTapped(CGFloat)
         
-        // MARK: - ScheduleAreaView
+        /// ScheduleAreaView
         case magnificationChangedInScheduleArea(CGFloat)
         
-        // MARK: - LineAreaView
+        /// LineAreaView
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
@@ -137,7 +163,7 @@ struct PlanBoard: Reducer {
         case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         
-        // MARK: - list area
+        /// ListArea
         case showUpperLayer
         case showLowerLayer
         case createLayer(layerIndex: Int)
@@ -146,11 +172,12 @@ struct PlanBoard: Reducer {
         case setSheet(Bool)
     }
     
+    // MARK: - Body
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
     
-                // MARK: - user action
+                // MARK: - UserAction
             case .onAppear:
                 return .run { send in
                     await send(.fetchAllPlans)
@@ -187,7 +214,7 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-                // MARK: - plan type
+                // MARK: - PlanType
             case let .createPlanType(planID):
                 let keyword = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
@@ -249,7 +276,7 @@ struct PlanBoard: Reducer {
                 state.searchPlanTypesResult = response
                 return .none
                 
-                // MARK: - plan
+                // MARK: - Plan
             case let .createPlan(layer, row, target, startDate, endDate):
                 // TODO: - 나중에 삭제해도 되는 코드인듯! 헨리 확인 부탁해요~
                 let projectID = state.rootProject.id
@@ -324,7 +351,7 @@ struct PlanBoard: Reducer {
                 state.existingAllPlans = response
                 return .none
                 
-                // MARK: - listArea
+                // MARK: - ListArea
             case .showUpperLayer:
                 let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
                 if state.showingLayers.count < 3 {
