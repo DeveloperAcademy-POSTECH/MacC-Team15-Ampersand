@@ -162,13 +162,6 @@ extension PlanBoardView {
                         }
                     }
                 }
-                .onChange(of: geometry.size) { newSize in
-                    viewStore.send(.windowSizeChanged(newSize))
-                }
-                .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
-                    // TODO: - Action에서 처리해야 될 것 같은데
-                    viewStore.send(.gridSizeChanged(geometry.size))
-                }
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
@@ -177,12 +170,6 @@ extension PlanBoardView {
                         viewStore.send(.onContinuousHover(false, nil))
                     }
                 }
-                .gesture(
-                    MagnificationGesture()
-                        .onChanged { value in
-                            viewStore.send(.magnificationChangedInListArea(value, geometry.size))
-                        }
-                )
             }
         }
     }
