@@ -21,7 +21,7 @@ struct ProjectBoardView: View {
     @State var darkHover = false
     @State var darkClicked = false
     
-    @State private var isExpanded = true
+    @State private var isExpanded = false
     
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
@@ -300,17 +300,17 @@ extension ProjectBoardView {
                             Spacer()
                         }
                         .padding(.leading, 16)
+                        .onHover { isHovered in
+                            viewStore.send(.hoveredItem(name: isHovered ? "personalProject" : ""))
+                        }
                         .background(
-                            viewStore.projectListFocusGroupClickedItem == "personalProject" ?
+                            //                            viewStore.projectListFocusGroupClickedItem == "personalProject"
+                            isExpanded ||
+                            viewStore.hoveredItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
-                        .onHover { isHovered in
-                            viewStore.send(.hoveredItem(
-                                name: isHovered ? "personalProject" : ""
-                            )
-                            )
-                        }
                         .onTapGesture {
+                            isExpanded.toggle()
                             viewStore.send(.clickedItem(
                                 focusGroup: .projectListFocusGroup,
                                 name: "personalProject")
@@ -360,12 +360,7 @@ extension ProjectBoardView {
     private struct MyDisclosureStyle: DisclosureGroupStyle {
         func makeBody(configuration: Configuration) -> some View {
             VStack(alignment: .leading, spacing: 0) {
-                Button {
-                    configuration.isExpanded.toggle()
-                } label: {
-                    configuration.label
-                }
-                .buttonStyle(.plain)
+                configuration.label
                 if configuration.isExpanded {
                     configuration.content
                 }
@@ -391,12 +386,16 @@ extension ProjectBoardView {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(Color.subtitle)
-                        .fontWeight(.medium)
+                        .foregroundStyle(viewStore.hoveredItem == .galleryBackButton ? Color.title : .subtitle)
+                        .fontWeight(viewStore.hoveredItem == .galleryBackButton ? .bold : .medium)
                         .padding(8)
                         .frame(width: 32, height: 32)
+                        .scaleEffect(viewStore.hoveredItem == .galleryBackButton ? 1.02 : 1)
                         .onTapGesture {
                             // TODO: - Back Button Clicked
+                        }
+                        .onHover { isHovered in
+                            viewStore.send(.hoveredItem(name: isHovered ? .galleryBackButton : ""))
                         }
                     Text("Folder")
                         .font(.title)
@@ -461,20 +460,19 @@ extension ProjectBoardView {
     }
     
     private struct PlanBoardItem: View {
-        @State var planBoardItemHover = false
         let store: StoreOf<ProjectBoard>
         var id: Int
         
         var body: some View {
-            WithViewStore(store, observe: { $0 }) { _ in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .foregroundStyle(Color.board)
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(planBoardItemHover ? Color.boardHoveredBorder : .clear)
+                            .strokeBorder(viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? Color.boardHoveredBorder : .clear)
                             .shadow(
-                                color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                                color: viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? .black.opacity(0.25) : .clear,
                                 radius: 8
                             )
                             .clipShape(
@@ -483,7 +481,7 @@ extension ProjectBoardView {
                     }
                     .aspectRatio(3/2, contentMode: .fit)
                     .shadow(
-                        color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                        color: viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? .black.opacity(0.25) : .clear,
                         radius: 4,
                         y: 4
                     )
@@ -501,11 +499,9 @@ extension ProjectBoardView {
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color.textInactive)
                 }
-                .scaleEffect(planBoardItemHover ? 1.02 : 1)
+                .scaleEffect(viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? 1.02 : 1)
                 .onHover { isHovered in
-                    withAnimation(.easeInOut(duration: 0.1)) {
-                        planBoardItemHover = isHovered
-                    }
+                    viewStore.send(.hoveredItem(name: isHovered ? .planBoardItemButton + "\(id)" : ""))
                 }
             }
         }

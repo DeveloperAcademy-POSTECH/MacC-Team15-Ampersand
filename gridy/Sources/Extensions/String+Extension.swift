@@ -23,6 +23,7 @@ extension String {
     
     /* FocusedItemNames */
     static let homeButton = "homeButton"
+    static let planBoardItemButton = "planBoardItemButton"
     
     /* PopOverButtonNames */
     static let notificationButton = "notificationButton"
