@@ -16,10 +16,16 @@ enum LineAreaDragType {
 }
 
 enum PlanBoardAreaName {
+    case scheduleIndexArea
+    case extraArea
+    case lineIndexArea
+    case blackPinkInYourArea
+    case listControlArea
+    case listArea
     case scheduleArea
     case timeAxisArea
-    case listArea
     case lineArea
+    case none
 }
 
 struct PlanBoard: Reducer {
@@ -50,6 +56,31 @@ struct PlanBoard: Reducer {
         var hoveredArea: PlanBoardAreaName?
         var clickedArea: PlanBoardAreaName?
         
+        /// ScheduleIndexArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var scheduleIndexAreaHoveredCellLocation: CGPoint = .zero
+        var scheduleIndexAreaHoveredCellRow = 0
+        var scheduleIndexAreaHoveredCellCol = 0
+
+        /// ExtraArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var extraAreaHoveredCellLocation: CGPoint = .zero
+        var extraAreaHoveredCellRow = 0
+        var extraAreaHoveredCellCol = 0
+        
+        /// BlackPinkInYourArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var blackPinkInYourAreaAreaHoveredCellLocation: CGPoint = .zero
+        var blackPinkInYourAreaAreaHoveredCellRow = 0
+        var blackPinkInYourAreaAreaHoveredCellCol = 0
+        
+        /// ListControlArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var listControlAreaHoveredCellLocation: CGPoint = .zero
+        var listControlAreaHoveredCellRow = 0
+        var listControlAreaHoveredCellCol = 0
+
+        /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var listAreaHoveredCellLocation: CGPoint = .zero
+        var listAreaHoveredCellRow = 0
+        var listAreaHoveredCellCol = 0
+        
         /// ScheduleArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var scheduleAreaHoveredCellLocation: CGPoint = .zero
         var scheduleAreaHoveredCellRow = 0
@@ -59,12 +90,7 @@ struct PlanBoard: Reducer {
         var timeAxisAreaHoveredCellLocation: CGPoint = .zero
         var timeAxisAreaHoveredCellRow = 0
         var timeAxisAreaHoveredCellCol = 0
-        
-        /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
-        var listAreaHoveredCellLocation: CGPoint = .zero
-        var listAreaHoveredCellRow = 0
-        var listAreaHoveredCellCol = 0
-        
+
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineAreaHoveredCellLocation: CGPoint = .zero
         var lineAreaHoveredCellRow = 0
@@ -93,12 +119,6 @@ struct PlanBoard: Reducer {
         
         /// TimeAxisArea에서 사용
         var holidays = [Date]()
-        
-        // TODO: 내용 이전하고 삭제하기
-        var hoverLocation: CGPoint = .zero
-        var hoveringCellRow = 0
-        var hoveringCellCol = 0
-        var isHovering = false
 
         /// ListArea
         var showingLayers = [0]
@@ -158,7 +178,7 @@ struct PlanBoard: Reducer {
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
-        case onContinuousHover(Bool, CGPoint?)
+        case setHoveredLoaction(PlanBoardAreaName, Bool, CGPoint?)
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
@@ -212,6 +232,14 @@ struct PlanBoard: Reducer {
                 default:
                     break
                 }
+                return .none
+                
+            case let .isShiftKeyPressed(isPressed):
+                state.isShiftKeyPressed = isPressed
+                return .none
+                
+            case let .isCommandKeyPressed(isPressed):
+                state.isCommandKeyPressed = isPressed
                 return .none
                 
                 // MARK: - PlanType
@@ -385,6 +413,7 @@ struct PlanBoard: Reducer {
                 state.map = response
                 return .none
                 
+                // MARK: - LineArea
             case let .shiftSelectedCell(rowOffset, colOffset):
                 if !state.selectedGridRanges.isEmpty {
                     if !state.isShiftKeyPressed {
@@ -451,14 +480,6 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .isShiftKeyPressed(isPressed):
-                state.isShiftKeyPressed = isPressed
-                return .none
-                
-            case let .isCommandKeyPressed(isPressed):
-                state.isCommandKeyPressed = isPressed
-                return .none
-                
             case let .changeWidthButtonTapped(diff):
                 state.gridWidth += diff
                 return .none
@@ -489,12 +510,47 @@ struct PlanBoard: Reducer {
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
                 
-            case let .onContinuousHover(isActive, location):
-                state.isHovering = isActive
-                if isActive {
-                    state.hoverLocation = location!
-                    state.hoveringCellRow = Int(state.hoverLocation.y / state.lineAreaGridHeight)
-                    state.hoveringCellCol = Int(state.hoverLocation.x / state.gridWidth)
+            case let .setHoveredLoaction(areaName, isActive, location):
+                state.hoveredArea = areaName
+                // TODO: 필요할 떄 각 영역 hover에 대한 action을 부여하기.
+                switch areaName {
+                case .scheduleIndexArea:
+                    break
+                case .extraArea:
+                    break
+                case .lineIndexArea:
+                    break
+                case .blackPinkInYourArea:
+                    break
+                case .listControlArea:
+                    break
+                case .listArea:
+                    if isActive {
+                        state.listAreaHoveredCellLocation = location!
+                        state.listAreaHoveredCellRow = Int(state.listAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+                case .scheduleArea:
+                    if isActive {
+                        state.scheduleAreaHoveredCellLocation = location!
+                        state.scheduleAreaHoveredCellRow = Int(state.scheduleAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+                case .timeAxisArea:
+                    if isActive {
+                        state.timeAxisAreaHoveredCellLocation = location!
+                        state.timeAxisAreaHoveredCellRow = Int(state.timeAxisAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.timeAxisAreaHoveredCellCol = Int(state.timeAxisAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+               
+                case .lineArea:
+                    if isActive {
+                        state.lineAreaHoveredCellLocation = location!
+                        state.lineAreaHoveredCellRow = Int(state.lineAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.lineAreaHoveredCellCol = Int(state.lineAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+                case .none:
+                    break
                 }
                 return .none
                 

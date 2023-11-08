@@ -69,7 +69,7 @@ extension Color {
     
     static let topToolBar = Color("topToolBar")
     static let topToolItem = Color("topToolItem")
-    static let list = Color("list")
+    static let listArea = Color("listArea")
     static let listItem = Color("listItem")
     static let listHovered = Color("listHovered")
     static let index = Color("index")

@@ -117,13 +117,43 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var listArea: some View {
-        Color.list
+        WithViewStore(store, observe: {$0}) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    Color.listArea
+                }
+                .background(Color.listArea)
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredLoaction(.listArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                    }
+                }
+            }
+        }
     }
 }
 
 extension PlanBoardView {
     var scheduleArea: some View {
-        Color.lineArea
+        WithViewStore(store, observe: {$0}) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    Color.lineArea
+                }
+                .background(Color.lineArea)
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -140,45 +170,53 @@ extension PlanBoardView {
                                 RoundedRectangle(cornerRadius: 8)
                                     .foregroundStyle(Color.boardSelectedBorder.opacity(0.8))
                                     .padding(2)
-                                    .opacity("Month: \(dateInfo.month)" == viewStore.hoveredItem ? 1 : 0)
+                                    .opacity("Month: \(dateInfo.month) + \(dayOffset)" == viewStore.hoveredItem ? 1 : 0)
                                 Text("\(dateInfo.month)월")
                                     .foregroundStyle(dateInfo.month == viewStore.hoveredItem ? Color.white : Color.textInactive)
                                     .font(.title3)
                             }
                             .opacity(dateInfo.isFirstOfMonth || dayOffset == 0 ? 1 : 0)
                             .onHover { isHovered in
-                                viewStore.send(.hoveredItem(name: isHovered ? "Month: \(dateInfo.month)" : ""))
+                                viewStore.send(.hoveredItem(name: isHovered ? "Month: \(dateInfo.month) + \(dayOffset)" : ""))
                             }
                             ZStack {
                                 RoundedRectangle(cornerRadius: 8)
                                     .foregroundStyle(Color.indexHovered)
                                     .padding(2)
-                                    .opacity(dayOffset == viewStore.hoveringCellCol ? 1 : 0)
-                                    .opacity(viewStore.isHovering ? 1 : 0)
+                                    .opacity(dayOffset == viewStore.lineAreaHoveredCellCol ? 1 : 0)
+                                    .opacity(viewStore.hoveredArea == .lineArea ? 1 : 0)
                                 Text("\(dateInfo.day)")
                                     .foregroundColor(dateInfo.fontColor)
                                     .font(.body)
-                                    .scaleEffect("Day: \(dateInfo.day)" == viewStore.hoveredItem ? 1.2 : 1)
+                                    .scaleEffect("Day: \(dayOffset)" == viewStore.hoveredItem ? 1.2 : 1)
                             }
                             .onHover { isHovered in
-                                viewStore.send(.hoveredItem(name: isHovered ? "Day: \(dateInfo.day)" : ""))
+                                viewStore.send(.hoveredItem(name: isHovered ? "Day: \(dayOffset)" : ""))
                             }
                         }
                         .frame(width: viewStore.gridWidth)
                     }
                 }
-            }
-            .background(Color.lineArea)
-            .onAppear {
-                // TODO: holiday를 비동기 작업으로 받아오는 로직을 TCA로 변경할 것
-                //                Task {
-                //                    do {
-                //                        let fetchedHolidays = try await fetchKoreanHolidays()
-                //                        viewStore.holidays = fetchedHolidays
-                //                    } catch {
-                //                        print("오류 발생: \(error.localizedDescription)")
-                //                    }
-                //                }
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                    }
+                }
+                .background(Color.lineArea)
+                .onAppear {
+                    // TODO: holiday를 비동기 작업으로 받아오는 로직을 TCA로 변경할 것
+                    //                Task {
+                    //                    do {
+                    //                        let fetchedHolidays = try await fetchKoreanHolidays()
+                    //                        viewStore.holidays = fetchedHolidays
+                    //                    } catch {
+                    //                        print("오류 발생: \(error.localizedDescription)")
+                    //                    }
+                    //                }
+                }
             }
         }
     }
@@ -320,16 +358,27 @@ extension PlanBoardView {
                     
                     //                    /// VECTORMODE
                     //                    LinearGradient(colors: [Color.white.opacity(0.1), Color.clear], startPoint: .topLeading, endPoint: .trailing)
-                    
                     ZStack {
+                        /// lineArea에 hover될 때 나타나는 뷰
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
                             .position(x:
-                                        CGFloat(viewStore.hoveringCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                        CGFloat(viewStore.lineAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
                                       y:
-                                        CGFloat(viewStore.hoveringCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+                                        CGFloat(viewStore.lineAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
                             )
+                            .opacity(viewStore.hoveredArea == .lineArea ? 1 :0)
+                        /// timeAxisArea에 hover될 때 나타나는 뷰
+                        Rectangle()
+                            .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                            .frame(width: viewStore.gridWidth, height: geometry.size.height)
+                            .position(x:
+                                        CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                      y: geometry.size.height / 2
+                            )
+                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 :0)
+                        
                         ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
                             let today = Date().filteredDate
                             let height = viewStore.lineAreaGridHeight * 0.5 - 4
@@ -437,9 +486,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.onContinuousHover(true, location))
+                        viewStore.send(.setHoveredLoaction(.lineArea, true, location))
                     case .ended:
-                        viewStore.send(.onContinuousHover(false, nil))
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .gesture(
@@ -453,7 +502,7 @@ extension PlanBoardView {
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
-                            viewStore.send(.onContinuousHover(true, dragEnd))
+                            viewStore.send(.setHoveredLoaction(.lineArea, true, dragEnd))
                             /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
                             exceededDirection = [
                                 dragEnd.x < 0,
