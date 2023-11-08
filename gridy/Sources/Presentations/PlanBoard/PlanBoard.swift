@@ -97,9 +97,9 @@ struct PlanBoard: Reducer {
         case popoverPresent(button: String, bool: Bool)
         
         // MARK: - plan type
-        case createPlanType(targetPlanID: String, text: String, colorCode: UInt)
+        case createPlanType(_ targetPlanID: String, _ text: String, _ colorCode: UInt)
         case updatePlanTypeOnList(targetPlanID: String, text: String, colorCode: UInt)
-        case updatePlanTypeOnLine(planID: String, text: String, colorCode: UInt, startDate: Date, endDate: Date)
+        case updatePlanTypeOnLine(planID: String, text: String, colorCode: UInt, period: [Date])
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
@@ -194,6 +194,12 @@ struct PlanBoard: Reducer {
             case let .createPlanType(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
                 if let originType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode == colorCode}) {
+                    /// planType이 있는데 나와 같은게 들어온 경우 > 실행 안 함
+                    if state.existingAllPlans[targetPlanID]!.planTypeID == originType.id {
+                        return .none
+                    }
+                    /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
+                    state.existingAllPlans[targetPlanID]!.planTypeID = originType.id
                     return .run { _ in
                         try await apiService.updatePlanType(
                             targetPlanID,
@@ -203,6 +209,7 @@ struct PlanBoard: Reducer {
                     }
                 }
                 
+                /// planType이 없어 생성해야 하는 경우
                 let newPlanTypeID = UUID().uuidString
                 let newPlanType = PlanType(
                     id: newPlanTypeID,
@@ -212,7 +219,7 @@ struct PlanBoard: Reducer {
                 state.existingPlanTypes[newPlanTypeID] = newPlanType
                 state.existingAllPlans[targetPlanID]!.planTypeID = newPlanTypeID
                 
-                return .run { send in
+                return .run { _ in
                     try await apiService.createPlanType(
                         newPlanType,
                         targetPlanID,
@@ -221,39 +228,13 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .updatePlanTypeOnList(targetPlanID, text, colorCode):
-                let projectID = state.rootProject.id
-                
-                let existingPlan = state.existingAllPlans[targetPlanID]!
-                let existingPlanTypeID = existingPlan.planTypeID
-                let existingPlanType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})
-                
-                if let existingPlanType = existingPlanType {
-                    /// planType이 있는데 나와 같은게 들어온 경우 > 실행 안 함
-                    if existingPlanTypeID == existingPlanType.id {
-                        return .none
-                    }
-                    /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
-                    let foundPlanTypeID = existingPlanType.id
-                    state.existingAllPlans[targetPlanID]!.planTypeID = foundPlanTypeID
-                    
-                    return .run { send in
-                        await send(.fetchMap)
-                        try await apiService.updatePlanType(
-                            targetPlanID,
-                            foundPlanTypeID,
-                            projectID
-                        )
-                    }
-                } else {
-                    /// planType이 없는 경우
-                    return .run { send in
-                        await send(
-                            .createPlanType(targetPlanID: targetPlanID, text: text, colorCode: colorCode)
-                        )
-                    }
+                return .run { send in
+                    await send(
+                        .createPlanType(targetPlanID, text, colorCode)
+                    )
                 }
                 
-            case let .updatePlanTypeOnLine(planID, text, colorCode, startDate, endDate):
+            case let .updatePlanTypeOnLine(planID, text, colorCode, period):
                 let projectID = state.rootProject.id
                 let foundPlanType = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })
                 /// 이미 존재하는 타입이면 update만
@@ -273,16 +254,16 @@ struct PlanBoard: Reducer {
                                 if currentPlan.planTypeID == foundPlanTypeID {
                                     /// periods 이식
                                     let currentPlanPeriodInArray = currentPlan.periods.map({ $0.values })!.flatMap({ $0 })
-                                    var (startDateToPlant, endDateToPlant) = (startDate, endDate)
+                                    var (startDateToPlant, endDateToPlant) = (period[0], period[1])
                                     /// (current plan startDate, target plan endDate)
-                                    let dayBeforeStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)!
+                                    let dayBeforeStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDateToPlant)!
                                     if currentPlanPeriodInArray.contains(dayBeforeStartDate) {
                                         let periodIndex = currentPlan.periods!.first(where: { $0.value.contains(dayBeforeStartDate) })!.key
                                         startDateToPlant = state.existingAllPlans[planIDInLine]!.periods![periodIndex]![0]
                                         state.existingAllPlans[planIDInLine]!.periods![periodIndex] = [startDateToPlant, endDateToPlant]
                                     } else {
                                         /// (target period startDate, current plan endDate)
-                                        let dayAfterEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)!
+                                        let dayAfterEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDateToPlant)!
                                         if currentPlanPeriodInArray.contains(dayAfterEndDate) {
                                             let periodIndex = currentPlan.periods!.first(where: { $0.value.contains(dayAfterEndDate) })!.key
                                             endDateToPlant = state.existingAllPlans[planIDInLine]!.periods![periodIndex]![0]
@@ -328,7 +309,7 @@ struct PlanBoard: Reducer {
                 }
                 /// 발견된 플랜타입이 없다면 무조건 create후 update
                 return .run { send in
-                    await send(.createPlanType(targetPlanID: planID, text: text, colorCode: colorCode))
+                    await send(.createPlanType(planID, text, colorCode))
                 }
                 
                 // MARK: - plan
