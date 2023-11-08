@@ -11,8 +11,8 @@ import ComposableArchitecture
 struct PlanBoardView: View {
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
-    @State private var timer: Timer?
-        
+    let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
     let store: StoreOf<PlanBoard>
     let tabID: String
     
@@ -20,10 +20,12 @@ struct PlanBoardView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 0) {
                 systemBorder(.horizontal)
+                    .zIndex(5)
                 TopToolBarView(store: store, tabID: tabID)
                     .frame(height: 48)
-                    .zIndex(4)
+                    .zIndex(5)
                 planBoardBorder(.horizontal)
+                    .zIndex(5)
                 HStack(alignment: .top, spacing: 0) {
                     HStack(alignment: .top, spacing: 0) {
                         VStack(alignment: .leading, spacing: 0) {
@@ -49,7 +51,7 @@ struct PlanBoardView: View {
                         .frame(width: 150)
                         planBoardBorder(.vertical)
                     }
-                    .zIndex(3)
+                    .zIndex(4)
                     .background(
                         Color.white
                             .shadow(color: .black.opacity(0.25), radius: 8, x: 4)
@@ -58,21 +60,20 @@ struct PlanBoardView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             scheduleArea
                                 .frame(height: 143)
-                                .zIndex(0)
+                                .zIndex(2)
                             planBoardBorder(.horizontal)
                             timeAxisArea
                                 .frame(height: 48)
-                                .zIndex(2)
+                                .zIndex(3)
                             planBoardBorder(.horizontal)
                             lineArea
-                                .zIndex(1)
+                                .zIndex(-1)
                         }
-                        .background(Color.lineArea)
                     }
                     if viewStore.isRightToolBarPresented {
                         RightToolBarView()
                             .frame(width: 240)
-                            .zIndex(3)
+                            .zIndex(4)
                             .background(
                                 Color.white
                                     .shadow(color: .black.opacity(0.25), radius: 8, x: -4)
@@ -167,16 +168,17 @@ extension PlanBoardView {
                     }
                 }
             }
+            .background(Color.lineArea)
             .onAppear {
                 // TODO: holiday를 비동기 작업으로 받아오는 로직을 TCA로 변경할 것
-//                Task {
-//                    do {
-//                        let fetchedHolidays = try await fetchKoreanHolidays()
-//                        viewStore.holidays = fetchedHolidays
-//                    } catch {
-//                        print("오류 발생: \(error.localizedDescription)")
-//                    }
-//                }
+                //                Task {
+                //                    do {
+                //                        let fetchedHolidays = try await fetchKoreanHolidays()
+                //                        viewStore.holidays = fetchedHolidays
+                //                    } catch {
+                //                        print("오류 발생: \(error.localizedDescription)")
+                //                    }
+                //                }
             }
         }
     }
@@ -298,10 +300,10 @@ extension PlanBoardView {
                         } label: { }
                             .keyboardShortcut(.escape, modifiers: [])
                     }
-                    
+                    Color.lineArea
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
@@ -309,25 +311,25 @@ extension PlanBoardView {
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
                     Path { path in
                         for columnIndex in 0..<viewStore.maxCol {
-                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - viewStore.columnStroke
+                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth
                             path.move(to: CGPoint(x: xLocation, y: 0))
                             path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                         }
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
-//                    /// VECTORMODE
-//                    LinearGradient(colors: [Color.white.opacity(0.1), Color.clear], startPoint: .topLeading, endPoint: .trailing)
+                    //                    /// VECTORMODE
+                    //                    LinearGradient(colors: [Color.white.opacity(0.1), Color.clear], startPoint: .topLeading, endPoint: .trailing)
                     
                     ZStack {
-                            Rectangle()
-                                .foregroundStyle(Color.hoveredCell.opacity(0.5))
-                                .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
-                                .position(x:
-                                            CGFloat(viewStore.hoveringCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
-                                          y:
-                                            CGFloat(viewStore.hoveringCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
-                                )
+                        Rectangle()
+                            .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                            .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
+                            .position(x:
+                                        CGFloat(viewStore.hoveringCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                      y:
+                                        CGFloat(viewStore.hoveringCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+                            )
                         ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
                             let today = Date().filteredDate
                             let height = viewStore.lineAreaGridHeight * 0.5 - 4
@@ -377,53 +379,51 @@ extension PlanBoardView {
                                                 CGFloat(selectedRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2)
                             }
                         }
-                
+                        
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
-                .onChange(of: exceededDirection) { direction in
-                    if temporarySelectedGridRange != nil {
-                        switch direction {
-                        case [true, false, false, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 0,
-                                    shiftedCol: -1,
-                                    exceededRow: 0,
-                                    exceededCol: -1
-                                )
+                .onReceive(timer, perform: { _ in
+                    switch exceededDirection {
+                    case [true, false, false, false]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: 0,
+                                shiftedCol: -1,
+                                exceededRow: 0,
+                                exceededCol: -1
                             )
-                        case [false, true, false, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 0,
-                                    shiftedCol: 1,
-                                    exceededRow: 0,
-                                    exceededCol: 1
-                                )
+                        )
+                    case [false, true, false, false]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: 0,
+                                shiftedCol: 1,
+                                exceededRow: 0,
+                                exceededCol: 1
                             )
-                        case [false, false, true, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: -1,
-                                    shiftedCol: 0,
-                                    exceededRow: -1,
-                                    exceededCol: 0
-                                )
+                        )
+                    case [false, false, true, false]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: -1,
+                                shiftedCol: 0,
+                                exceededRow: -1,
+                                exceededCol: 0
                             )
-                        case [false, false, false, true]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 1,
-                                    shiftedCol: 0,
-                                    exceededRow: 1,
-                                    exceededCol: 0
-                                )
+                        )
+                    case [false, false, false, true]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: 1,
+                                shiftedCol: 0,
+                                exceededRow: 1,
+                                exceededCol: 0
                             )
-                        default: break
-                        }
+                        )
+                    default: break
                     }
-                }
+                })
                 .onAppear {
                     viewStore.send(.windowSizeChanged(geometry.size))
                 }
@@ -467,7 +467,7 @@ extension PlanBoardView {
                                     viewStore.send(.dragGestureChanged(.pressNothing, nil))
                                     temporarySelectedGridRange = nil
                                     temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow,
+                                        start: (startRow + viewStore.shiftedRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol - viewStore.exceededCol),
                                         end: (endRow + viewStore.shiftedRow,
                                               endCol + viewStore.shiftedCol)
@@ -485,7 +485,7 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
                                     self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow, startCol + viewStore.shiftedCol),
+                                        start: (startRow + viewStore.shiftedRow - viewStore.exceededRow, startCol + viewStore.shiftedCol - viewStore.exceededCol),
                                         end: (endRow + viewStore.shiftedRow, endCol + viewStore.shiftedCol))
                                 } else {
                                     /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
@@ -512,6 +512,20 @@ extension PlanBoardView {
                             viewStore.send(.magnificationChangedInListArea(value, geometry.size))
                         }
                 )
+            }
+            .background(Color.lineArea)
+            .onAppear {
+                viewStore.send(
+                    .onAppear
+                )
+                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                    viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
+                    return event
+                }
+                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                    viewStore.send(.isCommandKeyPressed(event.modifierFlags.contains(.command)))
+                    return event
+                }
             }
         }
     }
