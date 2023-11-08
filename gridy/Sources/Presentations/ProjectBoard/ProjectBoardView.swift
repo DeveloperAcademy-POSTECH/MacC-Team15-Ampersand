@@ -14,11 +14,8 @@ struct ProjectBoardView: View {
     @State var themeClicked = false
     @State var planBoardButtonClicked = false
     
-    @State var automaticHover = false
     @State var automaticClicked = false
-    @State var lightHover = false
     @State var lightClicked = false
-    @State var darkHover = false
     @State var darkClicked = false
     
     @State private var isExpanded = false
@@ -519,84 +516,86 @@ extension ProjectBoardView {
 
 extension ProjectBoardView {
     var themeSelect: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 0) {
-                Text("Automatic")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(automaticClicked ? Color.title : .clear)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Automatic")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(automaticClicked ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(automaticClicked ? Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear)
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "automatic" : ""))
+                }
+                .onTapGesture {
+                    automaticClicked = true
+                    lightClicked = false
+                    darkClicked = false
+                }
+                
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Light")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(lightClicked ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(lightClicked ? Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear)
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "light" : ""))
+                }
+                .onTapGesture {
+                    automaticClicked = false
+                    lightClicked = true
+                    darkClicked = false
+                }
+                
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Dark")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(darkClicked ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(darkClicked ? Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear)
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "dark" : ""))
+                }
+                .onTapGesture {
+                    automaticClicked = false
+                    lightClicked = false
+                    darkClicked = true
+                }
             }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
+            .padding(16)
+            .frame(width: 170, height: 168)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(automaticClicked ? Color.blackWhite : automaticHover ? Color.blackWhite : .clear)
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.blackWhite.opacity(0.3))
             )
-            .onHover { isHovered in
-                automaticHover = isHovered
-            }
-            .onTapGesture {
-                automaticClicked = true
-                lightClicked = false
-                darkClicked = false
-            }
-            
-            HStack(alignment: .center, spacing: 0) {
-                Text("Light")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(lightClicked ? Color.title : .clear)
-            }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(lightClicked ? Color.blackWhite : lightHover ? Color.blackWhite : .clear)
-            )
-            .onHover { isHovered in
-                lightHover = isHovered
-            }
-            .onTapGesture {
-                automaticClicked = false
-                lightClicked = true
-                darkClicked = false
-            }
-            
-            HStack(alignment: .center, spacing: 0) {
-                Text("Dark")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(darkClicked ? Color.title : .clear)
-            }
-            .frame(height: 40)
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(darkClicked ? Color.blackWhite : darkHover ? Color.blackWhite : .clear)
-            )
-            .onHover { isHovered in
-                darkHover = isHovered
-            }
-            .onTapGesture {
-                automaticClicked = false
-                lightClicked = false
-                darkClicked = true
-            }
         }
-        .padding(16)
-        .frame(width: 170, height: 168)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.blackWhite.opacity(0.3))
-        )
     }
 }
