@@ -17,14 +17,12 @@
 		8A6DC56B2AF626B70059ADAB /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6DC56A2AF626B70059ADAB /* Components.swift */; };
 		8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */; };
 		8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */; };
-		9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */; };
+		9732FE9A2AEB9CE500900600 /* ListItemEmptyViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FE992AEB9CE500900600 /* ListItemEmptyViewDeprecated.swift */; };
 		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
 		975A62132ACE970800DE31AB /* DayGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A62122ACE970800DE31AB /* DayGridView.swift */; };
-		9765D3292AFB69E700372A5E /* LayerControlAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9765D3282AFB69E700372A5E /* LayerControlAreaView.swift */; };
-		9765D32B2AFB6A2000372A5E /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9765D32A2AFB6A2000372A5E /* ListAreaView.swift */; };
-		97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemView.swift */; };
+		97806BB52AE15ACC0044FA0C /* ListItemViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemViewDeprecated.swift */; };
 		9783F6D82AEFA04100176700 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9783F6D72AEFA04100176700 /* FirestoreService.swift */; };
 		9784DB542AECEB88002EB52F /* LayerControlAreaViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9784DB532AECEB88002EB52F /* LayerControlAreaViewDeprecated.swift */; };
 		97C419DC2AE2CAEB00501321 /* ListAreaViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C419DB2AE2CAEB00501321 /* ListAreaViewDeprecated.swift */; };
@@ -107,14 +105,12 @@
 		8A6DC56A2AF626B70059ADAB /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGridRange.swift; sourceTree = "<group>"; };
 		8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedDateRange.swift; sourceTree = "<group>"; };
-		9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemEmptyView.swift; sourceTree = "<group>"; };
+		9732FE992AEB9CE500900600 /* ListItemEmptyViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemEmptyViewDeprecated.swift; sourceTree = "<group>"; };
 		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
 		975A62122ACE970800DE31AB /* DayGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayGridView.swift; sourceTree = "<group>"; };
-		9765D3282AFB69E700372A5E /* LayerControlAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerControlAreaView.swift; sourceTree = "<group>"; };
-		9765D32A2AFB6A2000372A5E /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
-		97806BB42AE15ACC0044FA0C /* ListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemView.swift; sourceTree = "<group>"; };
+		97806BB42AE15ACC0044FA0C /* ListItemViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemViewDeprecated.swift; sourceTree = "<group>"; };
 		9783F6D72AEFA04100176700 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		9784DB532AECEB88002EB52F /* LayerControlAreaViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerControlAreaViewDeprecated.swift; sourceTree = "<group>"; };
 		97C419DB2AE2CAEB00501321 /* ListAreaViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaViewDeprecated.swift; sourceTree = "<group>"; };
@@ -220,14 +216,6 @@
 				AD2F7A082ADD5BD2006201AB /* Lane.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		9784DB522AECEB66002EB52F /* LayerControlArea */ = {
-			isa = PBXGroup;
-			children = (
-				9765D3282AFB69E700372A5E /* LayerControlAreaView.swift */,
-			);
-			path = LayerControlArea;
 			sourceTree = "<group>";
 		};
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
@@ -368,9 +356,9 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
-				EE3E22262AFA091000D82F59 /* CalendarView.swift */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				D17800682AF35989002984CF /* PlanBoardView.swift */,
+				EE3E22262AFA091000D82F59 /* CalendarView.swift */,
 				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
 				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
@@ -392,8 +380,6 @@
 				EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */,
 				975A62122ACE970800DE31AB /* DayGridView.swift */,
 				EE909A612AC3CFB800C9AAF0 /* ScheduleAreaView.swift */,
-				9784DB522AECEB66002EB52F /* LayerControlArea */,
-				EE909A512AC3CEC600C9AAF0 /* ListArea */,
 			);
 			path = TimelineLayout;
 			sourceTree = "<group>";
@@ -401,9 +387,9 @@
 		EE909A512AC3CEC600C9AAF0 /* ListArea */ = {
 			isa = PBXGroup;
 			children = (
-				97806BB42AE15ACC0044FA0C /* ListItemView.swift */,
-				9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */,
-				9765D32A2AFB6A2000372A5E /* ListAreaView.swift */,
+				97806BB42AE15ACC0044FA0C /* ListItemViewDeprecated.swift */,
+				9732FE992AEB9CE500900600 /* ListItemEmptyViewDeprecated.swift */,
+				97C419DB2AE2CAEB00501321 /* ListAreaViewDeprecated.swift */,
 			);
 			path = ListArea;
 			sourceTree = "<group>";
@@ -427,7 +413,7 @@
 				EED5EC8B2AF23FF100751FAE /* ProjectBoardViewDeprecated.swift */,
 				EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */,
 				9784DB532AECEB88002EB52F /* LayerControlAreaViewDeprecated.swift */,
-				97C419DB2AE2CAEB00501321 /* ListAreaViewDeprecated.swift */,
+				EE909A512AC3CEC600C9AAF0 /* ListArea */,
 			);
 			path = Deprecated;
 			sourceTree = "<group>";
@@ -569,7 +555,7 @@
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
-				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
+				97806BB52AE15ACC0044FA0C /* ListItemViewDeprecated.swift in Sources */,
 				D17800692AF35989002984CF /* PlanBoardView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
 				EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */,
@@ -580,14 +566,13 @@
 				EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */,
 				8A6DC56B2AF626B70059ADAB /* Components.swift in Sources */,
 				AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */,
-				9765D32B2AFB6A2000372A5E /* ListAreaView.swift in Sources */,
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */,
 				AD96ED402AD1BC17005D197B /* ProjectCreationView.swift in Sources */,
 				EE909A622AC3CFB800C9AAF0 /* ScheduleAreaView.swift in Sources */,
 				EE2EF6AA2ADE6626007B94DF /* ProjectItemView.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
-				9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */,
+				9732FE9A2AEB9CE500900600 /* ListItemEmptyViewDeprecated.swift in Sources */,
 				EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */,
 				975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */,
 				EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainView.swift in Sources */,
@@ -600,7 +585,6 @@
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
 				EEEF68262AF776A9000B3CAF /* SettingsView.swift in Sources */,
 				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,
-				9765D3292AFB69E700372A5E /* LayerControlAreaView.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
 				EE3E22272AFA091100D82F59 /* CalendarView.swift in Sources */,

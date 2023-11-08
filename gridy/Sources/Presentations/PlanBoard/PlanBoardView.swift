@@ -157,8 +157,11 @@ extension PlanBoardView {
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
                     VStack {
-                        ForEach(0..<viewStore.map.count, id: \.self) { layer in
-                            let layer = viewStore.map[String(layer)]
+                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
+                            let layer = viewStore.map[String(layerIndex)]!
+                            ForEach(layer.indices, id: \.self) { rowIndex in
+                                ListItemView(store: store, layer: layerIndex, row: rowIndex)
+                            }
                         }
                     }
                 }
@@ -175,9 +178,17 @@ extension PlanBoardView {
     }
 }
 
-extension PlanBoardView {
-    var listItem: some View {
-        Color.lineArea
+struct ListItemView: View {
+    let store: StoreOf<PlanBoard>
+    let layer: Int
+    let row: Int
+    
+    var body: some View {
+        WithViewStore(store, observe: { $0 }) { _ in
+            ZStack {
+                Color.clear
+            }
+        }
     }
 }
 
