@@ -146,38 +146,46 @@ struct TabItemView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text("BoardName\(index)")
-                    .fontWeight(.medium)
-                    .padding(.leading, 16)
-                    .foregroundStyle(
-                        viewStore.hoveredItem == "tabName:\(index)" ||
-                        viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
-                        Color.tabLabel : Color.tabLabelInactive
-                    )
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(Color.clear)
+                    Text("BoardName\(index)")
+                        .fontWeight(.medium)
+                        .padding(.leading, 16)
+                        .foregroundStyle(
+                            viewStore.hoveredItem == "tabName:\(index)" ||
+                            viewStore.hoveredItem == .tabItemDeleteButton + "\(index)" ||
+                            viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                            Color.tabLabel : Color.tabLabelInactive
+                        )
+                }
+                .frame(height: 36)
+                .fixedSize()
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "tabName:\(index)" : ""))
+                }
                 Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(width: 32)
+                    .foregroundStyle(Color.clear)
+                    .aspectRatio(1, contentMode: .fit)
                     .overlay(
                         Image(systemName: "xmark")
                             .foregroundStyle(
-                                viewStore.hoveredItem == .tabItemDeleteButton ?
+                                viewStore.hoveredItem == .tabItemDeleteButton + "\(index)" ?
                                 Color.tabLabel : viewStore.hoveredItem == "tabName:\(index)" ||
                                 viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
                                 Color.subtitle : Color.clear
                             )
                     )
                     .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? .tabItemDeleteButton : ""))
+                        viewStore.send(.hoveredItem(name: isHovered ? .tabItemDeleteButton + "\(index)" : ""))
                     }
             }
             .background(
                 viewStore.hoveredItem == "tabName:\(index)" ||
+                viewStore.hoveredItem == .tabItemDeleteButton + "\(index)" ||
                 viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
                 Color.tabHovered : Color.tabBar
             )
-            .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "tabName:\(index)" : ""))
-            }
             .onTapGesture {
                 viewStore.send(.clickedItem(
                     focusGroup: .tabBarFocusGroup,

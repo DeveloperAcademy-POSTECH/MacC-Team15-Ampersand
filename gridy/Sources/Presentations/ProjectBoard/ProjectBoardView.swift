@@ -10,12 +10,9 @@ import ComposableArchitecture
 
 struct ProjectBoardView: View {
     @State var bellButtonClicked = false
-    @State var userSettingHover = false
     @State var userSettingClicked = false
     @State var themeClicked = false
-    @State var planBoardButtonHover = false
     @State var planBoardButtonClicked = false
-    @State var listHover = false
     
     @State var automaticHover = false
     @State var automaticClicked = false
@@ -23,8 +20,14 @@ struct ProjectBoardView: View {
     @State var lightClicked = false
     @State var darkHover = false
     @State var darkClicked = false
-
+    
     @State private var isExpanded = true
+    
+    @State private var currentDate: Date = Date()
+    @State private var currentMonth: Int = 0
+    @State private var isDayClicked: Bool = false
+    @State private var selectedDate: DateValue = DateValue(day: 0, date: Date())
+    let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
     
     let store: StoreOf<ProjectBoard>
     let planBoardStore = Store(
@@ -72,7 +75,9 @@ struct ProjectBoardView: View {
                                         }
                                 }
                             systemBorder(.horizontal)
-                            calendarArea.frame(height: 280)
+                            calendarArea
+                                .frame(height: 280)
+                                .padding(.horizontal, 16)
                             systemBorder(.horizontal)
                             boardSearchArea
                             projectListArea
@@ -141,16 +146,113 @@ extension ProjectBoardView {
 
 extension ProjectBoardView {
     var calendarArea: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 32)
-                .foregroundStyle(Color.item)
-                .aspectRatio(1, contentMode: .fit)
-                .overlay(
-                    Text("CalendarArea")
-                        .foregroundStyle(.black)
-                )
-                .padding(16)
+                .foregroundStyle(viewStore.hoveredItem == "calendarArea" ? Color.itemHovered : Color.item)
+                .frame(width: 248, height: 248)
+                .overlay {
+                    GeometryReader { _ in
+                        VStack(alignment: .center, spacing: 4) {
+                            HStack(alignment: .center, spacing: 16) {
+                                Text(extraDate()[1])
+                                    .foregroundStyle(Color.black)
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                                Image(systemName: "chevron.left")
+                                    .font(.body)
+                                    .foregroundColor(Color.gray)
+                                    .onTapGesture { currentMonth -= 1 }
+                                Image(systemName: "chevron.right")
+                                    .font(.body)
+                                    .foregroundColor(Color.gray)
+                                    .onTapGesture { currentMonth += 1 }
+                            }
+                            .padding(.horizontal, 24)
+                            HStack(alignment: .top, spacing: 5) {
+                                ForEach(days, id: \.self) { day in
+                                    Text(day)
+                                        .font(.callout)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(day == "일" ? Color.gray : Color.black)
+                                        .frame(width: 25, height: 25)
+                                }
+                            }
+                            let columns = Array(repeating: GridItem(.fixed(25), spacing: 5), count: 7)
+                            LazyVGrid(columns: columns, spacing: extractDate().count > 35 ? 0 : 6) {
+                                ForEach(extractDate()) { value in
+                                    cardView(value: value)
+                                }
+                            }
+                            .onChange(of: currentMonth) { _ in
+                                currentDate = getCurrentMonth()
+                            }
+                            Spacer()
+                        }
+                    }
+                    .offset(y: 24)
+                }
+                .scaleEffect(viewStore.hoveredItem == "calendarArea" ? 1.02 : 1)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "calendarArea" : ""))
+                }
         }
+    }
+    
+    struct DateValue: Identifiable {
+        var id = UUID().uuidString
+        var day: Int
+        var date: Date
+    }
+    
+    @ViewBuilder
+    func cardView(value: DateValue) -> some View {
+        ZStack {
+            if value.day != -1 {
+                let isToday = Calendar.current.isDateInToday(value.date)
+                let comparisonResult = Calendar.current.compare(value.date, to: Date(), toGranularity: .day)
+                let isSunday = value.date.dayOfSunday() == 1
+                Circle()
+                    .frame(width: 25, height: 25)
+                    .foregroundColor(isToday ? Color.black : .clear)
+                Text("\(value.day)")
+                    .font(.title3)
+                    .bold(isToday ? true : false)
+                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : Color.black)
+            }
+        }
+    }
+    
+    func extraDate() -> [String] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "YYYY MMMM"
+        formatter.locale = Locale(identifier: "ko_KR")
+        
+        let date = formatter.string(from: currentDate)
+        return date.components(separatedBy: " ")
+    }
+    
+    func getCurrentMonth() -> Date {
+        let calendar = Calendar.current
+        /// 현재 달의 요일을 받아옴
+        guard let currentMonth = calendar.date(byAdding: .month, value : self.currentMonth, to: Date()) else {
+            return Date()
+        }
+        return currentMonth
+    }
+    
+    func extractDate() -> [DateValue] {
+        let calendar = Calendar.current
+        let currentMonth = getCurrentMonth()
+        var days = currentMonth.getAllDates().compactMap { date -> DateValue in
+            let day = calendar.component(.day, from: date)
+            return DateValue(day: day, date: date)
+        }
+        let firstWeekday = calendar.component(.weekday, from: days.first?.date ?? Date())
+        for _ in 0..<firstWeekday - 1 {
+            days.insert(DateValue(day: -1, date: Date()), at: 0)
+        }
+        return days
     }
 }
 
@@ -492,11 +594,4 @@ extension ProjectBoardView {
                 .foregroundStyle(Color.blackWhite.opacity(0.3))
         )
     }
-}
-
-func borderSpacer(_ direction: Edge.Set) -> some View {
-    Rectangle()
-        .foregroundStyle(Color.border)
-        .frame(width: direction == .vertical ? 1 : nil)
-        .frame(height: direction == .horizontal ? 1 : nil)
 }

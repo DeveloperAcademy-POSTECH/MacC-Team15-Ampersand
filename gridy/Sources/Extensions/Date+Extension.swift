@@ -38,4 +38,18 @@ extension Date {
     var integerDate: Int {
         Int(self.timeIntervalSince1970) / 86400
     }
+    
+    func getAllDates() -> [Date] {
+        let calendar = Calendar.current
+        let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
+        var range = calendar.range(of: .day, in: .month, for: startDate)!
+        return range.compactMap { day -> Date in
+            return calendar.date(byAdding: .day, value: day - 1, to: startDate)!
+        }
+    }
+    
+    func dayOfSunday() -> Int? {
+        let calendar = Calendar.current
+        return calendar.dateComponents([.weekday], from: self).weekday
+    }
 }
