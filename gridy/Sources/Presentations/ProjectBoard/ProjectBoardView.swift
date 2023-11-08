@@ -22,6 +22,7 @@ struct ProjectBoardView: View {
     @State var darkClicked = false
     
     @State private var isExpanded = false
+    @State private var searchPlanBoardText = ""
     
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
@@ -258,15 +259,23 @@ extension ProjectBoardView {
 
 extension ProjectBoardView {
     var boardSearchArea: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color.item)
-                .frame(height: 32)
-                .overlay(
-                    Text("BoardSearchArea")
-                        .foregroundStyle(Color.textInactive)
-                )
-                .padding(16)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == "searchTextFieldHover" ? Color.itemHovered : .item)
+                    .frame(height: 32)
+                HStack(alignment: .center, spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .frame(width: 20, height: 20)
+                    TextField("Search", text: $searchPlanBoardText)
+                        .textFieldStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+            }
+            .padding(8)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? "searchTextFieldHover" : ""))
+            }
         }
     }
 }
