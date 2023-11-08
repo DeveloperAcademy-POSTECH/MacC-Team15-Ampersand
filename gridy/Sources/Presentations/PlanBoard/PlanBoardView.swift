@@ -120,7 +120,28 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var listArea: some View {
-        Color.list
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    Color.list
+                    Path { path in
+                        for rowIndex in 0..<viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            path.move(to: CGPoint(x: 0, y: yLocation))
+                            path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
+                        }
+                    }
+                    .stroke(Color.verticalLine, lineWidth: viewStore.rowStroke)
+                    
+                    Path { path in
+                        let xLocation = geometry.size.width - viewStore.columnStroke
+                        path.move(to: CGPoint(x: xLocation, y: 0))
+                        path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                    }
+                    .stroke(Color.horizontalLine, lineWidth: viewStore.columnStroke)
+                }
+            }
+        }
     }
 }
 

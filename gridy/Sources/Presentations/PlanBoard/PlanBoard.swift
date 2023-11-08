@@ -75,7 +75,6 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         var showingLayers = [0]
         var showingRows = 20
-        var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -135,8 +134,6 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        case showUpperLayer
-        case showLowerLayer
         case createLayer(layerIndex: Int)
         case createLayerResponse(TaskResult<[String: [String]]>)
         
@@ -304,26 +301,6 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - listArea
-            case .showUpperLayer:
-                let lastShowingIndex = state.showingLayers.isEmpty ? -1 : state.showingLayers.last!
-                if state.showingLayers.count < 3 {
-                    state.showingLayers.append(lastShowingIndex + 1)
-                } else {
-                    state.showingLayers.removeFirst()
-                    state.showingLayers.append(lastShowingIndex + 1)
-                }
-                return .none
-                
-            case .showLowerLayer:
-                let firstShowingIndex = state.showingLayers.first!
-                if firstShowingIndex == 0 {
-                    state.showingLayers.removeLast()
-                } else {
-                    state.showingLayers.removeLast()
-                    state.showingLayers.insert(firstShowingIndex - 1, at: 0)
-                }
-                return .none
-                
             case let .createLayer(layerIndex):
                 let projectId = state.rootProject.id
                 return .run { send in
