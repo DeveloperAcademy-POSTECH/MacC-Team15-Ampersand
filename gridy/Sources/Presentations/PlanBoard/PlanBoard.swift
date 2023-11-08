@@ -99,7 +99,7 @@ struct PlanBoard: Reducer {
         // MARK: - plan type
         case createPlanType(targetPlanID: String, text: String, colorCode: UInt)
         case updatePlanTypeOnList(targetPlanID: String, text: String, colorCode: UInt)
-        case updatePlanTypeOnLine(planID: String, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnLine(planID: String, text: String, colorCode: UInt, startDate: Date, endDate: Date)
         
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
@@ -244,49 +244,65 @@ struct PlanBoard: Reducer {
                     }
                 }
                 
-            case let .updatePlanTypeOnLine(planID, row, text, colorCode):
+            case let .updatePlanTypeOnLine(planID, text, colorCode, startDate, endDate):
                 let projectID = state.rootProject.id
+                let foundPlanType = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })
                 /// 이미 존재하는 타입이면 update만
-                if let foundPlanTypeID = state.existingPlanTypes.first(where: { $0.value.title == text && $0.value.colorCode == colorCode })?.key {
-                    /// 동일 레인에 동일 타입의 플랜이 존재하면 기존 플랜의 periods를 추가하고 현 플랜은 삭제
-                    var currentRowCount = -1
-                    let parentLayer = state.map.count == 1 ? state.map[0] : state.map[1]
-                    
+                if let foundPlanTypeID = foundPlanType?.key {
                     /// 부모부터 찾자
-                    for parentPlanID in parentLayer {
-                        let childLaneCount = state.existingAllPlans[parentPlanID]!.childPlanIDs.count
-                        /// plan이 속하는 row 발견
-                        if currentRowCount < row, row <= currentRowCount + childLaneCount {
+                    for parentPlanID in state.map.last! {
+                        let childLines = state.existingAllPlans[parentPlanID]!.childPlanIDs
+                        if childLines.values.flatMap({ $0 }).contains(planID) {
                             /// 그럼 이제는 해당하는 레인을 찾아보자
-                            let laneIndex = state.existingAllPlans[parentPlanID]!.childPlanIDs.first { $0.value.contains(planID) }!.key
-                            let lane = state.existingAllPlans[parentPlanID]!.childPlanIDs["\(laneIndex)"]!
-                            for planIDInLane in lane {
-                                if planIDInLane == planID { continue }
+                            let lineIndex = childLines.first { $0.value.contains(planID) }!.key
+                            let lines = childLines["\(lineIndex)"]!
+                            for planIDInLine in lines {
+                                if planIDInLine == planID { continue }
                                 
-                                /// 동일 타입의 플랜이 이미 존재한다면 플랜 본인을 삭제하고 periods만 추가
-                                if state.existingAllPlans[planIDInLane]!.planTypeID == foundPlanTypeID {
-                                    let periodsCount = state.existingAllPlans[planIDInLane]!.periods!.count
-                                    let periodsToTransplant = state.existingAllPlans[planID]!.periods!
-                                    for period in periodsToTransplant {
-                                        let index = periodsCount + Int(period.key)!
-                                        state.existingAllPlans[planIDInLane]!.periods!["\(index)"] = period.value
+                                let currentPlan = state.existingAllPlans[planIDInLine]!
+                                /// 동일 타입의 플랜이 이미 존재하는 경우
+                                if currentPlan.planTypeID == foundPlanTypeID {
+                                    /// periods 이식
+                                    let currentPlanPeriodInArray = currentPlan.periods.map({ $0.values })!.flatMap({ $0 })
+                                    var (startDateToPlant, endDateToPlant) = (startDate, endDate)
+                                    /// (current plan startDate, target plan endDate)
+                                    let dayBeforeStartDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)!
+                                    if currentPlanPeriodInArray.contains(dayBeforeStartDate) {
+                                        let periodIndex = currentPlan.periods!.first(where: { $0.value.contains(dayBeforeStartDate) })!.key
+                                        startDateToPlant = state.existingAllPlans[planIDInLine]!.periods![periodIndex]![0]
+                                        state.existingAllPlans[planIDInLine]!.periods![periodIndex] = [startDateToPlant, endDateToPlant]
+                                    } else {
+                                        /// (target period startDate, current plan endDate)
+                                        let dayAfterEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)!
+                                        if currentPlanPeriodInArray.contains(dayAfterEndDate) {
+                                            let periodIndex = currentPlan.periods!.first(where: { $0.value.contains(dayAfterEndDate) })!.key
+                                            endDateToPlant = state.existingAllPlans[planIDInLine]!.periods![periodIndex]![0]
+                                            state.existingAllPlans[planIDInLine]!.periods![periodIndex] = [startDateToPlant, endDateToPlant]
+                                        } else {
+                                            /// 붙어있는 period가 없으므로 새로 추가
+                                            let periodsCount = state.existingAllPlans[planIDInLine]!.periods!.count
+                                            state.existingAllPlans[planIDInLine]!.periods!["\(periodsCount)"] = [startDateToPlant, endDateToPlant]
+                                        }
                                     }
-                                    // TODO: - 11/3~11/4, 11/5~11/6과 같은 periods 처리
-                                    /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
-                                    state.existingAllPlans[parentPlanID]?.childPlanIDs[laneIndex]?.remove(at: lane.firstIndex(of: planID)!)
-                                    let plansToUpdate = [state.existingAllPlans[parentPlanID]!, state.existingAllPlans[planIDInLane]!]
-                                    let plansToDelete = [state.existingAllPlans[planID]!]
-                                    state.existingAllPlans[planID] = nil
-                                    return .run { send in
-                                        try await apiService.updatePlans(
-                                            plansToUpdate,
-                                            projectID
-                                        )
-                                        try await apiService.deletePlans(
-                                            plansToDelete,
-                                            projectID
-                                        )
-                                        await send(.fetchMap)
+                                    
+                                    /// 플랜이 가진 Periods가 하나뿐이었다면 플랜 본인을 삭제
+                                    if state.existingAllPlans[planID]!.periods!.count < 2 {
+                                        /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
+                                        state.existingAllPlans[parentPlanID]?.childPlanIDs[lineIndex]?.remove(at: lines.firstIndex(of: planID)!)
+                                        let plansToUpdate = [state.existingAllPlans[parentPlanID]!, state.existingAllPlans[planIDInLine]!]
+                                        let plansToDelete = [state.existingAllPlans[planID]!]
+                                        state.existingAllPlans[planID] = nil
+                                        return .run { send in
+                                            try await apiService.updatePlans(
+                                                plansToUpdate,
+                                                projectID
+                                            )
+                                            try await apiService.deletePlans(
+                                                plansToDelete,
+                                                projectID
+                                            )
+                                            await send(.fetchMap)
+                                        }
                                     }
                                 }
                             }
@@ -299,7 +315,6 @@ struct PlanBoard: Reducer {
                                 )
                             }
                         }
-                        currentRowCount += childLaneCount
                     }
                 }
                 /// 발견된 플랜타입이 없다면 무조건 create후 update
