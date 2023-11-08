@@ -26,6 +26,8 @@ struct ProjectBoard: Reducer {
         @BindingState var title = ""
         var tappedProjectID: ProjectItem.State.ID?
         
+        var notices = [Notice]()
+        
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
         var tabBarFocusGroupClickedItem = String.homeButton
@@ -45,6 +47,7 @@ struct ProjectBoard: Reducer {
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
+        
         case createNewProjectButtonTapped
         case readAllButtonTapped
         case fetchAllProjects
@@ -52,6 +55,10 @@ struct ProjectBoard: Reducer {
         case setProcessing(Bool)
         case titleChanged(String)
         case projectTitleChanged
+        
+        case sendFeedback(String)
+        case fetchNotice
+        
         case binding(BindingAction<State>)
         case setSheet(isPresented: Bool)
         case setEditSheet(isPresented: Bool)
@@ -166,10 +173,18 @@ struct ProjectBoard: Reducer {
                     await send(.setEditSheet(isPresented: false))
                 }
                 
+            case let .sendFeedback(contents):
+                return .run { _ in
+                    try await apiService.sendFeedback(contents)
+                }
+                
+            case .fetchNotice:
+                return .none
+                
             case .binding:
                 return .none
                 
-            case let .deleteProjectButtonTapped(id: id, action: .binding(\.$delete)):
+            case .deleteProjectButtonTapped(id: _, action: .binding(\.$delete)):
                 return .run { send in
                     await send(.fetchAllProjects)
                 }
