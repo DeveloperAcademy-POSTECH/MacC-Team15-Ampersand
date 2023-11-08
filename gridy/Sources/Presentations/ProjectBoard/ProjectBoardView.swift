@@ -28,21 +28,6 @@ struct ProjectBoardView: View {
     let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
     
     let store: StoreOf<ProjectBoard>
-    let planBoardStore = Store(
-        initialState: PlanBoard.State(
-            rootProject: Project(
-                id: "id",
-                title: "title",
-                ownerUid: "uid",
-                createdDate: Date(),
-                lastModifiedDate: Date(),
-                map: ["": [""]]
-            ), map: ["": [""]]
-        )
-    ) {
-        PlanBoard()
-            ._printChanges()
-    }
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -93,14 +78,20 @@ struct ProjectBoardView: View {
                     }
                 } else {
                     PlanBoardView(
-                        store: planBoardStore,
-                        tabID: viewStore.tabBarFocusGroupClickedItem
+                        store: Store(
+                            initialState: PlanBoard.State(rootProject: viewStore.showingProject!, map: [:])
+                        ) {
+                            PlanBoard()
+                        }
                     )
                 }
             }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
         .sheet(isPresented: $planBoardButtonClicked) {
-            CreatePlanBoardView()
+            CreatePlanBoardView(store: store)
         }
     }
 }
@@ -334,6 +325,7 @@ extension ProjectBoardView {
         var id: Int
         
         var body: some View {
+            // TODO: - 현재 폴더 없는 상태. 더미로 보여주고 있는 폴더 일단은 숨기기
             WithViewStore(store, observe: { $0 }) { viewStore in
                 HStack(alignment: .center, spacing: 0) {
                     Text("Folder")
@@ -440,8 +432,13 @@ extension ProjectBoardView {
                 ZStack(alignment: .bottom) {
                     ScrollView(showsIndicators: false) {
                         LazyVGrid(columns: columns, spacing: 32) {
-                            ForEach(0..<20, id: \.self) { index in
-                                PlanBoardItem(store: store, id: index)
+                            ForEachStore(
+                                store.scope(
+                                    state: \.projects,
+                                    action: { .projectItemTapped(id: $0, action: $1) }
+                                )
+                            ) {
+                                PlanBoardItem(store: $0)
                             }
                         }
                         .padding(32)
@@ -456,7 +453,7 @@ extension ProjectBoardView {
             }
             .background(Color.project)
             .sheet(isPresented: isCreatePlanBoardPresented) {
-                CreatePlanBoardView()
+                CreatePlanBoardView(store: store)
             }
         }
     }
@@ -466,8 +463,7 @@ extension ProjectBoardView {
     }
     
     private struct PlanBoardItem: View {
-        let store: StoreOf<ProjectBoard>
-        var id: Int
+        let store: StoreOf<ProjectItem>
         
         var body: some View {
             WithViewStore(store, observe: { $0 }) { viewStore in
@@ -476,9 +472,9 @@ extension ProjectBoardView {
                         RoundedRectangle(cornerRadius: 16)
                             .foregroundStyle(Color.board)
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? Color.boardHoveredBorder : .clear)
+                            .strokeBorder(viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? Color.boardHoveredBorder : .clear)
                             .shadow(
-                                color: viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? .black.opacity(0.25) : .clear,
+                                color: viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? .black.opacity(0.25) : .clear,
                                 radius: 8
                             )
                             .clipShape(
@@ -487,12 +483,15 @@ extension ProjectBoardView {
                     }
                     .aspectRatio(3/2, contentMode: .fit)
                     .shadow(
-                        color: viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? .black.opacity(0.25) : .clear,
+                        color: viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? .black.opacity(0.25) : .clear,
                         radius: 4,
                         y: 4
                     )
+                    .onTapGesture(count: 2) {
+                        viewStore.$isTapped.wrappedValue.toggle()
+                    }
                     Spacer().frame(height: 8)
-                    Text("Board Name")
+                    Text(viewStore.project.title)
                         .fontWeight(.medium)
                         .font(.system(size: 18))
                         .foregroundStyle(Color.title)
@@ -500,14 +499,14 @@ extension ProjectBoardView {
                         .font(.caption)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.subtitle)
-                    Text("Last updated on 2023.10.17")
+                    Text("Last updated on \(viewStore.project.lastModifiedDate.formattedDate)")
                         .font(.caption)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color.textInactive)
                 }
-                .scaleEffect(viewStore.hoveredItem == .planBoardItemButton + "\(id)" ? 1.02 : 1)
+                .scaleEffect(viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? 1.02 : 1)
                 .onHover { isHovered in
-                    viewStore.send(.hoveredItem(name: isHovered ? .planBoardItemButton + "\(id)" : ""))
+                    viewStore.send(.hoveredItem(name: isHovered ? .planBoardItemButton + "\(viewStore.id)" : ""))
                 }
             }
         }

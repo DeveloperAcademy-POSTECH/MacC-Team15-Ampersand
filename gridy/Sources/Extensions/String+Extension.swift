@@ -23,7 +23,6 @@ extension String {
     
     /* FocusedItemNames */
     static let homeButton = "homeButton"
-    static let planBoardItemButton = "planBoardItemButton"
     
     /* PopOverButtonNames */
     static let notificationButton = "notificationButton"
@@ -45,5 +44,8 @@ extension String {
     static let shareImageButton = "shareImageButton"
     static let boardSettingButton = "boardSettingButton"
     static let rightToolBarButton = "rightToolBarButton"
-}
+    
+    // MARK: - PorjectItem
+    static let planBoardItemButton = "planBoardItemButton"
 
+}
