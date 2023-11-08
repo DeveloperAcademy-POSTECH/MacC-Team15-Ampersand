@@ -82,8 +82,7 @@ struct TempView: View {
                         Button {
                             viewStore.send(
                                 .updatePlanTypeOnList(
-                                    layer: Int(updateLayer)!,
-                                    row: Int(updateRow)!,
+                                    targetPlanID: Plan.mock.id,
                                     text: updateRow,
                                     colorCode: PlanType.emptyPlanType.colorCode
                                 )

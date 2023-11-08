@@ -98,7 +98,7 @@ struct PlanBoard: Reducer {
         
         // MARK: - plan type
         case createPlanType(targetPlanID: String, text: String, colorCode: UInt)
-        case updatePlanTypeOnList(layer: Int, row: Int, text: String, colorCode: UInt)
+        case updatePlanTypeOnList(targetPlanID: String, text: String, colorCode: UInt)
         case updatePlanTypeOnLine(planID: String, row: Int, text: String, colorCode: UInt)
         
         // MARK: - plan
@@ -155,7 +155,6 @@ struct PlanBoard: Reducer {
     
                 // MARK: - user action
             case .onAppear:
-                // TODO: - 삭제
                 state.existingAllPlans = [state.rootPlan.id: state.rootPlan]
                 return .run { send in
                     await send(.fetchMap)
@@ -212,53 +211,37 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            case let .updatePlanTypeOnList(layer, row, text, colorCode):
-                // TODO: - 만약 layer에서의 내 index를 준다면 existingPlanID = map[layer][row]
+            case let .updatePlanTypeOnList(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
-                let planIDsArray = state.map[layer]
                 
-                var planHeightsArray = [String: Int]()
-                for planID in planIDsArray {
-                    let childPlanIDsArray = state.existingAllPlans[planID]!.childPlanIDs
-                    planHeightsArray[planID] = childPlanIDsArray.count
-                }
-                
-                var sumOfHeights = 0
-                var targetPlanID = ""
-                for planID in planIDsArray {
-                    sumOfHeights += planHeightsArray[planID]!
-                    if row < sumOfHeights {
-                        targetPlanID = planID
-                        break
-                    }
-                }
-                
-                let existingPlanID = targetPlanID
-                let existingPlan = state.existingAllPlans[existingPlanID]!
+                let existingPlan = state.existingAllPlans[targetPlanID]!
                 let existingPlanTypeID = existingPlan.planTypeID
-                /// planType이 없는 경우
-                if state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode}) == nil {
+                let existingPlanType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})
+                
+                if let existingPlanType = existingPlanType {
+                    /// planType이 있는데 나와 같은게 들어온 경우 > 실행 안 함
+                    if existingPlanTypeID == existingPlanType.id {
+                        return .none
+                    }
+                    /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
+                    let foundPlanTypeID = existingPlanType.id
+                    state.existingAllPlans[targetPlanID]!.planTypeID = foundPlanTypeID
+                    
                     return .run { send in
-                        await send(
-                            .createPlanType(targetPlanID: existingPlanID, text: text, colorCode: colorCode)
+                        await send(.fetchMap)
+                        try await apiService.updatePlanType(
+                            targetPlanID,
+                            foundPlanTypeID,
+                            projectID
                         )
                     }
-                }
-                /// planType이 있는데 나와 같은게 들어온 경우 > 실행 안 함
-                if existingPlanTypeID == state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id {
-                    return .none
-                }
-                /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
-                let foundPlanTypeID = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode  == colorCode})!.id
-                state.existingAllPlans[existingPlanID]!.planTypeID = foundPlanTypeID
-                
-                return .run { send in
-                    await send(.fetchMap)
-                    try await apiService.updatePlanType(
-                        existingPlanID,
-                        foundPlanTypeID,
-                        projectID
-                    )
+                } else {
+                    /// planType이 없는 경우
+                    return .run { send in
+                        await send(
+                            .createPlanType(targetPlanID: targetPlanID, text: text, colorCode: colorCode)
+                        )
+                    }
                 }
                 
             case let .updatePlanTypeOnLine(planID, row, text, colorCode):
@@ -422,7 +405,7 @@ struct PlanBoard: Reducer {
                 /// 1.  parentPlan인 map[layer][row]이 없는데 라인을 먼저 그은 경우: lane을 먼저 만들어야 함
                 var prevParentPlanID = state.rootPlan.id
                 var newDummyPlanID = UUID().uuidString
-                var currentLayerCount = state.map.count
+                let currentLayerCount = state.map.count
                 if currentLayerCount - 1 < row {
                     for dummyCount in 0..<currentLayerCount {
                         if dummyCount == 0 {
@@ -440,15 +423,15 @@ struct PlanBoard: Reducer {
                         newDummyPlanID = UUID().uuidString
                         
                         /// DB에 생성해줄 플랜들 담아
-                        if dummyCount < currentLayerCount - 1, dummyCount > 0 {
+                         if 0 < dummyCount, dummyCount < currentLayerCount - 1 {
                             plansToCreate.append(state.existingAllPlans[prevParentPlanID]!)
                         }
                     }
                 }
                 
                 /// 2. (row, layer)에 플랜이 존재하는 경우: 새 플랜을 생성하고 childIDs에 넣어주면 된다.
-                var newPlanOnLineID = UUID().uuidString
-                var newPlanOnLine = Plan(
+                let newPlanOnLineID = UUID().uuidString
+                let newPlanOnLine = Plan(
                     id: newPlanOnLineID,
                     planTypeID: PlanType.emptyPlanType.id,
                     childPlanIDs: [:],
