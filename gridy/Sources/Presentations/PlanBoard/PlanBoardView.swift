@@ -102,7 +102,21 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var lineIndexArea: some View {
-        Color.index
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    Color.index
+                    Path { path in
+                        for rowIndex in 0..<viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            path.move(to: CGPoint(x: 0, y: yLocation))
+                            path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
+                        }
+                    }
+                    .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
+                }
+            }
+        }
     }
 }
 
@@ -131,17 +145,52 @@ extension PlanBoardView {
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
                     }
-                    .stroke(Color.verticalLine, lineWidth: viewStore.rowStroke)
+                    .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
                     
                     Path { path in
-                        let xLocation = geometry.size.width - viewStore.columnStroke
-                        path.move(to: CGPoint(x: xLocation, y: 0))
-                        path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                        for _ in 0..<viewStore.map.count - 1 {
+                            let xLocation = geometry.size.width - viewStore.columnStroke
+                            path.move(to: CGPoint(x: xLocation, y: 0))
+                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                        }
                     }
-                    .stroke(Color.horizontalLine, lineWidth: viewStore.columnStroke)
+                    .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
+                    
+                    VStack {
+                        ForEach(0..<viewStore.map.count, id: \.self) { layer in
+                            let layer = viewStore.map[String(layer)]
+                        }
+                    }
                 }
+                .onChange(of: geometry.size) { newSize in
+                    viewStore.send(.windowSizeChanged(newSize))
+                }
+                .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
+                    // TODO: - Action에서 처리해야 될 것 같은데
+                    viewStore.send(.gridSizeChanged(geometry.size))
+                }
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.onContinuousHover(true, location))
+                    case .ended:
+                        viewStore.send(.onContinuousHover(false, nil))
+                    }
+                }
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            viewStore.send(.magnificationChangedInListArea(value, geometry.size))
+                        }
+                )
             }
         }
+    }
+}
+
+extension PlanBoardView {
+    var listItem: some View {
+        Color.lineArea
     }
 }
 

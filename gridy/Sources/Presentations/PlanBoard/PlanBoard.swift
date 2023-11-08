@@ -57,7 +57,7 @@ struct PlanBoard: Reducer {
         var selectedDateRanges: [SelectedDateRange] = []
         
         /// 뷰의 GeometryReader값의 변화에 따라 Max 그리드 갯수가 변호합니다.
-        var maxLineAreaRow = 0
+        var maxLineAreaRow = 20
         var maxCol = 0
         
         /// 뷰가 움직인 크기를 나타내는 변수입니다.
