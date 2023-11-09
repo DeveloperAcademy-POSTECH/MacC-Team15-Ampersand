@@ -187,7 +187,7 @@ struct TempView: View {
                             HStack {
                                 Button {
                                     viewStore.send(
-                                        .createLayerBtnClicked(layer: 0)
+                                        .createLayerButtonClicked(layer: 0)
                                     )
                                 } label: {
                                     Text("+")

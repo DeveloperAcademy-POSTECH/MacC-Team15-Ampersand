@@ -106,7 +106,7 @@ struct PlanBoard: Reducer {
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
         
         // MARK: - list area
-        case createLayerBtnClicked(layer: Int)
+        case createLayerButtonClicked(layer: Int)
         case createLaneButtonClicked(row: Int, createOnTop: Bool)
         case deleteLayer(layer: Int)
         case deleteLayerContents(layer: Int)
@@ -485,13 +485,13 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-                // MARK: - listArea
-            case let .createLayerBtnClicked(layer):
+            // MARK: - listArea
+            case let .createLayerButtonClicked(layer):
                 let projectID = state.rootProject.id
-                var updatedPlans: [Plan] = []
-                var createdPlans: [Plan] = []
+                var updatedPlans = [Plan]()
+                var createdPlans = [Plan]()
                 state.map.insert([], at: layer)
-                let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer-1]
+                let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 if state.map.flatMap({ $0 }).isEmpty {
                     return .none
                 }
@@ -499,11 +499,14 @@ struct PlanBoard: Reducer {
                     let prevPlan = state.existingAllPlans[prevPlanID]!
                     for index in 0..<prevPlan.childPlanIDs.count {
                         let childPlanIDs = prevPlan.childPlanIDs[String(index)]!
-                        let newPlanID = UUID().uuidString
-                        let newPlan = Plan(id: newPlanID, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": childPlanIDs])
-                        state.existingAllPlans[newPlanID] = newPlan
+                        let newPlan = Plan(
+                            id: UUID().uuidString,
+                            planTypeID: PlanType.emptyPlanType.id,
+                            childPlanIDs: ["0": childPlanIDs]
+                        )
+                        state.existingAllPlans[newPlan.id] = newPlan
                         createdPlans.append(newPlan)
-                        state.existingAllPlans[prevPlanID]!.childPlanIDs[String(index)] = [newPlanID]
+                        state.existingAllPlans[prevPlanID]!.childPlanIDs[String(index)] = [newPlan.id]
                         if prevPlanID != state.rootPlan.id {
                             updatedPlans.append(state.existingAllPlans[prevPlanID]!)
                         }
@@ -524,7 +527,6 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .createLaneButtonClicked(row, createOnTop):
-                /// row: 새로운 레인이 생성될 인덱스
                 let projectID = state.rootProject.id
                 var laneCount = -1
                 let rootChildIDs = state.rootPlan.childPlanIDs.values.flatMap({ $0 })
