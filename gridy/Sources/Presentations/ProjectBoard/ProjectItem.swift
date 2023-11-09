@@ -21,20 +21,11 @@ struct ProjectItem: Reducer {
         @BindingState var showSheet = false
         @BindingState var isTapped = false
         var isHovering = false
-        
-        /// Navigation
-        var isNavigationActive = false
-        var optionalPlanBoard: PlanBoard.State?
     }
     
     enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
         case isHovering(hovered: Bool)
-        
-        /// Navigation
-        case optionalPlanBoard(PlanBoard.Action)
-        case setNavigation(isActive: Bool)
-        case setNavigationIsActiveDelayCompleted
     }
     
     var body: some Reducer<State, Action> {
@@ -47,33 +38,7 @@ struct ProjectItem: Reducer {
             case let .isHovering(hovered):
                 state.isHovering = hovered
                 return .none
-                
-                /// Navigation
-            case .setNavigation(isActive: true):
-                state.isNavigationActive = true
-                return .run { send in
-                    try await continuousClock.sleep(for: .seconds(1))
-                    await send(.setNavigationIsActiveDelayCompleted)
-                }
-                .cancellable(id: CancelID.load)
-                
-            case .setNavigation(isActive: false):
-                state.isNavigationActive = false
-                state.optionalPlanBoard = nil
-                state.isHovering = false
-                return .cancel(id: CancelID.load)
-                
-            case .setNavigationIsActiveDelayCompleted:
-                // TODO: -
-//                state.optionalPlanBoard = PlanBoard.State(rootProject: state.project, map: [[]])
-                return .none
-                
-            case .optionalPlanBoard:
-                return .none
             }
-        }
-        .ifLet(\.optionalPlanBoard, action: /Action.optionalPlanBoard) {
-            PlanBoard()
         }
     }
 }

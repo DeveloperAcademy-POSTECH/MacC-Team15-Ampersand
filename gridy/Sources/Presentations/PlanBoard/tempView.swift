@@ -216,7 +216,7 @@ struct TempView: View {
                                 
                                 Button {
                                     viewStore.send(
-                                        .createLayerBtnClicked(layer: 1)
+                                        .createLayerButtonClicked(layer: 1)
                                     )
                                     print(viewStore.map)
                                 } label: {

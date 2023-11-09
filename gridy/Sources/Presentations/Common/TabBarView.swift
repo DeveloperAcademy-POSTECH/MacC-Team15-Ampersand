@@ -35,10 +35,10 @@ struct TabBarView: View {
                 systemBorder(.vertical)
                 homeButton
                 systemBorder(.vertical)
-                ForEach(0...2, id: \.self) { index in
+                ForEach(viewStore.showingProjects, id: \.self) { id in
                     TabItemView(
                         store: store,
-                        index: index
+                        projectID: id
                     )
                     systemBorder(.vertical)
                 }
@@ -145,17 +145,17 @@ extension TabBarView {
 struct TabItemView: View {
     let store: StoreOf<ProjectBoard>
     @State var isDeleteButtonHovered = false
-    let index: Int
+    let projectID: String
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text("BoardName\(index)")
+                Text(viewStore.projects[id: projectID]!.project.title)
                     .fontWeight(.medium)
                     .padding(.leading, 16)
                     .foregroundStyle(
-                        viewStore.hoveredItem == "tabName:\(index)" ||
-                        viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                        viewStore.hoveredItem == projectID ||
+                        viewStore.tabBarFocusGroupClickedItem == projectID ?
                         Color.tabLabel : Color.tabLabelInactive
                     )
                 Rectangle()
@@ -165,27 +165,33 @@ struct TabItemView: View {
                         Image(systemName: "xmark")
                             .foregroundStyle(
                                 isDeleteButtonHovered ?
-                                Color.tabLabel : viewStore.hoveredItem == "tabName:\(index)" ||
-                                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                                Color.tabLabel : viewStore.hoveredItem == projectID ||
+                                viewStore.tabBarFocusGroupClickedItem == projectID ?
                                 Color.subtitle : Color.clear
                             )
                     )
                     .onHover { isHovered in
                         isDeleteButtonHovered = isHovered
                     }
+                    .onTapGesture {
+                        viewStore.send(.deleteShowingProjects(projectID: projectID))
+                    }
             }
             .background(
-                viewStore.hoveredItem == "tabName:\(index)" ||
-                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
+                viewStore.hoveredItem == projectID ||
+                viewStore.tabBarFocusGroupClickedItem == projectID ?
                 Color.tabHovered : Color.tabBar
             )
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "tabName:\(index)" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
             }
             .onTapGesture {
                 viewStore.send(.clickedItem(
                     focusGroup: .tabBarFocusGroup,
-                    name: "tabName:\(index)"
+                    name: projectID
+                ))
+                viewStore.send(.setShowingProject(
+                    project: viewStore.projects[id: projectID]!.project
                 ))
             }
         }

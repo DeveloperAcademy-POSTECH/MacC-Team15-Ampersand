@@ -10,12 +10,11 @@ import ComposableArchitecture
 
 struct TopToolBarView: View {
     let store: StoreOf<PlanBoard>
-    let tabID: String
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text(tabID)
+                Text(viewStore.rootProject.title)
                     .font(.title)
                 Spacer()
                 planBoardBorder(.vertical)

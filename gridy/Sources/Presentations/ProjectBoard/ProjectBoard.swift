@@ -24,7 +24,8 @@ struct ProjectBoard: Reducer {
         var isEditViewPresented = false
         var projectIdToEdit = ""
         @BindingState var title = ""
-        var tappedProjectID: ProjectItem.State.ID?
+        var showingProject: Project?
+        var showingProjects = [String]()
         
         var notices = [Notice]()
         
@@ -61,9 +62,11 @@ struct ProjectBoard: Reducer {
         case fetchNoticeResponse(TaskResult<[Notice]>)
         
         case binding(BindingAction<State>)
+        case setShowingProject(project: Project)
+        case deleteShowingProjects(projectID: String)
         case setSheet(isPresented: Bool)
         case setEditSheet(isPresented: Bool)
-        case deleteProjectButtonTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
     }
     
     var body: some Reducer<State, Action> {
@@ -154,6 +157,44 @@ struct ProjectBoard: Reducer {
                 state.isCreationViewPresented = isPresented
                 return .none
                 
+            case let .setShowingProject(project):
+                state.showingProject = project
+                return .none
+                
+            case let .deleteShowingProjects(projectID):
+                /// 보여줄 탭 배열에서 id 제거
+                if let index = state.showingProjects.firstIndex(of: projectID) {
+                    state.showingProjects.remove(at: index)
+                }
+                /// 보여줄 탭이 아무것도 없을 때 홈화면 보여줌
+                if state.showingProjects.isEmpty {
+                    return .run { send in
+                        await send(.clickedItem(
+                            focusGroup: .tabBarFocusGroup,
+                            name: .homeButton
+                        ))
+                    }
+                }
+                /// 보여지고 있는 시트를 지웠을 경우
+                var clickedProjectID = ""
+                if state.tabBarFocusGroupClickedItem == projectID {
+                    clickedProjectID = state.showingProjects.last!
+                    let project = state.projects[id: clickedProjectID]!.project
+                    let showingProjectID = clickedProjectID
+                    return .run { send in
+                        await send(.setShowingProject(
+                            project: project
+                        ))
+                        await send(.clickedItem(
+                            focusGroup: .tabBarFocusGroup,
+                            name: showingProjectID
+                        ))
+                        
+                    }
+                }
+                
+                return .none
+                
             case let .setEditSheet(isPresented: isPresented):
                 state.isEditViewPresented = isPresented
                 return .none
@@ -188,13 +229,13 @@ struct ProjectBoard: Reducer {
             case let .fetchNoticeResponse(.success(response)):
                 state.notices = response
                 return .none
-                
-            case .deleteProjectButtonTapped(id: _, action: .binding(\.$delete)):
+
+            case .projectItemTapped(id: _, action: .binding(\.$delete)):
                 return .run { send in
                     await send(.fetchAllProjects)
                 }
                 
-            case let .deleteProjectButtonTapped(id: id, action: .binding(\.$showSheet)):
+            case let .projectItemTapped(id: id, action: .binding(\.$showSheet)):
                 let projectId = id
                 if let projectItem = state.projects[id: projectId] {
                     state.title = projectItem.project.title
@@ -203,21 +244,26 @@ struct ProjectBoard: Reducer {
                 state.isEditViewPresented = true
                 return .none
                 
-            case let .deleteProjectButtonTapped(id: id, action: .binding(\.$isTapped)):
-                let projectID = id
-                state.tappedProjectID = projectID
-                if let projectItem = state.projects[id: projectID] {
-                    for project in state.projects {
-                        state.projects[id: project.id]?.isTapped = (project.id == projectID)
-                    }
+            case let .projectItemTapped(id: id, action: .binding(\.$isTapped)):
+                if state.showingProjects.firstIndex(of: id) == nil {
+                    state.showingProjects.append(id)
                 }
-                return .none
-                
+                let project = state.projects[id: id]!.project
+                return .run { send in
+                    await send(.setShowingProject(
+                        project: project
+                    ))
+                    await send(.clickedItem(
+                        focusGroup: .tabBarFocusGroup,
+                        name: id
+                    ))
+                }
+            
             default:
                 return .none
             }
         }
-        .forEach(\.projects, action: /Action.deleteProjectButtonTapped(id:action:)) {
+        .forEach(\.projects, action: /Action.projectItemTapped(id:action:)) {
             ProjectItem()
         }
     }

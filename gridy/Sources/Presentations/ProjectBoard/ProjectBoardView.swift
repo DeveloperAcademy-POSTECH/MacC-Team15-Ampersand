@@ -27,15 +27,6 @@ struct ProjectBoardView: View {
     @State private var isExpanded = true
     
     let store: StoreOf<ProjectBoard>
-    let planBoardStore = Store(
-        initialState: PlanBoard.State(
-            rootProject: Project.mock,
-            rootPlan: Plan.mock,
-            map: [[]]
-        )
-    ) {
-        PlanBoard()
-    }
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -84,14 +75,24 @@ struct ProjectBoardView: View {
                     }
                 } else {
                     PlanBoardView(
-                        store: planBoardStore,
-                        tabID: viewStore.tabBarFocusGroupClickedItem
+                        store: Store(
+                            initialState: PlanBoard.State(
+                                rootProject: viewStore.showingProject!,
+                                rootPlan: Plan.mock, // TODO: - fetch root plan
+                                map: []
+                            )
+                        ) {
+                            PlanBoard()
+                        }
                     )
                 }
             }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
         .sheet(isPresented: $planBoardButtonClicked) {
-            CreatePlanBoardView()
+            CreatePlanBoardView(store: store)
         }
     }
 }
@@ -220,6 +221,7 @@ extension ProjectBoardView {
         var id: Int
         
         var body: some View {
+            // TODO: - 현재 폴더 없는 상태. 더미로 보여주고 있는 폴더 일단은 숨기기
             WithViewStore(store, observe: { $0 }) { viewStore in
                 HStack(alignment: .center, spacing: 0) {
                     Text("Folder")
@@ -327,8 +329,13 @@ extension ProjectBoardView {
                 ZStack(alignment: .bottom) {
                     ScrollView(showsIndicators: false) {
                         LazyVGrid(columns: columns, spacing: 32) {
-                            ForEach(0..<20, id: \.self) { index in
-                                PlanBoardItem(store: store, id: index)
+                            ForEachStore(
+                                store.scope(
+                                    state: \.projects,
+                                    action: { .projectItemTapped(id: $0, action: $1) }
+                                )
+                            ) {
+                                PlanBoardItem(store: $0)
                             }
                         }
                         .padding(32)
@@ -343,7 +350,7 @@ extension ProjectBoardView {
             }
             .background(Color.project)
             .sheet(isPresented: isCreatePlanBoardPresented) {
-                CreatePlanBoardView()
+                CreatePlanBoardView(store: store)
             }
         }
     }
@@ -354,11 +361,10 @@ extension ProjectBoardView {
     
     private struct PlanBoardItem: View {
         @State var planBoardItemHover = false
-        let store: StoreOf<ProjectBoard>
-        var id: Int
+        let store: StoreOf<ProjectItem>
         
         var body: some View {
-            WithViewStore(store, observe: { $0 }) { _ in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
@@ -379,8 +385,11 @@ extension ProjectBoardView {
                         radius: 4,
                         y: 4
                     )
+                    .onTapGesture(count: 2) {
+                        viewStore.$isTapped.wrappedValue.toggle()
+                    }
                     Spacer().frame(height: 8)
-                    Text("Board Name")
+                    Text(viewStore.project.title)
                         .fontWeight(.medium)
                         .font(.system(size: 18))
                         .foregroundStyle(Color.title)
@@ -388,7 +397,7 @@ extension ProjectBoardView {
                         .font(.caption)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.subtitle)
-                    Text("Last updated on 2023.10.17")
+                    Text("Last updated on \(viewStore.project.lastModifiedDate.formattedDate)")
                         .font(.caption)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color.textInactive)
