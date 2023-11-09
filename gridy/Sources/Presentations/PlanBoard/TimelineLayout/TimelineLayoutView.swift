@@ -12,7 +12,6 @@ struct TimelineLayoutView: View {
     
     let store: StoreOf<PlanBoard>
     @State private var showingRightToolBarArea = true
-    // TODO: - 쓰지 않는 토글기능임이 확정되면 변수와 하트 지우기
     @State var showingIndexArea = true
     @State var proxy: ScrollViewProxy?
     

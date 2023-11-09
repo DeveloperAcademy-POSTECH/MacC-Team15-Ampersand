@@ -16,7 +16,7 @@ struct ImageUploader {
             let ref = Storage.storage().reference(withPath: "\(uid)/\(filename)")
             
             ref.putData(imageData, metadata: nil) { _, error in
-                if let error = error { return }
+                if let _ = error { return }
                 
                 ref.downloadURL { url, _ in
                     if let url = url?.absoluteString {

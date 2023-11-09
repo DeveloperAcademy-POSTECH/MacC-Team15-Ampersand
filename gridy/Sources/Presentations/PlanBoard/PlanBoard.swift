@@ -43,9 +43,8 @@ struct PlanBoard: Reducer {
         var gridWidth = CGFloat(45)
         var scheduleAreaGridHeight = CGFloat(45)
         var lineAreaGridHeight = CGFloat(45)
-        // TODO: - 나중에 추가될 코드 ... 헨리가 뭔가 준비만 해뒀다고 했음!
-        //        var horizontalMagnification = CGFloat(1.0)
-        //         var verticalMagnification = CGFloat(1.0)
+        var horizontalMagnification = CGFloat(1.0)
+        var verticalMagnification = CGFloat(1.0)
         
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다. 아직은 RightToolBarArea에서 확인용으로만 사용하고 있습니다.
         var hoverLocation: CGPoint = .zero
@@ -485,7 +484,7 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            // MARK: - listArea
+                // MARK: - listArea
             case let .createLayerButtonClicked(layer):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
@@ -649,13 +648,14 @@ struct PlanBoard: Reducer {
                 
             case let .deleteLayerContents(layer):
                 let projectID = state.rootProject.id
-                var updatedPlans = [Plan]()
+                var updatedPlanIDs = Set<String>()
                 let planIDsArray = state.map[layer]
                 
                 for planID in planIDsArray {
                     state.existingAllPlans[planID]!.planTypeID = PlanType.emptyPlanType.id
+                    updatedPlanIDs.insert(planID)
                 }
-                let plansToUpdate = updatedPlans
+                let plansToUpdate = updatedPlanIDs.map({ state.existingAllPlans[$0]! })
                 return .run { send in
                     await send(.fetchMap)
                     try await apiService.updatePlans(
@@ -797,12 +797,22 @@ struct PlanBoard: Reducer {
                     let startRow = min(selectedRange.start.row, selectedRange.end.row)
                     let endRow = max(selectedRange.start.row, selectedRange.end.row)
                     // TODO: - 기준 날짜로 대체
-                    let startDate = Calendar.current.date(byAdding: .day,
-                                                          value: min(selectedRange.start.col, selectedRange.end.col),
-                                                          to: Date().filteredDate)!
-                    let endDate = Calendar.current.date(byAdding: .day,
-                                                        value: max(selectedRange.start.col, selectedRange.end.col),
-                                                        to: Date().filteredDate)!
+                    let startDate = Calendar.current.date(
+                        byAdding: .day,
+                        value: min(
+                            selectedRange.start.col,
+                            selectedRange.end.col
+                        ),
+                        to: Date().filteredDate
+                    )!
+                    let endDate = Calendar.current.date(
+                        byAdding: .day,
+                        value: max(
+                            selectedRange.start.col,
+                            selectedRange.end.col
+                        ),
+                        to: Date().filteredDate
+                    )!
                     /// 범위 내의 row마다 순회한다.
                     for row in startRow...endRow {
                         /// row가 어떤 Plan을 가리키고
@@ -1321,11 +1331,10 @@ struct PlanBoard: Reducer {
                     
                     /// 플랜이 이미 생성되어 있는 위치로 옮기는 경우
                     let parentLayer = state.map[layer - 1]
-                    var currentLaneIndex = -1
                     var targetParentPlan = state.rootPlan
                     var targetLaneIndexInParent = "0"
                     
-                    var currentPlanIDInDestinaton = state.map[layer][destination]
+                    let currentPlanIDInDestinaton = state.map[layer][destination]
                     var destinationParentPlan = state.rootPlan
                     var destinationLaneIndexInParent = "0"
                     
@@ -1375,13 +1384,14 @@ struct PlanBoard: Reducer {
                     /// dest 부모의 그 부모(layer0)의 인덱스를 파악
                     var indexInRoot = 0
                     for (index, firstLayerPlanID) in state.map[0].enumerated() {
-                        if state.existingAllPlans[firstLayerPlanID]!.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(destinationParentPlan.id) {
+                        let firstLayerChildIDs = state.existingAllPlans[firstLayerPlanID]!.childPlanIDs
+                        let firstLayerChildIDsInArray = firstLayerChildIDs.map({ $0.value }).flatMap({ $0 })
+                        if firstLayerChildIDsInArray.contains(destinationParentPlan.id) {
                             indexInRoot = index
                         }
                     }
                     
                     /// 다른 부모와 부모 플랜 사이에 생성하는 경우: 새 부모 플랜 생성
-                    var planIDsToUpdate = Set<String>()
                     var planIDsToCreate = Set<String>()
                     var newParentPlan = state.rootPlan
                     for currentLayerIndex in 0..<layer {
