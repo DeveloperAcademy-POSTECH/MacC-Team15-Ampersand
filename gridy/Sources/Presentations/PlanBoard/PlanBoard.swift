@@ -406,61 +406,61 @@ struct PlanBoard: Reducer {
                 var plansToCreate = [Plan]()
                 var plansToUpdate = [Plan]()
                 
-                /// 1.  parentPlan인 map[layer][row]이 없는데 라인을 먼저 그은 경우: lane을 먼저 만들어야 함
+                /// 0. row를 child로 포함하는 parentPlan이 있는지 먼저 확인
+                var currentRowCount = -1
+                var targetLaneParent: Plan?
+                var targetLaneIndex: Int?
+                for parentPlanID in state.map[state.map.count - 1] {
+                    let laneCount = state.existingAllPlans[parentPlanID]!.childPlanIDs.count
+                    if currentRowCount < row, row <= currentRowCount + laneCount {
+                        targetLaneParent = state.existingAllPlans[parentPlanID]
+                        targetLaneIndex = row - currentRowCount + 1
+                        break
+                    }
+                    currentRowCount += laneCount
+                }
+                /// 1.  parentPlan이 없는데 라인을 먼저 그은 경우: lane을 먼저 만들어야 함
                 var prevParentPlanID = state.rootPlan.id
                 var newDummyPlanID = UUID().uuidString
-                let currentLayerCount = state.map.count
-                if currentLayerCount - 1 < row {
-                    for dummyCount in 0..<currentLayerCount {
-                        if dummyCount == 0 {
-                            state.rootPlan.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
-                            state.existingAllPlans[state.rootPlan.id]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
-                        } else {
-                            state.existingAllPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
-                        }
-                        let newDummyPlan = Plan(id: newDummyPlanID, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: [:])
-                        state.existingAllPlans[newDummyPlanID] = newDummyPlan
-                        state.map[dummyCount].append(newDummyPlanID)
-                        
-                        /// 다음 더미 생성을 위한 세팅
-                        prevParentPlanID = newDummyPlanID
-                        newDummyPlanID = UUID().uuidString
-                        
-                        /// DB에 생성해줄 플랜들 담아
-                        if 0 < dummyCount, dummyCount < currentLayerCount - 1 {
+                if targetLaneParent == nil {
+                    for _ in currentRowCount+1...row {
+                        for currentLayerIndex in 0..<state.map.count {
+                            if currentLayerIndex == 0 {
+                                state.rootPlan.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                                state.existingAllPlans[state.rootPlan.id]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                            } else {
+                                state.existingAllPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
+                            }
+                            let newDummyPlan = Plan(
+                                id: newDummyPlanID,
+                                planTypeID: PlanType.emptyPlanType.id,
+                                childPlanIDs: [:]
+                            )
+                            state.existingAllPlans[newDummyPlanID] = newDummyPlan
+                            state.map[currentLayerIndex].append(newDummyPlanID)
+                            
+                            /// 다음 더미 생성을 위한 세팅
+                            prevParentPlanID = newDummyPlanID
+                            newDummyPlanID = UUID().uuidString
+                            
+                            /// DB에 생성해줄 플랜들 담아
                             plansToCreate.append(state.existingAllPlans[prevParentPlanID]!)
                         }
                     }
+                    targetLaneParent = state.existingAllPlans[state.map[state.map.count-1][row]]
+                    targetLaneIndex = 0
                 }
                 
                 /// 2. (row, layer)에 플랜이 존재하는 경우: 새 플랜을 생성하고 childIDs에 넣어주면 된다.
-                let newPlanOnLineID = UUID().uuidString
                 let newPlanOnLine = Plan(
-                    id: newPlanOnLineID,
+                    id: UUID().uuidString,
                     planTypeID: PlanType.emptyPlanType.id,
                     childPlanIDs: [:],
                     periods: ["0": [startDate, endDate]]
                 )
                 
                 let lastLayerIndex = state.map.count - 1
-                var currentRow = -1
-                var laneStartAt = -1
-                for eachRowPlanID in state.map[lastLayerIndex] {
-                    if let plan = state.existingAllPlans[eachRowPlanID] {
-                        let countChildLane = plan.childPlanIDs.count
-                        if currentRow < row,
-                           row <= currentRow + countChildLane {
-                            laneStartAt = currentRow - 1
-                            break
-                        }
-                        currentRow += countChildLane
-                    } else {
-                        fatalError("=== 📛 Map has semantic ERROR")
-                    }
-                }
-                
-                let laneIndexToCreate = row - laneStartAt
-                state.existingAllPlans[state.map[lastLayerIndex][row]]?.childPlanIDs["\(laneIndexToCreate)"]?.append(newPlanOnLineID)
+                state.existingAllPlans[state.map[lastLayerIndex][row]]?.childPlanIDs["\(targetLaneIndex!)"]?.append(newPlanOnLine.id)
                 
                 /// 3. parentPlan의 total period를 업데이트
                 if let prevTotalPeriod = state.existingAllPlans[state.map[lastLayerIndex][row]]?.totalPeriod {
@@ -478,7 +478,11 @@ struct PlanBoard: Reducer {
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
                 return .run { _ in
-                    try await apiService.createPlanOnLineArea(plansToCreateImmutable, plansToUpdateImmutable, projectID)
+                    try await apiService.createPlanOnLineArea(
+                        plansToCreateImmutable,
+                        plansToUpdateImmutable,
+                        projectID
+                    )
                 }
                 
                 // MARK: - listArea
