@@ -112,6 +112,9 @@ struct PlanBoard: Reducer {
         var shiftedCol = 0
         var exceededRow = 0
         var exceededCol = 0
+        var scrolledCol:CGFloat = 0
+        var scrolledRow:CGFloat = 0
+
         
         /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
         var isShiftKeyPressed = false
@@ -182,6 +185,7 @@ struct PlanBoard: Reducer {
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
+        case scrollGesture(NSEvent)
         
         /// ListArea
         case showUpperLayer
@@ -577,6 +581,7 @@ struct PlanBoard: Reducer {
                     state.selectedGridRanges.append(newRange)
                 }
                 state.exceededCol = 0
+                state.exceededRow = 0
                 return .none
                 
             case let .magnificationChangedInListArea(value, geometrySize):
@@ -596,6 +601,16 @@ struct PlanBoard: Reducer {
                 )
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
+                return .none
+                
+            case let .scrollGesture(event):
+                let magnitude = sqrt(event.scrollingDeltaX * event.scrollingDeltaX + event.scrollingDeltaY * event.scrollingDeltaY)
+                if magnitude != 0 {
+                    state.scrolledCol += (-event.scrollingDeltaX / magnitude) / 4
+                    state.scrolledRow += (-event.scrollingDeltaY / magnitude) / 4
+                    state.shiftedCol = Int(state.scrolledCol)
+                    state.shiftedRow = Int(state.scrolledRow)
+                }
                 return .none
                 
             default:

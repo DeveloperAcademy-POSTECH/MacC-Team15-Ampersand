@@ -392,7 +392,10 @@ extension PlanBoardView {
                                         .stroke(Color.white, lineWidth: 1)
                                 )
                                 .frame(width: width * viewStore.gridWidth, height: height)
-                                .position(x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth, y: 100 + viewStore.lineAreaGridHeight / 2)
+                                .position(
+                                    x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
+                                    y: 100 + (-CGFloat(viewStore.shiftedRow) * viewStore.lineAreaGridHeight)
+                                )
                         }
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -406,8 +409,7 @@ extension PlanBoardView {
                                             isStartColSmaller ? CGFloat(temporaryRange.start.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2 :
                                             CGFloat(temporaryRange.end.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2,
                                           y:
-                                            isStartRowSmaller ? CGFloat(temporaryRange.start.row) * viewStore.lineAreaGridHeight + height / 2 :
-                                            CGFloat(temporaryRange.end.row) * viewStore.lineAreaGridHeight + height / 2)
+                                            isStartRowSmaller ? CGFloat(temporaryRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2)
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
@@ -470,6 +472,42 @@ extension PlanBoardView {
                                 exceededCol: 0
                             )
                         )
+                    case [true, false, true, false]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: -1,
+                                shiftedCol: -1,
+                                exceededRow: -1,
+                                exceededCol: -1
+                            )
+                        )
+                    case [true, false, false, true]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: 1,
+                                shiftedCol: -1,
+                                exceededRow: 1,
+                                exceededCol: -1
+                            )
+                        )
+                    case [false, true, true, false]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: -1,
+                                shiftedCol: 1,
+                                exceededRow: -1,
+                                exceededCol: 1
+                            )
+                        )
+                    case [false, true, false, true]:
+                        viewStore.send(
+                            .dragExceeded(
+                                shiftedRow: 1,
+                                shiftedCol: 1,
+                                exceededRow: 1,
+                                exceededCol: 1
+                            )
+                        )
                     default: break
                     }
                 })
@@ -502,7 +540,6 @@ extension PlanBoardView {
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
-                            viewStore.send(.setHoveredLoaction(.lineArea, true, dragEnd))
                             /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
                             exceededDirection = [
                                 dragEnd.x < 0,
@@ -567,6 +604,13 @@ extension PlanBoardView {
                 viewStore.send(
                     .onAppear
                 )
+                NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
+                    viewStore.send(.scrollGesture(event))
+                    if event.phase == .ended {
+           
+                    }
+                    return event
+                }
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
                     viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
                     return event
