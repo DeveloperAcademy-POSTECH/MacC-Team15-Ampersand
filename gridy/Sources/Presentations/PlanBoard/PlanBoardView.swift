@@ -118,7 +118,7 @@ extension PlanBoardView {
 extension PlanBoardView {
     var listArea: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
-            GeometryReader { geometry in
+            GeometryReader { _ in
                 ZStack {
                     Color.listArea
                 }
@@ -139,7 +139,7 @@ extension PlanBoardView {
 extension PlanBoardView {
     var scheduleArea: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
-            GeometryReader { geometry in
+            GeometryReader { _ in
                 ZStack {
                     Color.lineArea
                 }
@@ -160,7 +160,7 @@ extension PlanBoardView {
 extension PlanBoardView {
     var timeAxisArea: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
-            GeometryReader { geometry in
+            GeometryReader { _ in
                 HStack(alignment: .center, spacing: 0) {
                     ForEach(0..<viewStore.maxCol, id: \.self) { dayOffset in
                         let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol, to: Date())!
