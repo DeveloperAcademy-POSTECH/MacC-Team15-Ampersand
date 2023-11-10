@@ -129,6 +129,7 @@ struct CalendarView: View {
                     .frame(width: columnWidth, height: rowHeight)
                     .background((startDate?.date == value.date || endDate?.date == value.date) ? Color.black : Color.clear)
                     .cornerRadius(rowHeight / 2)
+                    .contentShape(Circle())
                     .onTapGesture {
                         selectDate(value)
                     }
