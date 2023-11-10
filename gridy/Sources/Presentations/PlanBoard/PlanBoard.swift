@@ -1289,11 +1289,15 @@ struct PlanBoard: Reducer {
                     }
                     state.existingAllPlans[foundSourceParentPlan.id]!.childPlanIDs["\(foundSourceParentPlan.childPlanIDs.count - 1)"] = nil
                     let plansToUpdate = [state.existingAllPlans[foundSourceParentPlan.id]!]
+                    let foundSourceParentPlanImmutable = foundSourceParentPlan
                     return .run { send in
                         await send(.createLaneButtonClicked(row: destinationIndexToMove, createOnTop: true))
-                        // TODO: - 생성된 레인에 foundSourceParentPlan.childPlanIDs["\(sourceLaneIndex)"]로 대치되어야 함
-                        await send(.fetchMap)
+                        await send(.updatePlan(
+                            targetPlanID: foundSourceParentPlanImmutable.id,
+                            updateTo: foundSourceParentPlanImmutable)
+                        )
                         try await apiService.updatePlans(plansToUpdate, projectID)
+                        await send(.fetchMap)
                     }
                 }
                 
@@ -1616,7 +1620,7 @@ struct PlanBoard: Reducer {
                 var tempLayer: [String] = []
                 var totalLoop = 0
                 
-                while !planIDsQ.isEmpty && totalLoop < 3 {
+                while !planIDsQ.isEmpty && totalLoop < state.map.count {
                     for planID in planIDsQ {
                         let plan = state.existingAllPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
