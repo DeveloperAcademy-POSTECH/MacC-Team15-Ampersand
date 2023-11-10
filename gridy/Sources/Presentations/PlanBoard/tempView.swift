@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct TempView: View {
     let store = Store(initialState: PlanBoard.State(
-        rootProject: Project(id: "project1", title: "", ownerUid: "", createdDate: Date(), lastModifiedDate: Date(), rootPlanID: ""),
+        rootProject: Project(id: "project1", title: "", ownerUid: "", period: [Date(), Date()], lastModifiedDate: Date(), rootPlanID: ""),
         rootPlan: Plan(id: "0000", planTypeID: "0000", childPlanIDs: [:]),
         map: [[]])) {
             PlanBoard()

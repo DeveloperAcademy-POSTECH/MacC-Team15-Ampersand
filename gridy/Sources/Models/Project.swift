@@ -11,7 +11,7 @@ struct Project: Identifiable, Decodable {
     var id: String
     var title: String
     var ownerUid: String
-    let createdDate: Date
+    var period: [Date]
     var lastModifiedDate: Date
     let rootPlanID: String
     
@@ -19,7 +19,7 @@ struct Project: Identifiable, Decodable {
         id: "",
         title: "",
         ownerUid: "",
-        createdDate: Date(),
+        period: [Date(), Date()],
         lastModifiedDate: Date(),
         rootPlanID: ""
     )
