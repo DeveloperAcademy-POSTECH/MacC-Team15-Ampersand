@@ -112,9 +112,10 @@ struct PlanBoard: Reducer {
         var shiftedCol = 0
         var exceededRow = 0
         var exceededCol = 0
-        var scrolledCol:CGFloat = 0
-        var scrolledRow:CGFloat = 0
-
+        var scrolledRow = 0
+        var scrolledCol = 0
+        var scrolledY:CGFloat = 0
+        var scrolledX:CGFloat = 0
         
         /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
         var isShiftKeyPressed = false
@@ -342,13 +343,21 @@ struct PlanBoard: Reducer {
                     )]
                 }
                 /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
-                if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
-                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
+                if Int(state.selectedGridRanges.last!.start.col) < (state.shiftedCol + state.scrolledCol) ||
+                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
                     state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
                 }
-                if Int(state.selectedGridRanges.last!.start.row) < state.shiftedRow ||
-                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
+                if Int(state.selectedGridRanges.last!.start.row) < (state.shiftedRow + state.scrolledRow) ||
+                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
                     state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
                 }
                 
                 return .run { send in
@@ -423,10 +432,10 @@ struct PlanBoard: Reducer {
                     if !state.isShiftKeyPressed {
                         /// 넓은 범위를 선택한 상태에서 방향키를 눌렀을 때, 시작점의 위치 - 2로 화면이 이동하는 기능
                         if state.selectedGridRanges.last!.start.col != state.selectedGridRanges.last!.end.col {
-                            if state.selectedGridRanges.last!.start.col < state.shiftedCol {
+                            if state.selectedGridRanges.last!.start.col < (state.shiftedCol + state.scrolledCol) {
                                 state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
-                            } else if state.selectedGridRanges.last!.start.col > state.shiftedCol + state.maxCol + 2 {
-                                state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                                 } else if state.selectedGridRanges.last!.start.col > (state.shiftedCol + state.scrolledCol) + state.maxCol + 2 {
+                                     state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
                             }
                         }
                         /// 선택영역 중 마지막 영역의 시작지점과 끝 지점 모두 colOffset, rowOffset만큼 이동한다. Command가 눌리지 않았기 때문에 selectedRanges는 1개의 크기만을 가진다.
@@ -442,9 +451,9 @@ struct PlanBoard: Reducer {
                         state.selectedGridRanges = [SelectedGridRange(start: (startRow, startCol), end: (movedEndRow, movedEndCol))]
                     }
                     /// 선택영역 중 마지막 영역의  끝지점 Col이 현재 뷰의 영점인 shiftedCol보다 작거나, 현재 뷰의 최대점인  maxCol + shiftedCol - 2 을 넘어갈 떄 화면이 스크롤된다.
-                    if Int(state.selectedGridRanges.last!.end.col) < state.shiftedCol ||
-                        Int(state.selectedGridRanges.last!.end.col) > state.maxCol + state.shiftedCol - 2 {
-                        state.shiftedCol += colOffset
+                                     if Int(state.selectedGridRanges.last!.end.col) < (state.shiftedCol + state.scrolledCol) ||
+                                                                                       Int(state.selectedGridRanges.last!.end.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
+                                         state.shiftedCol += colOffset
                     }
                     /// 선택영역 중 마지막 영역의  끝지점 Row이 현재 뷰의 영점인 shiftedRow보다 작거나, 현재 뷰의 최대점인  maxRow + shiftedRow - 2 을 넘어갈 떄 화면이 스크롤된다.
                     if Int(state.selectedGridRanges.last!.end.row) < state.shiftedRow ||
@@ -456,6 +465,10 @@ struct PlanBoard: Reducer {
                 
             case .shiftToToday:
                 state.shiftedCol = 0
+                state.scrolledX = 0
+                state.scrolledY = 0
+                state.scrolledCol = 0
+                state.scrolledRow = 0
                 if let lastSelected = state.selectedGridRanges.last {
                     state.selectedGridRanges = [SelectedGridRange(
                         start: (lastSelected.start.row, 0),
@@ -606,10 +619,10 @@ struct PlanBoard: Reducer {
             case let .scrollGesture(event):
                 let magnitude = sqrt(event.scrollingDeltaX * event.scrollingDeltaX + event.scrollingDeltaY * event.scrollingDeltaY)
                 if magnitude != 0 {
-                    state.scrolledCol += (-event.scrollingDeltaX / magnitude) / 4
-                    state.scrolledRow += (-event.scrollingDeltaY / magnitude) / 4
-                    state.shiftedCol = Int(state.scrolledCol)
-                    state.shiftedRow = Int(state.scrolledRow)
+                    state.scrolledY += (-event.scrollingDeltaY / magnitude) / 4
+                    state.scrolledX += (-event.scrollingDeltaX / magnitude) / 4
+                    state.scrolledRow = Int(state.scrolledY)
+                    state.scrolledCol = Int(state.scrolledX)
                 }
                 return .none
                 

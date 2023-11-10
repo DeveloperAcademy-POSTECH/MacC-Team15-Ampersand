@@ -163,7 +163,7 @@ extension PlanBoardView {
             GeometryReader { _ in
                 HStack(alignment: .center, spacing: 0) {
                     ForEach(0..<viewStore.maxCol, id: \.self) { dayOffset in
-                        let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol, to: Date())!
+                        let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol + viewStore.scrolledCol, to: Date())!
                         let dateInfo = DateInfo(date: date, isHoliday: viewStore.holidays.contains(date))
                         VStack(alignment: .center, spacing: 0) {
                             ZStack {
@@ -393,8 +393,8 @@ extension PlanBoardView {
                                 )
                                 .frame(width: width * viewStore.gridWidth, height: height)
                                 .position(
-                                    x: (position + (width / 2) - CGFloat(viewStore.shiftedCol)) * viewStore.gridWidth,
-                                    y: 100 + (-CGFloat(viewStore.shiftedRow) * viewStore.lineAreaGridHeight)
+                                    x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
+                                    y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
                                 )
                         }
                         if let temporaryRange = temporarySelectedGridRange {
@@ -406,10 +406,12 @@ extension PlanBoardView {
                                 .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                 .frame(width: width, height: height)
                                 .position(x:
-                                            isStartColSmaller ? CGFloat(temporaryRange.start.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2 :
-                                            CGFloat(temporaryRange.end.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2,
+                                            isStartColSmaller ? 
+                                          CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                            CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                           y:
-                                            isStartRowSmaller ? CGFloat(temporaryRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2)
+                                            isStartRowSmaller ? 
+                                          CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
@@ -424,10 +426,12 @@ extension PlanBoardView {
                                             .stroke(Color.boardSelectedBorder, lineWidth: 1)
                                     )
                                     .frame(width: width, height: height)
-                                    .position(x: isStartColSmaller ? CGFloat(selectedRange.start.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2 :
-                                                CGFloat(selectedRange.end.col - viewStore.shiftedCol) * viewStore.gridWidth + width / 2,
-                                              y: isStartRowSmaller ? CGFloat(selectedRange.start.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                                CGFloat(selectedRange.end.row - viewStore.shiftedRow) * viewStore.lineAreaGridHeight + height / 2)
+                                    .position(x: isStartColSmaller ? 
+                                              CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                                CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                              y: isStartRowSmaller ? 
+                                              CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                                CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                             }
                         }
                         
@@ -553,17 +557,17 @@ extension PlanBoardView {
                                     viewStore.send(.dragGestureChanged(.pressNothing, nil))
                                     temporarySelectedGridRange = nil
                                     temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow - viewStore.exceededRow,
-                                                startCol + viewStore.shiftedCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow,
-                                              endCol + viewStore.shiftedCol)
+                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
+                                                startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
+                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                                     )
                                 } else {
                                     /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                     if let lastIndex = viewStore.selectedGridRanges.indices.last {
                                         var updatedRange = viewStore.selectedGridRanges[lastIndex]
-                                        updatedRange.end.row = endRow + viewStore.shiftedRow
-                                        updatedRange.end.col = endCol + viewStore.shiftedCol
+                                        updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
+                                        updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
                                         viewStore.send(.dragGestureChanged(.pressOnlyShift, updatedRange))
                                     }
                                 }
@@ -571,14 +575,14 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
                                     self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow - viewStore.exceededRow, startCol + viewStore.shiftedCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow, endCol + viewStore.shiftedCol))
+                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow, startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow, endCol + viewStore.shiftedCol + viewStore.scrolledCol))
                                 } else {
                                     /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                     if let lastIndex = viewStore.selectedGridRanges.indices.last {
                                         var updatedRange = viewStore.selectedGridRanges[lastIndex]
-                                        updatedRange.end.row = endRow + viewStore.shiftedRow
-                                        updatedRange.end.col = endCol + viewStore.shiftedCol
+                                        updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
+                                        updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
                                         viewStore.send(.dragGestureChanged(.pressOnlyCommand, updatedRange))
                                     }
                                 }
