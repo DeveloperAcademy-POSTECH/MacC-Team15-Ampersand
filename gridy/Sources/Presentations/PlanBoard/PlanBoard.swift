@@ -103,6 +103,7 @@ struct PlanBoard: Reducer {
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
+        case updatePlan(targetPlanID: String, updateTo: Plan)
         
         // MARK: - list area
         case createLayerButtonClicked(layer: Int)
@@ -135,6 +136,7 @@ struct PlanBoard: Reducer {
         
         /// source, destication: layer 내의 인덱스. row값은 또 따로 받음
         case dragToMovePlanInList(targetPlanID: String, source: Int, destination: Int, row: Int, layer: Int)
+        /// call by dragToMovePlanInList Action
         case dragToMovePlanInLine(Int, String, Date, Date)
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
@@ -480,6 +482,17 @@ struct PlanBoard: Reducer {
                     try await apiService.createPlanOnLineArea(
                         plansToCreateImmutable,
                         plansToUpdateImmutable,
+                        projectID
+                    )
+                }
+                
+            case let .updatePlan(targetPlanID, updateTo):
+                let projectID = state.rootProject.id
+                state.existingAllPlans[targetPlanID] = updateTo
+                let planToUpdate = [state.existingAllPlans[targetPlanID]!]
+                return .run { _ in
+                    try await apiService.updatePlans(
+                        planToUpdate,
                         projectID
                     )
                 }
@@ -1326,6 +1339,11 @@ struct PlanBoard: Reducer {
                                 text: targetPlanType.title,
                                 colorCode: targetPlanType.colorCode)
                             )
+                            await send(.updatePlan(
+                                targetPlanID: targetPlan.id,
+                                updateTo: targetPlan)
+                            )
+                            await send(.fetchMap)
                         }
                     }
                     
@@ -1358,8 +1376,17 @@ struct PlanBoard: Reducer {
                         let countDestinationParentChilds = destinationParentChilds.map({ $0.value }).flatMap({ $0 }).count
                         if Int(destinationLaneIndexInParent)! % countDestinationParentChilds == 0 {
                             return .run { send in
+                                await send(.createPlanOnList(
+                                    layer: layer,
+                                    row: row,
+                                    text: targetPlanType.title,
+                                    colorCode: targetPlanType.colorCode)
+                                )
+                                await send(.updatePlan(
+                                    targetPlanID: targetPlan.id,
+                                    updateTo: targetPlan)
+                                )
                                 await send(.fetchMap)
-                                // TODO: - 아예 새 row가 생기고 바로 위 부모까지 플랜을 생성, 그 이하는 이거 가져가면 됨
                             }
                         } else {
                             /// 동일 레인이라면, source가 dest 위치로 이동
@@ -1391,7 +1418,7 @@ struct PlanBoard: Reducer {
                         }
                     }
                     
-                    /// 다른 부모와 부모 플랜 사이에 생성하는 경우: 새 부모 플랜 생성
+                    /// 서로 다른 부모와 부모 플랜 사이에 생성하는 경우: 새 부모 플랜 생성
                     var planIDsToCreate = Set<String>()
                     var newParentPlan = state.rootPlan
                     for currentLayerIndex in 0..<layer {
