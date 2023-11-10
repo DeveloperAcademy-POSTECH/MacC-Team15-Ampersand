@@ -43,7 +43,7 @@ struct ProjectBoardView: View {
                 )
             }
             VStack(alignment: .leading, spacing: 0) {
-                TabBarView(bellButtonClicked: $bellButtonClicked, store: store)
+                TabBarView(store: store)
                     .frame(height: 36)
                     .zIndex(2)
                 if viewStore.tabBarFocusGroupClickedItem == .homeButton {
@@ -301,9 +301,7 @@ extension ProjectBoardView {
                             viewStore.send(.hoveredItem(name: isHovered ? "personalProject" : ""))
                         }
                         .background(
-                            //                            viewStore.projectListFocusGroupClickedItem == "personalProject"
-                            isExpanded ||
-                            viewStore.hoveredItem == "personalProject" ?
+                            isExpanded || viewStore.hoveredItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
                         .onTapGesture {

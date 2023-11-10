@@ -9,9 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TabBarView: View {
-    @State var homeButtonClicked = false
-    @State var planBoardTabClicked = false
-    @Binding var bellButtonClicked: Bool
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
