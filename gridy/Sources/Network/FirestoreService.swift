@@ -12,9 +12,9 @@ import FirebaseFirestoreSwift
 
 enum CollectionName: String {
     case plans = "Plans"
-    case deletePlans = "DeletedPlans"
+    case deletedPlans = "DeletedPlans"
     case planTypes = "PlanTypes"
-    case deletePlanTypes = "DeletedPlanTypes"
+    case deletedPlanTypes = "DeletedPlanTypes"
     
     case feedback = "Feedback"
     case notice = "Notice"

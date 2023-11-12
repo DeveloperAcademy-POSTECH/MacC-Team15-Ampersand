@@ -264,7 +264,7 @@ struct ProjectBoard: Reducer {
             case let .fetchNoticeResponse(.success(response)):
                 state.notices = response
                 return .none
-
+                
             case .projectItemTapped(id: _, action: .binding(\.$delete)):
                 return .run { send in
                     await send(.fetchAllProjects)
@@ -293,7 +293,7 @@ struct ProjectBoard: Reducer {
                         name: id
                     ))
                 }
-            
+                
             default:
                 return .none
             }
