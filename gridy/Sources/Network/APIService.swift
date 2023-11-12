@@ -13,7 +13,7 @@ import FirebaseFirestoreSwift
 /// Service CRUD
 struct APIService {
     /// Project
-    var createProject: (String, [Date]) async throws -> Void
+    var createProject: (String, [Date]) async throws -> Project
     var readAllProjects: () async throws -> [Project]
     var updateProjectTitle: @Sendable (String, String) async throws -> Void
     var deleteProject: @Sendable (String) async throws -> Void
@@ -46,7 +46,7 @@ struct APIService {
     var readAllNotices: @Sendable () async throws -> [Notice]
     
     init(
-        createProject: @escaping (String, [Date]) async throws -> Void,
+        createProject: @escaping (String, [Date]) async throws -> Project,
         readAllProjects: @escaping () async throws -> [Project],
         updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
         deleteProject: @escaping @Sendable (String) async throws -> Void,
@@ -106,11 +106,20 @@ extension APIService {
         createProject: { title, period in
             let id = try FirestoreService.projectCollectionPath.document().documentID
             let rootPlan = Plan(id: UUID().uuidString, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": []])
+            let project = Project(
+                id: id,
+                title: title,
+                ownerUid: try FirestoreService.uid,
+                period: [period[0], period[1]],
+                createdDate: Date(),
+                lastModifiedDate: Date(),
+                rootPlanID: rootPlan.id
+            )
             let data = [
-                "id": id,
+                "id": project.id,
                 "title": title,
-                "ownerUid": try FirestoreService.uid,
-                "period": [period[0], period[1]],
+                "ownerUid": project.ownerUid,
+                "period": project.period,
                 "createdDate": Date(),
                 "lastModifiedDate": Date(),
                 "rootPlanID": rootPlan.id
@@ -123,6 +132,7 @@ extension APIService {
                 "colorCode": PlanType.emptyPlanType.colorCode
             ] as [String: Any]
             try await FirestoreService.setDocumentData(id, .planTypes, PlanType.emptyPlanType.id, planTypeData)
+            return project
         },
         readAllProjects: {
             do {

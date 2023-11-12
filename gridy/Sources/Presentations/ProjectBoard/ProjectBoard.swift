@@ -60,13 +60,14 @@ struct ProjectBoard: Reducer {
         case popoverPresent(button: String, bool: Bool)
         
         case createNewProjectButtonTapped
+        case createProjectResponse(TaskResult<Project>)
         case readAllButtonTapped
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         case setProcessing(Bool)
         case titleChanged(String)
         case projectTitleChanged
-        case changeProjectSortCase
+        case sortProjectBy
         
         case sendFeedback(String)
         case fetchNotice
@@ -129,8 +130,17 @@ struct ProjectBoard: Reducer {
                 let endDate = state.endDate
                 
                 return .run { send in
-                    try await apiService.createProject(title, [startDate, endDate])
-                    await send(.fetchAllProjects)
+                    await send(.createProjectResponse(
+                        TaskResult {
+                            try await apiService.createProject(title, [startDate, endDate])
+                        }
+                    ))
+                }
+                
+            case let .createProjectResponse(.success(response)):
+                state.projects.insert(ProjectItem.State(project: response), at: 0)
+                return .run { send in
+                    await send(.sortProjectBy)
                     await send(.setSheet(isPresented: false))
                 }
                 
@@ -226,7 +236,7 @@ struct ProjectBoard: Reducer {
                     await send(.setEditSheet(isPresented: false))
                 }
                 
-            case .changeProjectSortCase:
+            case .sortProjectBy:
                 switch state.sortBy {
                 case .dateCreated:
                     state.projects.sort(by: { $0.project.createdDate > $1.project.createdDate })
@@ -235,7 +245,6 @@ struct ProjectBoard: Reducer {
                 case .alphabetical:
                     state.projects.sort(by: { $0.project.title < $1.project.title })
                 }
-                
                 return .none
                 
             case let .sendFeedback(contents):
