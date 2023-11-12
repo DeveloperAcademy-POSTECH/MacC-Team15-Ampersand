@@ -26,6 +26,7 @@ struct ProjectBoard: Reducer {
         @BindingState var title = ""
         var showingProject: Project?
         var showingProjects = [String]()
+        var isDisclosureGroupExpanded = false
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -46,6 +47,7 @@ struct ProjectBoard: Reducer {
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
+        case disclousrePresent(button: String, bool: Bool)
         case createNewProjectButtonTapped
         case readAllButtonTapped
         case fetchAllProjects
@@ -99,6 +101,15 @@ struct ProjectBoard: Reducer {
                     state.isUserSettingPresented = bool
                 case .createPlanBoardButton:
                     state.isCreatePlanBoardPresented = bool
+                default:
+                    break
+                }
+                return .none
+                
+            case let .disclousrePresent(button: buttonName, bool: bool):
+                switch buttonName {
+                case .disclousreFolderButton:
+                    state.isDisclosureGroupExpanded = bool
                 default:
                     break
                 }

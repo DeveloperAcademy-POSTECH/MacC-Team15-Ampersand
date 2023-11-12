@@ -32,6 +32,7 @@ extension String {
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"
     static let tabItemDeleteButton = "tabItemDeleteButton"
+    static let disclousreFolderButton = "disclousreFolderButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */

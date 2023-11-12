@@ -18,7 +18,6 @@ struct ProjectBoardView: View {
     @State var lightClicked = false
     @State var darkClicked = false
     
-    @State private var isExpanded = false
     @State private var searchPlanBoardText = ""
     
     @State private var currentDate: Date = Date()
@@ -271,13 +270,24 @@ extension ProjectBoardView {
 extension ProjectBoardView {
     var projectListArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isDisclosureGroupExpanded: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isDisclosureGroupExpanded },
+                    set: { newValue in
+                        viewStore.send(.disclousrePresent(
+                            button: .disclousreFolderButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             Section(header: Text("Projects")
                 .fontWeight(.medium)
                 .padding(.leading, 16)
                 .padding(.bottom, 8)
             ) {
                 ScrollView(showsIndicators: false) {
-                    DisclosureGroup(isExpanded: $isExpanded) {
+                    DisclosureGroup(isExpanded: isDisclosureGroupExpanded) {
                         ForEach(0..<4, id: \.self) { index in
                             Folder(store: store, id: index)
                         }
@@ -287,7 +297,7 @@ extension ProjectBoardView {
                                 .foregroundStyle(.clear)
                                 .frame(width: 24, height: 24)
                                 .overlay(
-                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                    Image(systemName: viewStore.isDisclosureGroupExpanded ? "chevron.down" : "chevron.right")
                                         .foregroundColor(Color.subtitle)
                                 )
                             Label("Personal Project", systemImage: "person.crop.square.fill")
@@ -301,11 +311,14 @@ extension ProjectBoardView {
                             viewStore.send(.hoveredItem(name: isHovered ? "personalProject" : ""))
                         }
                         .background(
-                            isExpanded || viewStore.hoveredItem == "personalProject" ?
+                            viewStore.isDisclosureGroupExpanded  || viewStore.hoveredItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
                         .onTapGesture {
-                            isExpanded.toggle()
+                            viewStore.send(.disclousrePresent(
+                                button: .disclousreFolderButton,
+                                bool: !viewStore.isDisclosureGroupExpanded
+                            ))
                             viewStore.send(.clickedItem(
                                 focusGroup: .projectListFocusGroup,
                                 name: "personalProject")
