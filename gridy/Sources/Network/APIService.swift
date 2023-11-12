@@ -219,7 +219,7 @@ extension APIService {
         deletePlans: { plansToMove, projectID in
             for plan in plansToMove {
                 try await FirestoreService.deleteDocument(projectID, .plans, plan.id)
-                try await FirestoreService.setDocumentData(projectID, .deletePlans, plan.id, planToDictionary(plan))
+                try await FirestoreService.setDocumentData(projectID, .deletedPlans, plan.id, planToDictionary(plan))
             }
         },
         deletePlansCompletely: { plansToDelete, projectID in

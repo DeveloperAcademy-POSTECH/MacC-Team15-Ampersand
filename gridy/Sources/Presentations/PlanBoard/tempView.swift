@@ -245,7 +245,7 @@ struct TempView: View {
                             VStack {
                                 ForEach(0..<viewStore.map[layerIndex].count, id: \.self) { rowIndex in
                                     let planID = viewStore.map[layerIndex][rowIndex]
-                                    let plan = viewStore.existingAllPlans[planID]!
+                                    let plan = viewStore.existingPlans[planID]!
                                     let planTypeID = plan.planTypeID
                                     let planType = viewStore.existingPlanTypes[planTypeID]!
                                     

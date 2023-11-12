@@ -36,7 +36,7 @@ struct ListItemView: View {
                         .overlay(
                             Text(editingText)
                                 .onAppear {
-                                    if let plan = viewStore.existingAllPlans[viewStore.map[layerIndex][rowIndex]],
+                                    if let plan = viewStore.existingPlans[viewStore.map[layerIndex][rowIndex]],
                                        let planType = viewStore.existingPlanTypes[plan.planTypeID] {
                                         let title = planType.title
                                         editingText = title
