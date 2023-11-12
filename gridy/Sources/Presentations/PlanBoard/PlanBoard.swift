@@ -229,9 +229,7 @@ struct PlanBoard: Reducer {
                 
             case let .updatePlanTypeOnList(targetPlanID, text, colorCode):
                 return .run { send in
-                    await send(
-                        .createPlanType(targetPlanID, text, colorCode)
-                    )
+                    await send(.createPlanType(targetPlanID, text, colorCode))
                 }
                 
             case let .updatePlanTypeOnLine(planID, text, colorCode, period):

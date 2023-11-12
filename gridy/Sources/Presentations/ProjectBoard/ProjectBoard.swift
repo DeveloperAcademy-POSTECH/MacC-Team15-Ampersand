@@ -154,7 +154,7 @@ struct ProjectBoard: Reducer {
                     await send(.setProcessing(true))
                     await send(.fetchAllProjectsResponse(
                         TaskResult {
-                            try await apiService.readAllProjects()
+                            try await apiService.readProjects()
                         }
                     ), animation: .spring)
                     await send(.setProcessing(false))
@@ -229,10 +229,13 @@ struct ProjectBoard: Reducer {
                 
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
-                let changedTitle = state.title
+                state.projects[id: id]!.project.title = state.title
+                var projectToEdit = state.projects[id: id]!
+                projectToEdit.project.title = state.title
+                let projectToEditImmutable = projectToEdit.project
                 return .run { send in
-                    try await apiService.updateProjectTitle(id, changedTitle)
-                    await send(.fetchAllProjects)
+                    await send(.sortProjectBy)
+                    try await apiService.updateProjects([projectToEditImmutable])
                     await send(.setEditSheet(isPresented: false))
                 }
                 

@@ -14,9 +14,10 @@ import FirebaseFirestoreSwift
 struct APIService {
     /// Project
     var createProject: (String, [Date]) async throws -> Project
-    var readAllProjects: () async throws -> [Project]
-    var updateProjectTitle: @Sendable (String, String) async throws -> Void
-    var deleteProject: @Sendable (String) async throws -> Void
+    var readProjects: () async throws -> [Project]
+    var updateProjects: @Sendable ([Project]) async throws -> Void
+    var deleteProjects: @Sendable ([String]) async throws -> Void
+    var deleteProjectsCompletely: @Sendable ([String]) async throws -> Void
     
     /// Plan Type
     var readAllPlanTypes: (String) async throws -> [PlanType]
@@ -47,9 +48,10 @@ struct APIService {
     
     init(
         createProject: @escaping (String, [Date]) async throws -> Project,
-        readAllProjects: @escaping () async throws -> [Project],
-        updateProjectTitle: @escaping @Sendable (String, String) async throws -> Void,
-        deleteProject: @escaping @Sendable (String) async throws -> Void,
+        readProjects: @escaping () async throws -> [Project],
+        updateProjects: @escaping @Sendable ([Project]) async throws -> Void,
+        deleteProjects: @escaping @Sendable ([String]) async throws -> Void,
+        deleteProjectsCompletely: @escaping @Sendable ([String]) async throws -> Void,
         
         readAllPlanTypes: @escaping (String) async throws -> [PlanType],
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
@@ -73,9 +75,10 @@ struct APIService {
         readAllNotices: @escaping @Sendable () async throws -> [Notice]
     ) {
         self.createProject = createProject
-        self.readAllProjects = readAllProjects
-        self.updateProjectTitle = updateProjectTitle
-        self.deleteProject = deleteProject
+        self.readProjects = readProjects
+        self.updateProjects = updateProjects
+        self.deleteProjects = deleteProjects
+        self.deleteProjectsCompletely = deleteProjectsCompletely
         
         self.readAllPlanTypes = readAllPlanTypes
         self.createPlanType = createPlanType
@@ -134,7 +137,7 @@ extension APIService {
             try await FirestoreService.setDocumentData(id, .planTypes, PlanType.emptyPlanType.id, planTypeData)
             return project
         },
-        readAllProjects: {
+        readProjects: {
             do {
                 let snapshots = try await FirestoreService.projectCollectionPath
                     .getDocuments()
@@ -146,15 +149,31 @@ extension APIService {
                 throw APIError.noResponseResult
             }
         },
-        updateProjectTitle: { id, newTitle in
-            try FirestoreService.projectCollectionPath.document(id).updateData(["title": newTitle])
-            try FirestoreService.projectCollectionPath.document(id).updateData(["lastModifiedDate": Date()])
+        updateProjects: { projects in
+            for project in projects {
+                try FirestoreService
+                    .projectCollectionPath
+                    .document(project.id)
+                    .updateData(
+                        ["title": project.title,
+                         "period": project.period,
+                         "lastModifiedDate": Date()
+                        ]
+                    )
+            }
         },
-        deleteProject: { id in
-            let data = try await FirestoreService.projectCollectionPath.document(id).getDocument().data()
-            try await FirestoreService.projectCollectionPath.document(id).delete()
-            if let data = data {
-                try await  FirestoreService.deletedProjectCollectionPath.document(id).setData(data)
+        deleteProjects: { ids in
+            for id in ids {
+                let data = try await FirestoreService.projectCollectionPath.document(id).getDocument().data()
+                try await FirestoreService.projectCollectionPath.document(id).delete()
+                if let data = data {
+                    try await  FirestoreService.deletedProjectCollectionPath.document(id).setData(data)
+                }
+            }
+        },
+        deleteProjectsCompletely: { ids in
+            for id in ids {
+                try await FirestoreService.projectCollectionPath.document(id).delete()
             }
         },
         // MARK: - Plan type
