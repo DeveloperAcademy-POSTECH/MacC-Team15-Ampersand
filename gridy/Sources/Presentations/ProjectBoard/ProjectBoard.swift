@@ -9,6 +9,12 @@ import Foundation
 import ComposableArchitecture
 import FirebaseAuth
 
+enum ProjectSortCase: Equatable {
+    case dateCreated
+    case lastModified
+    case alphabetical
+}
+
 struct ProjectBoard: Reducer {
     @Dependency(\.apiService) var apiService
     @Dependency(\.apiClient) var apiClient
@@ -25,6 +31,7 @@ struct ProjectBoard: Reducer {
         var projectIdToEdit = ""
         var showingProject: Project?
         var showingProjects = [String]()
+        var sortBy = ProjectSortCase.lastModified
         
         @BindingState var title = ""
         @BindingState var startDate = Date()
@@ -59,6 +66,7 @@ struct ProjectBoard: Reducer {
         case setProcessing(Bool)
         case titleChanged(String)
         case projectTitleChanged
+        case changeProjectSortCase
         
         case sendFeedback(String)
         case fetchNotice
@@ -217,6 +225,18 @@ struct ProjectBoard: Reducer {
                     await send(.fetchAllProjects)
                     await send(.setEditSheet(isPresented: false))
                 }
+                
+            case .changeProjectSortCase:
+                switch state.sortBy {
+                case .dateCreated:
+                    state.projects.sort(by: { $0.project.createdDate > $1.project.createdDate })
+                case .lastModified:
+                    state.projects.sort(by: { $0.project.lastModifiedDate > $1.project.lastModifiedDate })
+                case .alphabetical:
+                    state.projects.sort(by: { $0.project.title < $1.project.title })
+                }
+                
+                return .none
                 
             case let .sendFeedback(contents):
                 return .run { _ in
