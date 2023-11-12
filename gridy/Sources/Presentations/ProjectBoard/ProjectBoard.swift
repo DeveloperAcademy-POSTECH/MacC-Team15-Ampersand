@@ -23,10 +23,11 @@ struct ProjectBoard: Reducer {
         var isCreationViewPresented = false
         var isEditViewPresented = false
         var projectIdToEdit = ""
-        @BindingState var title = ""
         var showingProject: Project?
         var showingProjects = [String]()
         var isDisclosureGroupExpanded = false
+        @BindingState var title = ""
+        @BindingState var searchPlanBoardText = ""
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -56,6 +57,7 @@ struct ProjectBoard: Reducer {
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         case setProcessing(Bool)
         case titleChanged(String)
+        case searchTitleChanged(String)
         case projectTitleChanged
         case binding(BindingAction<State>)
         case setShowingProject(project: Project)
@@ -216,6 +218,10 @@ struct ProjectBoard: Reducer {
                 
             case let .titleChanged(changedTitle):
                 state.title = changedTitle
+                return .none
+                
+            case let .searchTitleChanged(changedSearchTitle):
+                state.searchPlanBoardText = changedSearchTitle
                 return .none
                 
             case .projectTitleChanged:

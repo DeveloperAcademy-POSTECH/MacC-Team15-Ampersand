@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State private var searchPlanBoardText = ""
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
     let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
@@ -250,8 +249,14 @@ extension ProjectBoardView {
                 HStack(alignment: .center, spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .frame(width: 20, height: 20)
-                    TextField("Search", text: $searchPlanBoardText)
-                        .textFieldStyle(.plain)
+                    TextField(
+                        "Search",
+                        text: viewStore.binding(
+                            get: \.searchPlanBoardText,
+                            send: { .searchTitleChanged($0) }
+                            )
+                    )
+                    .textFieldStyle(.plain)
                 }
                 .padding(.horizontal, 16)
             }
