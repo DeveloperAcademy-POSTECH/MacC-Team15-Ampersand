@@ -22,7 +22,7 @@ struct APIService {
     /// Plan Type
     var createPlanType: @Sendable (PlanType, String, String) async throws -> Void
     var readPlanTypes: @Sendable (String) async throws -> [PlanType]
-//    var updatePlanTypes: @Sendable ([PlanType], String) async throws -> Void
+    var updatePlanTypes: @Sendable ([PlanType], String) async throws -> Void
     var deletePlanTypes: @Sendable ([PlanType], String) async throws -> Void
     var deletePlanTypesCompletely: @Sendable ([String], String) async throws -> Void
     
@@ -56,7 +56,7 @@ struct APIService {
         
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
         readPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
-//        updatePlanTypes: @escaping @Sendable ([PlanType], String) async throws -> Void,
+        updatePlanTypes: @escaping @Sendable ([PlanType], String) async throws -> Void,
         deletePlanTypes: @escaping @Sendable ([PlanType], String) async throws -> Void,
         deletePlanTypesCompletely: @escaping @Sendable ([String], String) async throws -> Void,
         
@@ -84,7 +84,7 @@ struct APIService {
         
         self.createPlanType = createPlanType
         self.readPlanTypes = readPlanTypes
-//        self.updatePlanType = updatePlanType
+        self.updatePlanTypes = updatePlanTypes
         self.deletePlanTypes = deletePlanTypes
         self.deletePlanTypesCompletely = deletePlansCompletely
         
@@ -191,6 +191,20 @@ extension APIService {
         },
         readPlanTypes: { projectID in
             return try await FirestoreService.getDocuments(projectID, .planTypes, PlanType.self) as! [PlanType]
+        },
+        updatePlanTypes: { types, projectID in
+            for type in types {
+                try await FirestoreService
+                    .updateDocumentData(
+                        projectID,
+                        .planTypes,
+                        type.id,
+                        [
+                            "title": type.title,
+                            "colorCode": type.colorCode
+                        ]
+                    )
+            }
         },
         deletePlanTypes: { types, projectID in
             for type in types {
