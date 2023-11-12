@@ -7,11 +7,12 @@
 
 import Foundation
 
-struct Project: Identifiable, Decodable {
+struct Project: Identifiable, Decodable, Equatable {
     var id: String
     var title: String
     var ownerUid: String
     var period: [Date]
+    var createdDate: Date
     var lastModifiedDate: Date
     let rootPlanID: String
     
@@ -20,9 +21,8 @@ struct Project: Identifiable, Decodable {
         title: "",
         ownerUid: "",
         period: [Date(), Date()],
+        createdDate: Date(),
         lastModifiedDate: Date(),
         rootPlanID: ""
     )
 }
-
-extension Project: Equatable { }

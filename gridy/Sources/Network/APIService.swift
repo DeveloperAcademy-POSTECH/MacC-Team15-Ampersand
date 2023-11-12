@@ -111,6 +111,7 @@ extension APIService {
                 "title": title,
                 "ownerUid": try FirestoreService.uid,
                 "period": [period[0], period[1]],
+                "createdDate": Date(),
                 "lastModifiedDate": Date(),
                 "rootPlanID": rootPlan.id
             ] as [String: Any?]

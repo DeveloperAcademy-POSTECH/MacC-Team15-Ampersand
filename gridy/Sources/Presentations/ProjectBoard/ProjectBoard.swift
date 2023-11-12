@@ -119,11 +119,6 @@ struct ProjectBoard: Reducer {
                 let title = state.title
                 let startDate = state.startDate
                 let endDate = state.endDate
-
-                // TODO: - 종료일자가 시작일자보다 빠를 수 없습니다. 프론트에서 막아야함.
-                if startDate > endDate {
-                    return .none
-                }
                 
                 return .run { send in
                     try await apiService.createProject(title, [startDate, endDate])
