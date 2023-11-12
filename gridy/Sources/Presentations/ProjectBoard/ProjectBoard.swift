@@ -23,9 +23,12 @@ struct ProjectBoard: Reducer {
         var isCreationViewPresented = false
         var isEditViewPresented = false
         var projectIdToEdit = ""
-        @BindingState var title = ""
         var showingProject: Project?
         var showingProjects = [String]()
+        
+        @BindingState var title = ""
+        @BindingState var startDate = Date()
+        @BindingState var endDate = Date()
         
         var notices = [Notice]()
         
@@ -114,8 +117,16 @@ struct ProjectBoard: Reducer {
                 
             case .createNewProjectButtonTapped:
                 let title = state.title
+                let startDate = state.startDate
+                let endDate = state.endDate
+
+                // TODO: - 종료일자가 시작일자보다 빠를 수 없습니다. 프론트에서 막아야함.
+                if startDate > endDate {
+                    return .none
+                }
+                
                 return .run { send in
-                    try await apiService.createProject(title, [Date(), Date()])
+                    try await apiService.createProject(title, [startDate, endDate])
                     await send(.fetchAllProjects)
                     await send(.setSheet(isPresented: false))
                 }
