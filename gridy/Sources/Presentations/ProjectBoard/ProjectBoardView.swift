@@ -9,13 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State var themeClicked = false
-    @State var automaticClicked = false
-    @State var lightClicked = false
-    @State var darkClicked = false
-    
     @State private var searchPlanBoardText = ""
-    
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
     let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
@@ -35,6 +29,17 @@ struct ProjectBoardView: View {
                     }
                 )
             }
+            var isThemeSettingButton: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isThemeSettingPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .themeSettingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             VStack(alignment: .leading, spacing: 0) {
                 TabBarView(store: store)
                     .frame(height: 36)
@@ -45,8 +50,8 @@ struct ProjectBoardView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             userSettingArea
                                 .popover(isPresented: isUserSettingPresented, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
-                                    UserSettingView(themeClicked: $themeClicked)
-                                        .popover(isPresented: $themeClicked, arrowEdge: .trailing) {
+                                    UserSettingView(themeClicked: isThemeSettingButton)
+                                        .popover(isPresented: isThemeSettingButton, arrowEdge: .trailing) {
                                             themeSelect
                                         }
                                 }
@@ -474,7 +479,7 @@ extension ProjectBoardView {
                         RoundedRectangle(cornerRadius: 16)
                             .foregroundStyle(Color.board)
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? Color.boardHoveredBorder : .clear)
+                            .strokeBorder(viewStore.isSelected ? Color.blue : viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? Color.boardHoveredBorder : .clear)
                             .shadow(
                                 color: viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? .black.opacity(0.25) : .clear,
                                 radius: 8
@@ -489,6 +494,9 @@ extension ProjectBoardView {
                         radius: 4,
                         y: 4
                     )
+                    .onTapGesture(count: 1) {
+                        viewStore.$isSelected.wrappedValue.toggle()
+                    }
                     .onTapGesture(count: 2) {
                         viewStore.$isTapped.wrappedValue.toggle()
                     }
@@ -525,22 +533,23 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(automaticClicked ? Color.title : .clear)
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .automaticButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(automaticClicked ? Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear)
+                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .automaticButton ? Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear)
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "automatic" : ""))
                 }
                 .onTapGesture {
-                    automaticClicked = true
-                    lightClicked = false
-                    darkClicked = false
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .automaticButton
+                    ))
                 }
                 
                 HStack(alignment: .center, spacing: 0) {
@@ -549,22 +558,23 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(lightClicked ? Color.title : .clear)
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .lightButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(lightClicked ? Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear)
+                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .lightButton ? Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear)
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "light" : ""))
                 }
                 .onTapGesture {
-                    automaticClicked = false
-                    lightClicked = true
-                    darkClicked = false
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .lightButton
+                    ))
                 }
                 
                 HStack(alignment: .center, spacing: 0) {
@@ -573,22 +583,23 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(darkClicked ? Color.title : .clear)
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .darkButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(darkClicked ? Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear)
+                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .darkButton ? Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear)
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "dark" : ""))
                 }
                 .onTapGesture {
-                    automaticClicked = false
-                    lightClicked = false
-                    darkClicked = true
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .darkButton
+                    ))
                 }
             }
             .padding(16)

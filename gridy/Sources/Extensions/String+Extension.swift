@@ -20,14 +20,19 @@ extension String {
     static let boardListFocusGroup = "boardListFocusGroup"
     static let folderLazyVGridFocusGroup = "folderLazyVGridFocusGroup"
     static let boardLazyVGridFocusGroup = "boardLazyVGridFocusGroup"
+    static let themeFocusGroup = "themeFocusGroup"
     
     /* FocusedItemNames */
     static let homeButton = "homeButton"
+    static let automaticButton = "automaticButton"
+    static let lightButton = "lightButton"
+    static let darkButton = "darkButton"
     
     /* PopOverButtonNames */
     static let notificationButton = "notificationButton"
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
+    static let themeSettingButton = "themeSettingButton"
     
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"

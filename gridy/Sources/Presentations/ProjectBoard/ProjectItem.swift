@@ -20,8 +20,8 @@ struct ProjectItem: Reducer {
         @BindingState var delete = false
         @BindingState var showSheet = false
         @BindingState var isTapped = false
+        @BindingState var isSelected = false
         var isHovering = false
-        
         var hoveredItem = ""
     }
     

@@ -35,11 +35,13 @@ struct ProjectBoard: Reducer {
         var folderListFocusGroupClickedItem = ""
         var folderLazyVGridFocusGroupClickedItem = ""
         var boardLazyVGridFocusGroupClickedItem = ""
+        var themeFocusGroupClickedItem = String.lightButton
         
         // MARK: - Sheets
         var isNotificationPresented = false
         var isUserSettingPresented = false
         var isCreatePlanBoardPresented = false
+        var isThemeSettingPresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -61,6 +63,7 @@ struct ProjectBoard: Reducer {
         case setSheet(isPresented: Bool)
         case setEditSheet(isPresented: Bool)
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case projectItemOneTapped(id: String)
     }
     
     var body: some Reducer<State, Action> {
@@ -88,6 +91,8 @@ struct ProjectBoard: Reducer {
                     state.folderLazyVGridFocusGroupClickedItem = clickedItem
                 case .boardLazyVGridFocusGroup:
                     state.boardLazyVGridFocusGroupClickedItem = clickedItem
+                case .themeFocusGroup:
+                    state.themeFocusGroupClickedItem = clickedItem
                 default:
                     break
                 }
@@ -101,6 +106,8 @@ struct ProjectBoard: Reducer {
                     state.isUserSettingPresented = bool
                 case .createPlanBoardButton:
                     state.isCreatePlanBoardPresented = bool
+                case .themeSettingButton:
+                    state.isThemeSettingPresented = bool
                 default:
                     break
                 }
@@ -201,6 +208,8 @@ struct ProjectBoard: Reducer {
                 
                 return .none
                 
+            
+                
             case let .setEditSheet(isPresented: isPresented):
                 state.isEditViewPresented = isPresented
                 return .none
@@ -234,6 +243,18 @@ struct ProjectBoard: Reducer {
                 }
                 state.projectIdToEdit = id
                 state.isEditViewPresented = true
+                return .none
+                
+            case let .projectItemTapped(id: id, action: .binding(\.$isSelected)):
+                let projectId = id
+                
+                for projectItem in state.projects {
+                    if projectItem.id == projectId {
+                        state.projects[id: projectItem.id]?.isSelected = true
+                    } else {
+                        state.projects[id: projectItem.id]?.isSelected = false
+                    }
+                }
                 return .none
                 
             case let .projectItemTapped(id: id, action: .binding(\.$isTapped)):
