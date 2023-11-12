@@ -200,10 +200,10 @@ struct PlanBoard: Reducer {
                     }
                     /// planType이 있는데 나와 다른게 들어온 경우 >  해당 ID로 변경
                     state.existingPlans[targetPlanID]!.planTypeID = originType.id
+                    let planToUpdate = state.existingPlans[targetPlanID]!
                     return .run { _ in
-                        try await apiService.updatePlanType(
-                            targetPlanID,
-                            originType.id,
+                        try await apiService.updatePlans(
+                            [planToUpdate],
                             projectID
                         )
                     }
@@ -294,11 +294,12 @@ struct PlanBoard: Reducer {
                                     }
                                 }
                             }
+                            state.existingPlans[planID]!.planTypeID = foundPlanTypeID
+                            let planToUpdate = state.existingPlans[planID]!
                             /// 반복문이 끝났는데도 return되지 않았다면 같은 레인에 동일 타입의 플랜이 존재하지 않는 것이므로 updatePlanType만 해준다
                             return .run { _ in
-                                try await apiService.updatePlanType(
-                                    planID,
-                                    foundPlanTypeID,
+                                try await apiService.updatePlans(
+                                    [planToUpdate],
                                     projectID
                                 )
                             }
@@ -371,6 +372,8 @@ struct PlanBoard: Reducer {
                 let layerIndex = layer
                 let newPlanType = createdPlanType
                 let planID = parentPlanID
+                state.existingPlans[planID]!.planTypeID = originPlanTypeID ?? newPlanType.id
+                let planToUpdate = state.existingPlans[planID]!
                 
                 return .run { send in
                     await send(.fetchMap)
@@ -382,12 +385,10 @@ struct PlanBoard: Reducer {
                     )
                     if let originPlanTypeID = originPlanTypeID {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
-                        try await apiService.updatePlanType(
-                            planID,
-                            originPlanTypeID,
+                        try await apiService.updatePlans(
+                            [planToUpdate],
                             projectID
                         )
-                        
                     } else {
                         /// colorCode가 없으면 새 타입을 생성하고, emptyType일 planID의 타입을 생성된 타입으로 변경한다.
                         if newPlanType != PlanType.emptyPlanType {
@@ -1137,7 +1138,7 @@ struct PlanBoard: Reducer {
                 planIDsToUpdate.insert(planIDs[0])
                 let projectID = state.rootProject.id
                 let plansToUpdate = planIDsToUpdate.map { state.existingPlans[$0]! }
-                let plansToDelete = planIDs[1..<planIDs.count].map { state.existingPlans[$0]! }
+                let plansToDelete = Array(planIDs[1..<planIDs.count])
                 return .run { send in
                     try await apiService.updatePlans(plansToUpdate, projectID)
                     try await apiService.deletePlansCompletely(plansToDelete, projectID)
