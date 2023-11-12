@@ -147,7 +147,7 @@ extension PlanBoardView {
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
                     
                     Path { path in
-                        for _ in 0..<viewStore.map.count - 1 {
+                        for _ in 0..<viewStore.map.count {
                             let xLocation = geometry.size.width - viewStore.columnStroke
                             path.move(to: CGPoint(x: xLocation, y: 0))
                             path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
