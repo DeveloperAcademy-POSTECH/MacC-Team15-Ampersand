@@ -54,6 +54,10 @@ extension CreatePlanBoardView {
                         .onSubmit {
                             if !viewStore.title.isEmpty {
                                 viewStore.send(.createNewProjectButtonTapped)
+                                viewStore.send(.popoverPresent(
+                                    button: .createPlanBoardButton,
+                                    bool: false
+                                ))
                             }
                         }
                 )
@@ -150,6 +154,10 @@ extension CreatePlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 viewStore.send(.createNewProjectButtonTapped)
+                viewStore.send(.popoverPresent(
+                    button: .createPlanBoardButton,
+                    bool: false
+                ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(createHover ? Color.buttonHovered : Color.button)

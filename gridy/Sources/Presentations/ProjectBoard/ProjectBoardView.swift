@@ -9,11 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State var bellButtonClicked = false
-    @State var userSettingClicked = false
     @State var themeClicked = false
-    @State var planBoardButtonClicked = false
-    
     @State var automaticClicked = false
     @State var lightClicked = false
     @State var darkClicked = false
@@ -22,8 +18,6 @@ struct ProjectBoardView: View {
     
     @State private var currentDate: Date = Date()
     @State private var currentMonth: Int = 0
-    @State private var isDayClicked: Bool = false
-    @State private var selectedDate: DateValue = DateValue(day: 0, date: Date())
     let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
     
     let store: StoreOf<ProjectBoard>
@@ -88,9 +82,6 @@ struct ProjectBoardView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
-        }
-        .sheet(isPresented: $planBoardButtonClicked) {
-            CreatePlanBoardView(store: store)
         }
     }
 }
