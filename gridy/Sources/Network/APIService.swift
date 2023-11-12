@@ -30,7 +30,7 @@ struct APIService {
     var createPlans: @Sendable ([Plan], String) async throws -> Void
     var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
     var createPlanOnLineArea: @Sendable ([Plan], [Plan], String) async throws -> Void
-    var readPlans: @Sendable (String) async throws -> [String: Plan]
+    var readPlans: @Sendable (String) async throws -> [Plan]
     var updatePlans: @Sendable ([Plan], String) async throws -> Void
     var deletePlans: @Sendable ([Plan], String) async throws -> Void
     var deletePlansCompletely: @Sendable ([String], String) async throws -> Void
@@ -57,7 +57,7 @@ struct APIService {
         createPlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
         createPlanOnLineArea: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
-        readPlans: @escaping @Sendable (String) async throws -> [String: Plan],
+        readPlans: @escaping @Sendable (String) async throws -> [Plan],
         updatePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         deletePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
         deletePlansCompletely: @escaping @Sendable ([String], String) async throws -> Void,
@@ -239,12 +239,7 @@ extension APIService {
             }
         },
         readPlans: { projectID in
-            let plans = try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
-            var results = [String: Plan]()
-            for plan in plans {
-                results[plan.id] = plan
-            }
-            return results
+            return try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
         },
         updatePlans: { plansToUpdate, projectID in
             for plan in plansToUpdate {

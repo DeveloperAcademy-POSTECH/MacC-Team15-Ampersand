@@ -105,6 +105,8 @@ struct PlanBoard: Reducer {
         // MARK: - plan
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
+        case readPlans
+        case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan(targetPlanID: String, updateTo: Plan)
         
         // MARK: - list area
@@ -159,8 +161,9 @@ struct PlanBoard: Reducer {
             case .onAppear:
                 state.existingPlans = [state.rootPlan.id: state.rootPlan]
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.readPlans)
                     await send(.readPlanTypes)
+                    await send(.fetchMap)
                 }
                 
             case let .selectColorCode(selectedColor):
@@ -502,6 +505,22 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                 }
+                
+            case .readPlans:
+                let projectID = state.rootProject.id
+                return .run { send in
+                    await send(.readPlansResponse(
+                        TaskResult {
+                            try await apiService.readPlans(projectID)
+                        }
+                    ))
+                }
+                
+            case let .readPlansResponse(.success(responses)):
+                for response in responses {
+                    state.existingPlans[response.id] = response
+                }
+                return .none
                 
             case let .updatePlan(targetPlanID, updateTo):
                 let projectID = state.rootProject.id
