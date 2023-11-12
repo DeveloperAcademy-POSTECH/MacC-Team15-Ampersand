@@ -529,9 +529,12 @@ struct PlanBoard: Reducer {
                 let plansToCreate = createdPlans
                 return .run { send in
                     await send(.fetchMap)
-                    try await apiService.createLayer(
-                        plansToUpdate,
+                    try await apiService.createPlans(
                         plansToCreate,
+                        projectID
+                    )
+                    try await apiService.updatePlans(
+                        plansToUpdate,
                         projectID
                     )
                 }
@@ -557,9 +560,8 @@ struct PlanBoard: Reducer {
                             }
                             let planToUpdate = state.existingPlans[rootChildID]!
                             return .run { send in
-                                try await apiService.createLane(
-                                    planToUpdate,
-                                    nil,
+                                try await apiService.updatePlans(
+                                    [planToUpdate],
                                     projectID
                                 )
                                 await send(.fetchMap)
@@ -595,9 +597,12 @@ struct PlanBoard: Reducer {
                             }
                             let planToUpdate = state.existingPlans[firstLayerPlanID]!
                             return .run { send in
-                                try await apiService.createLane(
-                                    planToUpdate,
-                                    newChildPlan,
+                                try await apiService.createPlans(
+                                    [newChildPlan],
+                                    projectID
+                                )
+                                try await apiService.updatePlans(
+                                    [planToUpdate],
                                     projectID
                                 )
                                 await send(.fetchMap)
