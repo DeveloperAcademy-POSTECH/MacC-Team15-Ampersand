@@ -33,7 +33,7 @@ struct PlanBoard: Reducer {
         var existingPlanTypes = [String: PlanType]()
         var existingAllPlans = [String: Plan]()
         
-        var keyword = ""
+        @BindingState var keyword = ""
         var selectedColorCode = Color.red
         
         /// 그리드 규격에 대한 변수들입니다.
@@ -77,7 +77,7 @@ struct PlanBoard: Reducer {
         
         /// GeometryReader proxy값의 변화에 따라 Max 그리드 갯수가 변화합니다.
         var maxCol = 0
-        var maxLineAreaRow = 0
+        var maxLineAreaRow = 14
         var maxScheduleAreaRow = 6
         
         /// 뷰가 움직인 크기를 나타내는 변수입니다. ListArea, LineArea가 공유합니다.
@@ -94,15 +94,14 @@ struct PlanBoard: Reducer {
         var holidays = [Date]()
         
         /// ListArea
-        var showingLayers = [0]
-        var showingRows = 20
-        var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
+        var listItemSelected = false
         
         /// focusGroupClickedItems
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
         var rightToolBarFocusGroupClickedItem = ""
         var isHoveredOnLineArea = false
+        var isHoveredOnListArea = false
         
         /// popover
         var isShareImagePresented = false
@@ -161,6 +160,8 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         case createLayer(layerIndex: Int)
         case createLayerResponse(TaskResult<[String: [String]]>)
+        case listItemDoubleClicked(Bool)
+        case keywordChanged(String)
         
         case setSheet(Bool)
     }
@@ -453,12 +454,22 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .setHoveredCell(area, isActive, location):
-                state.isHoveredOnLineArea = isActive
-                if isActive {
-                    state.lineAreaHoveredCellLocation = location!
-                    state.lineAreaHoveredCellRow = Int(state.lineAreaHoveredCellLocation.y / state.lineAreaGridHeight)
-                    state.lineAreaHoveredCellCol = Int(state.lineAreaHoveredCellLocation.x / state.gridWidth)
+                if area == .listArea {
+                    state.isHoveredOnListArea = isActive
+                    if isActive {
+                        state.listAreaHoveredCellLocation = location!
+                        state.listAreaHoveredCellRow = Int(state.listAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / 150)
+                    }
                 }
+                return .none
+                
+            case let .listItemDoubleClicked(clicked):
+                state.listItemSelected = clicked
+                return .none
+                
+            case let .keywordChanged(newKeyword):
+                state.keyword = newKeyword
                 return .none
                 
             case let .dragGestureChanged(dragType, updatedRange):

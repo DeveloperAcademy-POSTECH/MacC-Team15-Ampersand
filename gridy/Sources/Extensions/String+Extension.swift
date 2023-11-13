@@ -40,5 +40,10 @@ extension String {
     static let shareImageButton = "shareImageButton"
     static let boardSettingButton = "boardSettingButton"
     static let rightToolBarButton = "rightToolBarButton"
+    
+    /* LayerControlButton */
+    static let layerControlButton = "layerControlButton"
+    static let layerControlLeft = "layerControlLeft"
+    static let layerControlRight = "layerControlRight"
 }
 
