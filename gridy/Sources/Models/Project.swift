@@ -15,6 +15,7 @@ struct Project: Identifiable, Decodable, Equatable {
     var createdDate: Date
     var lastModifiedDate: Date
     let rootPlanID: String
+    var countLayerInListArea: Int
     
     static let mock = Project(
         id: "",
@@ -23,6 +24,7 @@ struct Project: Identifiable, Decodable, Equatable {
         period: [Date(), Date()],
         createdDate: Date(),
         lastModifiedDate: Date(),
-        rootPlanID: ""
+        rootPlanID: "",
+        countLayerInListArea: 0
     )
 }

@@ -108,7 +108,8 @@ extension APIService {
                 period: [startDate, endDate],
                 createdDate: Date(),
                 lastModifiedDate: Date(),
-                rootPlanID: rootPlan.id
+                rootPlanID: rootPlan.id,
+                countLayerInListArea: 0
             )
             let data = [
                 "id": project.id,
@@ -117,7 +118,8 @@ extension APIService {
                 "period": project.period,
                 "createdDate": Date(),
                 "lastModifiedDate": Date(),
-                "rootPlanID": rootPlan.id
+                "rootPlanID": rootPlan.id,
+                "countLayerInListArea": 0
             ] as [String: Any?]
             try await FirestoreService.projectCollectionPath.document(projectID).setData(data as [String: Any])
             try await FirestoreService.setDocumentData(projectID, .plans, rootPlan.id, planToDictionary(rootPlan))
@@ -154,7 +156,8 @@ extension APIService {
                     .updateData(
                         ["title": project.title,
                          "period": project.period,
-                         "lastModifiedDate": Date()
+                         "lastModifiedDate": Date(),
+                         "countLayerInListArea": project.countLayerInListArea
                         ]
                     )
             }

@@ -150,7 +150,7 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - map
-        case fetchMap
+        case reloadMap
     }
     
     var body: some Reducer<State, Action> {
@@ -163,7 +163,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                 }
                 
             case let .selectColorCode(selectedColor):
@@ -311,7 +311,7 @@ struct PlanBoard: Reducer {
                                                 plansToDelete,
                                                 projectID
                                             )
-                                            await send(.fetchMap)
+                                            await send(.reloadMap)
                                         }
                                     }
                                 }
@@ -336,6 +336,7 @@ struct PlanBoard: Reducer {
                 // MARK: - plan
             case let .createPlanOnList(layer, row, text, colorCode):
                 if text.isEmpty { return .none }
+                state.rootProject.countLayerInListArea = layer
                 
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
@@ -392,14 +393,17 @@ struct PlanBoard: Reducer {
                 }
                 
                 let plansToCreate = createdPlans
-                let layerIndex = layer
                 let newPlanType = createdPlanType
                 let planID = parentPlanID
                 state.existingPlans[planID]!.planTypeID = originPlanTypeID ?? newPlanType.id
                 let planToUpdate = state.existingPlans[planID]!
                 let rootPlanToUpdate = state.rootPlan
+                let rootProjectToUpdate = state.rootProject
                 
                 return .run { send in
+                    try await apiService.updateProjects(
+                        [rootProjectToUpdate]
+                    )
                     try await apiService.createPlans(
                         plansToCreate,
                         projectID
@@ -409,7 +413,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                     
-                    if let originPlanTypeID = originPlanTypeID {
+                    if let _ = originPlanTypeID {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
                         try await apiService.updatePlans(
                             [planToUpdate],
@@ -425,7 +429,7 @@ struct PlanBoard: Reducer {
                             )
                         }
                     }
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                 }
                 
             case let .createPlanOnLine(row, startDate, endDate):
@@ -547,6 +551,7 @@ struct PlanBoard: Reducer {
                 var updatedPlans = [Plan]()
                 var createdPlans = [Plan]()
                 state.map.insert([], at: layer)
+                state.rootProject.countLayerInListArea += 1
                 let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 if state.map.flatMap({ $0 }).isEmpty {
                     return .none
@@ -573,8 +578,9 @@ struct PlanBoard: Reducer {
                 }
                 let plansToUpdate = updatedPlans
                 let plansToCreate = createdPlans
+                let projectToUpdate = state.rootProject
                 return .run { send in
-                    await send(.fetchMap)
+                    try await apiService.updateProjects([projectToUpdate])
                     try await apiService.createPlans(
                         plansToCreate,
                         projectID
@@ -583,6 +589,7 @@ struct PlanBoard: Reducer {
                         plansToUpdate,
                         projectID
                     )
+                    await send(.reloadMap)
                 }
                 
             case let .createLaneButtonClicked(row, createOnTop):
@@ -610,7 +617,7 @@ struct PlanBoard: Reducer {
                                     [planToUpdate],
                                     projectID
                                 )
-                                await send(.fetchMap)
+                                await send(.reloadMap)
                             }
                         }
                         laneCount += rootChildLaneCount
@@ -651,7 +658,7 @@ struct PlanBoard: Reducer {
                                     [planToUpdate],
                                     projectID
                                 )
-                                await send(.fetchMap)
+                                await send(.reloadMap)
                             }
                         }
                     }
@@ -662,6 +669,7 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 var deletedPlans = [Plan]()
                 var updatedPlans = [Plan]()
+                state.rootProject.countLayerInListArea -= 1
                 /// layer가 하나인데 layer 삭제를 했을 때는 view에서 막아야 함. 혹시나 해서.
                 if state.map.count == 1 {
                     return .none
@@ -694,8 +702,9 @@ struct PlanBoard: Reducer {
                 }
                 let plansToUpdate = updatedPlans
                 let plansToDelete = deletedPlans
+                let projectToUpdate = state.rootProject
                 return .run { send in
-                    await send(.fetchMap)
+                    try await apiService.updateProjects([projectToUpdate])
                     try await apiService.updatePlans(
                         plansToUpdate,
                         projectID
@@ -706,6 +715,7 @@ struct PlanBoard: Reducer {
                             projectID
                         )
                     }
+                    await send(.reloadMap)
                 }
                 
             case let .deleteLayerContents(layer):
@@ -719,7 +729,7 @@ struct PlanBoard: Reducer {
                 }
                 let plansToUpdate = updatedPlanIDs.map({ state.existingPlans[$0]! })
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     try await apiService.updatePlans(
                         plansToUpdate,
                         projectID
@@ -824,7 +834,7 @@ struct PlanBoard: Reducer {
                 let plansToUpdate = updatedPlans
                 let plansToDelete = deletedPlans
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     if !plansToCreate.isEmpty {
                         try await apiService.createPlans(
                             plansToCreate,
@@ -952,7 +962,7 @@ struct PlanBoard: Reducer {
                 let plansToUpdate = updatedPlans
                 let plansToDelete = deletedPlans
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     if !plansToUpdate.isEmpty {
                         try await apiService.updatePlans(
                             plansToUpdate,
@@ -1016,7 +1026,7 @@ struct PlanBoard: Reducer {
                 let plansToUpdate = updatedPlans
                 let plansToDelete = deletedPlans
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     try await apiService.updatePlans(
                         plansToUpdate,
                         projectID
@@ -1111,7 +1121,7 @@ struct PlanBoard: Reducer {
                 }
                 let plansToUpdate = updatedPlans
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     
                     try await apiService.updatePlans(
                         plansToUpdate,
@@ -1193,7 +1203,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     try await apiService.updatePlans(plansToUpdate, projectID)
                     try await apiService.deletePlansCompletely(plansToDelete, projectID)
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                 }
                 
                 // MARK: - TimelineLayout
@@ -1346,13 +1356,13 @@ struct PlanBoard: Reducer {
                             updateTo: foundSourceParentPlanImmutable)
                         )
                         try await apiService.updatePlans(plansToUpdate, projectID)
-                        await send(.fetchMap)
+                        await send(.reloadMap)
                     }
                 }
                 
                 let plansToUpdate = [state.existingPlans[foundSourceParentPlan.id]!, state.existingPlans[foundDestinationParentPlan!.id]!]
                 return .run { send in
-                    await send(.fetchMap)
+                    await send(.reloadMap)
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
                 
@@ -1378,7 +1388,7 @@ struct PlanBoard: Reducer {
                     let planToUpdate = [state.rootPlan]
                     return .run { send in
                         try await apiService.updatePlans(planToUpdate, projectID)
-                        await send(.fetchMap)
+                        await send(.reloadMap)
                     }
                 } else {
                     /// 플랜이 생성되어 있지 않은 곳으로 옮기는 경우
@@ -1396,7 +1406,7 @@ struct PlanBoard: Reducer {
                                 targetPlanID: targetPlan.id,
                                 updateTo: targetPlan)
                             )
-                            await send(.fetchMap)
+                            await send(.reloadMap)
                         }
                     }
                     
@@ -1439,7 +1449,7 @@ struct PlanBoard: Reducer {
                                     targetPlanID: targetPlan.id,
                                     updateTo: targetPlan)
                                 )
-                                await send(.fetchMap)
+                                await send(.reloadMap)
                             }
                         } else {
                             /// 동일 레인이라면, source가 dest 위치로 이동
@@ -1495,7 +1505,7 @@ struct PlanBoard: Reducer {
                     let plansToCreate = planIDsToCreate.map({ state.existingPlans[$0]! })
                     let plansToUpdate = [state.rootPlan, state.existingPlans[targetParentPlan.id]!]
                     return .run { send in
-                        await send(.fetchMap)
+                        await send(.reloadMap)
                         try await apiService.createPlans(
                             plansToCreate,
                             projectID
@@ -1546,7 +1556,7 @@ struct PlanBoard: Reducer {
                     state.existingPlans[destinationParentPlan.id]!.periods!["\(destinationParentPlan.periods!.count)"] = [startDate, endDate]
                     let plansToUpdate = [state.existingPlans[targetParentPlan.id]!, state.existingPlans[destinationParentPlan.id]!, state.existingPlans[targetPlanID]!]
                     return .run { send in
-                        await send(.fetchMap)
+                        await send(.reloadMap)
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
                 } else {
@@ -1554,7 +1564,7 @@ struct PlanBoard: Reducer {
                     /// 없는 lane에 갖다넣은 경우
                     return .run { send in
                         await send(.createPlanOnLine(row: moveRowTo, startDate: startDate, endDate: endDate))
-                        await send(.fetchMap)
+                        await send(.reloadMap)
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
                 }
@@ -1663,13 +1673,13 @@ struct PlanBoard: Reducer {
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
                 
-            case .fetchMap:
+            case .reloadMap:
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]
                 var tempLayer: [String] = []
                 var totalLoop = 0
                 
-                while !planIDsQ.isEmpty && totalLoop < state.map.count {
+                while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
