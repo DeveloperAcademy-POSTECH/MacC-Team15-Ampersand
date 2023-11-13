@@ -10,9 +10,15 @@ import ComposableArchitecture
 import FirebaseAuth
 
 enum ProjectSortCase: Equatable {
-    case dateCreated
-    case lastModified
-    case alphabetical
+    case dateCreated(order: OrderCase)
+    case lastModified(order: OrderCase)
+    case alphabetical(order: OrderCase)
+    case chronological(order: OrderCase)
+}
+
+enum OrderCase: Equatable {
+    case ascending
+    case descending
 }
 
 struct ProjectBoard: Reducer {
@@ -24,6 +30,7 @@ struct ProjectBoard: Reducer {
     
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
+        var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
         var isCreationViewPresented = false
@@ -31,7 +38,7 @@ struct ProjectBoard: Reducer {
         var projectIdToEdit = ""
         var showingProject: Project?
         var showingProjects = [String]()
-        var sortBy = ProjectSortCase.lastModified
+        var sortBy = ProjectSortCase.lastModified(order: OrderCase.ascending)
         
         @BindingState var title = ""
         @BindingState var startDate = Date()
@@ -241,12 +248,30 @@ struct ProjectBoard: Reducer {
                 
             case .sortProjectBy:
                 switch state.sortBy {
-                case .dateCreated:
-                    state.projects.sort(by: { $0.project.createdDate > $1.project.createdDate })
-                case .lastModified:
-                    state.projects.sort(by: { $0.project.lastModifiedDate > $1.project.lastModifiedDate })
-                case .alphabetical:
-                    state.projects.sort(by: { $0.project.title < $1.project.title })
+                case let .dateCreated(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ? 
+                        $0.project.createdDate < $1.project.createdDate :
+                        $0.project.createdDate > $1.project.createdDate
+                    })
+                case let .lastModified(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.lastModifiedDate < $1.project.lastModifiedDate :
+                        $0.project.lastModifiedDate > $1.project.lastModifiedDate
+                    })
+                case let .alphabetical(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.title < $1.project.title :
+                        $0.project.title > $1.project.title
+                    })
+                case let .chronological(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.period[0] < $1.project.period[0] :
+                        $0.project.period[0] > $1.project.period[0]
+                    })
                 }
                 return .none
                 
