@@ -77,7 +77,7 @@ struct ProjectBoardView: View {
                     PlanBoardView(
                         store: Store(
                             // TODO: - map: [[]]로 변경
-                            initialState: PlanBoard.State(rootProject: viewStore.showingProject!, map: ["0": [], "1": []])
+                            initialState: PlanBoard.State(rootProject: viewStore.showingProject!, map: ["0": ["hi"], "1": ["1", "2", "3"]])
                         ) {
                             PlanBoard()
                         }

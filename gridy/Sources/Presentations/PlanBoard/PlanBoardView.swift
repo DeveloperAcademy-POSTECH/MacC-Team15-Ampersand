@@ -192,7 +192,7 @@ extension PlanBoardView {
     var listArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
-                ZStack {
+                ZStack(alignment: .topLeading) {
                     Color.list
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
@@ -205,18 +205,23 @@ extension PlanBoardView {
                     
                     Path { path in
                         if viewStore.map.count > 1 {
-                            let xLocation = (geometry.size.width - viewStore.columnStroke) / 2
+                            let xLocation = geometry.size.width / 2
                             path.move(to: CGPoint(x: xLocation, y: 0))
                             path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
                         }
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
+                    let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     if viewStore.isHoveredOnListArea {
                         Rectangle()
                             .fill(.gray.opacity(0.5))
-                            .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
-                            .position(x: CGFloat(Double(viewStore.listAreaHoveredCellCol) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
+                            .frame(
+                                width: gridWidth,
+                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            )
+                            .position(x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(viewStore.listAreaHoveredCellCol),
+                                      y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                             .onTapGesture(count: 2) {
                                 viewStore.send(.setHoveredCell(.listArea, false, nil))
                                 viewStore.send(.listItemDoubleClicked(true))
@@ -255,11 +260,17 @@ extension PlanBoardView {
                             .position(x: CGFloat(Double(columnOffset) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                     }
                     
-                    VStack {
+                    HStack(alignment: .top, spacing: viewStore.columnStroke) {
                         ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
                             let layer = viewStore.map[String(layerIndex)]!
-                            ForEach(layer.indices, id: \.self) { rowIndex in
-                                ListItemView(store: store, layer: layerIndex, row: rowIndex)
+                            VStack(alignment: .leading, spacing: viewStore.rowStroke) {
+                                ForEach(layer.indices, id: \.self) { rowIndex in
+                                    ListItemView(store: store, layer: layerIndex, row: rowIndex)
+                                        .frame(
+                                            width: gridWidth,
+                                            height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                                        )
+                                }
                             }
                         }
                     }
@@ -285,31 +296,10 @@ struct ListItemView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Rectangle()
-                .fill(Color.clear)
+                .fill(Color.gray)
                 .overlay(
-                    TextField("editing",
-                              text: viewStore.binding(
-                                get: \.keyword,
-                                send: { .keywordChanged($0) }
-                              ))
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-                    .onSubmit {
-                        // TODO: - createPlanOnList
-                        viewStore.send(
-                            .keywordChanged("")
-                        )
-                        viewStore.send(.listItemDoubleClicked(false))
-                    }
-                    .onExitCommand {
-                        viewStore.send(
-                            .keywordChanged("")
-                        )
-                        viewStore.send(.listItemDoubleClicked(false))
-                    }
+                    Text(viewStore.map[String(layer)]![row])
                 )
-                .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
-                .position(x: CGFloat(Double(viewStore.listAreaHoveredCellCol) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
         }
     }
 }
