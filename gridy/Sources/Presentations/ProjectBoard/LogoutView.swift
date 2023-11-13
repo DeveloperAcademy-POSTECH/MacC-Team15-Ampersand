@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LogoutView: View {
-    @State var logoutHover = false
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
@@ -83,9 +82,6 @@ extension LogoutView {
                     )
             }
             .buttonStyle(.link)
-            .onHover { isHovered in
-                logoutHover = isHovered
-            }
             .onHover { isHovered in
                 viewStore.send(.hoveredItem(name: isHovered ? "logoutButton" : ""))
             }

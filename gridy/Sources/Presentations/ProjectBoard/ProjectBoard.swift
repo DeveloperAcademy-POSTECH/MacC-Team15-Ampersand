@@ -28,9 +28,11 @@ struct ProjectBoard: Reducer {
         var isDisclosureGroupExpanded = false
         @BindingState var title = ""
         @BindingState var searchPlanBoardText = ""
-        
+        @BindingState var folderName = ""
         var currentDate: Date = Date()
         let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
+        var selectedStartDate = Date()
+        var selectedEndDate = Date()
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -48,6 +50,8 @@ struct ProjectBoard: Reducer {
         var isThemeSettingPresented = false
         var isSettingsViewPresented = false
         var isLogoutViewPresented = false
+        var startDatePickerPresented = false
+        var endDatePickerPresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -63,6 +67,7 @@ struct ProjectBoard: Reducer {
         case setProcessing(Bool)
         case titleChanged(String)
         case searchTitleChanged(String)
+        case folderTitleChanged(String)
         case projectTitleChanged
         case binding(BindingAction<State>)
         case setShowingProject(project: Project)
@@ -72,6 +77,8 @@ struct ProjectBoard: Reducer {
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
         case projectItemOneTapped(id: String)
         case changeMonth(monthIndex: Int)
+        case selectedStartDateChanged(Date)
+        case selectedEndDateChanged(Date)
     }
     
     var body: some Reducer<State, Action> {
@@ -120,6 +127,10 @@ struct ProjectBoard: Reducer {
                     state.isSettingsViewPresented = bool
                 case .logoutButton:
                     state.isLogoutViewPresented = bool
+                case .startDatePickerButton:
+                    state.startDatePickerPresented = bool
+                case .endDatePickerButton:
+                    state.endDatePickerPresented = bool
                 default:
                     break
                 }
@@ -232,6 +243,10 @@ struct ProjectBoard: Reducer {
                 state.searchPlanBoardText = changedSearchTitle
                 return .none
                 
+            case let .folderTitleChanged(changedFolderTitle):
+                state.folderName = changedFolderTitle
+                return .none
+                
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
                 let changedTitle = state.title
@@ -288,6 +303,14 @@ struct ProjectBoard: Reducer {
                 
             case let .changeMonth(monthIndex):
                 state.currentDate = state.currentDate.moveMonth(movedMonth: monthIndex)
+                return .none
+                
+            case let .selectedStartDateChanged(date):
+                state.selectedStartDate = date
+                return .none
+                
+            case let .selectedEndDateChanged(date):
+                state.selectedEndDate = date
                 return .none
                 
             default:

@@ -35,6 +35,8 @@ extension String {
     static let themeSettingButton = "themeSettingButton"
     static let settingButton = "settingButton"
     static let logoutButton = "logoutButton"
+    static let startDatePickerButton = "startDatePickerButton"
+    static let endDatePickerButton = "endDatePickerButton"
     
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"
