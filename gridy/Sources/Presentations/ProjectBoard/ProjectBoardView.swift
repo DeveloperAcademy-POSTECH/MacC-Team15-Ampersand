@@ -44,7 +44,11 @@ struct ProjectBoardView: View {
                     HStack(alignment: .top, spacing: 0) {
                         VStack(alignment: .leading, spacing: 0) {
                             userSettingArea
-                                .popover(isPresented: isUserSettingPresented, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
+                                .popover(
+                                    isPresented: isUserSettingPresented,
+                                    attachmentAnchor: .point(.bottom),
+                                    arrowEdge: .bottom
+                                ) {
                                     UserSettingView(store: store)
                                         .popover(isPresented: isThemeSettingButton, arrowEdge: .trailing) {
                                             themeSelect
@@ -115,7 +119,7 @@ extension ProjectBoardView {
                 Circle()
                     .foregroundStyle(Color.blackWhite)
                     .frame(width: 24, height: 24)
-                Text("HongGilDong")
+                Text(viewStore.user.username)
                     .foregroundStyle(Color.title)
                     .fontWeight(.medium)
                 Image(systemName: "chevron.down")

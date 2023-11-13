@@ -12,7 +12,7 @@ struct UserSettingView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        WithViewStore(store, observe: { $0 }) { _ in
             VStack(alignment: .center, spacing: 8) {
                 profile.padding(.bottom, 24)
                 theme
@@ -26,13 +26,15 @@ struct UserSettingView: View {
 
 extension UserSettingView {
     var profile: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Circle()
-                .frame(width: 48, height: 48)
-            Text("한가온")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.title)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .center, spacing: 16) {
+                Circle()
+                    .frame(width: 48, height: 48)
+                Text(viewStore.user.username)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.title)
+            }
         }
     }
 }

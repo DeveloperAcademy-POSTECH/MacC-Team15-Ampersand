@@ -17,6 +17,7 @@ struct ProjectBoard: Reducer {
     private enum CancelID { case load }
     
     struct State: Equatable {
+        var user: User
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var successToFetchData = false
         var isInProgress = false
