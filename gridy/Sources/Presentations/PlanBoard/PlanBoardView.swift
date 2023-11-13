@@ -131,7 +131,6 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 Color.list
-                
                 HStack {
                     ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
                         VStack {
@@ -145,20 +144,10 @@ extension PlanBoardView {
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlLeft + String(layerIndex) ? .red : .red.opacity(0.5))
                                     )
                                     .frame(width: 20)
-                                    .clipShape(
-                                        .rect(
-                                            topLeadingRadius: 16,
-                                            bottomLeadingRadius: 16,
-                                            bottomTrailingRadius: 0,
-                                            topTrailingRadius: 0,
-                                            style: .continuous
-                                        )
-                                    )
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlLeft + String(layerIndex) : ""))
                                     }
                                     .onTapGesture {
-                                        print("left + \(layerIndex) clicked")
                                         // TODO: - layerCreate
                                     }
                                 
@@ -176,20 +165,10 @@ extension PlanBoardView {
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlRight + String(layerIndex) ? .blue : .blue.opacity(0.5))
                                     )
                                     .frame(width: 20)
-                                    .clipShape(
-                                        .rect(
-                                            topLeadingRadius: 0,
-                                            bottomLeadingRadius: 0,
-                                            bottomTrailingRadius: 0,
-                                            topTrailingRadius: 0,
-                                            style: .continuous
-                                        )
-                                    )
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlRight + String(layerIndex) : ""))
                                     }
                                     .onTapGesture {
-                                        print("right + \(layerIndex) clicked")
                                         // TODO: - layerCreate
                                     }
                             }
@@ -246,7 +225,7 @@ extension PlanBoardView {
                             .opacity((viewStore.selectedListRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedListColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
                     }
                     
-                    if viewStore.listItemSelected {
+                    if let columnOffset = viewStore.selectedListColumn, let rowOffset = viewStore.selectedListRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
@@ -273,7 +252,7 @@ extension PlanBoardView {
                                     }
                             )
                             .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
-                            .position(x: CGFloat(Double(viewStore.selectedListColumn) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.selectedListRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
+                            .position(x: CGFloat(Double(columnOffset) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                     }
                     
                     VStack {
