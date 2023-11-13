@@ -27,6 +27,7 @@ struct PlanBoard: Reducer {
         var existingAllPlans = [String: Plan]()
         
         var keyword = ""
+        @BindingState var title = ""
         var selectedColorCode = Color.red
         
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
@@ -71,6 +72,12 @@ struct PlanBoard: Reducer {
         /// NSEvent로 받아온 Shift와 Command 눌린 상태값입니다.
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
+        
+        /// BoardSettingView
+        var selectedStartDate = Date()
+        var selectedEndDate = Date()
+        var startDatePickerPresented = false
+        var endDatePickerPresented = false
         
         // MARK: - list area
         var showingLayers = [0]
@@ -141,6 +148,12 @@ struct PlanBoard: Reducer {
         case createLayerResponse(TaskResult<[String: [String]]>)
         
         case setSheet(Bool)
+        
+        // MARK: - BoardSettingView
+        case titleChanged(String)
+        case selectedStartDateChanged(Date)
+        case selectedEndDateChanged(Date)
+        case projectTitleChanged
     }
     
     var body: some Reducer<State, Action> {
@@ -176,6 +189,7 @@ struct PlanBoard: Reducer {
                 case .shareImageButton:
                     state.isShareImagePresented = bool
                 case .boardSettingButton:
+                    state.title = state.rootProject.title
                     state.isBoardSettingPresented = bool
                 case .rightToolBarButton:
                     state.isRightToolBarPresented = bool
@@ -493,6 +507,26 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
+                
+            case let .titleChanged(changedTitle):
+                state.title = changedTitle
+                return .none
+                
+            case let .selectedStartDateChanged(date):
+                state.selectedStartDate = date
+                return .none
+                
+            case let .selectedEndDateChanged(date):
+                state.selectedEndDate = date
+                return .none
+                
+            case .projectTitleChanged:
+                let id = state.rootProject.id
+                let changedTitle = state.title
+                return .run { send in
+                    try await apiService.updateProjectTitle(id, changedTitle)
+                    // TODO: - title 바뀐 것 update
+                }
                 
             default:
                 return .none

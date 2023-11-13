@@ -1,15 +1,15 @@
 //
-//  BoardSettingView.swift
+//  EditPlanBoardView.swift
 //  gridy
 //
-//  Created by xnoag on 11/1/23.
+//  Created by xnoag on 11/13/23.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct BoardSettingView: View {
-    let store: StoreOf<PlanBoard>
+struct EditPlanBoardView: View {
+    let store: StoreOf<ProjectBoard>
     
     var body: some View {
         VStack(alignment: .center, spacing: 24) {
@@ -28,7 +28,7 @@ struct BoardSettingView: View {
     }
 }
 
-extension BoardSettingView {
+extension EditPlanBoardView {
     var planBoardNameTextField: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 16)
@@ -56,7 +56,7 @@ extension BoardSettingView {
     }
 }
 
-extension BoardSettingView {
+extension EditPlanBoardView {
     var startDuration: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             var startDatePickerPresented: Binding<Bool> {
@@ -112,7 +112,7 @@ extension BoardSettingView {
     }
 }
 
-extension BoardSettingView {
+extension EditPlanBoardView {
     var endDuration: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             var endDatePickerPresented: Binding<Bool> {
@@ -168,12 +168,12 @@ extension BoardSettingView {
     }
 }
 
-extension BoardSettingView {
+extension EditPlanBoardView {
     var cancel: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 viewStore.send(.popoverPresent(
-                    button: .boardSettingButton,
+                    button: .editPlanBoardButton,
                     bool: false
                 ))
             } label: {
@@ -195,14 +195,14 @@ extension BoardSettingView {
     }
 }
 
-extension BoardSettingView {
+extension EditPlanBoardView {
     var edit: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 if !viewStore.title.isEmpty {
                     viewStore.send(.projectTitleChanged)
                     viewStore.send(.popoverPresent(
-                        button: .boardSettingButton,
+                        button: .editPlanBoardButton,
                         bool: false
                     ))
                 }

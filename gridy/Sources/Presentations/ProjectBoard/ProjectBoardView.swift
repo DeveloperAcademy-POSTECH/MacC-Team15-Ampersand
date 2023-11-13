@@ -142,7 +142,7 @@ extension ProjectBoardView {
                 ))
             }
             .sheet(isPresented: isSettingsViewPresented) {
-                SettingsView()
+                SettingsView(store: store)
             }
             .sheet(isPresented: isLogoutViewPresented) {
                 LogoutView(store: store)
@@ -208,7 +208,6 @@ extension ProjectBoardView {
         ZStack {
             if value.day != -1 {
                 let isToday = Calendar.current.isDateInToday(value.date)
-                let comparisonResult = Calendar.current.compare(value.date, to: Date(), toGranularity: .day)
                 let isSunday = value.date.dayOfSunday() == 1
                 Circle()
                     .frame(width: 25, height: 25)
@@ -258,8 +257,8 @@ extension ProjectBoardView {
                 Binding(
                     get: { viewStore.isDisclosureGroupExpanded },
                     set: { newValue in
-                        viewStore.send(.disclousrePresent(
-                            button: .disclousreFolderButton,
+                        viewStore.send(.disclosurePresent(
+                            button: .disclosureFolderButton,
                             bool: newValue
                         ))
                     }
@@ -299,8 +298,8 @@ extension ProjectBoardView {
                             Color.itemHovered : .clear
                         )
                         .onTapGesture {
-                            viewStore.send(.disclousrePresent(
-                                button: .disclousreFolderButton,
+                            viewStore.send(.disclosurePresent(
+                                button: .disclosureFolderButton,
                                 bool: !viewStore.isDisclosureGroupExpanded
                             ))
                             viewStore.send(.clickedItem(
@@ -371,6 +370,17 @@ extension ProjectBoardView {
                     set: { newValue in
                         viewStore.send(.popoverPresent(
                             button: .createPlanBoardButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            var isEditPlanBoardPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isEditPlanBoardPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .editPlanBoardButton,
                             bool: newValue
                         ))
                     }
@@ -450,6 +460,9 @@ extension ProjectBoardView {
             .sheet(isPresented: isCreatePlanBoardPresented) {
                 CreatePlanBoardView(store: store)
             }
+            .sheet(isPresented: isEditPlanBoardPresented) {
+                EditPlanBoardView(store: store)
+            }
         }
     }
     
@@ -505,6 +518,15 @@ extension ProjectBoardView {
                 .scaleEffect(viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? 1.02 : 1)
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? .planBoardItemButton + "\(viewStore.id)" : ""))
+                }
+                .contextMenu {
+                    Button("Edit") {
+                        viewStore.$isEditing.wrappedValue.toggle()
+                    }
+                    
+                    Button("Delete") {
+                        viewStore.$isDeleted.wrappedValue.toggle()
+                    }
                 }
             }
         }

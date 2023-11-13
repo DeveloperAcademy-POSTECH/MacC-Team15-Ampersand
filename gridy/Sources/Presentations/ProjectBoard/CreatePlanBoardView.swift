@@ -12,7 +12,7 @@ struct CreatePlanBoardView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        WithViewStore(store, observe: { $0 }) { _ in
             VStack(alignment: .center, spacing: 24) {
                 planBoardNameTextField
                 HStack(alignment: .center, spacing: 16) {
@@ -174,7 +174,10 @@ extension CreatePlanBoardView {
     var cancel: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                // TODO: - Cancel Button
+                viewStore.send(.popoverPresent(
+                    button: .createPlanBoardButton,
+                    bool: false
+                ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(viewStore.hoveredItem == "cancelButton" ? Color.buttonHovered : Color.button)
@@ -198,11 +201,13 @@ extension CreatePlanBoardView {
     var create: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                viewStore.send(.createNewProjectButtonTapped)
-                viewStore.send(.popoverPresent(
-                    button: .createPlanBoardButton,
-                    bool: false
-                ))
+                if !viewStore.title.isEmpty {
+                    viewStore.send(.createNewProjectButtonTapped)
+                    viewStore.send(.popoverPresent(
+                        button: .createPlanBoardButton,
+                        bool: false
+                    ))
+                }
             } label: {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(viewStore.hoveredItem == "createButton" ? Color.buttonHovered : Color.button)
@@ -218,6 +223,7 @@ extension CreatePlanBoardView {
             .onHover { isHovered in
                 viewStore.send(.hoveredItem(name: isHovered ? "createButton" : ""))
             }
+            .disabled(viewStore.title.isEmpty)
         }
     }
 }

@@ -32,6 +32,7 @@ extension String {
     static let notificationButton = "notificationButton"
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
+    static let editPlanBoardButton = "editPlanBoardButton"
     static let themeSettingButton = "themeSettingButton"
     static let settingButton = "settingButton"
     static let logoutButton = "logoutButton"
@@ -41,7 +42,10 @@ extension String {
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"
     static let tabItemDeleteButton = "tabItemDeleteButton"
-    static let disclousreFolderButton = "disclousreFolderButton"
+    static let disclosureFolderButton = "disclosureFolderButton"
+    static let profileEditButton = "profileEditButton"
+    static let profileTextFieldEditButton = "profileTextFieldEditButton"
+    static let exitButton = "exitButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */

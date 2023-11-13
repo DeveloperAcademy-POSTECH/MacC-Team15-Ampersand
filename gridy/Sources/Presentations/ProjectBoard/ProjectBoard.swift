@@ -21,18 +21,23 @@ struct ProjectBoard: Reducer {
         var successToFetchData = false
         var isInProgress = false
         var isCreationViewPresented = false
-        var isEditViewPresented = false
         var projectIdToEdit = ""
         var showingProject: Project?
         var showingProjects = [String]()
         var isDisclosureGroupExpanded = false
+        var textFieldSubmit = false
+        
         @BindingState var title = ""
         @BindingState var searchPlanBoardText = ""
         @BindingState var folderName = ""
+        @BindingState var profileName = ""
+        @BindingState var selectionOption = 0
+        
         var currentDate: Date = Date()
         let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
         var selectedStartDate = Date()
         var selectedEndDate = Date()
+        var jobOptions = ["개발자", "디자이너", "기획자", "부자"]
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -47,6 +52,7 @@ struct ProjectBoard: Reducer {
         var isNotificationPresented = false
         var isUserSettingPresented = false
         var isCreatePlanBoardPresented = false
+        var isEditPlanBoardPresented = false
         var isThemeSettingPresented = false
         var isSettingsViewPresented = false
         var isLogoutViewPresented = false
@@ -59,26 +65,35 @@ struct ProjectBoard: Reducer {
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
-        case disclousrePresent(button: String, bool: Bool)
+        case disclosurePresent(button: String, bool: Bool)
+        
+        case textFieldSubmit(bool: Bool)
         case createNewProjectButtonTapped
         case readAllButtonTapped
+        
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
+        
         case setProcessing(Bool)
         case titleChanged(String)
         case searchTitleChanged(String)
         case folderTitleChanged(String)
+        case profileNameChanged(String)
         case projectTitleChanged
-        case binding(BindingAction<State>)
+        
         case setShowingProject(project: Project)
         case deleteShowingProjects(projectID: String)
         case setSheet(isPresented: Bool)
-        case setEditSheet(isPresented: Bool)
-        case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        
         case projectItemOneTapped(id: String)
         case changeMonth(monthIndex: Int)
         case selectedStartDateChanged(Date)
         case selectedEndDateChanged(Date)
+        case changeOption(Int)
+
+        case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case binding(BindingAction<State>)
+
     }
     
     var body: some Reducer<State, Action> {
@@ -121,6 +136,8 @@ struct ProjectBoard: Reducer {
                     state.isUserSettingPresented = bool
                 case .createPlanBoardButton:
                     state.isCreatePlanBoardPresented = bool
+                case .editPlanBoardButton:
+                    state.isEditPlanBoardPresented = bool
                 case .themeSettingButton:
                     state.isThemeSettingPresented = bool
                 case .settingButton:
@@ -136,13 +153,17 @@ struct ProjectBoard: Reducer {
                 }
                 return .none
                 
-            case let .disclousrePresent(button: buttonName, bool: bool):
+            case let .disclosurePresent(button: buttonName, bool: bool):
                 switch buttonName {
-                case .disclousreFolderButton:
+                case .disclosureFolderButton:
                     state.isDisclosureGroupExpanded = bool
                 default:
                     break
                 }
+                return .none
+                
+            case let .textFieldSubmit(bool: bool):
+                state.textFieldSubmit = bool
                 return .none
                 
             case .createNewProjectButtonTapped:
@@ -231,10 +252,6 @@ struct ProjectBoard: Reducer {
                 
                 return .none
                 
-            case let .setEditSheet(isPresented: isPresented):
-                state.isEditViewPresented = isPresented
-                return .none
-                
             case let .titleChanged(changedTitle):
                 state.title = changedTitle
                 return .none
@@ -247,31 +264,34 @@ struct ProjectBoard: Reducer {
                 state.folderName = changedFolderTitle
                 return .none
                 
+            case let .profileNameChanged(changedProfileName):
+                state.profileName = changedProfileName
+                return .none
+                
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
                 let changedTitle = state.title
                 return .run { send in
                     try await apiService.updateProjectTitle(id, changedTitle)
                     await send(.fetchAllProjects)
-                    await send(.setEditSheet(isPresented: false))
                 }
                 
             case .binding:
                 return .none
                 
-            case let .projectItemTapped(id: id, action: .binding(\.$delete)):
+            case let .projectItemTapped(id: id, action: .binding(\.$isDeleted)):
                 return .run { send in
                     try await apiService.deleteProject(id)
                     await send(.fetchAllProjects)
                 }
                 
-            case let .projectItemTapped(id: id, action: .binding(\.$showSheet)):
+            case let .projectItemTapped(id: id, action: .binding(\.$isEditing)):
                 let projectId = id
                 if let projectItem = state.projects[id: projectId] {
                     state.title = projectItem.project.title
                 }
                 state.projectIdToEdit = id
-                state.isEditViewPresented = true
+                state.isEditPlanBoardPresented = true
                 return .none
                 
             case let .projectItemTapped(id: id, action: .binding(\.$isSelected)):
@@ -311,6 +331,10 @@ struct ProjectBoard: Reducer {
                 
             case let .selectedEndDateChanged(date):
                 state.selectedEndDate = date
+                return .none
+                
+            case let .changeOption(option):
+                state.selectionOption = option
                 return .none
                 
             default:

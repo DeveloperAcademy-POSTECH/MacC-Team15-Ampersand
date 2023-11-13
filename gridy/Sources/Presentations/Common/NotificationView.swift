@@ -6,14 +6,19 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct NotificationView: View {
+    let store: StoreOf<ProjectBoard>
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            titleAndFeedbackArea
-            notifications
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .leading, spacing: 8) {
+                titleAndFeedbackArea
+                notifications
+            }
+            .frame(width: 275, height: 424)
         }
-        .frame(width: 275, height: 424)
     }
 }
 
@@ -45,7 +50,7 @@ extension NotificationView {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(0..<5) { index in
-                    Notifications(id: index)
+                    Notifications(id: index, store: store)
                 }
             }
         }
@@ -54,42 +59,38 @@ extension NotificationView {
     
     private struct Notifications: View {
         var id: Int
-        @State var notificationContentHover = false
+        let store: StoreOf<ProjectBoard>
         
         var body: some View {
-            Button {
-                // TODO: - Notification Content Button
-            } label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Notification Content \(id)")
-                            .font(.headline)
-                            .fontWeight(.medium)
-                            .foregroundStyle(Color.title)
-                        Text("Date")
-                            .font(.callout)
-                            .fontWeight(.medium)
-                            .foregroundStyle(Color.subtitle)
+            WithViewStore(store, observe: { $0 }) { viewStore in
+                Button {
+                    // TODO: - Notification Content Button
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Notification Content \(id)")
+                                .font(.headline)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color.title)
+                            Text("Date")
+                                .font(.callout)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color.subtitle)
+                        }
+                        Spacer()
                     }
-                    Spacer()
                 }
-            }
-            .padding(8)
-            .background(notificationContentHover ? Color.item : Color.itemHovered)
-            .clipShape(
-                RoundedRectangle(cornerRadius: 8)
-            )
-            .buttonStyle(.link)
-            .scaleEffect(notificationContentHover ? 1.02 : 1)
-            .onHover { isHovered in
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    notificationContentHover = isHovered
+                .padding(8)
+                .background(viewStore.hoveredItem == "NotificationContentButton \(id)" ? Color.item : Color.itemHovered)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 8)
+                )
+                .buttonStyle(.link)
+                .scaleEffect(viewStore.hoveredItem == "NotificationContentButton \(id)" ? 1.02 : 1)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "NotificationContentButton \(id)" : ""))
                 }
             }
         }
     }
-}
-
-#Preview {
-    NotificationView()
 }

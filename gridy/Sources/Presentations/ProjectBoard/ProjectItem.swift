@@ -17,8 +17,8 @@ struct ProjectItem: Reducer {
     struct State: Equatable, Identifiable {
         @BindingState var project = Project.mock
         var id: String { project.id }
-        @BindingState var delete = false
-        @BindingState var showSheet = false
+        @BindingState var isDeleted = false
+        @BindingState var isEditing = false
         @BindingState var isTapped = false
         @BindingState var isSelected = false
         var isHovering = false
@@ -44,9 +44,6 @@ struct ProjectItem: Reducer {
                 
             case let .isHovering(hovered):
                 state.isHovering = hovered
-                return .none
-                
-            default:
                 return .none
             }
         }

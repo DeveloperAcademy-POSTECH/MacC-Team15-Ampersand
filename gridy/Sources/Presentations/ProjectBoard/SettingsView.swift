@@ -6,83 +6,94 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct SettingsView: View {
-    @State var profileHover = false
-    @State var profileClicked = false
-    @State var textFieldHover = false
-    @State var textFieldText = ""
-    @State var textFieldSubmit = false
+    let store: StoreOf<ProjectBoard>
     @FocusState var textFieldFocus: Bool
-    @State var exitButtonHover = false
-    
-    var jobOptions = ["개발자", "디자이너", "기획자", "부자"]
-    @State private var selectionOption = 0
     
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            profileImage
-            nameForm
-            jobForm.padding(.bottom, 16)
-            exit
+        WithViewStore(store, observe: { $0 }) { _ in
+            VStack(alignment: .center, spacing: 16) {
+                profileImage
+                nameForm
+                jobForm.padding(.bottom, 16)
+                exit
+            }
+            .padding(16)
+            .background(.white)
+            .frame(width: 500, height: 250)
         }
-        .padding(16)
-        .background(.white)
-        .frame(width: 500, height: 250)
     }
 }
 
 extension SettingsView {
     var profileImage: some View {
-        Image("gridy-logo")
-            .resizable()
-            .frame(width: 96, height: 96)
-            .overlay(alignment: .bottom) {
-                if profileHover {
-                    Text("편집")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.blackWhite)
-                        .padding(.bottom, 6)
-                        .background(
-                            Rectangle()
-                                .foregroundStyle(.black)
-                                .frame(width: 96, height: 30)
-                                .blur(radius: 12)
-                        )
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Image("gridy-logo")
+                .resizable()
+                .frame(width: 96, height: 96)
+                .overlay(alignment: .bottom) {
+                    if viewStore.hoveredItem == .profileEditButton {
+                        Text("편집")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.blackWhite)
+                            .padding(.bottom, 6)
+                            .background(
+                                Rectangle()
+                                    .foregroundStyle(.black)
+                                    .frame(width: 96, height: 30)
+                                    .blur(radius: 12)
+                            )
+                    }
                 }
-            }
-            .clipShape(Circle())
-            .onHover { isHovered in
-                profileHover = isHovered
-            }
-            .onTapGesture { profileClicked = true }
+                .clipShape(Circle())
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .profileEditButton : ""))
+                }
+        }
     }
 }
 
 extension SettingsView {
     var nameForm: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Text("Name")
-                .font(.title3)
-                .fontWeight(.regular)
-                .foregroundStyle(Color.title)
-            Spacer()
-            RoundedRectangle(cornerRadius: 5)
-                .strokeBorder(textFieldHover ? Color.itemHovered : Color.item)
-                .foregroundStyle(textFieldHover ? Color.item : .clear)
-                .frame(width: 160, height: 24)
-                .overlay(alignment: .leading) {
-                    if textFieldSubmit {
-                        Text(textFieldText)
-                            .font(.title3)
-                            .fontWeight(.regular)
-                            .foregroundStyle(Color.title)
-                            .padding(.leading, 8)
-                    } else {
-                        TextField(textFieldText, text: $textFieldText)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var textFieldSubmit: Binding<Bool> {
+                Binding(
+                    get: { viewStore.textFieldSubmit },
+                    set: { newValue in
+                        viewStore.send(.textFieldSubmit(bool: newValue))
+                    }
+                )
+            }
+            HStack(alignment: .center, spacing: 0) {
+                Text("Name")
+                    .font(.title3)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color.title)
+                Spacer()
+                RoundedRectangle(cornerRadius: 5)
+                    .strokeBorder(viewStore.hoveredItem == .profileTextFieldEditButton ? Color.itemHovered : Color.item)
+                    .foregroundStyle(viewStore.hoveredItem == .profileTextFieldEditButton ? Color.item : .clear)
+                    .frame(width: 160, height: 24)
+                    .overlay(alignment: .leading) {
+                        if viewStore.textFieldSubmit {
+                            Text(viewStore.profileName)
+                                .font(.title3)
+                                .fontWeight(.regular)
+                                .foregroundStyle(Color.title)
+                                .padding(.leading, 8)
+                        } else {
+                            TextField(
+                                viewStore.profileName,
+                                text: viewStore.binding(
+                                    get: \.profileName,
+                                    send: { .profileNameChanged($0) }
+                                )
+                            )
                             .onSubmit {
-                                textFieldSubmit = true
+                                viewStore.send(.textFieldSubmit(bool: true))
                             }
                             .focused($textFieldFocus)
                             .font(.title3)
@@ -91,65 +102,70 @@ extension SettingsView {
                             .textFieldStyle(.plain)
                             .multilineTextAlignment(.leading)
                             .padding(.leading, 8)
+                        }
                     }
-                }
-                .onHover { isHovered in
-                    textFieldHover = isHovered
-                }
-                .onTapGesture {
-                    textFieldSubmit = false
-                    textFieldFocus = true
-                }
+                    .onHover { isHovered in
+                        viewStore.send(.hoveredItem(name: isHovered ? .profileTextFieldEditButton : ""))
+                    }
+                    .onTapGesture {
+                        viewStore.send(.textFieldSubmit(bool: false))
+                        textFieldFocus = true
+                    }
+            }
         }
     }
 }
 
 extension SettingsView {
     var jobForm: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Text("Job")
-                .font(.title3)
-                .fontWeight(.regular)
-                .foregroundStyle(Color.title)
-            Spacer()
-            Picker("", selection: $selectionOption) {
-                ForEach(0..<jobOptions.count, id: \.self) {
-                    Text(jobOptions[$0])
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.title)
-                }
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack(alignment: .center, spacing: 0) {
+                Text("Job")
+                    .font(.title3)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color.title)
+                Spacer()
+                Picker("", 
+                       selection: viewStore.binding(
+                        get: \.selectionOption,
+                        send: { .changeOption($0)}
+                       )) {
+                           ForEach(0..<viewStore.jobOptions.count, id: \.self) {
+                               Text(viewStore.jobOptions[$0])
+                                   .font(.body)
+                                   .fontWeight(.regular)
+                                   .foregroundStyle(Color.title)
+                           }
+                       }
+                       .frame(width: 168)
             }
-            .frame(width: 168)
         }
     }
 }
 
 extension SettingsView {
     var exit: some View {
-        HStack {
-            Button {
-                // TODO: - 탈퇴 Button
-            } label: {
-                Text("탈퇴하기")
-                    .font(.title3)
-                    .fontWeight(.regular)
-                    .foregroundStyle(Color.title)
-                    .background(
-                        RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(exitButtonHover ? Color.itemHovered : Color.item)
-                            .frame(width: 64, height: 24)
-                    )
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack {
+                Button {
+                    // TODO: - 탈퇴 Button
+                } label: {
+                    Text("탈퇴하기")
+                        .font(.title3)
+                        .fontWeight(.regular)
+                        .foregroundStyle(Color.title)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .foregroundStyle(viewStore.hoveredItem == .exitButton ? Color.itemHovered : Color.item)
+                                .frame(width: 64, height: 24)
+                        )
+                }
+                .buttonStyle(.link)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .exitButton : ""))
+                }
+                Spacer()
             }
-            .buttonStyle(.link)
-            .onHover { isHovered in
-                exitButtonHover = isHovered
-            }
-            Spacer()
         }
     }
-}
-
-#Preview {
-    SettingsView()
 }
