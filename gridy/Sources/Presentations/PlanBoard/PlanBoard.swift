@@ -380,6 +380,7 @@ struct PlanBoard: Reducer {
                             /// root의 childPlan에 넣어주어야 할 plan들
                             state.existingPlans[parentPlanID]!.childPlanIDs["\(rowIndex)"] = [newPlanID]
                             state.rootPlan.childPlanIDs["\(rowIndex)"] = [newPlanID]
+                            state.existingPlans[state.rootPlan.id] = state.rootPlan
                         }
                         parentPlanID = newPlanID
                         newPlanID = childPlanID
@@ -396,15 +397,18 @@ struct PlanBoard: Reducer {
                 let planID = parentPlanID
                 state.existingPlans[planID]!.planTypeID = originPlanTypeID ?? newPlanType.id
                 let planToUpdate = state.existingPlans[planID]!
+                let rootPlanToUpdate = state.rootPlan
                 
                 return .run { send in
-                    await send(.fetchMap)
-                    
-                    try await apiService.createPlanOnListArea(
+                    try await apiService.createPlans(
                         plansToCreate,
-                        layerIndex,
                         projectID
                     )
+                    try await apiService.updatePlans(
+                        [rootPlanToUpdate],
+                        projectID
+                    )
+                    
                     if let originPlanTypeID = originPlanTypeID {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
                         try await apiService.updatePlans(
@@ -421,6 +425,7 @@ struct PlanBoard: Reducer {
                             )
                         }
                     }
+                    await send(.fetchMap)
                 }
                 
             case let .createPlanOnLine(row, startDate, endDate):
@@ -499,8 +504,11 @@ struct PlanBoard: Reducer {
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
                 return .run { _ in
-                    try await apiService.createPlanOnLineArea(
+                    try await apiService.createPlans(
                         plansToCreateImmutable,
+                        projectID
+                    )
+                    try await apiService.updatePlans(
                         plansToUpdateImmutable,
                         projectID
                     )

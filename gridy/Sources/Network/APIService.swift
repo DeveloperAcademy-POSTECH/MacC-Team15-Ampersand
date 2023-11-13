@@ -13,60 +13,56 @@ import FirebaseFirestoreSwift
 /// Service CRUD
 struct APIService {
     /// Project
-    var createProject: (String, [Date]) async throws -> Project
+    var createProject: @Sendable (_ title: String, _ period: [Date]) async throws -> Project
     var readProjects: () async throws -> [Project]
-    var updateProjects: @Sendable ([Project]) async throws -> Void
-    var deleteProjects: @Sendable ([String]) async throws -> Void
-    var deleteProjectsCompletely: @Sendable ([String]) async throws -> Void
+    var updateProjects: @Sendable (_ projectToUpdate: [Project]) async throws -> Void
+    var deleteProjects: @Sendable (_ projectIDs: [String]) async throws -> Void
+    var deleteProjectsCompletely: @Sendable (_ projectIDs: [String]) async throws -> Void
     var emptyDeletedProjects: () async throws -> Void
-    var deleteDeletedProjectsImmediately: @Sendable ([String]) async throws -> Void
+    var deleteDeletedProjectsImmediately: @Sendable (_ projectIDs: [String]) async throws -> Void
     
     /// Plan Type
-    var createPlanType: @Sendable (PlanType, String, String) async throws -> Void
-    var readPlanTypes: @Sendable (String) async throws -> [PlanType]
-    var updatePlanTypes: @Sendable ([PlanType], String) async throws -> Void
-    var deletePlanTypes: @Sendable ([PlanType], String) async throws -> Void
-    var deletePlanTypesCompletely: @Sendable ([String], String) async throws -> Void
+    var createPlanType: @Sendable (_ typeToCreate: PlanType, _ targetPlanID: String, _ projectID: String) async throws -> Void
+    var readPlanTypes: @Sendable (_ projectID: String) async throws -> [PlanType]
+    var updatePlanTypes: @Sendable (_ typesToUpdate: [PlanType], _ projectID: String) async throws -> Void
+    var deletePlanTypes: @Sendable (_ typesToDelete: [PlanType], _ projectID: String) async throws -> Void
+    var deletePlanTypesCompletely: @Sendable (_ typeIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void
     
     /// Plan
-    var createPlans: @Sendable ([Plan], String) async throws -> Void
-    var createPlanOnListArea: @Sendable ([Plan], Int, String) async throws -> Void
-    var createPlanOnLineArea: @Sendable ([Plan], [Plan], String) async throws -> Void
-    var readPlans: @Sendable (String) async throws -> [Plan]
-    var updatePlans: @Sendable ([Plan], String) async throws -> Void
-    var deletePlans: @Sendable ([Plan], String) async throws -> Void
-    var deletePlansCompletely: @Sendable ([String], String) async throws -> Void
+    var createPlans: @Sendable (_ plansToCreate: [Plan], _ projectID: String) async throws -> Void
+    var readPlans: @Sendable (_ projectID: String) async throws -> [Plan]
+    var updatePlans: @Sendable (_ plansToUpdate: [Plan], _ projectID: String) async throws -> Void
+    var deletePlans: @Sendable (_ plansToDelete: [Plan], _ projectID: String) async throws -> Void
+    var deletePlansCompletely: @Sendable (_ planIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void
     
     /// Feedback
-    var sendFeedback: @Sendable (String) async throws -> Void
+    var sendFeedback: @Sendable (_ content: String) async throws -> Void
     
     /// Notice
     var readAllNotices: @Sendable () async throws -> [Notice]
     
     init(
-        createProject: @escaping (String, [Date]) async throws -> Project,
+        createProject: @escaping @Sendable (_ title: String, _ period: [Date]) async throws -> Project,
         readProjects: @escaping () async throws -> [Project],
-        updateProjects: @escaping @Sendable ([Project]) async throws -> Void,
-        deleteProjects: @escaping @Sendable ([String]) async throws -> Void,
-        deleteProjectsCompletely: @escaping @Sendable ([String]) async throws -> Void,
+        updateProjects: @escaping @Sendable (_ projectToUpdate: [Project]) async throws -> Void,
+        deleteProjects: @escaping @Sendable (_ projectIDs: [String]) async throws -> Void,
+        deleteProjectsCompletely: @escaping @Sendable (_ projectIDs: [String]) async throws -> Void,
         emptyDeletedProjects: @escaping () async throws -> Void,
-        deleteDeletedProjectsImmediately: @escaping @Sendable ([String]) async throws -> Void,
+        deleteDeletedProjectsImmediately: @escaping @Sendable (_ projectIDs: [String]) async throws -> Void,
         
-        createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
-        readPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
-        updatePlanTypes: @escaping @Sendable ([PlanType], String) async throws -> Void,
-        deletePlanTypes: @escaping @Sendable ([PlanType], String) async throws -> Void,
-        deletePlanTypesCompletely: @escaping @Sendable ([String], String) async throws -> Void,
+        createPlanType: @escaping @Sendable (_ typeToCreate: PlanType, _ targetPlanID: String, _ projectID: String) async throws -> Void,
+        readPlanTypes: @escaping @Sendable (_ projectID: String) async throws -> [PlanType],
+        updatePlanTypes: @escaping @Sendable (_ typesToUpdate: [PlanType], _ projectID: String) async throws -> Void,
+        deletePlanTypes: @escaping @Sendable (_ typesToDelete: [PlanType], _ projectID: String) async throws -> Void,
+        deletePlanTypesCompletely: @escaping @Sendable (_ typeIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void,
         
-        createPlans: @escaping @Sendable ([Plan], String) async throws -> Void,
-        createPlanOnListArea: @escaping @Sendable ([Plan], Int, String) async throws -> Void,
-        createPlanOnLineArea: @escaping @Sendable ([Plan], [Plan], String) async throws -> Void,
-        readPlans: @escaping @Sendable (String) async throws -> [Plan],
-        updatePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
-        deletePlans: @escaping @Sendable ([Plan], String) async throws -> Void,
-        deletePlansCompletely: @escaping @Sendable ([String], String) async throws -> Void,
+        createPlans: @escaping @Sendable (_ plansToCreate: [Plan], _ projectID: String) async throws -> Void,
+        readPlans: @escaping @Sendable (_ projectID: String) async throws -> [Plan],
+        updatePlans: @escaping @Sendable (_ plansToUpdate: [Plan], _ projectID: String) async throws -> Void,
+        deletePlans: @escaping @Sendable (_ plansToDelete: [Plan], _ projectID: String) async throws -> Void,
+        deletePlansCompletely: @escaping @Sendable (_ planIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void,
         
-        sendFeedback: @escaping @Sendable (String) async throws -> Void,
+        sendFeedback: @escaping @Sendable (_ content: String) async throws -> Void,
         
         readAllNotices: @escaping @Sendable () async throws -> [Notice]
     ) {
@@ -85,8 +81,6 @@ struct APIService {
         self.deletePlanTypesCompletely = deletePlansCompletely
         
         self.createPlans = createPlans
-        self.createPlanOnListArea = createPlanOnListArea
-        self.createPlanOnLineArea = createPlanOnLineArea
         self.readPlans = readPlans
         self.updatePlans = updatePlans
         self.deletePlans = deletePlans
@@ -195,14 +189,14 @@ extension APIService {
             }
         },
         // MARK: - Plan type
-        createPlanType: { target, planID, projectID in
+        createPlanType: { typeToCreate, targetPlanID, projectID in
             let data = [
-                "id": target.id,
-                "title": target.title,
-                "colorCode": target.colorCode
+                "id": typeToCreate.id,
+                "title": typeToCreate.title,
+                "colorCode": typeToCreate.colorCode
             ]
-            try await FirestoreService.setDocumentData(projectID, .planTypes, target.id, data)
-            try await FirestoreService.updateDocumentData(projectID, .plans, planID, ["planTypeID": target.id])
+            try await FirestoreService.setDocumentData(projectID, .planTypes, typeToCreate.id, data)
+            try await FirestoreService.updateDocumentData(projectID, .plans, targetPlanID, ["planTypeID": typeToCreate.id])
         },
         readPlanTypes: { projectID in
             return try await FirestoreService.getDocuments(projectID, .planTypes, PlanType.self) as! [PlanType]
@@ -246,27 +240,6 @@ extension APIService {
                 try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
             }
         },
-        createPlanOnListArea: { plansToCreate, layerCount, projectID in
-            let rootPlanID = try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self).rootPlanID
-            var rootPlan = try await FirestoreService.getDocument(projectID, .plans, rootPlanID, Plan.self) as! Plan
-            for (index, plan) in plansToCreate.enumerated() {
-                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
-                
-                /// must be root child
-                if index % layerCount == 0 {
-                    rootPlan.childPlanIDs["0"]![index / layerCount] = plan.id
-                }
-            }
-            try await FirestoreService.setDocumentData(projectID, .plans, rootPlanID, ["childPlanIDs": rootPlan.childPlanIDs as Any])
-        },
-        createPlanOnLineArea: { plansToCreate, plansToUpdate, projectID in
-            for plan in plansToCreate {
-                try await FirestoreService.setDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
-            }
-            for plan in plansToUpdate {
-                try await FirestoreService.updateDocumentData(projectID, .plans, plan.id, planToDictionary(plan))
-            }
-        },
         readPlans: { projectID in
             return try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
         },
@@ -286,11 +259,11 @@ extension APIService {
                 try await FirestoreService.deleteDocument(projectID, .plans, planID)
             }
         },
-        sendFeedback: { contents in
+        sendFeedback: { content in
             if let uid = Auth.auth().currentUser?.uid {
-                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": uid, "contents": contents])
+                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": uid, "contents": content])
             } else {
-                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": "???", "contents": contents])
+                try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": "???", "contents": content])
             }
         },
         readAllNotices: {
