@@ -52,4 +52,28 @@ extension Date {
         let calendar = Calendar.current
         return calendar.dateComponents([.weekday], from: self).weekday
     }
+    
+    func moveMonth(movedMonth: Int) -> Date {
+        let calendar = Calendar.current
+        guard let currentMonth = calendar.date(byAdding: .month, value: movedMonth, to: self) else {
+            return Date()
+        }
+        return currentMonth
+    }
+    
+    func extractDate() -> [DateValue] {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month], from: self)
+            components.day = 1
+        let currentMonth = calendar.date(from: components)!
+        var days = currentMonth.getAllDates().compactMap { date -> DateValue in
+            let day = calendar.component(.day, from: date)
+            return DateValue(day: day, date: date)
+        }
+        let firstWeekday = calendar.component(.weekday, from: days.first?.date ?? Date())
+        for _ in 0..<firstWeekday - 1 {
+            days.insert(DateValue(day: -1, date: Date()), at: 0)
+        }
+        return days
+    }
 }

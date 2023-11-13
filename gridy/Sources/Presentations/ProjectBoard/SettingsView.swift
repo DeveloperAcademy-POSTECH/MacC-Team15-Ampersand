@@ -28,12 +28,13 @@ struct SettingsView: View {
         }
         .padding(16)
         .background(.white)
+        .frame(width: 500, height: 250)
     }
 }
 
 extension SettingsView {
     var profileImage: some View {
-        Image("LiLyProfile")
+        Image("gridy-logo")
             .resizable()
             .frame(width: 96, height: 96)
             .overlay(alignment: .bottom) {

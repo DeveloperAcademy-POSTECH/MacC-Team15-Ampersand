@@ -33,6 +33,8 @@ extension String {
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
     static let themeSettingButton = "themeSettingButton"
+    static let settingButton = "settingButton"
+    static let logoutButton = "logoutButton"
     
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"

@@ -9,10 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State private var currentDate: Date = Date()
-    @State private var currentMonth: Int = 0
-    let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
-    
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
@@ -49,7 +45,7 @@ struct ProjectBoardView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             userSettingArea
                                 .popover(isPresented: isUserSettingPresented, attachmentAnchor: .point(.bottom), arrowEdge: .bottom) {
-                                    UserSettingView(themeClicked: isThemeSettingButton)
+                                    UserSettingView(store: store)
                                         .popover(isPresented: isThemeSettingButton, arrowEdge: .trailing) {
                                             themeSelect
                                         }
@@ -93,6 +89,28 @@ struct ProjectBoardView: View {
 extension ProjectBoardView {
     var userSettingArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isSettingsViewPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isSettingsViewPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .settingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            var isLogoutViewPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isLogoutViewPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .logoutButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             HStack(alignment: .center, spacing: 8) {
                 Circle()
                     .foregroundStyle(Color.blackWhite)
@@ -123,6 +141,12 @@ extension ProjectBoardView {
                     bool: !viewStore.isUserSettingPresented
                 ))
             }
+            .sheet(isPresented: isSettingsViewPresented) {
+                SettingsView()
+            }
+            .sheet(isPresented: isLogoutViewPresented) {
+                LogoutView(store: store)
+            }
         }
     }
 }
@@ -137,7 +161,7 @@ extension ProjectBoardView {
                     GeometryReader { _ in
                         VStack(alignment: .center, spacing: 4) {
                             HStack(alignment: .center, spacing: 16) {
-                                Text(extraDate()[1])
+                                Text("\(viewStore.currentDate.formattedMonth) 월")
                                     .foregroundStyle(Color.black)
                                     .font(.title2)
                                     .fontWeight(.semibold)
@@ -145,15 +169,15 @@ extension ProjectBoardView {
                                 Image(systemName: "chevron.left")
                                     .font(.body)
                                     .foregroundColor(Color.gray)
-                                    .onTapGesture { currentMonth -= 1 }
+                                    .onTapGesture { viewStore.send(.changeMonth(monthIndex: -1))}
                                 Image(systemName: "chevron.right")
                                     .font(.body)
                                     .foregroundColor(Color.gray)
-                                    .onTapGesture { currentMonth += 1 }
+                                    .onTapGesture { viewStore.send(.changeMonth(monthIndex: 1))}
                             }
                             .padding(.horizontal, 24)
                             HStack(alignment: .top, spacing: 5) {
-                                ForEach(days, id: \.self) { day in
+                                ForEach(viewStore.days, id: \.self) { day in
                                     Text(day)
                                         .font(.callout)
                                         .fontWeight(.semibold)
@@ -162,13 +186,10 @@ extension ProjectBoardView {
                                 }
                             }
                             let columns = Array(repeating: GridItem(.fixed(25), spacing: 5), count: 7)
-                            LazyVGrid(columns: columns, spacing: extractDate().count > 35 ? 0 : 6) {
-                                ForEach(extractDate()) { value in
+                            LazyVGrid(columns: columns, spacing: viewStore.currentDate.extractDate().count > 35 ? 0 : 6) {
+                                ForEach(viewStore.currentDate.extractDate()) { value in
                                     cardView(value: value)
                                 }
-                            }
-                            .onChange(of: currentMonth) { _ in
-                                currentDate = getCurrentMonth()
                             }
                             Spacer()
                         }
@@ -180,12 +201,6 @@ extension ProjectBoardView {
                     viewStore.send(.hoveredItem(name: isHovered ? "calendarArea" : ""))
                 }
         }
-    }
-    
-    struct DateValue: Identifiable {
-        var id = UUID().uuidString
-        var day: Int
-        var date: Date
     }
     
     @ViewBuilder
@@ -205,38 +220,6 @@ extension ProjectBoardView {
             }
         }
     }
-    
-    func extraDate() -> [String] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "YYYY MMMM"
-        formatter.locale = Locale(identifier: "ko_KR")
-        
-        let date = formatter.string(from: currentDate)
-        return date.components(separatedBy: " ")
-    }
-    
-    func getCurrentMonth() -> Date {
-        let calendar = Calendar.current
-        /// 현재 달의 요일을 받아옴
-        guard let currentMonth = calendar.date(byAdding: .month, value : self.currentMonth, to: Date()) else {
-            return Date()
-        }
-        return currentMonth
-    }
-    
-    func extractDate() -> [DateValue] {
-        let calendar = Calendar.current
-        let currentMonth = getCurrentMonth()
-        var days = currentMonth.getAllDates().compactMap { date -> DateValue in
-            let day = calendar.component(.day, from: date)
-            return DateValue(day: day, date: date)
-        }
-        let firstWeekday = calendar.component(.weekday, from: days.first?.date ?? Date())
-        for _ in 0..<firstWeekday - 1 {
-            days.insert(DateValue(day: -1, date: Date()), at: 0)
-        }
-        return days
-    }
 }
 
 extension ProjectBoardView {
@@ -254,7 +237,7 @@ extension ProjectBoardView {
                         text: viewStore.binding(
                             get: \.searchPlanBoardText,
                             send: { .searchTitleChanged($0) }
-                            )
+                        )
                     )
                     .textFieldStyle(.plain)
                 }
@@ -499,12 +482,12 @@ extension ProjectBoardView {
                         radius: 4,
                         y: 4
                     )
-                    .onTapGesture(count: 1) {
+                    .onTapGesture {
                         viewStore.$isSelected.wrappedValue.toggle()
                     }
-                    .onTapGesture(count: 2) {
+                    .highPriorityGesture(TapGesture(count: 2).onEnded({
                         viewStore.$isTapped.wrappedValue.toggle()
-                    }
+                    }))
                     Spacer().frame(height: 8)
                     Text(viewStore.project.title)
                         .fontWeight(.medium)

@@ -20,7 +20,7 @@ struct BoardSettingView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 24) {
-            folderNameTextField
+            planBoardNameTextField
             HStack(alignment: .center, spacing: 16) {
                 startDuration
                 endDuration
@@ -36,7 +36,7 @@ struct BoardSettingView: View {
 }
 
 extension BoardSettingView {
-    var folderNameTextField: some View {
+    var planBoardNameTextField: some View {
         RoundedRectangle(cornerRadius: 16)
             .foregroundStyle(Color.item)
             .frame(height: 48)

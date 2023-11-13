@@ -21,24 +21,26 @@ struct CreatePlanBoardView: View {
     @State var endDatePickerPresented = false
     
     var body: some View {
-        VStack(alignment: .center, spacing: 24) {
-            folderNameTextField
-            HStack(alignment: .center, spacing: 16) {
-                startDuration
-                endDuration
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .center, spacing: 24) {
+                planBoardNameTextField
+                HStack(alignment: .center, spacing: 16) {
+                    startDuration
+                    endDuration
+                }
+                HStack(alignment: .center, spacing: 8) {
+                    cancel
+                    create
+                }
             }
-            HStack(alignment: .center, spacing: 8) {
-                cancel
-                create
-            }
+            .padding(24)
+            .frame(width: 480)
         }
-        .padding(24)
-        .frame(width: 480)
     }
 }
 
 extension CreatePlanBoardView {
-    var folderNameTextField: some View {
+    var planBoardNameTextField: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 16)
                 .foregroundStyle(Color.item)

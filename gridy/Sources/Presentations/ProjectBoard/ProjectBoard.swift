@@ -29,6 +29,9 @@ struct ProjectBoard: Reducer {
         @BindingState var title = ""
         @BindingState var searchPlanBoardText = ""
         
+        var currentDate: Date = Date()
+        let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
+        
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
         var tabBarFocusGroupClickedItem = String.homeButton
@@ -43,6 +46,8 @@ struct ProjectBoard: Reducer {
         var isUserSettingPresented = false
         var isCreatePlanBoardPresented = false
         var isThemeSettingPresented = false
+        var isSettingsViewPresented = false
+        var isLogoutViewPresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -66,6 +71,7 @@ struct ProjectBoard: Reducer {
         case setEditSheet(isPresented: Bool)
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
         case projectItemOneTapped(id: String)
+        case changeMonth(monthIndex: Int)
     }
     
     var body: some Reducer<State, Action> {
@@ -110,6 +116,10 @@ struct ProjectBoard: Reducer {
                     state.isCreatePlanBoardPresented = bool
                 case .themeSettingButton:
                     state.isThemeSettingPresented = bool
+                case .settingButton:
+                    state.isSettingsViewPresented = bool
+                case .logoutButton:
+                    state.isLogoutViewPresented = bool
                 default:
                     break
                 }
@@ -210,8 +220,6 @@ struct ProjectBoard: Reducer {
                 
                 return .none
                 
-            
-                
             case let .setEditSheet(isPresented: isPresented):
                 state.isEditViewPresented = isPresented
                 return .none
@@ -277,7 +285,11 @@ struct ProjectBoard: Reducer {
                         name: id
                     ))
                 }
-            
+                
+            case let .changeMonth(monthIndex):
+                state.currentDate = state.currentDate.moveMonth(movedMonth: monthIndex)
+                return .none
+                
             default:
                 return .none
             }

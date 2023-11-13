@@ -6,80 +6,89 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct LogoutView: View {
-    @State var cancelHover = false
     @State var logoutHover = false
+    let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        VStack(alignment: .center, spacing: 8) {
-            Text("Logout Message")
-                .font(.headline)
-                .fontWeight(.regular)
-                .foregroundStyle(Color.title)
-            Text("Logout Message")
-                .font(.subheadline)
-                .fontWeight(.regular)
-                .foregroundStyle(Color.subtitle)
-                .padding(.bottom, 16)
-            HStack(alignment: .center, spacing: 8) {
-                cancel
-                logout
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .center, spacing: 8) {
+                Text("Logout Message")
+                    .font(.headline)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color.title)
+                Text("Logout Message")
+                    .font(.subheadline)
+                    .fontWeight(.regular)
+                    .foregroundStyle(Color.subtitle)
+                    .padding(.bottom, 16)
+                HStack(alignment: .center, spacing: 8) {
+                    cancel
+                    logout
+                }
             }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.blackWhite)
+            )
+            .frame(width: 300, height: 150)
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.blackWhite)
-        )
-        .frame(width: 260, height: 120)
     }
 }
 
 extension LogoutView {
     var cancel: some View {
-        Button {
-            // TODO: - Logout Cancel Button
-        } label: {
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(cancelHover ? Color.buttonHovered : Color.button)
-                .frame(height: 32)
-                .overlay(
-                    Text("Cancel")
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.buttonText)
-                )
-        }
-        .buttonStyle(.link)
-        .onHover { isHovered in
-            cancelHover = isHovered
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .logoutButton,
+                    bool: false
+                ))
+            } label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == "cancelButton" ? Color.buttonHovered : Color.button)
+                    .frame(height: 32)
+                    .overlay(
+                        Text("Cancel")
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.buttonText)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? "cancelButton" : ""))
+            }
         }
     }
 }
 
 extension LogoutView {
     var logout: some View {
-        Button {
-            // TODO: - Logout Button
-        } label: {
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(logoutHover ? Color.buttonHovered : Color.button)
-                .frame(height: 32)
-                .overlay(
-                    Text("Logout")
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.buttonText)
-                )
-        }
-        .buttonStyle(.link)
-        .onHover { isHovered in
-            logoutHover = isHovered
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                // TODO: - Logout Button
+            } label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == "logoutButton" ? Color.buttonHovered : Color.button)
+                    .frame(height: 32)
+                    .overlay(
+                        Text("Logout")
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.buttonText)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                logoutHover = isHovered
+            }
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? "logoutButton" : ""))
+            }
         }
     }
-}
-
-#Preview {
-    LogoutView()
 }
