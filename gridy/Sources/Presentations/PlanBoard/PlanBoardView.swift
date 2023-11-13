@@ -143,7 +143,7 @@ extension PlanBoardView {
                                             .fontWeight(.bold)
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlLeft + String(layerIndex) ? .red : .red.opacity(0.5))
                                     )
-                                    .frame(width: 20)
+                                    .frame(width: 25)
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlLeft + String(layerIndex) : ""))
                                     }
@@ -164,7 +164,7 @@ extension PlanBoardView {
                                             .fontWeight(.bold)
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlRight + String(layerIndex) ? .blue : .blue.opacity(0.5))
                                     )
-                                    .frame(width: 20)
+                                    .frame(width: 25)
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlRight + String(layerIndex) : ""))
                                     }
