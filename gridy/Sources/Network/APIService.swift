@@ -18,6 +18,8 @@ struct APIService {
     var updateProjects: @Sendable ([Project]) async throws -> Void
     var deleteProjects: @Sendable ([String]) async throws -> Void
     var deleteProjectsCompletely: @Sendable ([String]) async throws -> Void
+    var emptyDeletedProjects: () async throws -> Void
+    var deleteDeletedProjectsImmediately: @Sendable ([String]) async throws -> Void
     
     /// Plan Type
     var createPlanType: @Sendable (PlanType, String, String) async throws -> Void
@@ -47,6 +49,8 @@ struct APIService {
         updateProjects: @escaping @Sendable ([Project]) async throws -> Void,
         deleteProjects: @escaping @Sendable ([String]) async throws -> Void,
         deleteProjectsCompletely: @escaping @Sendable ([String]) async throws -> Void,
+        emptyDeletedProjects: @escaping () async throws -> Void,
+        deleteDeletedProjectsImmediately: @escaping @Sendable ([String]) async throws -> Void,
         
         createPlanType: @escaping @Sendable (PlanType, String, String) async throws -> Void,
         readPlanTypes: @escaping @Sendable (String) async throws -> [PlanType],
@@ -71,6 +75,8 @@ struct APIService {
         self.updateProjects = updateProjects
         self.deleteProjects = deleteProjects
         self.deleteProjectsCompletely = deleteProjectsCompletely
+        self.emptyDeletedProjects = emptyDeletedProjects
+        self.deleteDeletedProjectsImmediately = deleteDeletedProjectsImmediately
         
         self.createPlanType = createPlanType
         self.readPlanTypes = readPlanTypes
@@ -96,13 +102,16 @@ extension APIService {
     static let liveValue = Self(
         // MARK: - Project
         createProject: { title, period in
-            let id = try FirestoreService.projectCollectionPath.document().documentID
+            guard period.count == 2 else { throw APIError.wrongParameter }
+            let projectID = try FirestoreService.projectCollectionPath.document().documentID
             let rootPlan = Plan(id: UUID().uuidString, planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": []])
+            let startDate = min(period[0], period[1])
+            let endDate = max(period[0], period[1])
             let project = Project(
-                id: id,
+                id: projectID,
                 title: title,
                 ownerUid: try FirestoreService.uid,
-                period: [period[0], period[1]],
+                period: [startDate, endDate],
                 createdDate: Date(),
                 lastModifiedDate: Date(),
                 rootPlanID: rootPlan.id
@@ -116,14 +125,19 @@ extension APIService {
                 "lastModifiedDate": Date(),
                 "rootPlanID": rootPlan.id
             ] as [String: Any?]
-            try await FirestoreService.projectCollectionPath.document(id).setData(data as [String: Any])
-            try await FirestoreService.setDocumentData(id, .plans, rootPlan.id, planToDictionary(rootPlan))
+            try await FirestoreService.projectCollectionPath.document(projectID).setData(data as [String: Any])
+            try await FirestoreService.setDocumentData(projectID, .plans, rootPlan.id, planToDictionary(rootPlan))
             let planTypeData = [
                 "id": PlanType.emptyPlanType.id,
                 "title": PlanType.emptyPlanType.title,
                 "colorCode": PlanType.emptyPlanType.colorCode
             ] as [String: Any]
-            try await FirestoreService.setDocumentData(id, .planTypes, PlanType.emptyPlanType.id, planTypeData)
+            try await FirestoreService.setDocumentData(
+                projectID,
+                .planTypes,
+                PlanType.emptyPlanType.id,
+                planTypeData
+            )
             return project
         },
         readProjects: {
@@ -151,18 +165,33 @@ extension APIService {
                     )
             }
         },
-        deleteProjects: { ids in
-            for id in ids {
-                let data = try await FirestoreService.projectCollectionPath.document(id).getDocument().data()
-                try await FirestoreService.projectCollectionPath.document(id).delete()
+        deleteProjects: { projectIDs in
+            for projectID in projectIDs {
+                let data = try await FirestoreService.projectCollectionPath.document(projectID).getDocument().data()
+                try await FirestoreService.projectCollectionPath.document(projectID).delete()
                 if let data = data {
-                    try await  FirestoreService.deletedProjectCollectionPath.document(id).setData(data)
+                    try await  FirestoreService.deletedProjectCollectionPath.document(projectID).setData(data)
                 }
             }
         },
-        deleteProjectsCompletely: { ids in
-            for id in ids {
-                try await FirestoreService.projectCollectionPath.document(id).delete()
+        deleteProjectsCompletely: { projectIDs in
+            for projectID in projectIDs {
+                try await FirestoreService.projectCollectionPath.document(projectID).delete()
+            }
+        },
+        emptyDeletedProjects: {
+            let deletedProjectsIDs = try await FirestoreService
+                .deletedProjectCollectionPath
+                .getDocuments()
+                .documents
+                .map({ try $0.data(as: Project.self).id })
+            for projectID in deletedProjectsIDs {
+                try await FirestoreService.deletedProjectCollectionPath.document(projectID).delete()
+            }
+        },
+        deleteDeletedProjectsImmediately: { projectIDs in
+            for projectID in projectIDs {
+                try await FirestoreService.deletedProjectCollectionPath.document(projectID).delete()
             }
         },
         // MARK: - Plan type
