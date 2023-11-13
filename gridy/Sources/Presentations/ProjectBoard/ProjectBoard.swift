@@ -74,8 +74,8 @@ struct ProjectBoard: Reducer {
         case fetchNoticeResponse(TaskResult<[Notice]>)
         
         case binding(BindingAction<State>)
-        case setShowingProject(project: Project)
-        case deleteShowingProjects(projectID: String)
+        case setShowingTap(project: Project)
+        case deleteShowingTap(projectID: String)
         case setSheet(isPresented: Bool)
         case setEditSheet(isPresented: Bool)
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
@@ -181,11 +181,11 @@ struct ProjectBoard: Reducer {
                 state.isCreationViewPresented = isPresented
                 return .none
                 
-            case let .setShowingProject(project):
+            case let .setShowingTap(project):
                 state.showingProject = project
                 return .none
                 
-            case let .deleteShowingProjects(projectID):
+            case let .deleteShowingTap(projectID):
                 /// 보여줄 탭 배열에서 id 제거
                 if let index = state.showingProjects.firstIndex(of: projectID) {
                     state.showingProjects.remove(at: index)
@@ -206,7 +206,7 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
-                        await send(.setShowingProject(
+                        await send(.setShowingTap(
                             project: project
                         ))
                         await send(.clickedItem(
@@ -288,7 +288,7 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
-                    await send(.setShowingProject(
+                    await send(.setShowingTap(
                         project: project
                     ))
                     await send(.clickedItem(

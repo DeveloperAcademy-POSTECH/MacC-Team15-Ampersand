@@ -174,7 +174,7 @@ struct TabItemView: View {
                         isDeleteButtonHovered = isHovered
                     }
                     .onTapGesture {
-                        viewStore.send(.deleteShowingProjects(projectID: projectID))
+                        viewStore.send(.deleteShowingTap(projectID: projectID))
                     }
             }
             .background(
@@ -190,7 +190,7 @@ struct TabItemView: View {
                     focusGroup: .tabBarFocusGroup,
                     name: projectID
                 ))
-                viewStore.send(.setShowingProject(
+                viewStore.send(.setShowingTap(
                     project: viewStore.projects[id: projectID]!.project
                 ))
             }
