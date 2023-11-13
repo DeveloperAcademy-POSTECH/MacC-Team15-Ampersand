@@ -95,6 +95,8 @@ struct PlanBoard: Reducer {
         
         /// ListArea
         var listItemSelected = false
+        var selectedListRow = -1
+        var selectedListColumn = -1
         
         /// focusGroupClickedItems
         var hoveredItem = ""
@@ -466,6 +468,15 @@ struct PlanBoard: Reducer {
                 
             case let .listItemDoubleClicked(clicked):
                 state.listItemSelected = clicked
+                if clicked {
+                    state.keyword = ""
+                    state.selectedListRow = state.listAreaHoveredCellRow
+                    state.selectedListColumn = state.listAreaHoveredCellCol
+                } else {
+                    state.keyword = ""
+                    state.selectedListRow = -1
+                    state.selectedListColumn = -1
+                }
                 return .none
                 
             case let .keywordChanged(newKeyword):

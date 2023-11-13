@@ -131,7 +131,7 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 Color.list
-    
+                
                 HStack {
                     ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
                         VStack {
@@ -243,6 +243,7 @@ extension PlanBoardView {
                                 viewStore.send(.listItemDoubleClicked(true))
                                 listItemFocused = true
                             }
+                            .opacity((viewStore.selectedListRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedListColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
                     }
                     
                     if viewStore.listItemSelected {
@@ -272,7 +273,7 @@ extension PlanBoardView {
                                     }
                             )
                             .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
-                            .position(x: CGFloat(Double(viewStore.listAreaHoveredCellCol) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
+                            .position(x: CGFloat(Double(viewStore.selectedListColumn) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.selectedListRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                     }
                     
                     VStack {
@@ -285,13 +286,11 @@ extension PlanBoardView {
                     }
                 }
                 .onContinuousHover { phase in
-                    if !viewStore.listItemSelected {
-                        switch phase {
-                        case .active(let location):
-                            viewStore.send(.setHoveredCell(.listArea, true, location))
-                        case .ended:
-                            viewStore.send(.setHoveredCell(.listArea, false, nil))
-                        }
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredCell(.listArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredCell(.listArea, false, nil))
                     }
                 }
             }
@@ -323,12 +322,12 @@ struct ListItemView: View {
                         )
                         viewStore.send(.listItemDoubleClicked(false))
                     }
-                        .onExitCommand {
-                            viewStore.send(
-                                .keywordChanged("")
-                            )
-                            viewStore.send(.listItemDoubleClicked(false))
-                        }
+                    .onExitCommand {
+                        viewStore.send(
+                            .keywordChanged("")
+                        )
+                        viewStore.send(.listItemDoubleClicked(false))
+                    }
                 )
                 .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
                 .position(x: CGFloat(Double(viewStore.listAreaHoveredCellCol) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
