@@ -20,7 +20,7 @@ struct PlanBoard: Reducer {
     @Dependency(\.apiService) var apiService
     
     struct State: Equatable, Identifiable {
-        @BindingState var rootProject: Project
+        var rootProject: Project
         var id: String { rootProject.id }
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
@@ -29,7 +29,7 @@ struct PlanBoard: Reducer {
         var existingPlans = [String: Plan]()
         
         var keyword = ""
-        @BindingState var title = ""
+        var title = ""
         var selectedColorCode = Color.red
         
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
@@ -1712,7 +1712,6 @@ struct PlanBoard: Reducer {
                 let projectToUpdate = [state.rootProject]
                 return .run { send in
                     try await apiService.updateProjects(projectToUpdate)
-                    // TODO: - title 바뀐 것 update
                 }
                 
             case .reloadMap:
