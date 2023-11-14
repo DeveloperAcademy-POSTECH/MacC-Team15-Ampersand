@@ -45,7 +45,7 @@ struct PlanBoard: Reducer {
         var lineAreaGridHeight = CGFloat(50)
         var scheduleAreaGridHeight = CGFloat(25)
         
-        /// hover나 click된 영역으 구분합니다.
+        /// hover나 click된 영역을 구분합니다.
         var hoveredArea: PlanBoardAreaName?
         var clickedArea: PlanBoardAreaName?
         
@@ -61,8 +61,8 @@ struct PlanBoard: Reducer {
         
         /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var listAreaHoveredCellLocation: CGPoint = .zero
-        var listAreaHoveredCellRow = 0
-        var listAreaHoveredCellCol = 0
+        var listAreaHoveredCellRow = -1
+        var listAreaHoveredCellCol = -1
         
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineAreaHoveredCellLocation: CGPoint = .zero
@@ -94,6 +94,8 @@ struct PlanBoard: Reducer {
         var holidays = [Date]()
         
         /// ListArea
+        var selectedEmptyRow: Int?
+        var selectedEmptyColumn: Int?
         var selectedListRow: Int?
         var selectedListColumn: Int?
         
@@ -161,6 +163,7 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         case createLayer(layerIndex: Int)
         case createLayerResponse(TaskResult<[String: [String]]>)
+        case emptyListItemDoubleClicked(Bool)
         case listItemDoubleClicked(Bool)
         case keywordChanged(String)
         
@@ -461,17 +464,33 @@ struct PlanBoard: Reducer {
                         state.listAreaHoveredCellLocation = location!
                         state.listAreaHoveredCellRow = Int(state.listAreaHoveredCellLocation.y / state.lineAreaGridHeight)
                         state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / 150)
+                    } else {
+                        state.listAreaHoveredCellRow = -1
+                        state.listAreaHoveredCellCol = -1
                     }
+                }
+                return .none
+                
+            case let .emptyListItemDoubleClicked(clicked):
+                if clicked {
+                    state.keyword = ""
+                    state.selectedEmptyRow = state.listAreaHoveredCellRow
+                    state.selectedEmptyColumn = state.listAreaHoveredCellCol
+                } else {
+                    state.keyword = ""
+                    state.selectedEmptyRow = nil
+                    state.selectedEmptyColumn = nil
                 }
                 return .none
                 
             case let .listItemDoubleClicked(clicked):
                 if clicked {
-                    state.keyword = ""
                     state.selectedListRow = state.listAreaHoveredCellRow
                     state.selectedListColumn = state.listAreaHoveredCellCol
+                    
+                    let planId = state.map[String(state.selectedListColumn!)]![state.selectedListRow!]
+                    state.keyword = planId
                 } else {
-                    state.keyword = ""
                     state.selectedListRow = nil
                     state.selectedListColumn = nil
                 }

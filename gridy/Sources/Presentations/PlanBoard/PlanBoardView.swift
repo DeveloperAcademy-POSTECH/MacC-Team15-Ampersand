@@ -195,8 +195,8 @@ extension PlanBoardView {
                 ZStack(alignment: .topLeading) {
                     Color.list
                     Path { path in
-                        for rowIndex in 0..<viewStore.maxLineAreaRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
+                        for rowIndex in 1...viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
@@ -213,24 +213,31 @@ extension PlanBoardView {
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
+                    /// hover 되었을 때
                     if viewStore.isHoveredOnListArea {
                         Rectangle()
-                            .fill(.gray.opacity(0.5))
+                            .fill(Color.itemHovered)
                             .frame(
                                 width: gridWidth,
                                 height: viewStore.lineAreaGridHeight - viewStore.rowStroke
                             )
                             .position(x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(viewStore.listAreaHoveredCellCol),
-                                      y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
-                            .onTapGesture(count: 2) {
-                                viewStore.send(.setHoveredCell(.listArea, false, nil))
-                                viewStore.send(.listItemDoubleClicked(true))
-                                listItemFocused = true
+                                      y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
+                            .onTapGesture {
+                                
                             }
-                            .opacity((viewStore.selectedListRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedListColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
+                            .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                listItemFocused = true
+                                viewStore.send(.listItemDoubleClicked(false))
+                                viewStore.send(.emptyListItemDoubleClicked(true))
+                                viewStore.send(.setHoveredCell(.listArea, false, nil))
+                            }))
+                            .opacity((viewStore.selectedEmptyRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedEmptyColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
                     }
+                    /// click 되었을 때
                     
-                    if let columnOffset = viewStore.selectedListColumn, let rowOffset = viewStore.selectedListRow {
+                    /// double click 되었을 때
+                    if let columnOffset = viewStore.selectedEmptyColumn, let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
@@ -240,40 +247,36 @@ extension PlanBoardView {
                                             send: { .keywordChanged($0) }
                                           ))
                                 .focused($listItemFocused)
+                                .multilineTextAlignment(.center)
                                 .textFieldStyle(.plain)
                                 .padding(.horizontal, 16)
                                 .onSubmit {
                                     // TODO: - createPlanOnList
-                                    viewStore.send(
-                                        .keywordChanged("")
-                                    )
-                                    viewStore.send(.listItemDoubleClicked(false))
+                                    viewStore.send(.emptyListItemDoubleClicked(false))
                                 }
-                                    .onExitCommand {
-                                        viewStore.send(
-                                            .keywordChanged("")
-                                        )
-                                        viewStore.send(.listItemDoubleClicked(false))
-                                    }
+                                .onExitCommand {
+                                    viewStore.send(.emptyListItemDoubleClicked(false))
+                                }
                             )
                             .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
                             .position(x: CGFloat(Double(columnOffset) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                     }
-                    
-                    HStack(alignment: .top, spacing: viewStore.columnStroke) {
-                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
-                            let layer = viewStore.map[String(layerIndex)]!
-                            VStack(alignment: .leading, spacing: viewStore.rowStroke) {
-                                ForEach(layer.indices, id: \.self) { rowIndex in
-                                    ListItemView(store: store, layer: layerIndex, row: rowIndex)
-                                        .frame(
-                                            width: gridWidth,
-                                            height: viewStore.lineAreaGridHeight - viewStore.rowStroke
-                                        )
-                                }
-                            }
-                        }
-                    }
+                    /// map에 있는 정보
+                    listMap
+//                    HStack(alignment: .top, spacing: viewStore.columnStroke) {
+//                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
+//                            let layer = viewStore.map[String(layerIndex)]!
+//                            VStack(alignment: .leading, spacing: viewStore.rowStroke) {
+//                                ForEach(layer.indices, id: \.self) { rowIndex in
+//                                    ListItemView(store: store, layer: layerIndex, row: rowIndex)
+//                                        .frame(
+//                                            width: gridWidth,
+//                                            height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+//                                        )
+//                                }
+//                            }
+//                        }
+//                    }
                 }
                 .onContinuousHover { phase in
                     switch phase {
@@ -288,18 +291,107 @@ extension PlanBoardView {
     }
 }
 
+extension PlanBoardView {
+    var listMap: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
+                let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
+                
+                HStack(alignment: .top, spacing: viewStore.columnStroke) {
+                    ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
+                        let layer = viewStore.map[String(layerIndex)]!
+                        VStack(alignment: .leading, spacing: viewStore.rowStroke) {
+                            ForEach(layer.indices, id: \.self) { rowIndex in
+                                /// doubleClick 되었을 떄
+                                if viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex {
+                                    Rectangle()
+                                        .fill(Color.list)
+                                        .overlay(
+                                            TextField("editing",
+                                                      text: viewStore.binding(
+                                                        get: \.keyword,
+                                                        send: { .keywordChanged($0) }
+                                                      ))
+                                            .focused($listItemFocused)
+                                            .multilineTextAlignment(.center)
+                                            .textFieldStyle(.plain)
+                                            .padding(.horizontal, 16)
+                                            .onSubmit {
+                                                // TODO: - updatePlanTypeOnList
+                                                viewStore.send(.listItemDoubleClicked(false))
+                                            }
+                                                .onExitCommand {
+                                                    viewStore.send(.listItemDoubleClicked(false))
+                                                }
+                                        )
+                                /// hover 되었을 때
+                                } else {
+                                    Rectangle()
+                                        .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
+                                        .overlay(
+                                            Text(viewStore.map[String(layerIndex)]![rowIndex])
+                                        )
+                                        .onTapGesture(count: 2) {
+                                            listItemFocused = true
+                                            viewStore.send(.emptyListItemDoubleClicked(false))
+                                            viewStore.send(.listItemDoubleClicked(true))
+                                        }
+                                    
+                                }
+                            }
+                            .frame(
+                                width: gridWidth,
+                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 struct ListItemView: View {
     let store: StoreOf<PlanBoard>
     let layer: Int
     let row: Int
+    @FocusState var textFieldFocused: Bool
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Rectangle()
-                .fill(Color.gray)
-                .overlay(
-                    Text(viewStore.map[String(layer)]![row])
-                )
+            if viewStore.selectedListRow == row && viewStore.selectedListColumn == layer {
+                Rectangle()
+                    .fill(Color.list)
+                    .overlay(
+                        TextField("editing",
+                                  text: viewStore.binding(
+                                    get: \.keyword,
+                                    send: { .keywordChanged($0) }
+                                  ))
+                        .focused($textFieldFocused)
+                        .multilineTextAlignment(.center)
+                        .textFieldStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .onSubmit {
+                            // TODO: - updatePlanTypeOnList
+                            viewStore.send(.listItemDoubleClicked(false))
+                        }
+                        .onExitCommand {
+                            viewStore.send(.listItemDoubleClicked(false))
+                        }
+                    )
+            } else {
+                Rectangle()
+                    .fill(viewStore.listAreaHoveredCellCol == layer && viewStore.listAreaHoveredCellRow == row ? Color.itemHovered : Color.list)
+                    .overlay(
+                        Text(viewStore.map[String(layer)]![row])
+                    )
+                    .onTapGesture(count: 2) {
+                        textFieldFocused = true
+                        viewStore.send(.emptyListItemDoubleClicked(false))
+                        viewStore.send(.listItemDoubleClicked(true))
+                    }
+            }
         }
     }
 }
