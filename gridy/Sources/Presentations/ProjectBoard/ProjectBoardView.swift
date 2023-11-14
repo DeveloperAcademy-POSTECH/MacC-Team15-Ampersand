@@ -544,14 +544,18 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .automaticButton ? Color.title : .clear)
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(viewStore.themeFocusGroupClickedItem == .automaticButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .automaticButton ? Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem == .automaticButton ? 
+                            Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear
+                        )
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "automatic" : ""))
@@ -576,7 +580,10 @@ extension ProjectBoardView {
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .lightButton ? Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem  == .lightButton ?
+                            Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear
+                        )
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "light" : ""))
@@ -601,7 +608,10 @@ extension ProjectBoardView {
                 .padding(.trailing, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(viewStore.themeFocusGroupClickedItem  == .darkButton ? Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem  == .darkButton ? 
+                            Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear
+                        )
                 )
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? "dark" : ""))
