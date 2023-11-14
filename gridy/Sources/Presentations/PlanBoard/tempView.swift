@@ -134,40 +134,6 @@ struct TempView: View {
                     .frame(width: 200)
                     .padding()
                     
-                    //                    VStack {
-                    //                        Text("create UpperLane At")
-                    //                        HStack {
-                    //                            Text("Row:")
-                    //                                TextField("", text: $laneRow)
-                    //                        }
-                    //                        Button {
-                    //                            viewStore.send(
-                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: true)
-                    //                            )
-                    //                        } label: {
-                    //                            Text("Create")
-                    //                        }
-                    //                    }
-                    //                    .frame(width: 200)
-                    //                    .padding()
-                    //
-                    //                    VStack {
-                    //                        Text("create lowerLane At")
-                    //                        HStack {
-                    //                            Text("Row:")
-                    //                                TextField("", text: $laneRow)
-                    //                        }
-                    //                        Button {
-                    //                            viewStore.send(
-                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: false)
-                    //                            )
-                    //                        } label: {
-                    //                            Text("Create")
-                    //                        }
-                    //                    }
-                    //                    .frame(width: 200)
-                    //                    .padding()
-                    
                     VStack {
                         Text("deleteLane")
                         HStack {
