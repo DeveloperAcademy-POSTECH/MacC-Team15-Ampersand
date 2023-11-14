@@ -74,7 +74,10 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(store: self.store.scope(state: \.optionalPlanBoard, action: { .optionalPlanBoard($0) }))
+                    PlanBoardView(store: self.store.scope(
+                        state: \.optionalPlanBoard,
+                        action: { .optionalPlanBoard($0) })
+                    )
                 }
             }
             .onAppear {
