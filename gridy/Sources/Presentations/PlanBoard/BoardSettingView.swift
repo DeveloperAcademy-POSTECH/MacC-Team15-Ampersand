@@ -39,7 +39,8 @@ extension BoardSettingView {
                               text: viewStore.binding(
                                 get: \.title,
                                 send: { .titleChanged($0) }
-                              ))
+                              )
+                             )
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 16)
                     .onSubmit {

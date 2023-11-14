@@ -34,7 +34,6 @@ struct ProjectBoard: Reducer {
         var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
-        var isCreationViewPresented = false
         var projectIdToEdit = ""
         var showingProject: Project?
         var showingProjects = [String]()
@@ -101,15 +100,13 @@ struct ProjectBoard: Reducer {
         case profileNameChanged(String)
         case projectTitleChanged
         
-        case setShowingProject(project: Project)
-        case deleteShowingProjects(projectID: String)
+        case setShowingTab(project: Project)
+        case deleteShowingTab(projectID: String)
         case sortProjectBy
         
         case sendFeedback(String)
         case fetchNotice
         case fetchNoticeResponse(TaskResult<[Notice]>)
-        
-        case setSheet(isPresented: Bool)
         
         case projectItemOneTapped(id: String)
         case changeMonth(monthIndex: Int)
@@ -212,7 +209,6 @@ struct ProjectBoard: Reducer {
                 state.projects.insert(ProjectItem.State(project: response), at: 0)
                 return .run { send in
                     await send(.sortProjectBy, animation: .default)
-                    await send(.setSheet(isPresented: false))
                 }
                 
             case .fetchAllProjects:
@@ -246,17 +242,12 @@ struct ProjectBoard: Reducer {
                 state.isInProgress = isInProgress
                 return .none
                 
-            case let .setSheet(isPresented: isPresented):
-                state.title = ""
-                state.isCreationViewPresented = isPresented
-                return .none
-                
-            case let .setShowingProject(project):
+            case let .setShowingTab(project):
                 state.showingProject = project
                 state.optionalPlanBoard.rootProject = project
                 return .none
                 
-            case let .deleteShowingProjects(projectID):
+            case let .deleteShowingTab(projectID):
                 /// 보여줄 탭 배열에서 id 제거
                 if let index = state.showingProjects.firstIndex(of: projectID) {
                     state.showingProjects.remove(at: index)
@@ -277,7 +268,7 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
-                        await send(.setShowingProject(
+                        await send(.setShowingTab(
                             project: project
                         ))
                         await send(.clickedItem(
@@ -395,7 +386,7 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
-                    await send(.setShowingProject(
+                    await send(.setShowingTab(
                         project: project
                     ))
                     await send(.clickedItem(

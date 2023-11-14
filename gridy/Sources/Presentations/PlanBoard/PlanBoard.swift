@@ -157,12 +157,6 @@ struct PlanBoard: Reducer {
         case onContinuousHover(Bool, CGPoint?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         
-        // MARK: - list area
-        case showUpperLayer
-        case showLowerLayer
-        case createLayer(layerIndex: Int)
-        case createLayerResponse(TaskResult<[String: [String]]>)
-        
         // MARK: - BoardSettingView
         case titleChanged(String)
         case selectedStartDateChanged(Date)
