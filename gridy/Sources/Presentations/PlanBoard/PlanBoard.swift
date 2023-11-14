@@ -28,8 +28,8 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable {
         var rootProject: Project
-        var rootPlan: Plan
-        var map: [[String]]
+        var rootPlan = Plan.mock
+        var map: [[String]] = [[]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
@@ -135,6 +135,7 @@ struct PlanBoard: Reducer {
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
         case readPlans
+        
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan(targetPlanID: String, updateTo: Plan)
         
@@ -188,6 +189,7 @@ struct PlanBoard: Reducer {
 
         // MARK: - map
         case reloadMap
+        case fetchRootPlan
     }
     
     var body: some Reducer<State, Action> {
@@ -195,12 +197,21 @@ struct PlanBoard: Reducer {
             switch action {
                 
                 // MARK: - user action
-            case .onAppear:
+            case .fetchRootPlan:
+                state.rootPlan = state.existingPlans[state.rootProject.rootPlanID]!
                 state.existingPlans = [state.rootPlan.id: state.rootPlan]
+                
+                return .run { send in
+                    await send(.reloadMap)
+                }
+                
+            case .onAppear:
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
-                    await send(.reloadMap)
+                    // TODO: - 삭제
+                    await Task.sleep(2 * 1_000_000_000)
+                    await send(.fetchRootPlan)
                 }
                 
             case let .selectColorCode(selectedColor):
@@ -373,7 +384,7 @@ struct PlanBoard: Reducer {
                 // MARK: - plan
             case let .createPlanOnList(layer, row, text, colorCode):
                 if text.isEmpty { return .none }
-                state.rootProject.countLayerInListArea = layer
+//                state.rootProject.countLayerInListArea = layer
                 
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
@@ -389,7 +400,7 @@ struct PlanBoard: Reducer {
                 /// map에 dummy 생성
                 for rowIndex in state.map[layer].count...row {
                     for layerIndex in 0..<state.map.count {
-                        /// 맨 마지막일 때는 text를 title로 하는 planType을 가지고 생성
+                        /// 특정 row, col일 때는 text를 title로 하는 planType을 가지고 생성
                         if (rowIndex == row) && (layerIndex == layer) {
                             /// 이미 있는 planType일 경우
                             if let foundPlanTypeID = originPlanTypeID {
@@ -564,6 +575,10 @@ struct PlanBoard: Reducer {
                         }
                     ))
                 }
+                
+            case let .readPlansResponse(.failure(_)):
+                print("fail")
+                return .none
                 
             case let .readPlansResponse(.success(responses)):
                 for response in responses {
@@ -1760,6 +1775,8 @@ struct PlanBoard: Reducer {
                 var totalLoop = 0
                 
                 while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
+                    print("===planIDsQ")
+                    print("\(planIDsQ)")
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
@@ -1775,6 +1792,8 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
+                print("===reload map")
+                print(state.map)
                 return .none
                 
             default:

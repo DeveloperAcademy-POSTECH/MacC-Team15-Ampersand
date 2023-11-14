@@ -18,7 +18,7 @@ struct TempView: View {
             createdDate: Date(),
             lastModifiedDate: Date(),
             rootPlanID: "",
-            countLayerInListArea: 0
+            countLayerInListArea: 1
         ),
         rootPlan: Plan(
             id: "0000",

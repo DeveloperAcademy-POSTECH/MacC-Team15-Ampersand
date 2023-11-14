@@ -84,6 +84,9 @@ struct PlanBoardView: View {
                     }
                 }
             }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
     }
 }
@@ -251,7 +254,7 @@ extension PlanBoardView {
                                 .textFieldStyle(.plain)
                                 .padding(.horizontal, 16)
                                 .onSubmit {
-                                    // TODO: - createPlanOnList
+                                    viewStore.send(.createPlanOnList(layer: viewStore.selectedEmptyColumn!, row: viewStore.selectedEmptyRow!, text: viewStore.keyword, colorCode: PlanType.emptyPlanType.colorCode))
                                     viewStore.send(.emptyListItemDoubleClicked(false))
                                 }
                                 .onExitCommand {
@@ -320,23 +323,23 @@ extension PlanBoardView {
                                                 // TODO: - updatePlanTypeOnList
                                                 viewStore.send(.listItemDoubleClicked(false))
                                             }
-                                                .onExitCommand {
-                                                    viewStore.send(.listItemDoubleClicked(false))
-                                                }
+                                            .onExitCommand {
+                                                viewStore.send(.listItemDoubleClicked(false))
+                                            }
                                         )
                                 /// hover 되었을 때
                                 } else {
                                     Rectangle()
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
-                                        .overlay(
-                                            Text(viewStore.map[layerIndex][rowIndex])
-                                        )
+                                        .overlay {
+                                            let planID = viewStore.map[layerIndex][rowIndex]
+                                            Text("\(viewStore.existingPlanTypes[planID]!.title)")
+                                        }
                                         .onTapGesture(count: 2) {
                                             listItemFocused = true
                                             viewStore.send(.emptyListItemDoubleClicked(false))
                                             viewStore.send(.listItemDoubleClicked(true))
                                         }
-                                    
                                 }
                             }
                             .frame(
