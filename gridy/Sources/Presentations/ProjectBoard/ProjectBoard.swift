@@ -108,7 +108,7 @@ struct ProjectBoard: Reducer {
         case sendFeedback(String)
         case fetchNotice
         case fetchNoticeResponse(TaskResult<[Notice]>)
-
+        
         case setSheet(isPresented: Bool)
         
         case projectItemOneTapped(id: String)
@@ -277,7 +277,6 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
-
                         await send(.setShowingProject(
                             project: project
                         ))
@@ -396,7 +395,6 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
-
                     await send(.setShowingProject(
                         project: project
                     ))

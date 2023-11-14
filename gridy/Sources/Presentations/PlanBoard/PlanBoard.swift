@@ -1692,7 +1692,7 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
-            
+                
             case let .titleChanged(changedTitle):
                 state.title = changedTitle
                 return .none
@@ -1714,7 +1714,7 @@ struct PlanBoard: Reducer {
                     try await apiService.updateProjects(projectToUpdate)
                     // TODO: - title 바뀐 것 update
                 }
-
+                
             case .reloadMap:
                 var newMap: [[String]] = []
                 var planIDsQ: [String] = [state.rootPlan.id]

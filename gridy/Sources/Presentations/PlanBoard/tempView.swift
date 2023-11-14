@@ -137,7 +137,7 @@ struct TempView: View {
                             Text("to:")
                             TextField("", text: $toRow)
                         }
-
+                        
                         Button {
                             viewStore.send(
                                 .deleteLaneConents(rows: [Int(fromRow)!, Int(toRow)!])
