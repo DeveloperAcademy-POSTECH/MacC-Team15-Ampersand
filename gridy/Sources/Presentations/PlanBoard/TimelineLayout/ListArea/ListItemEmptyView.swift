@@ -88,20 +88,14 @@ struct ListItemEmptyView: View {
                         .strokeBorder(Color.blue)
                         .overlay {
                             // TODO: Plan type 수정 -> 생성하는 flow
-                            TextField("Editing", text: $editingText, axis: .vertical )
+                            TextField("Editing", text: $editingText, axis: .vertical)
                                 .onSubmit {
-                                 viewStore.send(.createPlan(
+                                    viewStore.send(.createPlanOnList(
                                         layer: layerIndex,
                                         row: rowIndex,
-                                        target: Plan(
-                                            id: "",
-                                            parentLaneID: nil,
-                                            periods: [:],
-                                            laneIDs: []
-                                        ),
-                                        startDate: nil,
-                                        endDate: nil
-                                    ))
+                                        text: editingText,
+                                        colorCode: nil)
+                                    )
                                     isEditing = false
                                     isTextFieldFocused = false
                                     editingText = ""
@@ -125,14 +119,4 @@ struct ListItemEmptyView: View {
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
-}
-
-#Preview {
-    ListItemEmptyView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
-    )
 }

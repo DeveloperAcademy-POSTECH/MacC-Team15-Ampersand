@@ -76,7 +76,11 @@ struct ProjectBoardView: View {
                 } else {
                     PlanBoardView(
                         store: Store(
-                            initialState: PlanBoard.State(rootProject: viewStore.showingProject!, map: [:])
+                            initialState: PlanBoard.State(
+                                rootProject: viewStore.showingProject!,
+                                rootPlan: Plan.mock, // TODO: - fetch root plan
+                                map: [[]]
+                            )
                         ) {
                             PlanBoard()
                         }

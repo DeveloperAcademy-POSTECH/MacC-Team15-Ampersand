@@ -9,6 +9,18 @@ import Foundation
 import ComposableArchitecture
 import FirebaseAuth
 
+enum ProjectSortCase: Equatable {
+    case dateCreated(order: OrderCase)
+    case lastModified(order: OrderCase)
+    case alphabetical(order: OrderCase)
+    case chronological(order: OrderCase)
+}
+
+enum OrderCase: Equatable {
+    case ascending
+    case descending
+}
+
 struct ProjectBoard: Reducer {
     @Dependency(\.apiService) var apiService
     @Dependency(\.apiClient) var apiClient
@@ -19,6 +31,7 @@ struct ProjectBoard: Reducer {
     struct State: Equatable {
         var user: User
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
+        var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
         var isCreationViewPresented = false
@@ -27,8 +40,11 @@ struct ProjectBoard: Reducer {
         var showingProjects = [String]()
         var isDisclosureGroupExpanded = false
         var textFieldSubmit = false
+        var notices = [Notice]()
         
         @BindingState var title = ""
+        @BindingState var startDate = Date()
+        @BindingState var endDate = Date()
         @BindingState var searchPlanBoardText = ""
         @BindingState var folderName = ""
         @BindingState var profileName = ""
@@ -39,6 +55,7 @@ struct ProjectBoard: Reducer {
         var selectedStartDate = Date()
         var selectedEndDate = Date()
         var jobOptions = ["개발자", "디자이너", "기획자", "부자"]
+        var sortBy = ProjectSortCase.lastModified(order: OrderCase.ascending)
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -70,7 +87,7 @@ struct ProjectBoard: Reducer {
         
         case textFieldSubmit(bool: Bool)
         case createNewProjectButtonTapped
-        case readAllButtonTapped
+        case createProjectResponse(TaskResult<Project>)
         
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
@@ -84,6 +101,12 @@ struct ProjectBoard: Reducer {
         
         case setShowingProject(project: Project)
         case deleteShowingProjects(projectID: String)
+        case sortProjectBy
+        
+        case sendFeedback(String)
+        case fetchNotice
+        case fetchNoticeResponse(TaskResult<[Notice]>)
+        
         case setSheet(isPresented: Bool)
         
         case projectItemOneTapped(id: String)
@@ -91,10 +114,10 @@ struct ProjectBoard: Reducer {
         case selectedStartDateChanged(Date)
         case selectedEndDateChanged(Date)
         case changeOption(Int)
-
+        
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
         case binding(BindingAction<State>)
-
+        
     }
     
     var body: some Reducer<State, Action> {
@@ -169,15 +192,22 @@ struct ProjectBoard: Reducer {
                 
             case .createNewProjectButtonTapped:
                 let title = state.title
+                let startDate = state.startDate
+                let endDate = state.endDate
+                
                 return .run { send in
-                    try await apiService.createProject(title)
-                    await send(.fetchAllProjects)
-                    await send(.setSheet(isPresented: false))
+                    await send(.createProjectResponse(
+                        TaskResult {
+                            try await apiService.createProject(title, [startDate, endDate])
+                        }
+                    ))
                 }
                 
-            case .readAllButtonTapped:
+            case let .createProjectResponse(.success(response)):
+                state.projects.insert(ProjectItem.State(project: response), at: 0)
                 return .run { send in
-                    await send(.fetchAllProjects)
+                    await send(.sortProjectBy, animation: .default)
+                    await send(.setSheet(isPresented: false))
                 }
                 
             case .fetchAllProjects:
@@ -185,9 +215,13 @@ struct ProjectBoard: Reducer {
                     await send(.setProcessing(true))
                     await send(.fetchAllProjectsResponse(
                         TaskResult {
-                            try await apiService.readAllProjects()
+                            try await apiService.readProjects()
                         }
-                    ), animation: .spring)
+                    ))
+                    await send(
+                        .sortProjectBy,
+                        animation: .spring
+                    )
                     await send(.setProcessing(false))
                 }
                 
@@ -201,9 +235,6 @@ struct ProjectBoard: Reducer {
                     )
                 }
                 state.successToFetchData = true
-                return .none
-                
-            case .fetchAllProjectsResponse(.failure):
                 return .none
                 
             case let .setProcessing(isInProgress):
@@ -272,17 +303,62 @@ struct ProjectBoard: Reducer {
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
                 let changedTitle = state.title
+                state.projects[id: id]!.project.title = changedTitle
+                let projectToEditImmutable = state.projects[id: id]!.project
                 return .run { send in
-                    try await apiService.updateProjectTitle(id, changedTitle)
-                    await send(.fetchAllProjects)
+                    await send(.sortProjectBy)
+                    try await apiService.updateProjects([projectToEditImmutable])
                 }
                 
-            case .binding:
+            case .sortProjectBy:
+                switch state.sortBy {
+                case let .dateCreated(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.createdDate < $1.project.createdDate :
+                        $0.project.createdDate > $1.project.createdDate
+                    })
+                case let .lastModified(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.lastModifiedDate < $1.project.lastModifiedDate :
+                        $0.project.lastModifiedDate > $1.project.lastModifiedDate
+                    })
+                case let .alphabetical(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.title < $1.project.title :
+                        $0.project.title > $1.project.title
+                    })
+                case let .chronological(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.period[0] < $1.project.period[0] :
+                        $0.project.period[0] > $1.project.period[0]
+                    })
+                }
                 return .none
                 
-            case let .projectItemTapped(id: id, action: .binding(\.$isDeleted)):
+            case let .sendFeedback(contents):
+                return .run { _ in
+                    try await apiService.sendFeedback(contents)
+                }
+                
+            case .fetchNotice:
                 return .run { send in
-                    try await apiService.deleteProject(id)
+                    await send(.fetchNoticeResponse(
+                        TaskResult {
+                            try await apiService.readAllNotices()
+                        }
+                    ))
+                }
+                
+            case let .fetchNoticeResponse(.success(response)):
+                state.notices = response
+                return .none
+                
+            case .projectItemTapped(id: _, action: .binding(\.$isDeleted)):
+                return .run { send in
                     await send(.fetchAllProjects)
                 }
                 

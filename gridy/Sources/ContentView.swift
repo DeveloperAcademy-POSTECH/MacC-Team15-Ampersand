@@ -23,7 +23,6 @@ struct ContentView: View {
                         SplashView()
                         AuthenticationView(store: store)
                     }
-                    
                 } else {
                     ProjectBoardView(
                         store: store.scope(

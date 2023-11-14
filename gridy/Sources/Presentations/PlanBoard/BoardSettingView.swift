@@ -46,7 +46,7 @@ extension BoardSettingView {
                         if !viewStore.title.isEmpty {
                             viewStore.send(.projectTitleChanged)
                             viewStore.send(.popoverPresent(
-                                button: .editPlanBoardButton,
+                                button: .boardSettingButton,
                                 bool: false
                             ))
                         }
