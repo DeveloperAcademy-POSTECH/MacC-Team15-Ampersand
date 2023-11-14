@@ -38,9 +38,6 @@ struct ProjectItem: Reducer {
             case let .isHovering(hovered):
                 state.isHovering = hovered
                 return .none
-                
-            default:
-                return .none
             }
         }
     }

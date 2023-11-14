@@ -46,4 +46,3 @@ extension String {
     static let layerControlLeft = "layerControlLeft"
     static let layerControlRight = "layerControlRight"
 }
-

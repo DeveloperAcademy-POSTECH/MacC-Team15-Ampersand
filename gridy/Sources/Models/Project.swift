@@ -7,22 +7,24 @@
 
 import Foundation
 
-struct Project: Identifiable, Decodable {
+struct Project: Identifiable, Decodable, Equatable {
     var id: String
     var title: String
     var ownerUid: String
-    let createdDate: Date
+    var period: [Date]
+    var createdDate: Date
     var lastModifiedDate: Date
-    var map: [String: [String]] /// "layer#": [PlanIDs]
+    let rootPlanID: String
+    var countLayerInListArea: Int
     
     static let mock = Project(
         id: "",
         title: "",
         ownerUid: "",
+        period: [Date(), Date()],
         createdDate: Date(),
         lastModifiedDate: Date(),
-        map: ["0": [""]]
+        rootPlanID: "",
+        countLayerInListArea: 0
     )
 }
-
-extension Project: Equatable { }
