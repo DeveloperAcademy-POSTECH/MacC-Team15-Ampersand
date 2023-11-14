@@ -68,13 +68,14 @@ struct ListAreaView: View {
                         // MARK: - ListArea Contents
                         HStack(alignment: .top, spacing: 2) {
                             ForEach(Array(viewStore.showingLayers.indices), id: \.self) { forIndex in
+
                                 let layer = viewStore.showingLayers[forIndex]
-                                let layerArray = viewStore.map[String(layer)]!
+                                let layerArray = viewStore.map[layer]
                                 let layerSize = layerArray.count
                                 
                                 VStack(alignment: .leading, spacing: 0) {
                                     if viewStore.map.count > 0 {
-                                        ForEach(Array(viewStore.map[String(layer)]!.indices), id: \.self) { row in
+                                        ForEach(Array(viewStore.map[layer].indices), id: \.self) { row in
                                             ListItemView(store: store, layerIndex: layer, rowIndex: row)
                                         }
                                     }
@@ -94,8 +95,4 @@ struct ListAreaView: View {
             }
         }
     }
-}
-
-#Preview {
-    ListAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
 }

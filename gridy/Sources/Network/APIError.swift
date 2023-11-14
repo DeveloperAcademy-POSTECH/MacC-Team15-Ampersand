@@ -11,4 +11,5 @@ enum APIError: Error {
     case noResponseResult
     case noAuthenticatedUser
     case errorOccurred
+    case wrongParameter
 }

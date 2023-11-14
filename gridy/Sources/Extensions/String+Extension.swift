@@ -41,4 +41,3 @@ extension String {
     static let boardSettingButton = "boardSettingButton"
     static let rightToolBarButton = "rightToolBarButton"
 }
-

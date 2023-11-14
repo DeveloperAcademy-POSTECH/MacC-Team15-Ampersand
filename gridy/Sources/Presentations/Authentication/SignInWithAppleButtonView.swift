@@ -22,7 +22,6 @@ struct SignInWithAppleButtonView: View {
             } onCompletion: { result in
                 switch result {
                 case let .success(authorization):
-                    // TODO: completion handler도 Reducer에서 처리해야 할까요? -ZENA
                     switch authorization.credential {
                     case let appleIDCredential as ASAuthorizationAppleIDCredential:
                         guard let appleIDToken = appleIDCredential.identityToken else { return }
@@ -41,9 +40,15 @@ struct SignInWithAppleButtonView: View {
                         }
                         
                         /// Not yet signed up
-                        let fullName = appleIDCredential.fullName
-                        let username = "\(fullName?.givenName ?? "") \(fullName?.familyName ?? "")"
-                        viewStore.send(.notYetRegistered(email, username, credential))
+                        if let fullName = appleIDCredential.fullName {
+                            let user = User(
+                                uid: "", /// APIClient에서 자동 생성
+                                email: email,
+                                firstName: fullName.givenName ?? "",
+                                lastName: fullName.familyName ?? ""
+                            )
+                            viewStore.send(.notYetRegistered(user, credential))
+                        }
                     default:
                         break
                     }

@@ -76,7 +76,6 @@ struct CalendarView: View {
         ZStack {
             if value.day != -1 {
                 let isToday = Calendar.current.isDateInToday(value.date)
-                let comparisonResult = Calendar.current.compare(value.date, to: Date(), toGranularity: .day)
                 let isSunday = value.date.dayOfSunday() == 1  /// 1은 일요일을 나타냅니다.
                 Circle()
                     .frame(width: 28, height: 28)

@@ -9,13 +9,11 @@ import Foundation
 
 struct Plan: Identifiable, Equatable, Decodable {
     var id: String
-    var planTypeID: String?
-    
-    /// If parentLaneID is nil, this plan data must be on root layer
-    var parentLaneID: String?
-    var periods: [Int: [Date]] /// [index: [startDate, endDate]]
+    var planTypeID: String
+    var childPlanIDs: [String: [String]]
+    var periods: [String: [Date]]? /// [index: [startDate, endDate]
+    var totalPeriod: [Date]? /// computed period for [minimum start date, maximum end date]
     var description: String?
-    var laneIDs: [String]
     
-    static let mock = Plan(id: "", planTypeID: "", parentLaneID: "", periods: [:], description: "", laneIDs: [])
+    static let mock = Plan(id: "", planTypeID: PlanType.emptyPlanType.id, childPlanIDs: [:])
 }

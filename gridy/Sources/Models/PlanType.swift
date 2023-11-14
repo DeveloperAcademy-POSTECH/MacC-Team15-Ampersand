@@ -13,4 +13,5 @@ struct PlanType: Identifiable, Equatable, Decodable {
     var colorCode: UInt
     
     static let mock = PlanType(id: "", title: "", colorCode: 0x000000)
+    static let emptyPlanType = PlanType(id: "0000", title: "", colorCode: 0x000000)
 }

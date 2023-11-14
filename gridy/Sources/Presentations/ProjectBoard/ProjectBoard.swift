@@ -9,6 +9,18 @@ import Foundation
 import ComposableArchitecture
 import FirebaseAuth
 
+enum ProjectSortCase: Equatable {
+    case dateCreated(order: OrderCase)
+    case lastModified(order: OrderCase)
+    case alphabetical(order: OrderCase)
+    case chronological(order: OrderCase)
+}
+
+enum OrderCase: Equatable {
+    case ascending
+    case descending
+}
+
 struct ProjectBoard: Reducer {
     @Dependency(\.apiService) var apiService
     @Dependency(\.apiClient) var apiClient
@@ -18,14 +30,21 @@ struct ProjectBoard: Reducer {
     
     struct State: Equatable {
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
+        var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
         var isCreationViewPresented = false
         var isEditViewPresented = false
         var projectIdToEdit = ""
-        @BindingState var title = ""
         var showingProject: Project?
         var showingProjects = [String]()
+        var sortBy = ProjectSortCase.lastModified(order: OrderCase.ascending)
+        
+        @BindingState var title = ""
+        @BindingState var startDate = Date()
+        @BindingState var endDate = Date()
+        
+        var notices = [Notice]()
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -46,16 +65,24 @@ struct ProjectBoard: Reducer {
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
+        
         case createNewProjectButtonTapped
+        case createProjectResponse(TaskResult<Project>)
         case readAllButtonTapped
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         case setProcessing(Bool)
         case titleChanged(String)
         case projectTitleChanged
+        case sortProjectBy
+        
+        case sendFeedback(String)
+        case fetchNotice
+        case fetchNoticeResponse(TaskResult<[Notice]>)
+        
         case binding(BindingAction<State>)
-        case setShowingProject(project: Project)
-        case deleteShowingProjects(projectID: String)
+        case setShowingTap(project: Project)
+        case deleteShowingTap(projectID: String)
         case setSheet(isPresented: Bool)
         case setEditSheet(isPresented: Bool)
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
@@ -106,9 +133,21 @@ struct ProjectBoard: Reducer {
                 
             case .createNewProjectButtonTapped:
                 let title = state.title
+                let startDate = state.startDate
+                let endDate = state.endDate
+                
                 return .run { send in
-                    try await apiService.createProject(title)
-                    await send(.fetchAllProjects)
+                    await send(.createProjectResponse(
+                        TaskResult {
+                            try await apiService.createProject(title, [startDate, endDate])
+                        }
+                    ))
+                }
+                
+            case let .createProjectResponse(.success(response)):
+                state.projects.insert(ProjectItem.State(project: response), at: 0)
+                return .run { send in
+                    await send(.sortProjectBy)
                     await send(.setSheet(isPresented: false))
                 }
                 
@@ -122,7 +161,7 @@ struct ProjectBoard: Reducer {
                     await send(.setProcessing(true))
                     await send(.fetchAllProjectsResponse(
                         TaskResult {
-                            try await apiService.readAllProjects()
+                            try await apiService.readProjects()
                         }
                     ), animation: .spring)
                     await send(.setProcessing(false))
@@ -140,9 +179,6 @@ struct ProjectBoard: Reducer {
                 state.successToFetchData = true
                 return .none
                 
-            case .fetchAllProjectsResponse(.failure):
-                return .none
-                
             case let .setProcessing(isInProgress):
                 state.isInProgress = isInProgress
                 return .none
@@ -152,11 +188,11 @@ struct ProjectBoard: Reducer {
                 state.isCreationViewPresented = isPresented
                 return .none
                 
-            case let .setShowingProject(project):
+            case let .setShowingTap(project):
                 state.showingProject = project
                 return .none
                 
-            case let .deleteShowingProjects(projectID):
+            case let .deleteShowingTap(projectID):
                 /// 보여줄 탭 배열에서 id 제거
                 if let index = state.showingProjects.firstIndex(of: projectID) {
                     state.showingProjects.remove(at: index)
@@ -177,7 +213,7 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
-                        await send(.setShowingProject(
+                        await send(.setShowingTap(
                             project: project
                         ))
                         await send(.clickedItem(
@@ -200,19 +236,65 @@ struct ProjectBoard: Reducer {
                 
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
-                let changedTitle = state.title
+                state.projects[id: id]!.project.title = state.title
+                var projectToEdit = state.projects[id: id]!
+                projectToEdit.project.title = state.title
+                let projectToEditImmutable = projectToEdit.project
                 return .run { send in
-                    try await apiService.updateProjectTitle(id, changedTitle)
-                    await send(.fetchAllProjects)
+                    await send(.sortProjectBy)
+                    try await apiService.updateProjects([projectToEditImmutable])
                     await send(.setEditSheet(isPresented: false))
                 }
                 
-            case .binding:
+            case .sortProjectBy:
+                switch state.sortBy {
+                case let .dateCreated(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ? 
+                        $0.project.createdDate < $1.project.createdDate :
+                        $0.project.createdDate > $1.project.createdDate
+                    })
+                case let .lastModified(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.lastModifiedDate < $1.project.lastModifiedDate :
+                        $0.project.lastModifiedDate > $1.project.lastModifiedDate
+                    })
+                case let .alphabetical(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.title < $1.project.title :
+                        $0.project.title > $1.project.title
+                    })
+                case let .chronological(orderBy):
+                    state.projects.sort(by: {
+                        orderBy == .ascending ?
+                        $0.project.period[0] < $1.project.period[0] :
+                        $0.project.period[0] > $1.project.period[0]
+                    })
+                }
                 return .none
                 
-            case let .projectItemTapped(id: id, action: .binding(\.$delete)):
+            case let .sendFeedback(contents):
+                return .run { _ in
+                    try await apiService.sendFeedback(contents)
+                }
+                
+            case .fetchNotice:
                 return .run { send in
-                    try await apiService.deleteProject(id)
+                    await send(.fetchNoticeResponse(
+                        TaskResult {
+                            try await apiService.readAllNotices()
+                        }
+                    ))
+                }
+                
+            case let .fetchNoticeResponse(.success(response)):
+                state.notices = response
+                return .none
+                
+            case .projectItemTapped(id: _, action: .binding(\.$delete)):
+                return .run { send in
                     await send(.fetchAllProjects)
                 }
                 
@@ -231,7 +313,7 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
-                    await send(.setShowingProject(
+                    await send(.setShowingTap(
                         project: project
                     ))
                     await send(.clickedItem(
@@ -239,7 +321,7 @@ struct ProjectBoard: Reducer {
                         name: id
                     ))
                 }
-            
+                
             default:
                 return .none
             }

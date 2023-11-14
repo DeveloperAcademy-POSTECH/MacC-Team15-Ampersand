@@ -22,9 +22,7 @@ struct LayerControlAreaView: View {
                     HStack(spacing: 2) {
                         // MARK: - 엎기 >
                         LayerControlButton(componentWidth: 28) {
-                            viewStore.send(
-                                .showLowerLayer
-                            )
+                            
                         } label: {
                             Image(systemName: "arrow.forward")
                                 .font(.custom("Pretendard-Medium", size: 12))
@@ -52,16 +50,12 @@ struct LayerControlAreaView: View {
                                 }
                                 .contextMenu {
                                     Button {
-                                        viewStore.send(
-                                            .createLayer(layerIndex: layer - 1)
-                                        )
+                                        // TODO: - create Layer
                                     } label: {
                                         Text("Add a lower layer")
                                     }
                                     Button {
-                                        viewStore.send(
-                                            .createLayer(layerIndex: layer)
-                                        )
+                                        // TODO: - create Layer
                                     } label: {
                                         Text("Add a upper layer")
                                     }
@@ -81,9 +75,7 @@ struct LayerControlAreaView: View {
                         
                         // MARK: - < 엎기
                         LayerControlButton(componentWidth: 28) {
-                            viewStore.send(
-                                .showUpperLayer
-                            )
+                           
                         } label: {
                             Image(systemName: "arrow.backward")
                                 .font(.custom("Pretendard-Medium", size: 12))
@@ -95,12 +87,6 @@ struct LayerControlAreaView: View {
             }
         }
     }
-}
-
-#Preview {
-    LayerControlAreaView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-        PlanBoard()
-    })
 }
 
 struct LayerControlButton<Label: View>: View {

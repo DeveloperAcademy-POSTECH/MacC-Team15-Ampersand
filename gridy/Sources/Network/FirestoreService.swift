@@ -12,8 +12,12 @@ import FirebaseFirestoreSwift
 
 enum CollectionName: String {
     case plans = "Plans"
-    case lanes = "Lanes"
+    case deletedPlans = "DeletedPlans"
     case planTypes = "PlanTypes"
+    case deletedPlanTypes = "DeletedPlanTypes"
+    
+    case feedback = "Feedback"
+    case notice = "Notice"
 }
 
 struct FirestoreService {
@@ -34,12 +38,22 @@ struct FirestoreService {
         }
     }
     
+    static func independentPath(_ collection: CollectionName) -> CollectionReference {
+        return Firestore.firestore().collection(collection.rawValue)
+    }
+    
     static var projectCollectionPath: CollectionReference {
         get throws {
             return try basePath.collection("Projects")
         }
     }
 
+    static var deletedProjectCollectionPath: CollectionReference {
+        get throws {
+            return try basePath.collection("DeletedProjects")
+        }
+    }
+    
     static func collectionPath(
         _ projectID: String,
         _ collectionName: String

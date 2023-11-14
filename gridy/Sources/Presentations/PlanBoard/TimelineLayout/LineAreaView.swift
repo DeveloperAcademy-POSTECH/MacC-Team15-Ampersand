@@ -44,19 +44,7 @@ struct LineAreaView: View {
                                         to: today
                                     )!.filteredDate
                                 )
-                                viewStore.send(.createPlan(
-                                    // TODO: - Need arguments #1, #2
-                                    layer: 1,
-                                    row: 0,
-                                    target: Plan(
-                                        id: "",
-                                        parentLaneID: nil, // TODO: - root layer가 아니라면 parentLaneID 필요
-                                        periods: [:],
-                                        laneIDs: []
-                                    ),
-                                    startDate: startDate,
-                                    endDate: endDate
-                                ))
+                                // TODO: - Create plan
                             }
                         } label: {
                             Text("create Plan")
@@ -244,7 +232,6 @@ struct LineAreaView: View {
                     viewStore.send(.windowSizeChanged(newSize))
                 }
                 .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
-                    // TODO: - Action에서 처리해야 될 것 같은데
                     viewStore.send(.gridSizeChanged(geometry.size))
                 }
                 .onContinuousHover { phase in

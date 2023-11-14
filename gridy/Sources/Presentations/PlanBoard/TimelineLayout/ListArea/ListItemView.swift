@@ -36,14 +36,13 @@ struct ListItemView: View {
                         .overlay(
                             Text(editingText)
                                 .onAppear {
-                                    if let plan = viewStore.existingAllPlans[viewStore.map[String(layerIndex)]![rowIndex]],
-                                       let planTypeID = plan.planTypeID,
-                                       let planType = viewStore.existingPlanTypes[planTypeID] {
+                                    if let plan = viewStore.existingPlans[viewStore.map[layerIndex][rowIndex]],
+                                       let planType = viewStore.existingPlanTypes[plan.planTypeID] {
                                         let title = planType.title
                                         editingText = title
                                     } else {
                                         // TODO: - 옵셔널 분기 없어야함. map에 있는 ID로 existingAllPlans에 접근하면 무조건 있어야 함.
-                                        editingText = viewStore.map[String(layerIndex)]![rowIndex]
+                                        editingText = viewStore.map[layerIndex][rowIndex]
                                     }
                                 }
                         )
@@ -132,14 +131,4 @@ struct ListItemView: View {
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
-}
-
-#Preview {
-    ListItemView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
-    )
 }
