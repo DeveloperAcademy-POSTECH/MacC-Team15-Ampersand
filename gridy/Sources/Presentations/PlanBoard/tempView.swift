@@ -19,13 +19,7 @@ struct TempView: View {
             lastModifiedDate: Date(),
             rootPlanID: "",
             countLayerInListArea: 1
-        ),
-        rootPlan: Plan(
-            id: "0000",
-            planTypeID: "0000",
-            childPlanIDs: [:]
-        ),
-        map: [[]])) {
+        ))) {
             PlanBoard()
         }
     

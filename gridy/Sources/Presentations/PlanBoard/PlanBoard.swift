@@ -20,10 +20,10 @@ struct PlanBoard: Reducer {
     @Dependency(\.apiService) var apiService
     
     struct State: Equatable, Identifiable {
-        var rootProject: Project
+        @BindingState var rootProject: Project
         var id: String { rootProject.id }
-        var rootPlan: Plan
-        var map: [[String]]
+        var rootPlan = Plan.mock
+        var map: [[String]] = [[]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
@@ -179,7 +179,6 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - user action
             case .onAppear:
-                state.existingPlans = [state.rootPlan.id: state.rootPlan]
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)

@@ -74,17 +74,7 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(
-                        store: Store(
-                            initialState: PlanBoard.State(
-                                rootProject: viewStore.showingProject!,
-                                rootPlan: Plan.mock, // TODO: - fetch root plan
-                                map: [[]]
-                            )
-                        ) {
-                            PlanBoard()
-                        }
-                    )
+                    PlanBoardView(store: self.store.scope(state: \.optionalPlanBoard, action: { .optionalPlanBoard($0) }))
                 }
             }
             .onAppear {

@@ -76,6 +76,8 @@ struct ProjectBoard: Reducer {
         var isLogoutViewPresented = false
         var startDatePickerPresented = false
         var endDatePickerPresented = false
+        
+        var optionalPlanBoard = PlanBoard.State(rootProject: Project.mock)
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -106,7 +108,7 @@ struct ProjectBoard: Reducer {
         case sendFeedback(String)
         case fetchNotice
         case fetchNoticeResponse(TaskResult<[Notice]>)
-        
+
         case setSheet(isPresented: Bool)
         
         case projectItemOneTapped(id: String)
@@ -117,11 +119,14 @@ struct ProjectBoard: Reducer {
         
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
         case binding(BindingAction<State>)
-        
+        case optionalPlanBoard(PlanBoard.Action)
     }
     
     var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(state: \.optionalPlanBoard, action: /Action.optionalPlanBoard) {
+            PlanBoard()
+        }
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -248,6 +253,7 @@ struct ProjectBoard: Reducer {
                 
             case let .setShowingProject(project):
                 state.showingProject = project
+                state.optionalPlanBoard.rootProject = project
                 return .none
                 
             case let .deleteShowingProjects(projectID):
@@ -271,6 +277,7 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
+
                         await send(.setShowingProject(
                             project: project
                         ))
@@ -389,6 +396,7 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
+
                     await send(.setShowingProject(
                         project: project
                     ))
@@ -413,6 +421,11 @@ struct ProjectBoard: Reducer {
             case let .changeOption(option):
                 state.selectionOption = option
                 return .none
+                
+            case .optionalPlanBoard(.projectTitleChanged):
+                return .run { send in
+                    await send(.fetchAllProjects)
+                }
                 
             default:
                 return .none
