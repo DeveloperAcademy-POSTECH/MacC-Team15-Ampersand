@@ -40,19 +40,14 @@ struct PlanBoard: Reducer {
         /// 그리드 규격에 대한 변수들입니다.
         var columnStroke = CGFloat(1)
         var rowStroke = CGFloat(1)
-        var gridWidth = CGFloat(50)
         let minGridSize = CGFloat(20)
         let maxGridSize = CGFloat(70)
-<<<<<<< HEAD
-        var lineAreaGridHeight = CGFloat(50)
-        var scheduleAreaGridHeight = CGFloat(25)
-=======
+
         var gridWidth = CGFloat(45)
         var scheduleAreaGridHeight = CGFloat(45)
         var lineAreaGridHeight = CGFloat(45)
         var horizontalMagnification = CGFloat(1.0)
         var verticalMagnification = CGFloat(1.0)
->>>>>>> 9608e741aad40e5d28a928024873facd62d96816
         
         /// hover나 click된 영역을 구분합니다.
         var hoveredArea: PlanBoardAreaName?
@@ -181,26 +176,18 @@ struct PlanBoard: Reducer {
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
         case onContinuousHover(Bool, CGPoint?)
-<<<<<<< HEAD
         case setHoveredCell(PlanBoardAreaName, Bool, CGPoint?)
-        case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
-        case dragGestureEnded(SelectedGridRange?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        case createLayer(layerIndex: Int)
-        case createLayerResponse(TaskResult<[String: [String]]>)
         case emptyListItemDoubleClicked(Bool)
         case listItemDoubleClicked(Bool)
         case keywordChanged(String)
         
         case setSheet(Bool)
-=======
-        case magnificationChangedInListArea(CGFloat, CGSize)
-        
+
         // MARK: - map
         case reloadMap
->>>>>>> 9608e741aad40e5d28a928024873facd62d96816
     }
     
     var body: some Reducer<State, Action> {
@@ -596,14 +583,6 @@ struct PlanBoard: Reducer {
                 }
                 
                 // MARK: - listArea
-<<<<<<< HEAD
-            case let .createLayer(layerIndex):
-                let projectId = state.rootProject.id
-                return .run { send in
-                    await send(.createLayerResponse(
-                        TaskResult {
-                            try await apiService.createLayer(layerIndex, projectId)
-=======
             case let .createLayerButtonClicked(layer):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
@@ -628,7 +607,6 @@ struct PlanBoard: Reducer {
                         state.existingPlans[prevPlanID]!.childPlanIDs[String(index)] = [newPlan.id]
                         if prevPlanID != state.rootPlan.id {
                             updatedPlans.append(state.existingPlans[prevPlanID]!)
->>>>>>> 9608e741aad40e5d28a928024873facd62d96816
                         }
                     }
                     if prevPlanID == state.rootPlan.id && state.existingPlans[prevPlanID]!.childPlanIDs.isEmpty {
@@ -1713,7 +1691,6 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-<<<<<<< HEAD
             case let .setHoveredCell(area, isActive, location):
                 if area == .listArea {
                     state.isHoveredOnListArea = isActive
@@ -1745,7 +1722,7 @@ struct PlanBoard: Reducer {
                     state.selectedListRow = state.listAreaHoveredCellRow
                     state.selectedListColumn = state.listAreaHoveredCellCol
                     
-                    let planId = state.map[String(state.selectedListColumn!)]![state.selectedListRow!]
+                    let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
                     state.keyword = planId
                 } else {
                     state.selectedListRow = nil
@@ -1756,34 +1733,7 @@ struct PlanBoard: Reducer {
             case let .keywordChanged(newKeyword):
                 state.keyword = newKeyword
                 return .none
-                
-            case let .dragGestureChanged(dragType, updatedRange):
-                switch dragType {
-                case .pressNothing:
-                    state.selectedGridRanges = []
-                case .pressOnlyShift:
-                    if let updatedRange = updatedRange {
-                        state.selectedGridRanges = [updatedRange]
-                    }
-                case .pressOnlyCommand:
-                    break
-                case .pressBoth:
-                    if let lastIndex = state.selectedGridRanges.indices.last,
-                       let updatedRange = updatedRange {
-                        state.selectedGridRanges[lastIndex] = updatedRange
-                    }
-                }
-                return .none
-                
-            case let .dragGestureEnded(newRange):
-                if let newRange = newRange {
-                    state.selectedGridRanges.append(newRange)
-                }
-                state.exceededCol = 0
-                return .none
-                
-=======
->>>>>>> 9608e741aad40e5d28a928024873facd62d96816
+            
             case let .magnificationChangedInListArea(value, geometrySize):
                 state.gridWidth = min(
                     max(

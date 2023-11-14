@@ -76,16 +76,11 @@ struct ProjectBoardView: View {
                 } else {
                     PlanBoardView(
                         store: Store(
-<<<<<<< HEAD
-                            // TODO: - map: [[]]로 변경
-                            initialState: PlanBoard.State(rootProject: viewStore.showingProject!, map: ["0": ["hi"], "1": ["1", "2", "3"]])
-=======
                             initialState: PlanBoard.State(
                                 rootProject: viewStore.showingProject!,
                                 rootPlan: Plan.mock, // TODO: - fetch root plan
                                 map: [[]]
                             )
->>>>>>> 9608e741aad40e5d28a928024873facd62d96816
                         ) {
                             PlanBoard()
                         }

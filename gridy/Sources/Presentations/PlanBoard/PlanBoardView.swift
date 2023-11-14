@@ -265,7 +265,7 @@ extension PlanBoardView {
                     listMap
 //                    HStack(alignment: .top, spacing: viewStore.columnStroke) {
 //                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
-//                            let layer = viewStore.map[String(layerIndex)]!
+//                            let layer = viewStore.map[layerIndex]
 //                            VStack(alignment: .leading, spacing: viewStore.rowStroke) {
 //                                ForEach(layer.indices, id: \.self) { rowIndex in
 //                                    ListItemView(store: store, layer: layerIndex, row: rowIndex)
@@ -299,7 +299,7 @@ extension PlanBoardView {
                 
                 HStack(alignment: .top, spacing: viewStore.columnStroke) {
                     ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
-                        let layer = viewStore.map[String(layerIndex)]!
+                        let layer = viewStore.map[layerIndex]
                         VStack(alignment: .leading, spacing: viewStore.rowStroke) {
                             ForEach(layer.indices, id: \.self) { rowIndex in
                                 /// doubleClick 되었을 떄
@@ -329,7 +329,7 @@ extension PlanBoardView {
                                     Rectangle()
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
                                         .overlay(
-                                            Text(viewStore.map[String(layerIndex)]![rowIndex])
+                                            Text(viewStore.map[layerIndex][rowIndex])
                                         )
                                         .onTapGesture(count: 2) {
                                             listItemFocused = true
@@ -384,7 +384,7 @@ struct ListItemView: View {
                 Rectangle()
                     .fill(viewStore.listAreaHoveredCellCol == layer && viewStore.listAreaHoveredCellRow == row ? Color.itemHovered : Color.list)
                     .overlay(
-                        Text(viewStore.map[String(layer)]![row])
+                        Text(viewStore.map[layer][row])
                     )
                     .onTapGesture(count: 2) {
                         textFieldFocused = true
