@@ -198,8 +198,12 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - user action
             case .fetchRootPlan:
-                state.rootPlan = state.existingPlans[state.rootProject.rootPlanID]!
-                state.existingPlans = [state.rootPlan.id: state.rootPlan]
+                if let foundRootPlan = state.existingPlans[state.rootProject.rootPlanID] {
+                    state.rootPlan = foundRootPlan
+                } else {
+                    state.rootPlan.id = state.rootProject.rootPlanID
+                }
+//                state.existingPlans = [state.rootPlan.id: state.rootPlan]
                 
                 return .run { send in
                     await send(.reloadMap)
@@ -384,7 +388,6 @@ struct PlanBoard: Reducer {
                 // MARK: - plan
             case let .createPlanOnList(layer, row, text, colorCode):
                 if text.isEmpty { return .none }
-//                state.rootProject.countLayerInListArea = layer
                 
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
@@ -576,6 +579,7 @@ struct PlanBoard: Reducer {
                     ))
                 }
                 
+            // TODO: - 삭제
             case let .readPlansResponse(.failure(_)):
                 print("fail")
                 return .none
@@ -1775,8 +1779,6 @@ struct PlanBoard: Reducer {
                 var totalLoop = 0
                 
                 while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
-                    print("===planIDsQ")
-                    print("\(planIDsQ)")
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
@@ -1792,8 +1794,6 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
-                print("===reload map")
-                print(state.map)
                 return .none
                 
             default:

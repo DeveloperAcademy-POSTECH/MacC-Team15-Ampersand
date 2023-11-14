@@ -254,7 +254,12 @@ extension PlanBoardView {
                                 .textFieldStyle(.plain)
                                 .padding(.horizontal, 16)
                                 .onSubmit {
-                                    viewStore.send(.createPlanOnList(layer: viewStore.selectedEmptyColumn!, row: viewStore.selectedEmptyRow!, text: viewStore.keyword, colorCode: PlanType.emptyPlanType.colorCode))
+                                    viewStore.send(.createPlanOnList(
+                                        layer: viewStore.selectedEmptyColumn!,
+                                        row: viewStore.selectedEmptyRow!,
+                                        text: viewStore.keyword,
+                                        colorCode: PlanType.emptyPlanType.colorCode)
+                                    )
                                     viewStore.send(.emptyListItemDoubleClicked(false))
                                 }
                                 .onExitCommand {
@@ -333,7 +338,9 @@ extension PlanBoardView {
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
                                         .overlay {
                                             let planID = viewStore.map[layerIndex][rowIndex]
-                                            Text("\(viewStore.existingPlanTypes[planID]!.title)")
+                                            let planTypeID = viewStore.existingPlans[planID]!.planTypeID
+                                            
+                                            Text("\(viewStore.existingPlanTypes[planTypeID]!.title)")
                                         }
                                         .onTapGesture(count: 2) {
                                             listItemFocused = true
