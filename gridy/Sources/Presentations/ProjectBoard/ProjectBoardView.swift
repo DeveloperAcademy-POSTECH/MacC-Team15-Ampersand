@@ -9,27 +9,32 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProjectBoardView: View {
-    @State private var isExpanded = true
-    
     let store: StoreOf<ProjectBoard>
-    let planBoardStore = Store(
-        initialState: PlanBoard.State(
-            rootProject: Project(
-                id: "id",
-                title: "title",
-                ownerUid: "uid",
-                createdDate: Date(),
-                lastModifiedDate: Date(),
-                map: ["": [""]]
-            ), map: ["": [""]]
-        )
-    ) {
-        PlanBoard()
-            ._printChanges()
-    }
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isUserSettingPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isUserSettingPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .userSettingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            var isThemeSettingButton: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isThemeSettingPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .themeSettingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             VStack(alignment: .leading, spacing: 0) {
                 TabBarView(store: store)
                     .frame(height: 36)
@@ -39,8 +44,20 @@ struct ProjectBoardView: View {
                     HStack(alignment: .top, spacing: 0) {
                         VStack(alignment: .leading, spacing: 0) {
                             userSettingArea
+                                .popover(
+                                    isPresented: isUserSettingPresented,
+                                    attachmentAnchor: .point(.bottom),
+                                    arrowEdge: .bottom
+                                ) {
+                                    UserSettingView(store: store)
+                                        .popover(isPresented: isThemeSettingButton, arrowEdge: .trailing) {
+                                            themeSelect
+                                        }
+                                }
                             systemBorder(.horizontal)
-                            calendarArea.frame(height: 280)
+                            calendarArea
+                                .frame(height: 280)
+                                .padding(.horizontal, 16)
                             systemBorder(.horizontal)
                             boardSearchArea
                             projectListArea
@@ -57,11 +74,14 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(
-                        store: planBoardStore,
-                        tabID: viewStore.tabBarFocusGroupClickedItem
+                    PlanBoardView(store: self.store.scope(
+                        state: \.optionalPlanBoard,
+                        action: { .optionalPlanBoard($0) })
                     )
                 }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }
@@ -70,12 +90,23 @@ struct ProjectBoardView: View {
 extension ProjectBoardView {
     var userSettingArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            var isUserSettingPresented: Binding<Bool> {
+            var isSettingsViewPresented: Binding<Bool> {
                 Binding(
-                    get: { viewStore.isUserSettingPresented },
+                    get: { viewStore.isSettingsViewPresented },
                     set: { newValue in
                         viewStore.send(.popoverPresent(
-                            button: .userSettingButton,
+                            button: .settingButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            var isLogoutViewPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isLogoutViewPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .logoutButton,
                             bool: newValue
                         ))
                     }
@@ -85,7 +116,7 @@ extension ProjectBoardView {
                 Circle()
                     .foregroundStyle(Color.blackWhite)
                     .frame(width: 24, height: 24)
-                Text("HongGilDong")
+                Text(viewStore.user.username)
                     .foregroundStyle(Color.title)
                     .fontWeight(.medium)
                 Image(systemName: "chevron.down")
@@ -111,8 +142,11 @@ extension ProjectBoardView {
                     bool: !viewStore.isUserSettingPresented
                 ))
             }
-            .sheet(isPresented: isUserSettingPresented) {
-                UserSettingView()
+            .sheet(isPresented: isSettingsViewPresented) {
+                SettingsView(store: store)
+            }
+            .sheet(isPresented: isLogoutViewPresented) {
+                LogoutView(store: store)
             }
         }
     }
@@ -120,30 +154,99 @@ extension ProjectBoardView {
 
 extension ProjectBoardView {
     var calendarArea: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 32)
-                .foregroundStyle(Color.item)
-                .aspectRatio(1, contentMode: .fit)
-                .overlay(
-                    Text("CalendarArea")
-                        .foregroundStyle(.black)
-                )
-                .padding(16)
+                .foregroundStyle(viewStore.hoveredItem == "calendarArea" ? Color.itemHovered : .item)
+                .frame(width: 248, height: 248)
+                .overlay {
+                    GeometryReader { _ in
+                        VStack(alignment: .center, spacing: 4) {
+                            HStack(alignment: .center, spacing: 16) {
+                                Text("\(viewStore.currentDate.formattedMonth) 월")
+                                    .foregroundStyle(Color.black)
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                                Image(systemName: "chevron.left")
+                                    .font(.body)
+                                    .foregroundColor(Color.gray)
+                                    .onTapGesture { viewStore.send(.changeMonth(monthIndex: -1))}
+                                Image(systemName: "chevron.right")
+                                    .font(.body)
+                                    .foregroundColor(Color.gray)
+                                    .onTapGesture { viewStore.send(.changeMonth(monthIndex: 1))}
+                            }
+                            .padding(.horizontal, 24)
+                            HStack(alignment: .top, spacing: 5) {
+                                ForEach(viewStore.days, id: \.self) { day in
+                                    Text(day)
+                                        .font(.callout)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(day == "일" ? Color.gray : .black)
+                                        .frame(width: 25, height: 25)
+                                }
+                            }
+                            let columns = Array(repeating: GridItem(.fixed(25), spacing: 5), count: 7)
+                            LazyVGrid(columns: columns, spacing: viewStore.currentDate.extractDate().count > 35 ? 0 : 6) {
+                                ForEach(viewStore.currentDate.extractDate()) { value in
+                                    cardView(value: value)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                    .offset(y: 24)
+                }
+                .scaleEffect(viewStore.hoveredItem == "calendarArea" ? 1.02 : 1)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "calendarArea" : ""))
+                }
+        }
+    }
+    
+    @ViewBuilder
+    func cardView(value: DateValue) -> some View {
+        ZStack {
+            if value.day != -1 {
+                let isToday = Calendar.current.isDateInToday(value.date)
+                let isSunday = value.date.dayOfSunday() == 1
+                Circle()
+                    .frame(width: 25, height: 25)
+                    .foregroundColor(isToday ? Color.black : .clear)
+                Text("\(value.day)")
+                    .font(.title3)
+                    .bold(isToday ? true : false)
+                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : .black)
+            }
         }
     }
 }
 
 extension ProjectBoardView {
     var boardSearchArea: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color.item)
-                .frame(height: 32)
-                .overlay(
-                    Text("BoardSearchArea")
-                        .foregroundStyle(Color.textInactive)
-                )
-                .padding(16)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == "searchTextFieldHover" ? Color.itemHovered : .item)
+                    .frame(height: 32)
+                HStack(alignment: .center, spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .frame(width: 20, height: 20)
+                    TextField(
+                        "Search",
+                        text: viewStore.binding(
+                            get: \.searchPlanBoardText,
+                            send: { .searchTitleChanged($0) }
+                        )
+                    )
+                    .textFieldStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+            }
+            .padding(8)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? "searchTextFieldHover" : ""))
+            }
         }
     }
 }
@@ -151,13 +254,24 @@ extension ProjectBoardView {
 extension ProjectBoardView {
     var projectListArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isDisclosureGroupExpanded: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isDisclosureGroupExpanded },
+                    set: { newValue in
+                        viewStore.send(.disclosurePresent(
+                            button: .disclosureFolderButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             Section(header: Text("Projects")
                 .fontWeight(.medium)
                 .padding(.leading, 16)
                 .padding(.bottom, 8)
             ) {
                 ScrollView(showsIndicators: false) {
-                    DisclosureGroup(isExpanded: $isExpanded) {
+                    DisclosureGroup(isExpanded: isDisclosureGroupExpanded) {
                         ForEach(0..<4, id: \.self) { index in
                             Folder(store: store, id: index)
                         }
@@ -167,7 +281,7 @@ extension ProjectBoardView {
                                 .foregroundStyle(.clear)
                                 .frame(width: 24, height: 24)
                                 .overlay(
-                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                    Image(systemName: viewStore.isDisclosureGroupExpanded ? "chevron.down" : "chevron.right")
                                         .foregroundColor(Color.subtitle)
                                 )
                             Label("Personal Project", systemImage: "person.crop.square.fill")
@@ -177,17 +291,18 @@ extension ProjectBoardView {
                             Spacer()
                         }
                         .padding(.leading, 16)
+                        .onHover { isHovered in
+                            viewStore.send(.hoveredItem(name: isHovered ? "personalProject" : ""))
+                        }
                         .background(
-                            viewStore.projectListFocusGroupClickedItem == "personalProject" ?
+                            viewStore.isDisclosureGroupExpanded || viewStore.hoveredItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
-                        .onHover { isHovered in
-                            viewStore.send(.hoveredItem(
-                                name: isHovered ? "personalProject" : ""
-                            )
-                            )
-                        }
                         .onTapGesture {
+                            viewStore.send(.disclosurePresent(
+                                button: .disclosureFolderButton,
+                                bool: !viewStore.isDisclosureGroupExpanded
+                            ))
                             viewStore.send(.clickedItem(
                                 focusGroup: .projectListFocusGroup,
                                 name: "personalProject")
@@ -205,6 +320,7 @@ extension ProjectBoardView {
         var id: Int
         
         var body: some View {
+            // TODO: - 현재 폴더 없는 상태. 더미로 보여주고 있는 폴더 일단은 숨기기
             WithViewStore(store, observe: { $0 }) { viewStore in
                 HStack(alignment: .center, spacing: 0) {
                     Text("Folder")
@@ -237,12 +353,7 @@ extension ProjectBoardView {
     private struct MyDisclosureStyle: DisclosureGroupStyle {
         func makeBody(configuration: Configuration) -> some View {
             VStack(alignment: .leading, spacing: 0) {
-                Button {
-                    configuration.isExpanded.toggle()
-                } label: {
-                    configuration.label
-                }
-                .buttonStyle(.plain)
+                configuration.label
                 if configuration.isExpanded {
                     configuration.content
                 }
@@ -265,15 +376,30 @@ extension ProjectBoardView {
                     }
                 )
             }
+            var isEditPlanBoardPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isEditPlanBoardPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .editPlanBoardButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(Color.subtitle)
-                        .fontWeight(.medium)
+                        .foregroundStyle(viewStore.hoveredItem == .galleryBackButton ? Color.title : .subtitle)
+                        .fontWeight(viewStore.hoveredItem == .galleryBackButton ? .bold : .medium)
                         .padding(8)
                         .frame(width: 32, height: 32)
+                        .scaleEffect(viewStore.hoveredItem == .galleryBackButton ? 1.02 : 1)
                         .onTapGesture {
                             // TODO: - Back Button Clicked
+                        }
+                        .onHover { isHovered in
+                            viewStore.send(.hoveredItem(name: isHovered ? .galleryBackButton : ""))
                         }
                     Text("Folder")
                         .font(.title)
@@ -287,7 +413,7 @@ extension ProjectBoardView {
                     } label: {
                         RoundedRectangle(cornerRadius: 22)
                             .foregroundStyle(viewStore.hoveredItem == .createPlanBoardButton ?
-                                             Color.boardSelectedBorder : Color.button)
+                                             Color.boardSelectedBorder : .button)
                             .shadow(
                                 color: .black.opacity(0.25),
                                 radius: 4,
@@ -312,8 +438,13 @@ extension ProjectBoardView {
                 ZStack(alignment: .bottom) {
                     ScrollView(showsIndicators: false) {
                         LazyVGrid(columns: columns, spacing: 32) {
-                            ForEach(0..<20, id: \.self) { index in
-                                PlanBoardItem(store: store, id: index)
+                            ForEachStore(
+                                store.scope(
+                                    state: \.projects,
+                                    action: { .projectItemTapped(id: $0, action: $1) }
+                                )
+                            ) {
+                                PlanBoardItem(store: $0)
                             }
                         }
                         .padding(32)
@@ -328,7 +459,10 @@ extension ProjectBoardView {
             }
             .background(Color.project)
             .sheet(isPresented: isCreatePlanBoardPresented) {
-                CreatePlanBoardView()
+                CreatePlanBoardView(store: store)
+            }
+            .sheet(isPresented: isEditPlanBoardPresented) {
+                EditPlanBoardView(store: store)
             }
         }
     }
@@ -338,20 +472,18 @@ extension ProjectBoardView {
     }
     
     private struct PlanBoardItem: View {
-        @State var planBoardItemHover = false
-        let store: StoreOf<ProjectBoard>
-        var id: Int
+        let store: StoreOf<ProjectItem>
         
         var body: some View {
-            WithViewStore(store, observe: { $0 }) { _ in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .foregroundStyle(Color.board)
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(planBoardItemHover ? Color.boardHoveredBorder : .clear)
+                            .strokeBorder(viewStore.isSelected ? Color.blue : viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? Color.boardHoveredBorder : .clear)
                             .shadow(
-                                color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                                color: viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? .black.opacity(0.25) : .clear,
                                 radius: 8
                             )
                             .clipShape(
@@ -360,12 +492,18 @@ extension ProjectBoardView {
                     }
                     .aspectRatio(3/2, contentMode: .fit)
                     .shadow(
-                        color: planBoardItemHover ? .black.opacity(0.25) : .clear,
+                        color: viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? .black.opacity(0.25) : .clear,
                         radius: 4,
                         y: 4
                     )
+                    .onTapGesture {
+                        viewStore.$isSelected.wrappedValue.toggle()
+                    }
+                    .highPriorityGesture(TapGesture(count: 2).onEnded({
+                        viewStore.$isTapped.wrappedValue.toggle()
+                    }))
                     Spacer().frame(height: 8)
-                    Text("Board Name")
+                    Text(viewStore.project.title)
                         .fontWeight(.medium)
                         .font(.system(size: 18))
                         .foregroundStyle(Color.title)
@@ -373,18 +511,124 @@ extension ProjectBoardView {
                         .font(.caption)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.subtitle)
-                    Text("Last updated on 2023.10.17")
+                    Text("Last updated on \(viewStore.project.lastModifiedDate.formattedDate)")
                         .font(.caption)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(Color.textInactive)
                 }
-                .scaleEffect(planBoardItemHover ? 1.02 : 1)
+                .scaleEffect(viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? 1.02 : 1)
                 .onHover { isHovered in
-                    withAnimation(.easeInOut(duration: 0.1)) {
-                        planBoardItemHover = isHovered
+                    viewStore.send(.hoveredItem(name: isHovered ? .planBoardItemButton + "\(viewStore.id)" : ""))
+                }
+                .contextMenu {
+                    Button("Edit") {
+                        viewStore.$isEditing.wrappedValue.toggle()
+                    }
+                    
+                    Button("Delete") {
+                        viewStore.$isDeleted.wrappedValue.toggle()
                     }
                 }
             }
+        }
+    }
+}
+
+extension ProjectBoardView {
+    var themeSelect: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Automatic")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(viewStore.themeFocusGroupClickedItem == .automaticButton ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem == .automaticButton ?
+                            Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear
+                        )
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "automatic" : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .automaticButton
+                    ))
+                }
+                
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Light")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem == .lightButton ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem == .lightButton ?
+                            Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear
+                        )
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "light" : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .lightButton
+                    ))
+                }
+                
+                HStack(alignment: .center, spacing: 0) {
+                    Text("Dark")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem == .darkButton ? Color.title : .clear)
+                }
+                .frame(height: 40)
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(
+                            viewStore.themeFocusGroupClickedItem == .darkButton ?
+                            Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear
+                        )
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "dark" : ""))
+                }
+                .onTapGesture {
+                    viewStore.send(.clickedItem(
+                        focusGroup: .themeFocusGroup,
+                        name: .darkButton
+                    ))
+                }
+            }
+            .padding(16)
+            .frame(width: 170, height: 168)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.blackWhite.opacity(0.3))
+            )
         }
     }
 }

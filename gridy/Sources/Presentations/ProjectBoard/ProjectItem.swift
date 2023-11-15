@@ -17,24 +17,18 @@ struct ProjectItem: Reducer {
     struct State: Equatable, Identifiable {
         @BindingState var project = Project.mock
         var id: String { project.id }
-        @BindingState var delete = false
-        @BindingState var showSheet = false
+        @BindingState var isDeleted = false
+        @BindingState var isEditing = false
         @BindingState var isTapped = false
+        @BindingState var isSelected = false
         var isHovering = false
-        
-        /// Navigation
-        var isNavigationActive = false
-        var optionalPlanBoard: PlanBoard.State?
+        var hoveredItem = ""
     }
     
     enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
         case isHovering(hovered: Bool)
-        
-        /// Navigation
-        case optionalPlanBoard(PlanBoard.Action)
-        case setNavigation(isActive: Bool)
-        case setNavigationIsActiveDelayCompleted
+        case hoveredItem(name: String)
     }
     
     var body: some Reducer<State, Action> {
@@ -44,35 +38,14 @@ struct ProjectItem: Reducer {
             case .binding:
                 return .none
                 
+            case let .hoveredItem(name: hoveredItem):
+                state.hoveredItem = hoveredItem
+                return .none
+                
             case let .isHovering(hovered):
                 state.isHovering = hovered
                 return .none
-                
-                /// Navigation
-            case .setNavigation(isActive: true):
-                state.isNavigationActive = true
-                return .run { send in
-                    try await continuousClock.sleep(for: .seconds(1))
-                    await send(.setNavigationIsActiveDelayCompleted)
-                }
-                .cancellable(id: CancelID.load)
-                
-            case .setNavigation(isActive: false):
-                state.isNavigationActive = false
-                state.optionalPlanBoard = nil
-                state.isHovering = false
-                return .cancel(id: CancelID.load)
-                
-            case .setNavigationIsActiveDelayCompleted:
-                state.optionalPlanBoard = PlanBoard.State(rootProject: state.project, map: state.project.map)
-                return .none
-                
-            case .optionalPlanBoard:
-                return .none
             }
-        }
-        .ifLet(\.optionalPlanBoard, action: /Action.optionalPlanBoard) {
-            PlanBoard()
         }
     }
 }

@@ -43,3 +43,10 @@ enum DayOfWeek: String {
          }
      }
  }
+
+// TODO: - DateInfo로 합칠 수 있으면 합치기
+struct DateValue: Identifiable {
+    var id = UUID().uuidString
+    var day: Int
+    var date: Date
+}

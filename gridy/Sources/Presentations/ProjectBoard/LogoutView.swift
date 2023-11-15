@@ -1,56 +1,47 @@
 //
-//  CreateFolderView.swift
+//  LogoutView.swift
 //  gridy
 //
-//  Created by xnoag on 11/1/23.
+//  Created by xnoag on 11/5/23.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct CreateFolderView: View {
+struct LogoutView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        VStack(alignment: .center, spacing: 24) {
-            folderNameTextField
+        VStack(alignment: .center, spacing: 8) {
+            Text("Logout Message")
+                .font(.headline)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.title)
+            Text("Logout Message")
+                .font(.subheadline)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.subtitle)
+                .padding(.bottom, 16)
             HStack(alignment: .center, spacing: 8) {
                 cancel
-                create
+                logout
             }
         }
-        .padding(24)
-        .frame(width: 480, height: 160)
-    }
-}
-
-extension CreateFolderView {
-    var folderNameTextField: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
+        .padding(16)
+        .background(
             RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.item)
-                .frame(height: 48)
-                .overlay(
-                    TextField(
-                        "Folder Name",
-                        text: viewStore.binding(
-                            get: \.folderName,
-                            send: { .folderTitleChanged($0) }
-                        )
-                    )
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 16)
-                )
-        }
+                .foregroundStyle(Color.blackWhite)
+        )
+        .frame(width: 300, height: 150)
     }
 }
 
-extension CreateFolderView {
+extension LogoutView {
     var cancel: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 viewStore.send(.popoverPresent(
-                    button: .createFolderButton,
+                    button: .logoutButton,
                     bool: false
                 ))
             } label: {
@@ -72,20 +63,17 @@ extension CreateFolderView {
     }
 }
 
-extension CreateFolderView {
-    var create: some View {
+extension LogoutView {
+    var logout: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                viewStore.send(.popoverPresent(
-                    button: .createFolderButton,
-                    bool: false
-                ))
+                // TODO: - Logout Button
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == .createButton ? Color.buttonHovered : .button)
+                    .foregroundStyle(viewStore.hoveredItem == .logoutButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
-                        Text("Create")
+                        Text("Logout")
                             .font(.body)
                             .fontWeight(.regular)
                             .foregroundStyle(Color.buttonText)
@@ -93,7 +81,7 @@ extension CreateFolderView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? .createButton : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .logoutButton : ""))
             }
         }
     }

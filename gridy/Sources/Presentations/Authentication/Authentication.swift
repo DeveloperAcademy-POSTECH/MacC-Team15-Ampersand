@@ -23,21 +23,23 @@ struct Authentication: Reducer {
         var successToSignIn = false
         var authenticatedUser = User.mock
         var isProceeding = false
+        var isShowingProjectBoard = false
         
         /// Navigation
-        var optionalProjectBoard = ProjectBoard.State()
+        var optionalProjectBoard = ProjectBoard.State(user: User.mock)
     }
     
     enum Action: Equatable, Sendable {
         case onAppear
         case createEncryptedNonce
-        case notYetRegistered(String, String, AuthCredential) // Then sign up
+        case notYetRegistered(User, AuthCredential) // Then sign up
         case signInSuccessfully(AuthCredential)
         case fetchUser
         case fetchUserResponse(TaskResult<User?>)
         case setProcessing(Bool)
         
         /// Navigation
+        case goBtnClicked(clicked: Bool)
         case optionalProjectBoard(ProjectBoard.Action)
         case setNavigation(isActive: Bool)
     }
@@ -58,10 +60,10 @@ struct Authentication: Reducer {
                 }
                 return .none
                 
-            case let .notYetRegistered(email, username, credential):
+            case let .notYetRegistered(user, credential):
                 return .run { send in
                     await send(.setProcessing(true))
-                    try await apiClient.signUp(email, username, credential)
+                    try await apiClient.signUp(user, credential)
                     await send(.fetchUser)
                 }
                 
@@ -85,8 +87,8 @@ struct Authentication: Reducer {
                 
             case let .fetchUserResponse(.success(response)):
                 state.authenticatedUser = response ?? User.mock
+                state.optionalProjectBoard.user = state.authenticatedUser
                 state.successToSignIn = true
-                // TODO: - navigation 로직 수정필요 @제나
                 return .none
                 
             case .fetchUserResponse(.failure):
@@ -106,6 +108,10 @@ struct Authentication: Reducer {
                 
             case .setNavigation(isActive: false):
                 return .cancel(id: CancelID.load)
+                
+            case let .goBtnClicked(clicked):
+                state.isShowingProjectBoard = clicked
+                return .none
                 
             case .optionalProjectBoard:
                 return .none

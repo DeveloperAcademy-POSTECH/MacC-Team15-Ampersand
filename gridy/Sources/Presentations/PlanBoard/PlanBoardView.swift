@@ -14,14 +14,13 @@ struct PlanBoardView: View {
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
     let store: StoreOf<PlanBoard>
-    let tabID: String
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(alignment: .leading, spacing: 0) {
                 systemBorder(.horizontal)
                     .zIndex(5)
-                TopToolBarView(store: store, tabID: tabID)
+                TopToolBarView(store: store)
                     .frame(height: 48)
                     .zIndex(5)
                 planBoardBorder(.horizontal)
@@ -251,19 +250,7 @@ extension PlanBoardView {
                                         to: today
                                     )!.filteredDate
                                 )
-                                viewStore.send(.createPlan(
-                                    // TODO: - Need arguments #1, #2
-                                    layer: 1,
-                                    row: 0,
-                                    target: Plan(
-                                        id: "",
-                                        parentLaneID: nil, // TODO: - root layer가 아니라면 parentLaneID 필요
-                                        periods: [:],
-                                        laneIDs: []
-                                    ),
-                                    startDate: startDate,
-                                    endDate: endDate
-                                ))
+                                // TODO: create plan on line
                             }
                         } label: {
                             Text("create Plan")

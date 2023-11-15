@@ -12,22 +12,36 @@ struct TabBarView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isNotificationPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.isNotificationPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .notificationButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             HStack(alignment: .center, spacing: 0) {
                 windowControlsButton
                 systemBorder(.vertical)
                 homeButton
                 systemBorder(.vertical)
-                ForEach(0...2, id: \.self) { index in
+                ForEach(viewStore.showingProjects, id: \.self) { id in
                     TabItemView(
                         store: store,
-                        index: index
+                        projectID: id
                     )
                     systemBorder(.vertical)
                 }
                 Spacer()
                 systemBorder(.vertical)
                 notificationButton
+                    .popover(isPresented: isNotificationPresented, attachmentAnchor: .point(.bottom)) {
+                        NotificationView(store: store)
+                    }
             }
             .background(Color.tabBar)
         }
@@ -118,57 +132,70 @@ extension TabBarView {
                     .frame(width: 5, height: 5)
                     .offset(x: 3, y: -3)
             }
-            .sheet(isPresented: isNotificationPresented) {
-                NotificationView()
-            }
         }
     }
 }
 
 struct TabItemView: View {
     let store: StoreOf<ProjectBoard>
-    @State var isDeleteButtonHovered = false
-    let index: Int
+    let projectID: String
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text("BoardName\(index)")
-                    .fontWeight(.medium)
-                    .padding(.leading, 16)
-                    .foregroundStyle(
-                        viewStore.hoveredItem == "tabName:\(index)" ||
-                        viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
-                        Color.tabLabel : Color.tabLabelInactive
-                    )
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(Color.clear)
+                    Text(viewStore.projects[id: projectID]!.project.title)
+                        .fontWeight(.medium)
+                        .padding(.leading, 16)
+                        .foregroundStyle(
+                            viewStore.hoveredItem == projectID ||
+                            viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
+                            viewStore.tabBarFocusGroupClickedItem == projectID ?
+                            Color.tabLabel : .tabLabelInactive
+                        )
+                }
+                .frame(height: 36)
+                .fixedSize()
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
+                }
                 Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(width: 32)
+                    .foregroundStyle(Color.clear)
+                    .aspectRatio(1, contentMode: .fit)
                     .overlay(
                         Image(systemName: "xmark")
                             .foregroundStyle(
-                                isDeleteButtonHovered ?
-                                Color.tabLabel : viewStore.hoveredItem == "tabName:\(index)" ||
-                                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
-                                Color.subtitle : Color.clear
+                                viewStore.hoveredItem == .tabItemDeleteButton + projectID ?
+                                Color.tabLabel : viewStore.hoveredItem == projectID ||
+                                viewStore.tabBarFocusGroupClickedItem == projectID ?
+                                Color.subtitle : .clear
                             )
                     )
                     .onHover { isHovered in
-                        isDeleteButtonHovered = isHovered
+                        viewStore.send(.hoveredItem(name: isHovered ? .tabItemDeleteButton + projectID : ""))
+                    }
+                    .onTapGesture {
+                        viewStore.send(.deleteShowingTab(projectID: projectID))
                     }
             }
             .background(
-                viewStore.hoveredItem == "tabName:\(index)" ||
-                viewStore.tabBarFocusGroupClickedItem == "tabName:\(index)" ?
-                Color.tabHovered : Color.tabBar
+                viewStore.hoveredItem == projectID ||
+                viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
+                viewStore.tabBarFocusGroupClickedItem == projectID ?
+                Color.tabHovered : .tabBar
             )
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "tabName:\(index)" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
             }
             .onTapGesture {
                 viewStore.send(.clickedItem(
                     focusGroup: .tabBarFocusGroup,
-                    name: "tabName:\(index)"
+                    name: projectID
+                ))
+                viewStore.send(.setShowingTab(
+                    project: viewStore.projects[id: projectID]!.project
                 ))
             }
         }

@@ -32,7 +32,7 @@ struct ListItemEmptyView: View {
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
                 if !isSelected && !isEditing {
                     Rectangle()
-                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
+                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : .clear)
                         .overlay(
                             // TODO: - editingText로 변경
                             Text("\(rowIndex)")
@@ -88,20 +88,14 @@ struct ListItemEmptyView: View {
                         .strokeBorder(Color.blue)
                         .overlay {
                             // TODO: Plan type 수정 -> 생성하는 flow
-                            TextField("Editing", text: $editingText, axis: .vertical )
+                            TextField("Editing", text: $editingText, axis: .vertical)
                                 .onSubmit {
-                                 viewStore.send(.createPlan(
+                                    viewStore.send(.createPlanOnList(
                                         layer: layerIndex,
                                         row: rowIndex,
-                                        target: Plan(
-                                            id: "",
-                                            parentLaneID: nil,
-                                            periods: [:],
-                                            laneIDs: []
-                                        ),
-                                        startDate: nil,
-                                        endDate: nil
-                                    ))
+                                        text: editingText,
+                                        colorCode: nil)
+                                    )
                                     isEditing = false
                                     isTextFieldFocused = false
                                     editingText = ""
@@ -125,14 +119,4 @@ struct ListItemEmptyView: View {
             .frame(height: viewStore.lineAreaGridHeight)
         }
     }
-}
-
-#Preview {
-    ListItemEmptyView(
-        store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map)) {
-            PlanBoard()
-        },
-        layerIndex: 0,
-        rowIndex: 0
-    )
 }
