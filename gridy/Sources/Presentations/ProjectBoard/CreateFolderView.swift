@@ -49,7 +49,10 @@ extension CreateFolderView {
     var cancel: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                // TODO: - Cancel Button
+                viewStore.send(.popoverPresent(
+                    button: .createFolderButton,
+                    bool: false
+                ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
                     .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.buttonHovered : .button)
