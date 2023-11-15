@@ -19,7 +19,7 @@ struct SettingsView: View {
                 nameForm
                 jobForm.padding(.bottom, 16)
                 HStack(alignment: .center) {
-                    exit
+                    deleteAccountbutton
                     done
                 }
             }
@@ -37,6 +37,7 @@ extension SettingsView {
                 .resizable()
                 .frame(width: 96, height: 96)
                 .overlay(alignment: .bottom) {
+                    // TODO: - 이미지 업로더 onTapGesture에 붙이기
                     if viewStore.hoveredItem == .profileEditButton {
                         Text("편집")
                             .font(.headline)
@@ -95,6 +96,11 @@ extension SettingsView {
                                     send: { .profileNameChanged($0) }
                                 )
                             )
+                            
+                            .onExitCommand {
+                                viewStore.send(.popoverPresent(button: .settingButton, bool: false))
+                                viewStore.send(.profileNameChanged(""))
+                            }
                             .onSubmit {
                                 viewStore.send(.textFieldSubmit(bool: true))
                             }
@@ -147,7 +153,7 @@ extension SettingsView {
 }
 
 extension SettingsView {
-    var exit: some View {
+    var deleteAccountbutton: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack {
                 Button {
@@ -159,13 +165,13 @@ extension SettingsView {
                         .foregroundStyle(Color.title)
                         .background(
                             RoundedRectangle(cornerRadius: 5)
-                                .foregroundStyle(viewStore.hoveredItem == .exitButton ? Color.itemHovered : .item)
+                                .foregroundStyle(viewStore.hoveredItem == .deleteAccountButton ? Color.itemHovered : .item)
                                 .frame(width: 64, height: 24)
                         )
                 }
                 .buttonStyle(.link)
                 .onHover { isHovered in
-                    viewStore.send(.hoveredItem(name: isHovered ? .exitButton : ""))
+                    viewStore.send(.hoveredItem(name: isHovered ? .deleteAccountButton : ""))
                 }
                 Spacer()
             }
@@ -178,6 +184,7 @@ extension SettingsView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack {
                 Button {
+                    // TODO: - 저장 버튼
                     viewStore.send(.popoverPresent(
                         button: .settingButton,
                         bool: false

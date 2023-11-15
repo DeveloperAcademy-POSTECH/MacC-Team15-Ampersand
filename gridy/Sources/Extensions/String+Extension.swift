@@ -46,7 +46,7 @@ extension String {
     static let disclosureFolderButton = "disclosureFolderButton"
     static let profileEditButton = "profileEditButton"
     static let profileTextFieldEditButton = "profileTextFieldEditButton"
-    static let exitButton = "exitButton"
+    static let deleteAccountButton = "deleteAccountButton"
     static let startDateHoveredButton = "startDateHoveredButton"
     static let endDateHoveredButton = "endDateHoveredButton"
     static let cancelButton = "cancelButton"
