@@ -20,14 +20,38 @@ extension String {
     static let boardListFocusGroup = "boardListFocusGroup"
     static let folderLazyVGridFocusGroup = "folderLazyVGridFocusGroup"
     static let boardLazyVGridFocusGroup = "boardLazyVGridFocusGroup"
+    static let themeFocusGroup = "themeFocusGroup"
     
     /* FocusedItemNames */
     static let homeButton = "homeButton"
+    static let automaticButton = "automaticButton"
+    static let lightButton = "lightButton"
+    static let darkButton = "darkButton"
     
     /* PopOverButtonNames */
     static let notificationButton = "notificationButton"
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
+    static let createFolderButton = "createFolderButton"
+    static let editPlanBoardButton = "editPlanBoardButton"
+    static let themeSettingButton = "themeSettingButton"
+    static let settingButton = "settingButton"
+    static let logoutButton = "logoutButton"
+    static let startDatePickerButton = "startDatePickerButton"
+    static let endDatePickerButton = "endDatePickerButton"
+    
+    /* EtcButtonNames */
+    static let galleryBackButton = "galleryBackButton"
+    static let tabItemDeleteButton = "tabItemDeleteButton"
+    static let disclosureFolderButton = "disclosureFolderButton"
+    static let profileEditButton = "profileEditButton"
+    static let profileTextFieldEditButton = "profileTextFieldEditButton"
+    static let deleteAccountButton = "deleteAccountButton"
+    static let startDateHoveredButton = "startDateHoveredButton"
+    static let endDateHoveredButton = "endDateHoveredButton"
+    static let cancelButton = "cancelButton"
+    static let editButton = "editButton"
+    static let createButton = "createButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */
@@ -49,4 +73,7 @@ extension String {
     /* ListItem */
     static let listItem = "listItem"
     static let emptyListItem = "emptyListItem"
+
+    /* ProjectItem */
+    static let planBoardItemButton = "planBoardItemButton"
 }

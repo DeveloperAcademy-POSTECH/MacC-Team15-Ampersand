@@ -14,6 +14,7 @@ import FirebaseFirestoreSwift
 struct APIService {
     /// Project
     var createProject: @Sendable (_ title: String, _ period: [Date]) async throws -> Project
+    var readProject: @Sendable (_ projectID: String) async throws -> Project
     var readProjects: () async throws -> [Project]
     var updateProjects: @Sendable (_ projectToUpdate: [Project]) async throws -> Void
     var deleteProjects: @Sendable (_ projectIDs: [String]) async throws -> Void
@@ -43,6 +44,7 @@ struct APIService {
     
     init(
         createProject: @escaping @Sendable (_ title: String, _ period: [Date]) async throws -> Project,
+        readProject: @escaping @Sendable (_ projectID: String) async throws -> Project,
         readProjects: @escaping () async throws -> [Project],
         updateProjects: @escaping @Sendable (_ projectToUpdate: [Project]) async throws -> Void,
         deleteProjects: @escaping @Sendable (_ projectIDs: [String]) async throws -> Void,
@@ -67,6 +69,7 @@ struct APIService {
         readAllNotices: @escaping @Sendable () async throws -> [Notice]
     ) {
         self.createProject = createProject
+        self.readProject = readProject
         self.readProjects = readProjects
         self.updateProjects = updateProjects
         self.deleteProjects = deleteProjects
@@ -135,6 +138,9 @@ extension APIService {
                 planTypeData
             )
             return project
+        },
+        readProject: { projectID in
+            return try await FirestoreService.projectCollectionPath.document(projectID).getDocument(as: Project.self)
         },
         readProjects: {
             do {

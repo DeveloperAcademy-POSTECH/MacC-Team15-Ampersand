@@ -12,7 +12,7 @@ struct SplashView: View {
     
     var body: some View {
         GeometryReader { _ in
-            colorScheme == .dark ? Color.black.opacity(0.2) : Color.white
+            colorScheme == .dark ? Color.black.opacity(0.2) : .white
             Image(.gridBackground)
                 .renderingMode(.template)
                 .resizable()

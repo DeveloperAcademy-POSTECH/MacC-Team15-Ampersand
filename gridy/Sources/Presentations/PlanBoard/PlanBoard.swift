@@ -26,7 +26,7 @@ struct PlanBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
     
-    struct State: Equatable {
+    struct State: Equatable, Identifiable {
         var rootProject: Project
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
@@ -35,6 +35,7 @@ struct PlanBoard: Reducer {
         var existingPlans = [String: Plan]()
         
         @BindingState var keyword = ""
+        var title = ""
         var selectedColorCode = Color.red
         
         /// 그리드 규격에 대한 변수들입니다.
@@ -94,8 +95,12 @@ struct PlanBoard: Reducer {
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
         
-        /// TimeAxisArea에서 사용
-        var holidays = [Date]()
+        /// BoardSettingView
+        var selectedStartDate = Date()
+        var selectedEndDate = Date()
+        var startDatePickerPresented = false
+        var endDatePickerPresented = false
+        
         
         /// ListArea
         var selectedEmptyRow: Int?
@@ -116,7 +121,7 @@ struct PlanBoard: Reducer {
         var isRightToolBarPresented = true
     }
     
-    enum Action: Equatable {
+    enum Action: Equatable, Sendable {
         // MARK: - user action
         case onAppear
         case selectColorCode(Color)
@@ -184,8 +189,12 @@ struct PlanBoard: Reducer {
         case listItemDoubleClicked(String, Bool)
         case keywordChanged(String)
         
-        case setSheet(Bool)
-
+        // MARK: - BoardSettingView
+        case titleChanged(String)
+        case selectedStartDateChanged(Date)
+        case selectedEndDateChanged(Date)
+        case projectTitleChanged
+        
         // MARK: - map
         case reloadMap
         case fetchRootPlan
@@ -238,6 +247,7 @@ struct PlanBoard: Reducer {
                 case .shareImageButton:
                     state.isShareImagePresented = bool
                 case .boardSettingButton:
+                    state.title = state.rootProject.title
                     state.isBoardSettingPresented = bool
                 case .rightToolBarButton:
                     state.isRightToolBarPresented = bool
@@ -1787,6 +1797,27 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
+                
+            case let .titleChanged(changedTitle):
+                state.title = changedTitle
+                return .none
+                
+            case let .selectedStartDateChanged(date):
+                state.selectedStartDate = date
+                return .none
+                
+            case let .selectedEndDateChanged(date):
+                state.selectedEndDate = date
+                return .none
+                
+            case .projectTitleChanged:
+                let id = state.rootProject.id
+                let changedTitle = state.title
+                state.rootProject.title = state.title
+                let projectToUpdate = [state.rootProject]
+                return .run { send in
+                    try await apiService.updateProjects(projectToUpdate)
+                }
                 
             case .reloadMap:
                 var newMap: [[String]] = []

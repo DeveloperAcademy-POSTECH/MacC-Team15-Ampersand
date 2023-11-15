@@ -29,22 +29,32 @@ struct ProjectBoard: Reducer {
     private enum CancelID { case load }
     
     struct State: Equatable {
+        var user: User
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
         var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
-        var isCreationViewPresented = false
-        var isEditViewPresented = false
         var projectIdToEdit = ""
         var showingProject: Project?
         var showingProjects = [String]()
-        var sortBy = ProjectSortCase.lastModified(order: OrderCase.ascending)
+        var isDisclosureGroupExpanded = false
+        var textFieldSubmit = false
+        var notices = [Notice]()
         
         @BindingState var title = ""
         @BindingState var startDate = Date()
         @BindingState var endDate = Date()
+        @BindingState var searchPlanBoardText = ""
+        @BindingState var folderName = ""
+        @BindingState var profileName = ""
+        @BindingState var selectionOption = 0
         
-        var notices = [Notice]()
+        var currentDate: Date = Date()
+        let days: [String] = ["일", "월", "화", "수", "목", "금", "토"]
+        var selectedStartDate = Date()
+        var selectedEndDate = Date()
+        var jobOptions = ["개발자", "디자이너", "기획자", "부자"]
+        var sortBy = ProjectSortCase.lastModified(order: OrderCase.ascending)
         
         // MARK: - FocusGroupClickedItems
         var hoveredItem = ""
@@ -53,11 +63,21 @@ struct ProjectBoard: Reducer {
         var folderListFocusGroupClickedItem = ""
         var folderLazyVGridFocusGroupClickedItem = ""
         var boardLazyVGridFocusGroupClickedItem = ""
+        var themeFocusGroupClickedItem = String.lightButton
         
         // MARK: - Sheets
         var isNotificationPresented = false
         var isUserSettingPresented = false
         var isCreatePlanBoardPresented = false
+        var isCreateFolderPresented = false
+        var isEditPlanBoardPresented = false
+        var isThemeSettingPresented = false
+        var isSettingsViewPresented = false
+        var isLogoutViewPresented = false
+        var startDatePickerPresented = false
+        var endDatePickerPresented = false
+        
+        var optionalPlanBoard = PlanBoard.State(rootProject: Project.mock)
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -65,31 +85,48 @@ struct ProjectBoard: Reducer {
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
+        case disclosurePresent(button: String, bool: Bool)
         
+        case textFieldSubmit(bool: Bool)
         case createNewProjectButtonTapped
         case createProjectResponse(TaskResult<Project>)
-        case readAllButtonTapped
+        
+        case fetchShowingProject
+        case fetchShowingProjectResponse(TaskResult<Project>)
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
+        
         case setProcessing(Bool)
         case titleChanged(String)
+        case searchTitleChanged(String)
+        case folderTitleChanged(String)
+        case profileNameChanged(String)
         case projectTitleChanged
+        
+        case setShowingTab(project: Project)
+        case deleteShowingTab(projectID: String)
         case sortProjectBy
         
         case sendFeedback(String)
         case fetchNotice
         case fetchNoticeResponse(TaskResult<[Notice]>)
         
-        case binding(BindingAction<State>)
-        case setShowingTap(project: Project)
-        case deleteShowingTap(projectID: String)
-        case setSheet(isPresented: Bool)
-        case setEditSheet(isPresented: Bool)
+        case projectItemOneTapped(id: String)
+        case changeMonth(monthIndex: Int)
+        case selectedStartDateChanged(Date)
+        case selectedEndDateChanged(Date)
+        case changeOption(Int)
+        
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case binding(BindingAction<State>)
+        case optionalPlanBoard(PlanBoard.Action)
     }
     
     var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(state: \.optionalPlanBoard, action: /Action.optionalPlanBoard) {
+            PlanBoard()
+        }
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -113,6 +150,8 @@ struct ProjectBoard: Reducer {
                     state.folderLazyVGridFocusGroupClickedItem = clickedItem
                 case .boardLazyVGridFocusGroup:
                     state.boardLazyVGridFocusGroupClickedItem = clickedItem
+                case .themeFocusGroup:
+                    state.themeFocusGroupClickedItem = clickedItem
                 default:
                     break
                 }
@@ -126,9 +165,37 @@ struct ProjectBoard: Reducer {
                     state.isUserSettingPresented = bool
                 case .createPlanBoardButton:
                     state.isCreatePlanBoardPresented = bool
+                case .createFolderButton:
+                    state.isCreateFolderPresented = bool
+                    
+                case .editPlanBoardButton:
+                    state.isEditPlanBoardPresented = bool
+                case .themeSettingButton:
+                    state.isThemeSettingPresented = bool
+                case .settingButton:
+                    state.isSettingsViewPresented = bool
+                case .logoutButton:
+                    state.isLogoutViewPresented = bool
+                case .startDatePickerButton:
+                    state.startDatePickerPresented = bool
+                case .endDatePickerButton:
+                    state.endDatePickerPresented = bool
                 default:
                     break
                 }
+                return .none
+                
+            case let .disclosurePresent(button: buttonName, bool: bool):
+                switch buttonName {
+                case .disclosureFolderButton:
+                    state.isDisclosureGroupExpanded = bool
+                default:
+                    break
+                }
+                return .none
+                
+            case let .textFieldSubmit(bool: bool):
+                state.textFieldSubmit = bool
                 return .none
                 
             case .createNewProjectButtonTapped:
@@ -147,13 +214,7 @@ struct ProjectBoard: Reducer {
             case let .createProjectResponse(.success(response)):
                 state.projects.insert(ProjectItem.State(project: response), at: 0)
                 return .run { send in
-                    await send(.sortProjectBy)
-                    await send(.setSheet(isPresented: false))
-                }
-                
-            case .readAllButtonTapped:
-                return .run { send in
-                    await send(.fetchAllProjects)
+                    await send(.sortProjectBy, animation: .default)
                 }
                 
             case .fetchAllProjects:
@@ -163,7 +224,11 @@ struct ProjectBoard: Reducer {
                         TaskResult {
                             try await apiService.readProjects()
                         }
-                    ), animation: .spring)
+                    ))
+                    await send(
+                        .sortProjectBy,
+                        animation: .spring
+                    )
                     await send(.setProcessing(false))
                 }
                 
@@ -183,16 +248,12 @@ struct ProjectBoard: Reducer {
                 state.isInProgress = isInProgress
                 return .none
                 
-            case let .setSheet(isPresented: isPresented):
-                state.title = ""
-                state.isCreationViewPresented = isPresented
-                return .none
-                
-            case let .setShowingTap(project):
+            case let .setShowingTab(project):
                 state.showingProject = project
+                state.optionalPlanBoard.rootProject = project
                 return .none
                 
-            case let .deleteShowingTap(projectID):
+            case let .deleteShowingTab(projectID):
                 /// 보여줄 탭 배열에서 id 제거
                 if let index = state.showingProjects.firstIndex(of: projectID) {
                     state.showingProjects.remove(at: index)
@@ -213,7 +274,7 @@ struct ProjectBoard: Reducer {
                     let project = state.projects[id: clickedProjectID]!.project
                     let showingProjectID = clickedProjectID
                     return .run { send in
-                        await send(.setShowingTap(
+                        await send(.setShowingTab(
                             project: project
                         ))
                         await send(.clickedItem(
@@ -226,31 +287,37 @@ struct ProjectBoard: Reducer {
                 
                 return .none
                 
-            case let .setEditSheet(isPresented: isPresented):
-                state.isEditViewPresented = isPresented
-                return .none
-                
             case let .titleChanged(changedTitle):
                 state.title = changedTitle
                 return .none
                 
+            case let .searchTitleChanged(changedSearchTitle):
+                state.searchPlanBoardText = changedSearchTitle
+                return .none
+                
+            case let .folderTitleChanged(changedFolderTitle):
+                state.folderName = changedFolderTitle
+                return .none
+                
+            case let .profileNameChanged(changedProfileName):
+                state.profileName = changedProfileName
+                return .none
+                
             case .projectTitleChanged:
                 let id = state.projectIdToEdit
-                state.projects[id: id]!.project.title = state.title
-                var projectToEdit = state.projects[id: id]!
-                projectToEdit.project.title = state.title
-                let projectToEditImmutable = projectToEdit.project
+                let changedTitle = state.title
+                state.projects[id: id]!.project.title = changedTitle
+                let projectToEditImmutable = state.projects[id: id]!.project
                 return .run { send in
                     await send(.sortProjectBy)
                     try await apiService.updateProjects([projectToEditImmutable])
-                    await send(.setEditSheet(isPresented: false))
                 }
                 
             case .sortProjectBy:
                 switch state.sortBy {
                 case let .dateCreated(orderBy):
                     state.projects.sort(by: {
-                        orderBy == .ascending ? 
+                        orderBy == .ascending ?
                         $0.project.createdDate < $1.project.createdDate :
                         $0.project.createdDate > $1.project.createdDate
                     })
@@ -293,18 +360,30 @@ struct ProjectBoard: Reducer {
                 state.notices = response
                 return .none
                 
-            case .projectItemTapped(id: _, action: .binding(\.$delete)):
+            case .projectItemTapped(id: _, action: .binding(\.$isDeleted)):
                 return .run { send in
                     await send(.fetchAllProjects)
                 }
                 
-            case let .projectItemTapped(id: id, action: .binding(\.$showSheet)):
+            case let .projectItemTapped(id: id, action: .binding(\.$isEditing)):
                 let projectId = id
                 if let projectItem = state.projects[id: projectId] {
                     state.title = projectItem.project.title
                 }
                 state.projectIdToEdit = id
-                state.isEditViewPresented = true
+                state.isEditPlanBoardPresented = true
+                return .none
+                
+            case let .projectItemTapped(id: id, action: .binding(\.$isSelected)):
+                let projectId = id
+                
+                for projectItem in state.projects {
+                    if projectItem.id == projectId {
+                        state.projects[id: projectItem.id]?.isSelected = true
+                    } else {
+                        state.projects[id: projectItem.id]?.isSelected = false
+                    }
+                }
                 return .none
                 
             case let .projectItemTapped(id: id, action: .binding(\.$isTapped)):
@@ -313,7 +392,7 @@ struct ProjectBoard: Reducer {
                 }
                 let project = state.projects[id: id]!.project
                 return .run { send in
-                    await send(.setShowingTap(
+                    await send(.setShowingTab(
                         project: project
                     ))
                     await send(.clickedItem(
@@ -321,6 +400,40 @@ struct ProjectBoard: Reducer {
                         name: id
                     ))
                 }
+                
+            case let .changeMonth(monthIndex):
+                state.currentDate = state.currentDate.moveMonth(movedMonth: monthIndex)
+                return .none
+                
+            case let .selectedStartDateChanged(date):
+                state.selectedStartDate = date
+                return .none
+                
+            case let .selectedEndDateChanged(date):
+                state.selectedEndDate = date
+                return .none
+                
+            case let .changeOption(option):
+                state.selectionOption = option
+                return .none
+                
+            case .optionalPlanBoard:
+                return .run { send in
+                    await send(.fetchShowingProject)
+                }
+                
+            case .fetchShowingProject:
+                let projectID = state.showingProject!.id
+                return .run { send in
+                    await send(.fetchShowingProjectResponse(
+                        TaskResult {
+                            try await apiService.readProject(projectID)
+                        }
+                    ))
+                }
+            case let .fetchShowingProjectResponse(.success(response)):
+                state.projects[id: response.id]!.project = response
+                return .none
                 
             default:
                 return .none
