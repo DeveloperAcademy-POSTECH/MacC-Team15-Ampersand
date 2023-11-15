@@ -46,6 +46,10 @@ extension String {
     static let profileEditButton = "profileEditButton"
     static let profileTextFieldEditButton = "profileTextFieldEditButton"
     static let exitButton = "exitButton"
+    static let startDateHoveredButton = "startDateHoveredButton"
+    static let endDateHoveredButton = "endDateHoveredButton"
+    static let cancelButton = "cancelButton"
+    static let editButton = "editButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */

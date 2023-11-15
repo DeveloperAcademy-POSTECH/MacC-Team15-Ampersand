@@ -22,7 +22,6 @@ extension Date {
 
     var dayOfWeek: String {
         Date.dateFormatter.dateFormat = "E"
-//        Date.dateFormatter.locale = Locale(identifier: "ko_KR")
         return Date.dateFormatter.string(from: self)
     }
     
@@ -41,7 +40,7 @@ extension Date {
     
     func getAllDates() -> [Date] {
         let calendar = Calendar.current
-        let startDate = calendar.date(from: Calendar.current.dateComponents([.year, .month], from: self))!
+        let startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: self))!
         var range = calendar.range(of: .day, in: .month, for: startDate)!
         return range.compactMap { day -> Date in
             return calendar.date(byAdding: .day, value: day - 1, to: startDate)!
@@ -63,10 +62,8 @@ extension Date {
     
     func extractDate() -> [DateValue] {
         let calendar = Calendar.current
-        var components = calendar.dateComponents([.year, .month], from: self)
-            components.day = 1
-        let currentMonth = calendar.date(from: components)!
-        var days = currentMonth.getAllDates().compactMap { date -> DateValue in
+        var startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: self))!
+        var days = startDate.getAllDates().compactMap { date -> DateValue in
             let day = calendar.component(.day, from: date)
             return DateValue(day: day, date: date)
         }

@@ -74,7 +74,7 @@ extension SettingsView {
                     .foregroundStyle(Color.title)
                 Spacer()
                 RoundedRectangle(cornerRadius: 5)
-                    .strokeBorder(viewStore.hoveredItem == .profileTextFieldEditButton ? Color.itemHovered : Color.item)
+                    .strokeBorder(viewStore.hoveredItem == .profileTextFieldEditButton ? Color.itemHovered : .item)
                     .foregroundStyle(viewStore.hoveredItem == .profileTextFieldEditButton ? Color.item : .clear)
                     .frame(width: 160, height: 24)
                     .overlay(alignment: .leading) {
@@ -156,7 +156,7 @@ extension SettingsView {
                         .foregroundStyle(Color.title)
                         .background(
                             RoundedRectangle(cornerRadius: 5)
-                                .foregroundStyle(viewStore.hoveredItem == .exitButton ? Color.itemHovered : Color.item)
+                                .foregroundStyle(viewStore.hoveredItem == .exitButton ? Color.itemHovered : .item)
                                 .frame(width: 64, height: 24)
                         )
                 }

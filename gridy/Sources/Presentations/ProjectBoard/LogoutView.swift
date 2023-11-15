@@ -48,7 +48,7 @@ extension LogoutView {
                 ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "cancelButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Cancel")
@@ -59,7 +59,7 @@ extension LogoutView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "cancelButton" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
             }
         }
     }
@@ -72,7 +72,7 @@ extension LogoutView {
                 // TODO: - Logout Button
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "logoutButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == "logoutButton" ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Logout")

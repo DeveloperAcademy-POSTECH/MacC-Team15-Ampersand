@@ -156,7 +156,7 @@ extension ProjectBoardView {
     var calendarArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             RoundedRectangle(cornerRadius: 32)
-                .foregroundStyle(viewStore.hoveredItem == "calendarArea" ? Color.itemHovered : Color.item)
+                .foregroundStyle(viewStore.hoveredItem == "calendarArea" ? Color.itemHovered : .item)
                 .frame(width: 248, height: 248)
                 .overlay {
                     GeometryReader { _ in
@@ -182,7 +182,7 @@ extension ProjectBoardView {
                                     Text(day)
                                         .font(.callout)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(day == "일" ? Color.gray : Color.black)
+                                        .foregroundColor(day == "일" ? Color.gray : .black)
                                         .frame(width: 25, height: 25)
                                 }
                             }
@@ -216,7 +216,7 @@ extension ProjectBoardView {
                 Text("\(value.day)")
                     .font(.title3)
                     .bold(isToday ? true : false)
-                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : Color.black)
+                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : .black)
             }
         }
     }
@@ -413,7 +413,7 @@ extension ProjectBoardView {
                     } label: {
                         RoundedRectangle(cornerRadius: 22)
                             .foregroundStyle(viewStore.hoveredItem == .createPlanBoardButton ?
-                                             Color.boardSelectedBorder : Color.button)
+                                             Color.boardSelectedBorder : .button)
                             .shadow(
                                 color: .black.opacity(0.25),
                                 radius: 4,

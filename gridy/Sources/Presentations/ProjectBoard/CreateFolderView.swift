@@ -12,17 +12,15 @@ struct CreateFolderView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(alignment: .center, spacing: 24) {
-                folderNameTextField
-                HStack(alignment: .center, spacing: 8) {
-                    cancel
-                    create
-                }
+        VStack(alignment: .center, spacing: 24) {
+            folderNameTextField
+            HStack(alignment: .center, spacing: 8) {
+                cancel
+                create
             }
-            .padding(24)
-            .frame(width: 480, height: 160)
         }
+        .padding(24)
+        .frame(width: 480, height: 160)
     }
 }
 
@@ -54,7 +52,7 @@ extension CreateFolderView {
                 // TODO: - Cancel Button
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "cancelButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Cancel")
@@ -65,7 +63,7 @@ extension CreateFolderView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "cancelButton" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
             }
         }
     }
@@ -75,10 +73,13 @@ extension CreateFolderView {
     var create: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                // TODO: - Create Button
+                viewStore.send(.popoverPresent(
+                    button: .createPlanBoardButton,
+                    bool: false
+                ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "createButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == "createButton" ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Create")

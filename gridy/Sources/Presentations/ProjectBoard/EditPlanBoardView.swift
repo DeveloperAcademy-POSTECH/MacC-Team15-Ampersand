@@ -81,10 +81,10 @@ extension EditPlanBoardView {
                     .frame(width: 132, height: 32)
                     .background(
                         RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(viewStore.hoveredItem == "startDateHovered" ? Color.itemHovered : Color.clear)
+                            .foregroundStyle(viewStore.hoveredItem == .startDateHoveredButton ? Color.itemHovered : .clear)
                     )
                     .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? "startDateHovered" : ""))
+                        viewStore.send(.hoveredItem(name: isHovered ? .startDateHoveredButton : ""))
                     }
             }
             .buttonStyle(.link)
@@ -137,10 +137,10 @@ extension EditPlanBoardView {
                     .frame(width: 132, height: 32)
                     .background(
                         RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(viewStore.hoveredItem == "endDateHovered" ? Color.itemHovered : Color.clear)
+                            .foregroundStyle(viewStore.hoveredItem == .endDateHoveredButton ? Color.itemHovered : .clear)
                     )
                     .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? "endDateHovered" : ""))
+                        viewStore.send(.hoveredItem(name: isHovered ? .endDateHoveredButton : ""))
                     }
             }
             .buttonStyle(.link)
@@ -178,7 +178,7 @@ extension EditPlanBoardView {
                 ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "cancelButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Cancel")
@@ -189,7 +189,7 @@ extension EditPlanBoardView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "cancelButton" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
             }
         }
     }
@@ -208,7 +208,7 @@ extension EditPlanBoardView {
                 }
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "editButton" ? Color.buttonHovered : Color.button)
+                    .foregroundStyle(viewStore.hoveredItem == .editButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Edit")
@@ -219,7 +219,7 @@ extension EditPlanBoardView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "editButton" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .editButton : ""))
             }
             .disabled(viewStore.title.isEmpty)
         }

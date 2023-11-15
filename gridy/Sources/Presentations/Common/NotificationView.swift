@@ -12,13 +12,11 @@ struct NotificationView: View {
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(alignment: .leading, spacing: 8) {
-                titleAndFeedbackArea
-                notifications
-            }
-            .frame(width: 275, height: 424)
+        VStack(alignment: .leading, spacing: 8) {
+            titleAndFeedbackArea
+            notifications
         }
+        .frame(width: 275, height: 424)
     }
 }
 
@@ -47,18 +45,20 @@ extension NotificationView {
 
 extension NotificationView {
     var notifications: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(0..<5) { index in
-                    Notifications(id: index, store: store)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(viewStore.notices.indices, id: \.self) { index in
+                        Notifications(index: index, store: store)
+                    }
                 }
             }
+            .padding(.horizontal, 8)
         }
-        .padding(.horizontal, 8)
     }
     
     private struct Notifications: View {
-        var id: Int
+        var index: Int
         let store: StoreOf<ProjectBoard>
         
         var body: some View {
@@ -68,11 +68,11 @@ extension NotificationView {
                 } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("Notification Content \(id)")
+                            Text("\(viewStore.notices[index].contents)")
                                 .font(.headline)
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color.title)
-                            Text("Date")
+                            Text("\(viewStore.notices[index].issuedDate)")
                                 .font(.callout)
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color.subtitle)
@@ -81,14 +81,14 @@ extension NotificationView {
                     }
                 }
                 .padding(8)
-                .background(viewStore.hoveredItem == "NotificationContentButton \(id)" ? Color.item : Color.itemHovered)
+                .background(viewStore.hoveredItem == "NotificationContentButton \(index)" ? Color.item : .itemHovered)
                 .clipShape(
                     RoundedRectangle(cornerRadius: 8)
                 )
                 .buttonStyle(.link)
-                .scaleEffect(viewStore.hoveredItem == "NotificationContentButton \(id)" ? 1.02 : 1)
+                .scaleEffect(viewStore.hoveredItem == "NotificationContentButton \(index)" ? 1.02 : 1)
                 .onHover { isHovered in
-                    viewStore.send(.hoveredItem(name: isHovered ? "NotificationContentButton \(id)" : ""))
+                    viewStore.send(.hoveredItem(name: isHovered ? "NotificationContentButton \(index)" : ""))
                 }
             }
         }

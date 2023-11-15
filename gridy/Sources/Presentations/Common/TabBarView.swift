@@ -153,7 +153,7 @@ struct TabItemView: View {
                             viewStore.hoveredItem == projectID ||
                             viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
                             viewStore.tabBarFocusGroupClickedItem == projectID ?
-                            Color.tabLabel : Color.tabLabelInactive
+                            Color.tabLabel : .tabLabelInactive
                         )
                 }
                 .frame(height: 36)
@@ -170,7 +170,7 @@ struct TabItemView: View {
                                 viewStore.hoveredItem == .tabItemDeleteButton + projectID ?
                                 Color.tabLabel : viewStore.hoveredItem == projectID ||
                                 viewStore.tabBarFocusGroupClickedItem == projectID ?
-                                Color.subtitle : Color.clear
+                                Color.subtitle : .clear
                             )
                     )
                     .onHover { isHovered in
@@ -184,7 +184,7 @@ struct TabItemView: View {
                 viewStore.hoveredItem == projectID ||
                 viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
                 viewStore.tabBarFocusGroupClickedItem == projectID ?
-                Color.tabHovered : Color.tabBar
+                Color.tabHovered : .tabBar
             )
             .onHover { isHovered in
                 viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
