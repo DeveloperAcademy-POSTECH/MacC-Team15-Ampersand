@@ -230,6 +230,7 @@ extension PlanBoardView {
                         Button {
                             if !viewStore.selectedGridRanges.isEmpty {
                                 let today = Date().filteredDate
+                                let lastRange = viewStore.selectedGridRanges.last!
                                 let startDate = min(
                                     Calendar.current.date(
                                         byAdding: .day, value: viewStore.selectedGridRanges.last!.start.col,
@@ -251,6 +252,8 @@ extension PlanBoardView {
                                     )!.filteredDate
                                 )
                                 // TODO: create plan on line
+                                let row = min(lastRange.start.row, lastRange.end.row)
+                                viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
                             }
                         } label: {
                             Text("create Plan")

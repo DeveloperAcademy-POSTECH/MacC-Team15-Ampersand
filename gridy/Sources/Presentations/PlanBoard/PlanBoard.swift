@@ -242,7 +242,7 @@ struct PlanBoard: Reducer {
                     await send(.readPlans)
                     await send(.readPlanTypes)
                     // TODO: - 삭제
-                    await Task.sleep(2 * 1_000_000_000)
+                    await Task.sleep(5 * 1_000_000_000)
                     await send(.fetchRootPlan)
                 }
                 
@@ -505,6 +505,34 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .createPlanOnLine(row, startDate, endDate):
+                state.selectedDateRanges.append(SelectedDateRange(
+                    start: startDate,
+                    end: endDate)
+                )
+                // TODO: 처음위치로 돌아오는 로직이나, 사용성에 맞는 코드인지 검토 필요
+                if let lastSelected = state.selectedGridRanges.last {
+                    state.selectedGridRanges = [SelectedGridRange(
+                        start: (lastSelected.start.row, lastSelected.start.col),
+                        end: (lastSelected.start.row, lastSelected.start.col)
+                    )]
+                }
+                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                if Int(state.selectedGridRanges.last!.start.col) < (state.shiftedCol + state.scrolledCol) ||
+                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
+                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
+                }
+                if Int(state.selectedGridRanges.last!.start.row) < (state.shiftedRow + state.scrolledRow) ||
+                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
+                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
+                }
                 var plansToCreate = [Plan]()
                 var plansToUpdate = [Plan]()
                 /// 0. row를 child로 포함하는 parentPlan이 있는지 먼저 확인
@@ -566,39 +594,18 @@ struct PlanBoard: Reducer {
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
                 } else {
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = startDate
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = endDate
+                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod = [startDate, endDate]
                 }
+                
+                let map = state.map
                 plansToCreate.append(newPlanOnLine)
                 plansToUpdate.append(state.rootPlan)
-                plansToUpdate.append(state.existingPlans[state.map[lastLayerIndex][row]]!)
+                let merge = state.map[lastLayerIndex][row]
+                plansToUpdate.append(state.existingPlans[merge]!)
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
-                // TODO: 처음위치로 돌아오는 로직이나, 사용성에 맞는 코드인지 검토 필요
-                if let lastSelected = state.selectedGridRanges.last {
-                    state.selectedGridRanges = [SelectedGridRange(
-                        start: (lastSelected.start.row, lastSelected.start.col),
-                        end: (lastSelected.start.row, lastSelected.start.col)
-                    )]
-                }
-                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
-                if Int(state.selectedGridRanges.last!.start.col) < (state.shiftedCol + state.scrolledCol) ||
-                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
-                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
-                    state.scrolledX = 0
-                    state.scrolledY = 0
-                    state.scrolledRow = 0
-                    state.scrolledCol = 0
-                }
-                if Int(state.selectedGridRanges.last!.start.row) < (state.shiftedRow + state.scrolledRow) ||
-                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
-                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
-                    state.scrolledX = 0
-                    state.scrolledY = 0
-                    state.scrolledRow = 0
-                    state.scrolledCol = 0
-                }
+                
                 return .run { _ in
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -1257,7 +1264,7 @@ struct PlanBoard: Reducer {
                                         state.existingPlans[parentID]!.childPlanIDs["\(currentLaneIndex)"] = state.existingPlans[parentID]!.childPlanIDs["\(currentLaneIndex + 1)"]
                                     }
                                     state.existingPlans[parentID]!.childPlanIDs["\(parentPlan.childPlanIDs.count - 1)"] = nil
-                                } else { 
+                                } else {
                                     /// 아니라면 해당 레인에서 병합된 플랜만 삭제
                                     state.existingPlans[parentID]!.childPlanIDs[laneIndex]!.remove(at: indexInLane)
                                 }
@@ -1404,7 +1411,7 @@ struct PlanBoard: Reducer {
                     await send(.reloadMap)
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
-            
+                
             case let .dragToMovePlanInList(targetID, source, destination, row, layer):
                 if source == destination { return .none }
                 let projectID = state.rootProject.id
@@ -1658,6 +1665,7 @@ struct PlanBoard: Reducer {
                     )]
                 }
                 /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                // TODO: - 🚨ERROR! 드래그하고 떼지않은 상태로 esc를 누르면 nil exception 발생
                 if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
                     Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
                     state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
@@ -1827,3 +1835,4 @@ struct PlanBoard: Reducer {
         }
     }
 }
+
