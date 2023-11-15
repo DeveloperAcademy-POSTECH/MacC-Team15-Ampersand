@@ -392,8 +392,8 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
                 var createdPlanType = PlanType.emptyPlanType
-                
-                var parentPlanID = state.rootPlan.id
+                // TODO: - state.rootPlan.id로 바꾸기. 현재 자꾸 nil이 들어와서 임시방편
+                var parentPlanID = state.rootProject.rootPlanID
                 var newPlanID = UUID().uuidString
                 var childPlanID = UUID().uuidString
                 var newPlanTypeID = PlanType.emptyPlanType.id
@@ -452,6 +452,7 @@ struct PlanBoard: Reducer {
                 let rootProjectToUpdate = state.rootProject
                 
                 return .run { send in
+                    await send(.reloadMap)
                     try await apiService.updateProjects(
                         [rootProjectToUpdate]
                     )
@@ -480,7 +481,6 @@ struct PlanBoard: Reducer {
                             )
                         }
                     }
-                    await send(.reloadMap)
                 }
                 
             case let .createPlanOnLine(row, startDate, endDate):
