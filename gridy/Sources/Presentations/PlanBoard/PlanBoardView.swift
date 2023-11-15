@@ -393,11 +393,11 @@ extension PlanBoardView {
                                 .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                 .frame(width: width, height: height)
                                 .position(x:
-                                            isStartColSmaller ? 
+                                            isStartColSmaller ?
                                           CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
                                             CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                           y:
-                                            isStartRowSmaller ? 
+                                            isStartRowSmaller ?
                                           CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
@@ -413,10 +413,10 @@ extension PlanBoardView {
                                             .stroke(Color.boardSelectedBorder, lineWidth: 1)
                                     )
                                     .frame(width: width, height: height)
-                                    .position(x: isStartColSmaller ? 
+                                    .position(x: isStartColSmaller ?
                                               CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
                                                 CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                              y: isStartRowSmaller ? 
+                                              y: isStartRowSmaller ?
                                               CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
                                                 CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                             }
@@ -598,7 +598,7 @@ extension PlanBoardView {
                 NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
                     viewStore.send(.scrollGesture(event))
                     if event.phase == .ended {
-           
+                        
                     }
                     return event
                 }

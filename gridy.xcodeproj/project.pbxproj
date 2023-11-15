@@ -128,7 +128,6 @@
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE780DB62B023686005E761F /* EditPlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlanBoardView.swift; sourceTree = "<group>"; };
-		EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarAreaView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
@@ -190,6 +189,8 @@
 				AD06C4BD2AD7766200E3CC07 /* PlanType.swift */,
 				ADCBA9F52AFA9B36000BBD1C /* Notice.swift */,
 				ADCBA9F72AFA9FAA000BBD1C /* Feedback.swift */,
+				8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */,
+				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -315,14 +316,6 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		EE3E22152AF9152A00D82F59 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		EE909A3F2AC3CDBF00C9AAF0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -340,8 +333,6 @@
 				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
 				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
-				8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */,
-				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
 				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 			);
 			path = PlanBoard;

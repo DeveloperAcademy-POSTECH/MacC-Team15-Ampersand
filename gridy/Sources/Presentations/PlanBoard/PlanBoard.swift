@@ -134,23 +134,21 @@ struct PlanBoard: Reducer {
         var startDatePickerPresented = false
         var endDatePickerPresented = false
         
-        // MARK: - list area
+        /// ListArea
         var showingLayers = [0]
         var showingRows = 20
         var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
         
-        /// ListArea
+        /// TopToolBarArea
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
-        
-        /// ListArea
         var isShareImagePresented = false
         var isBoardSettingPresented = false
         var isRightToolBarPresented = true
     }
     
     enum Action: Equatable, Sendable {
-        // MARK: - user action
+        /// UserAction
         case fetchRootPlan
         case onAppear
         case selectColorCode(Color)
@@ -158,21 +156,21 @@ struct PlanBoard: Reducer {
         case clickedItem(focusGroup: String, name: String)
         case popoverPresent(button: String, bool: Bool)
         
-        // MARK: - plan type
+        /// PlanType
         case createPlanType(_ targetPlanID: String, _ text: String, _ colorCode: UInt)
         case readPlanTypes
         case readPlanTypesResponse(TaskResult<[PlanType]>)
         case updatePlanTypeOnList(targetPlanID: String, text: String, colorCode: UInt)
         case updatePlanTypeOnLine(planID: String, text: String, colorCode: UInt, period: [Date])
         
-        // MARK: - plan
+        /// Plan
         case createPlanOnList(layer: Int, row: Int, text: String, colorCode: UInt?)
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
         case readPlans
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan(targetPlanID: String, updateTo: Plan)
         
-        // MARK: - list area
+        /// ListArea
         case createLayerButtonClicked(layer: Int)
         case createLaneButtonClicked(row: Int, createOnTop: Bool)
         case deleteLayer(layer: Int)
@@ -194,7 +192,7 @@ struct PlanBoard: Reducer {
         /// ScheduleAreaView
         case magnificationChangedInScheduleArea(CGFloat)
         
-        // MARK: - LineAreaView
+        /// LineAreaView
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
@@ -213,13 +211,13 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         case scrollGesture(NSEvent)
         
-        // MARK: - BoardSettingView
+        /// BoardSettingView
         case titleChanged(String)
         case selectedStartDateChanged(Date)
         case selectedEndDateChanged(Date)
         case projectTitleChanged
         
-        // MARK: - map
+        /// Map
         case reloadMap
     }
     
@@ -228,7 +226,7 @@ struct PlanBoard: Reducer {
         Reduce { state, action in
             switch action {
                 
-                // MARK: - user action
+                // MARK: - UserAction
             case .fetchRootPlan:
                 if let foundRootPlan = state.existingPlans[state.rootProject.rootPlanID] {
                     state.rootPlan = foundRootPlan
@@ -279,7 +277,7 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-                // MARK: - plan type
+                // MARK: - PlanType
             case let .createPlanType(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
                 if let originType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode == colorCode}) {
@@ -351,7 +349,6 @@ struct PlanBoard: Reducer {
                             let lines = childLines["\(lineIndex)"]!
                             for planIDInLine in lines {
                                 if planIDInLine == planID { continue }
-                                
                                 let currentPlan = state.existingPlans[planIDInLine]!
                                 /// 동일 타입의 플랜이 이미 존재하는 경우
                                 if currentPlan.planTypeID == foundPlanTypeID {
@@ -377,7 +374,6 @@ struct PlanBoard: Reducer {
                                             state.existingPlans[planIDInLine]!.periods!["\(periodsCount)"] = [startDateToPlant, endDateToPlant]
                                         }
                                     }
-                                    
                                     /// 플랜이 가진 Periods가 하나뿐이었다면 플랜 본인을 삭제
                                     if state.existingPlans[planID]!.periods!.count < 2 {
                                         /// 부모의 child에서 이식이 완료된 플랜 아이디 삭제
@@ -416,11 +412,10 @@ struct PlanBoard: Reducer {
                     await send(.createPlanType(planID, text, colorCode))
                 }
                 
-                // MARK: - plan
+                // MARK: - Plan
             case let .createPlanOnList(layer, row, text, colorCode):
                 if text.isEmpty { return .none }
                 state.rootProject.countLayerInListArea = layer
-                
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
                 var createdPlanType = PlanType.emptyPlanType
@@ -428,9 +423,7 @@ struct PlanBoard: Reducer {
                 var newPlanID = UUID().uuidString
                 var childPlanID = UUID().uuidString
                 var newPlanTypeID = PlanType.emptyPlanType.id
-                
                 let originPlanTypeID = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode == colorCode })?.id ?? nil
-                
                 /// map에 dummy 생성
                 for rowIndex in state.map[layer].count...row {
                     for layerIndex in 0..<state.map.count {
@@ -473,7 +466,6 @@ struct PlanBoard: Reducer {
                     parentPlanID = state.rootPlan.id
                     newPlanID = UUID().uuidString
                 }
-                
                 let plansToCreate = createdPlans
                 let newPlanType = createdPlanType
                 let planID = parentPlanID
@@ -481,7 +473,6 @@ struct PlanBoard: Reducer {
                 let planToUpdate = state.existingPlans[planID]!
                 let rootPlanToUpdate = state.rootPlan
                 let rootProjectToUpdate = state.rootProject
-                
                 return .run { send in
                     try await apiService.updateProjects(
                         [rootProjectToUpdate]
@@ -494,7 +485,6 @@ struct PlanBoard: Reducer {
                         [rootPlanToUpdate],
                         projectID
                     )
-                    
                     if let _ = originPlanTypeID {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
                         try await apiService.updatePlans(
@@ -517,7 +507,6 @@ struct PlanBoard: Reducer {
             case let .createPlanOnLine(row, startDate, endDate):
                 var plansToCreate = [Plan]()
                 var plansToUpdate = [Plan]()
-                
                 /// 0. row를 child로 포함하는 parentPlan이 있는지 먼저 확인
                 var currentRowCount = -1
                 var targetLaneParent: Plan?
@@ -562,7 +551,6 @@ struct PlanBoard: Reducer {
                     targetLaneParent = state.existingPlans[state.map[state.map.count-1][row]]
                     targetLaneIndex = 0
                 }
-                
                 /// 2. (row, layer)에 플랜이 존재하는 경우: 새 플랜을 생성하고 childIDs에 넣어주면 된다.
                 let newPlanOnLine = Plan(
                     id: UUID().uuidString,
@@ -570,7 +558,6 @@ struct PlanBoard: Reducer {
                     childPlanIDs: [:],
                     periods: ["0": [startDate, endDate]]
                 )
-                
                 let lastLayerIndex = state.map.count - 1
                 state.existingPlans[state.map[lastLayerIndex][row]]?.childPlanIDs["\(targetLaneIndex!)"]?.append(newPlanOnLine.id)
                 
@@ -582,13 +569,36 @@ struct PlanBoard: Reducer {
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = startDate
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = endDate
                 }
-                
                 plansToCreate.append(newPlanOnLine)
                 plansToUpdate.append(state.rootPlan)
                 plansToUpdate.append(state.existingPlans[state.map[lastLayerIndex][row]]!)
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
+                // TODO: 처음위치로 돌아오는 로직이나, 사용성에 맞는 코드인지 검토 필요
+                if let lastSelected = state.selectedGridRanges.last {
+                    state.selectedGridRanges = [SelectedGridRange(
+                        start: (lastSelected.start.row, lastSelected.start.col),
+                        end: (lastSelected.start.row, lastSelected.start.col)
+                    )]
+                }
+                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                if Int(state.selectedGridRanges.last!.start.col) < (state.shiftedCol + state.scrolledCol) ||
+                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
+                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
+                }
+                if Int(state.selectedGridRanges.last!.start.row) < (state.shiftedRow + state.scrolledRow) ||
+                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
+                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    state.scrolledX = 0
+                    state.scrolledY = 0
+                    state.scrolledRow = 0
+                    state.scrolledCol = 0
+                }
                 return .run { _ in
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -627,7 +637,7 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-                // MARK: - listArea
+                // MARK: - ListArea
             case let .createLayerButtonClicked(layer):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
@@ -804,7 +814,6 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 var updatedPlanIDs = Set<String>()
                 let planIDsArray = state.map[layer]
-                
                 for planID in planIDsArray {
                     state.existingPlans[planID]!.planTypeID = PlanType.emptyPlanType.id
                     updatedPlanIDs.insert(planID)
@@ -892,7 +901,6 @@ struct PlanBoard: Reducer {
                     state.existingPlans[targetParentPlanID]!.childPlanIDs = orderedChildPlanIDs
                 }
                 updatedPlans.append(state.existingPlans[targetParentPlanID]!)
-                
                 /// 삭제한 plan과 그 하위 플랜들을 삭제해줌.
                 let deletedPlanID = state.existingPlans[targetParentPlanID]!.childPlanIDs[targetKey]!.last!
                 var planIDsQ: [String] = [deletedPlanID]
@@ -911,7 +919,6 @@ struct PlanBoard: Reducer {
                 for deletedPlan in deletedPlans {
                     state.existingPlans[deletedPlan.id] = nil
                 }
-                
                 let plansToCreate = createdPlans
                 let plansToUpdate = updatedPlans
                 let plansToDelete = deletedPlans
@@ -938,14 +945,12 @@ struct PlanBoard: Reducer {
                 var updatedPlans = [Plan]()
                 var deletedPlans = [Plan]()
                 let layer = state.map.count - 1
-                
                 /// 리스트에서 보여주는 마지막 Row의 높이를 계산
                 var planHeightsArray = [String: Int]()
                 for planID in state.map[layer] {
                     let childPlanIDsArray = state.existingPlans[planID]!.childPlanIDs
                     planHeightsArray[planID] = childPlanIDsArray.count
                 }
-                
                 /// 선택된 범위의 개수만큼 순회한다.
                 for selectedRange in selectedRanges {
                     let startRow = min(selectedRange.start.row, selectedRange.end.row)
@@ -1064,14 +1069,12 @@ struct PlanBoard: Reducer {
                 var updatedPlans = [Plan]()
                 var deletedPlans = [Plan]()
                 let layer = state.map.count - 1
-                
                 let planIDsArray = state.map[layer]
                 var planHeightsArray = [String: Int]()
                 for planID in planIDsArray {
                     let childPlanIDsArray = state.existingPlans[planID]!.childPlanIDs
                     planHeightsArray[planID] = childPlanIDsArray.count
                 }
-                
                 var sumOfHeights = 0
                 var targetPlanID = ""
                 for planID in planIDsArray {
@@ -1081,7 +1084,6 @@ struct PlanBoard: Reducer {
                         break
                     }
                 }
-                
                 let targetParentPlanID = targetPlanID
                 let targetParentPlan = state.existingPlans[targetParentPlanID]!
                 /// 내 row가 내가 속한 부모 Plan의 childIDs에서 몇번째인지 계산
@@ -1125,21 +1127,17 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
                 var deletedPlans = [Plan]()
-                
                 let startRow = rows[0]
                 let endRow = rows[1]
                 var changedPlanIDs = [String]()
-                
                 /// 선택된 row에 보이는 childPlanIDs를 빈 레인으로 갈아끼워줌
                 let layer = state.map.count - 1
                 let planIDsArray = state.map[layer]
                 var planHeightsArray = [String: Int]()
-                
                 for planID in planIDsArray {
                     let childPlanIDsArray = state.existingPlans[planID]!.childPlanIDs
                     planHeightsArray[planID] = childPlanIDsArray.count
                 }
-                
                 for row in startRow...endRow {
                     var sumOfHeights = 0
                     var targetPlanID = ""
@@ -1150,7 +1148,6 @@ struct PlanBoard: Reducer {
                             break
                         }
                     }
-                    
                     let targetParentPlan = state.existingPlans[targetPlanID]!
                     /// 내 row가 내가 속한 부모 Plan의 childIDs에서 몇번째인지 계산
                     let rowDifference = (sumOfHeights - 1) - row
@@ -1165,7 +1162,6 @@ struct PlanBoard: Reducer {
                     }
                     changedPlanIDs.append(targetPlanID)
                 }
-                
                 /// 상위 레이어에 대해서도 row값이 어떤 plan인지 찾아줌
                 let upperPlanIDsArray = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 var upperPlanHeightsArray = [String: Int]()
@@ -1173,7 +1169,6 @@ struct PlanBoard: Reducer {
                     let childPlanIDsArray = state.existingPlans[upperPlanID]!.childPlanIDs
                     upperPlanHeightsArray[upperPlanID] = childPlanIDsArray.count
                 }
-                
                 for row in startRow...endRow {
                     var sumOfHeights = 0
                     var targetPlanID = ""
@@ -1214,22 +1209,17 @@ struct PlanBoard: Reducer {
             case let .mergePlans(layer, planIDs):
                 var planIDsToUpdate = Set<String>()
                 if planIDs.count < 1 { return .none }
-                
                 var currentTopPlanChildCount = state.existingPlans[planIDs[0]]!.childPlanIDs.count
-                
                 for (index, planID) in planIDs.enumerated() {
                     if index == 0 { continue }
-                    
                     /// 1. 최상위 플랜에 child들을 모두 병합
                     let childPlanIDsToAppend = state.existingPlans[planID]!.childPlanIDs
                     for (key, childValue) in childPlanIDsToAppend {
                         state.existingPlans[planIDs[0]]!.childPlanIDs["\(currentTopPlanChildCount + Int(key)!)"] = childValue
                     }
                     currentTopPlanChildCount += childPlanIDsToAppend.count
-                    
                     /// 2. 병합된 플랜들을 map에서 삭제
                     state.map[layer].remove(at: state.map[layer].firstIndex(of: planID)!)
-                    
                     /// 3 병합된 플랜들을 부모에서 삭제
                     if layer == 0 {
                         /// root에서 삭제
@@ -1250,7 +1240,6 @@ struct PlanBoard: Reducer {
                     } else {
                         for parentID in state.map[layer-1] {
                             let parentPlan = state.existingPlans[parentID]!
-                            
                             /// 부모를 발견했다
                             if parentPlan.childPlanIDs.map({$0.value}).flatMap({$0}).contains(planID) {
                                 /// 부모가 가진 레인이 하나이고, 그 레인 내에 차일드가 병합된 플랜 하나라면 빈 레인으로 갈아끼워준다
@@ -1260,7 +1249,6 @@ struct PlanBoard: Reducer {
                                     planIDsToUpdate.insert(parentID)
                                     break
                                 }
-                                
                                 let laneIndex = parentPlan.childPlanIDs.first(where: { $0.value.contains(planID) })!.key
                                 let indexInLane = parentPlan.childPlanIDs[laneIndex]!.firstIndex(of: planID)!
                                 /// 병합된 플랜이 속한 레인에 child가 이거 하나라면 레인을 삭제하고 나머지 레인들을 다시 정렬
@@ -1269,7 +1257,8 @@ struct PlanBoard: Reducer {
                                         state.existingPlans[parentID]!.childPlanIDs["\(currentLaneIndex)"] = state.existingPlans[parentID]!.childPlanIDs["\(currentLaneIndex + 1)"]
                                     }
                                     state.existingPlans[parentID]!.childPlanIDs["\(parentPlan.childPlanIDs.count - 1)"] = nil
-                                } else { /// 아니라면 해당 레인에서 병합된 플랜만 삭제
+                                } else { 
+                                    /// 아니라면 해당 레인에서 병합된 플랜만 삭제
                                     state.existingPlans[parentID]!.childPlanIDs[laneIndex]!.remove(at: indexInLane)
                                 }
                                 planIDsToUpdate.insert(parentID)
@@ -1323,7 +1312,6 @@ struct PlanBoard: Reducer {
                 if originPeriod == updatedPeriod { return .none }
                 let periodIndex = state.existingPlans[planID]?.periods?.first(where: { $0.value == originPeriod })!.key
                 state.existingPlans[planID]!.periods![periodIndex!]! = updatedPeriod
-                
                 var foundParentID: String?
                 /// 부모 plan의 totalPeriod를 업데이트
                 for parentPlanID in state.map[state.map.count-1] {
@@ -1335,7 +1323,6 @@ struct PlanBoard: Reducer {
                         break
                     }
                 }
-                
                 let plansToUpdate = [state.existingPlans[planID]!, state.existingPlans[foundParentID!]!]
                 let projectID = state.rootProject.id
                 return .run { _ in
@@ -1352,7 +1339,6 @@ struct PlanBoard: Reducer {
                 var foundDestinationParentPlan: Plan?
                 var sourceLaneIndexInParent = 0
                 var destinationLaneIndexInParent = 0
-                
                 for parentPlanID in parentLayer {
                     let parentPlan = state.existingPlans[parentPlanID]!
                     let childCount = parentPlan.childPlanIDs.count
@@ -1366,7 +1352,6 @@ struct PlanBoard: Reducer {
                     }
                     laneCount += childCount
                 }
-                
                 if let foundDestinationParentPlan = foundDestinationParentPlan {
                     /// source와 dest의 부모가 같다면 child 내에서만 순서 바꾸어주면 됨
                     if foundDestinationParentPlan.id == foundSourceParentPlan.id {
@@ -1388,7 +1373,6 @@ struct PlanBoard: Reducer {
                             state.existingPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(laneIndex)"] = foundDestinationParentPlan.childPlanIDs["\(laneIndex+1)"]
                         }
                         state.existingPlans[foundDestinationParentPlan.id]!.childPlanIDs["\(destinationLaneIndexInParent)"] = foundSourceParentPlan.childPlanIDs["\(sourceLaneIndexInParent)"]
-                        
                         // !!!: - 중복코드 (바로 아래)
                         /// 기존 source 부모의 child에서 삭제
                         for laneIndex in sourceLaneIndexInParent+1..<foundSourceParentPlan.childPlanIDs.count {
@@ -1415,13 +1399,12 @@ struct PlanBoard: Reducer {
                         await send(.reloadMap)
                     }
                 }
-                
                 let plansToUpdate = [state.existingPlans[foundSourceParentPlan.id]!, state.existingPlans[foundDestinationParentPlan!.id]!]
                 return .run { send in
                     await send(.reloadMap)
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
-                
+            
             case let .dragToMovePlanInList(targetID, source, destination, row, layer):
                 if source == destination { return .none }
                 let projectID = state.rootProject.id
@@ -1465,16 +1448,13 @@ struct PlanBoard: Reducer {
                             await send(.reloadMap)
                         }
                     }
-                    
                     /// 플랜이 이미 생성되어 있는 위치로 옮기는 경우
                     let parentLayer = state.map[layer - 1]
                     var targetParentPlan = state.rootPlan
                     var targetLaneIndexInParent = "0"
-                    
                     let currentPlanIDInDestinaton = state.map[layer][destination]
                     var destinationParentPlan = state.rootPlan
                     var destinationLaneIndexInParent = "0"
-                    
                     for parentPlanID in parentLayer {
                         let parentPlan = state.existingPlans[parentPlanID]!
                         let childsForArray = parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 })
@@ -1487,7 +1467,6 @@ struct PlanBoard: Reducer {
                             destinationLaneIndexInParent = parentPlan.childPlanIDs.filter({ $0.value.contains(currentPlanIDInDestinaton)})[0].key
                         }
                     }
-                    
                     /// 동일 부모 내에서 순서만 바꾸는 경우
                     if destinationParentPlan.id == targetParentPlan.id {
                         /// 그런데 destination의 laneIndex가 위아래 끝이면 위치가 바뀌는게 아니라 새 레인이 생긴다
@@ -1525,7 +1504,6 @@ struct PlanBoard: Reducer {
                             }
                         }
                     }
-                    
                     // !!!: - layer가 #0, #1만 있을 때 사용가능한 로직
                     /// dest 부모의 그 부모(layer0)의 인덱스를 파악
                     var indexInRoot = 0
@@ -1536,7 +1514,6 @@ struct PlanBoard: Reducer {
                             indexInRoot = index
                         }
                     }
-                    
                     /// 서로 다른 부모와 부모 플랜 사이에 생성하는 경우: 새 부모 플랜 생성
                     var planIDsToCreate = Set<String>()
                     var newParentPlan = state.rootPlan
@@ -1554,10 +1531,8 @@ struct PlanBoard: Reducer {
                         }
                     }
                     state.existingPlans[newParentPlan.id]!.childPlanIDs["0"] = [targetID]
-                    
                     /// 기존 부모 플랜의 레인이 가진 플랜이 나 하나뿐이라면 날 삭제하고도 레인은 남아있어야 함
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs[targetLaneIndexInParent]!.remove(at: targetParentPlan.childPlanIDs[targetLaneIndexInParent]!.firstIndex(of: targetID)!)
-                    
                     let plansToCreate = planIDsToCreate.map({ state.existingPlans[$0]! })
                     let plansToUpdate = [state.rootPlan, state.existingPlans[targetParentPlan.id]!]
                     return .run { send in
@@ -1580,7 +1555,6 @@ struct PlanBoard: Reducer {
                 var targetParentPlan = state.rootPlan
                 var destinationParentPlan: Plan?
                 var laneIndexInParent = 0
-                
                 /// 지우려는 targetPlan의 현재 부모를 찾는다
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
@@ -1606,7 +1580,6 @@ struct PlanBoard: Reducer {
                     /// 기존 parent의 child lane에서 플랜을 삭제하는데, 플랜이 이 레인이 이거 하나뿐이었더라도 레인은 삭제되지 않음
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.remove(at: targetParentPlan.childPlanIDs["\(laneIndexInParent)"]!.firstIndex(of: targetPlanID)!)
                 }
-                
                 if let destinationParentPlan = destinationParentPlan {
                     /// 이미 존재하는 plan에게 종속시키는 경우
                     state.existingPlans[destinationParentPlan.id]!.periods!["\(destinationParentPlan.periods!.count)"] = [startDate, endDate]
@@ -1830,7 +1803,6 @@ struct PlanBoard: Reducer {
                 var planIDsQ: [String] = [state.rootPlan.id]
                 var tempLayer: [String] = []
                 var totalLoop = 0
-                
                 while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
