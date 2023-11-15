@@ -15,7 +15,7 @@ enum LineAreaDragType {
     case pressBoth
 }
 
-enum PlanBoardAreaName {
+enum PlanBoardAreaName: String {
     case scheduleArea
     case timeAxisArea
     case listArea
@@ -67,8 +67,8 @@ struct PlanBoard: Reducer {
         
         /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var listAreaHoveredCellLocation: CGPoint = .zero
-        var listAreaHoveredCellRow = -1
-        var listAreaHoveredCellCol = -1
+        var listAreaHoveredCellRow: Int?
+        var listAreaHoveredCellCol: Int?
         
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineAreaHoveredCellLocation: CGPoint = .zero
@@ -102,7 +102,6 @@ struct PlanBoard: Reducer {
         var startDatePickerPresented = false
         var endDatePickerPresented = false
         
-        
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -114,7 +113,7 @@ struct PlanBoard: Reducer {
         var topToolBarFocusGroupClickedItem = ""
         var rightToolBarFocusGroupClickedItem = ""
         var isHoveredOnLineArea = false
-        var isHoveredOnListArea = false
+//        var isHoveredOnListArea = false
         
         /// popover
         var isShareImagePresented = false
@@ -1743,14 +1742,14 @@ struct PlanBoard: Reducer {
                 
             case let .setHoveredCell(area, isActive, location):
                 if area == .listArea {
-                    state.isHoveredOnListArea = isActive
+                    state.hoveredItem = area.rawValue
                     if isActive {
                         state.listAreaHoveredCellLocation = location!
                         state.listAreaHoveredCellRow = Int(state.listAreaHoveredCellLocation.y / state.lineAreaGridHeight)
                         state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / 150)
                     } else {
-                        state.listAreaHoveredCellRow = -1
-                        state.listAreaHoveredCellCol = -1
+                        state.listAreaHoveredCellRow = nil
+                        state.listAreaHoveredCellCol = nil
                     }
                 }
                 return .none
@@ -1759,8 +1758,8 @@ struct PlanBoard: Reducer {
                 switch buttonName {
                 case .listItem:
                     if clicked {
-                        state.selectedListRow = state.listAreaHoveredCellRow
-                        state.selectedListColumn = state.listAreaHoveredCellCol
+                        state.selectedListRow = state.listAreaHoveredCellRow!
+                        state.selectedListColumn = state.listAreaHoveredCellCol!
                         
                         let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
                         let planTypeId = state.existingPlans[planId]!.planTypeID
@@ -1774,8 +1773,8 @@ struct PlanBoard: Reducer {
                 case .emptyListItem:
                     if clicked {
                         state.keyword = ""
-                        state.selectedEmptyRow = state.listAreaHoveredCellRow
-                        state.selectedEmptyColumn = state.listAreaHoveredCellCol
+                        state.selectedEmptyRow = state.listAreaHoveredCellRow!
+                        state.selectedEmptyColumn = state.listAreaHoveredCellCol!
                         break
                     } else {
                         state.keyword = ""

@@ -229,25 +229,27 @@ extension PlanBoardView {
                     
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// hover 되었을 때
-                    if viewStore.isHoveredOnListArea {
-                        Rectangle()
-                            .fill(Color.itemHovered)
-                            .frame(
-                                width: gridWidth,
-                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
-                            )
-                            .position(x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(viewStore.listAreaHoveredCellCol),
-                                      y: CGFloat(Double(viewStore.listAreaHoveredCellRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
-                            .onTapGesture {
-                                
-                            }
-                            .highPriorityGesture(TapGesture(count: 2).onEnded({
-                                listItemFocused = true
-                                viewStore.send(.listItemDoubleClicked(.listItem, false))
-                                viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
-                                viewStore.send(.setHoveredCell(.listArea, false, nil))
-                            }))
-                            .opacity((viewStore.selectedEmptyRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedEmptyColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
+                    if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
+                        if let hoveredRow = viewStore.listAreaHoveredCellRow, let hoveredCol = viewStore.listAreaHoveredCellCol {
+                            Rectangle()
+                                .fill(Color.itemHovered)
+                                .frame(
+                                    width: gridWidth,
+                                    height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                                )
+                                .position(x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
+                                          y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
+                                .onTapGesture {
+                                    
+                                }
+                                .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                    listItemFocused = true
+                                    viewStore.send(.listItemDoubleClicked(.listItem, false))
+                                    viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
+                                    viewStore.send(.setHoveredCell(.listArea, false, nil))
+                                }))
+                                .opacity((viewStore.selectedEmptyRow == hoveredRow)&&(viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
+                        }
                     }
                     
                     /// double click 되었을 때
