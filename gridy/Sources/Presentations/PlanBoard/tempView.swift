@@ -18,14 +18,8 @@ struct TempView: View {
             createdDate: Date(),
             lastModifiedDate: Date(),
             rootPlanID: "",
-            countLayerInListArea: 0
-        ),
-        rootPlan: Plan(
-            id: "0000",
-            planTypeID: "0000",
-            childPlanIDs: [:]
-        ),
-        map: [[]])) {
+            countLayerInListArea: 1
+        ))) {
             PlanBoard()
         }
     
@@ -143,7 +137,7 @@ struct TempView: View {
                             Text("to:")
                             TextField("", text: $toRow)
                         }
-
+                        
                         Button {
                             viewStore.send(
                                 .deleteLaneConents(rows: [Int(fromRow)!, Int(toRow)!])

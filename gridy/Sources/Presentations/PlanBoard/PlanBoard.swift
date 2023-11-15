@@ -19,15 +19,17 @@ struct PlanBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
     
-    struct State: Equatable {
+    struct State: Equatable, Identifiable {
         var rootProject: Project
-        var rootPlan: Plan
-        var map: [[String]]
+        var id: String { rootProject.id }
+        var rootPlan = Plan.mock
+        var map: [[String]] = [[]]
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
         
         var keyword = ""
+        var title = ""
         var selectedColorCode = Color.red
         
         /// ScheduleArea의 Row 갯수로, 나중에는 View의 크기에 따라 max갯수를 계산시키는 로직으로 변경되면서 maxScheduleAreaRow라는 변수가 될 예정입니다.
@@ -72,6 +74,12 @@ struct PlanBoard: Reducer {
         var isShiftKeyPressed = false
         var isCommandKeyPressed = false
         
+        /// BoardSettingView
+        var selectedStartDate = Date()
+        var selectedEndDate = Date()
+        var startDatePickerPresented = false
+        var endDatePickerPresented = false
+        
         // MARK: - list area
         var showingLayers = [0]
         var showingRows = 20
@@ -87,7 +95,7 @@ struct PlanBoard: Reducer {
         var isRightToolBarPresented = true
     }
     
-    enum Action: Equatable {
+    enum Action: Equatable, Sendable {
         // MARK: - user action
         case onAppear
         case selectColorCode(Color)
@@ -149,6 +157,12 @@ struct PlanBoard: Reducer {
         case onContinuousHover(Bool, CGPoint?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         
+        // MARK: - BoardSettingView
+        case titleChanged(String)
+        case selectedStartDateChanged(Date)
+        case selectedEndDateChanged(Date)
+        case projectTitleChanged
+        
         // MARK: - map
         case reloadMap
     }
@@ -159,7 +173,6 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - user action
             case .onAppear:
-                state.existingPlans = [state.rootPlan.id: state.rootPlan]
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
@@ -188,6 +201,7 @@ struct PlanBoard: Reducer {
                 case .shareImageButton:
                     state.isShareImagePresented = bool
                 case .boardSettingButton:
+                    state.title = state.rootProject.title
                     state.isBoardSettingPresented = bool
                 case .rightToolBarButton:
                     state.isRightToolBarPresented = bool
@@ -1672,6 +1686,27 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
+                
+            case let .titleChanged(changedTitle):
+                state.title = changedTitle
+                return .none
+                
+            case let .selectedStartDateChanged(date):
+                state.selectedStartDate = date
+                return .none
+                
+            case let .selectedEndDateChanged(date):
+                state.selectedEndDate = date
+                return .none
+                
+            case .projectTitleChanged:
+                let id = state.rootProject.id
+                let changedTitle = state.title
+                state.rootProject.title = state.title
+                let projectToUpdate = [state.rootProject]
+                return .run { send in
+                    try await apiService.updateProjects(projectToUpdate)
+                }
                 
             case .reloadMap:
                 var newMap: [[String]] = []

@@ -25,6 +25,6 @@ struct Project: Identifiable, Decodable, Equatable {
         createdDate: Date(),
         lastModifiedDate: Date(),
         rootPlanID: "",
-        countLayerInListArea: 0
+        countLayerInListArea: 1
     )
 }

@@ -26,7 +26,7 @@ struct Authentication: Reducer {
         var isShowingProjectBoard = false
         
         /// Navigation
-        var optionalProjectBoard = ProjectBoard.State()
+        var optionalProjectBoard = ProjectBoard.State(user: User.mock)
     }
     
     enum Action: Equatable, Sendable {
@@ -87,6 +87,7 @@ struct Authentication: Reducer {
                 
             case let .fetchUserResponse(.success(response)):
                 state.authenticatedUser = response ?? User.mock
+                state.optionalProjectBoard.user = state.authenticatedUser
                 state.successToSignIn = true
                 return .none
                 

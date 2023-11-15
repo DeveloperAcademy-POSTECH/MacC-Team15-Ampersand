@@ -17,15 +17,18 @@ struct ProjectItem: Reducer {
     struct State: Equatable, Identifiable {
         @BindingState var project = Project.mock
         var id: String { project.id }
-        @BindingState var delete = false
-        @BindingState var showSheet = false
+        @BindingState var isDeleted = false
+        @BindingState var isEditing = false
         @BindingState var isTapped = false
+        @BindingState var isSelected = false
         var isHovering = false
+        var hoveredItem = ""
     }
     
     enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
         case isHovering(hovered: Bool)
+        case hoveredItem(name: String)
     }
     
     var body: some Reducer<State, Action> {
@@ -33,6 +36,10 @@ struct ProjectItem: Reducer {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+                
+            case let .hoveredItem(name: hoveredItem):
+                state.hoveredItem = hoveredItem
                 return .none
                 
             case let .isHovering(hovered):

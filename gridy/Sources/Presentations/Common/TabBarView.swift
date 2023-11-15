@@ -9,12 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TabBarView: View {
-    @State var homeButtonHover = false
-    @State var homeButtonClicked = false
-    @State var planBoardTabHover = false
-    @State var planBoardTabClicked = false
-    @State var bellButtonHover = false
-    @Binding var bellButtonClicked: Bool
     let store: StoreOf<ProjectBoard>
     
     var body: some View {
@@ -46,7 +40,7 @@ struct TabBarView: View {
                 systemBorder(.vertical)
                 notificationButton
                     .popover(isPresented: isNotificationPresented, attachmentAnchor: .point(.bottom)) {
-                        NotificationView()
+                        NotificationView(store: store)
                     }
             }
             .background(Color.tabBar)
@@ -144,43 +138,53 @@ extension TabBarView {
 
 struct TabItemView: View {
     let store: StoreOf<ProjectBoard>
-    @State var isDeleteButtonHovered = false
     let projectID: String
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text(viewStore.projects[id: projectID]!.project.title)
-                    .fontWeight(.medium)
-                    .padding(.leading, 16)
-                    .foregroundStyle(
-                        viewStore.hoveredItem == projectID ||
-                        viewStore.tabBarFocusGroupClickedItem == projectID ?
-                        Color.tabLabel : Color.tabLabelInactive
-                    )
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(Color.clear)
+                    Text(viewStore.projects[id: projectID]!.project.title)
+                        .fontWeight(.medium)
+                        .padding(.leading, 16)
+                        .foregroundStyle(
+                            viewStore.hoveredItem == projectID ||
+                            viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
+                            viewStore.tabBarFocusGroupClickedItem == projectID ?
+                            Color.tabLabel : .tabLabelInactive
+                        )
+                }
+                .frame(height: 36)
+                .fixedSize()
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
+                }
                 Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(width: 32)
+                    .foregroundStyle(Color.clear)
+                    .aspectRatio(1, contentMode: .fit)
                     .overlay(
                         Image(systemName: "xmark")
                             .foregroundStyle(
-                                isDeleteButtonHovered ?
+                                viewStore.hoveredItem == .tabItemDeleteButton + projectID ?
                                 Color.tabLabel : viewStore.hoveredItem == projectID ||
                                 viewStore.tabBarFocusGroupClickedItem == projectID ?
-                                Color.subtitle : Color.clear
+                                Color.subtitle : .clear
                             )
                     )
                     .onHover { isHovered in
-                        isDeleteButtonHovered = isHovered
+                        viewStore.send(.hoveredItem(name: isHovered ? .tabItemDeleteButton + projectID : ""))
                     }
                     .onTapGesture {
-                        viewStore.send(.deleteShowingTap(projectID: projectID))
+                        viewStore.send(.deleteShowingTab(projectID: projectID))
                     }
             }
             .background(
                 viewStore.hoveredItem == projectID ||
+                viewStore.hoveredItem == .tabItemDeleteButton + projectID ||
                 viewStore.tabBarFocusGroupClickedItem == projectID ?
-                Color.tabHovered : Color.tabBar
+                Color.tabHovered : .tabBar
             )
             .onHover { isHovered in
                 viewStore.send(.hoveredItem(name: isHovered ? projectID : ""))
@@ -190,7 +194,7 @@ struct TabItemView: View {
                     focusGroup: .tabBarFocusGroup,
                     name: projectID
                 ))
-                viewStore.send(.setShowingTap(
+                viewStore.send(.setShowingTab(
                     project: viewStore.projects[id: projectID]!.project
                 ))
             }

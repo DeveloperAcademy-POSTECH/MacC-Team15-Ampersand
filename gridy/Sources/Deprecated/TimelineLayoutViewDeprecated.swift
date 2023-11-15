@@ -64,7 +64,7 @@
 //
 //struct TimelineLayoutView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock, map: Project.mock.map), reducer: { PlanBoard() }))
+//        TimelineLayoutView(store: Store(initialState: PlanBoard.State(rootProject: Project.mock), reducer: { PlanBoard() }))
 //    }
 //}
 //
