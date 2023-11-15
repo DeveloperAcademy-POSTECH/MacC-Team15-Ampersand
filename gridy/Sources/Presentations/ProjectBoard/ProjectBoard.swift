@@ -90,6 +90,8 @@ struct ProjectBoard: Reducer {
         case createNewProjectButtonTapped
         case createProjectResponse(TaskResult<Project>)
         
+        case fetchShowingProject
+        case fetchShowingProjectResponse(TaskResult<Project>)
         case fetchAllProjects
         case fetchAllProjectsResponse(TaskResult<[Project]?>)
         
@@ -411,10 +413,23 @@ struct ProjectBoard: Reducer {
                 state.selectionOption = option
                 return .none
                 
-            case .optionalPlanBoard(.projectTitleChanged):
+            case .optionalPlanBoard:
                 return .run { send in
-                    await send(.fetchAllProjects)
+                    await send(.fetchShowingProject)
                 }
+                
+            case .fetchShowingProject:
+                let projectID = state.showingProject!.id
+                return .run { send in
+                    await send(.fetchShowingProjectResponse(
+                        TaskResult {
+                            try await apiService.readProject(projectID)
+                        }
+                    ))
+                }
+            case let .fetchShowingProjectResponse(.success(response)):
+                state.projects[id: response.id]!.project = response
+                return .none
                 
             default:
                 return .none
