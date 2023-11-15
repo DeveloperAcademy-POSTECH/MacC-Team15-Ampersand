@@ -51,6 +51,7 @@ extension String {
     static let endDateHoveredButton = "endDateHoveredButton"
     static let cancelButton = "cancelButton"
     static let editButton = "editButton"
+    static let createButton = "createButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */

@@ -79,7 +79,7 @@ extension CreateFolderView {
                 ))
             } label: {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(viewStore.hoveredItem == "createButton" ? Color.buttonHovered : .button)
+                    .foregroundStyle(viewStore.hoveredItem == .createButton ? Color.buttonHovered : .button)
                     .frame(height: 32)
                     .overlay(
                         Text("Create")
@@ -90,7 +90,7 @@ extension CreateFolderView {
             }
             .buttonStyle(.link)
             .onHover { isHovered in
-                viewStore.send(.hoveredItem(name: isHovered ? "createButton" : ""))
+                viewStore.send(.hoveredItem(name: isHovered ? .createButton : ""))
             }
         }
     }

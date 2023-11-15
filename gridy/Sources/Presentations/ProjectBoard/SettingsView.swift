@@ -18,7 +18,10 @@ struct SettingsView: View {
                 profileImage
                 nameForm
                 jobForm.padding(.bottom, 16)
-                exit
+                HStack(alignment: .center) {
+                    exit
+                    done
+                }
             }
             .padding(16)
             .background(.white)
@@ -163,6 +166,36 @@ extension SettingsView {
                 .buttonStyle(.link)
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? .exitButton : ""))
+                }
+                Spacer()
+            }
+        }
+    }
+}
+
+extension SettingsView {
+    var done: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack {
+                Button {
+                    viewStore.send(.popoverPresent(
+                        button: .settingButton,
+                        bool: false
+                    ))
+                } label: {
+                    Text("Done")
+                        .font(.title3)
+                        .fontWeight(.regular)
+                        .foregroundStyle(Color.title)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .foregroundStyle(viewStore.hoveredItem == "doneButton" ? Color.itemHovered : .item)
+                                .frame(width: 64, height: 24)
+                        )
+                }
+                .buttonStyle(.link)
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? "doneButton" : ""))
                 }
                 Spacer()
             }
