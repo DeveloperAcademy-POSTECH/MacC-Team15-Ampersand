@@ -110,8 +110,8 @@ extension PlanBoardView {
                 ZStack {
                     Color.index
                     Path { path in
-                        for rowIndex in 0..<viewStore.maxLineAreaRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke
+                        for rowIndex in 1...viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
@@ -307,6 +307,7 @@ extension PlanBoardView {
                         let layer = viewStore.map[layerIndex]
                         VStack(alignment: .leading, spacing: viewStore.rowStroke) {
                             ForEach(layer.indices, id: \.self) { rowIndex in
+                                let plan = viewStore.existingPlans[layer[rowIndex]] ?? Plan.mock
                                 /// doubleClick 되었을 떄
                                 if viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex {
                                     Rectangle()
@@ -333,6 +334,7 @@ extension PlanBoardView {
                                                 viewStore.send(.listItemDoubleClicked(.listItem, false))
                                             }
                                         )
+                                        .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {
                                     Rectangle()
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
@@ -350,10 +352,7 @@ extension PlanBoardView {
                                         }
                                 }
                             }
-                            .frame(
-                                width: gridWidth,
-                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
-                            )
+                            .frame(width: gridWidth)
                         }
                     }
                 }
