@@ -20,6 +20,7 @@ enum PlanBoardAreaName: String {
     case timeAxisArea
     case listArea
     case lineArea
+    case lineIndexArea
 }
 
 struct PlanBoard: Reducer {
@@ -70,6 +71,10 @@ struct PlanBoard: Reducer {
         var listAreaHoveredCellRow: Int?
         var listAreaHoveredCellCol: Int?
         
+        /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var lineIndexAreaHoveredCellLocation: CGPoint = .zero
+        var lineIndexAreaHoveredCellRow: Int?
+        
         /// LineArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineAreaHoveredCellLocation: CGPoint = .zero
         var lineAreaHoveredCellRow = 0
@@ -113,7 +118,6 @@ struct PlanBoard: Reducer {
         var topToolBarFocusGroupClickedItem = ""
         var rightToolBarFocusGroupClickedItem = ""
         var isHoveredOnLineArea = false
-//        var isHoveredOnListArea = false
         
         /// popover
         var isShareImagePresented = false
@@ -1750,6 +1754,14 @@ struct PlanBoard: Reducer {
                     } else {
                         state.listAreaHoveredCellRow = nil
                         state.listAreaHoveredCellCol = nil
+                    }
+                } else if area == .lineIndexArea {
+                    state.hoveredItem = area.rawValue
+                    if isActive {
+                        state.lineIndexAreaHoveredCellLocation = location!
+                        state.lineIndexAreaHoveredCellRow = Int(state.lineIndexAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                    } else {
+                        state.lineIndexAreaHoveredCellRow = nil
                     }
                 }
                 return .none

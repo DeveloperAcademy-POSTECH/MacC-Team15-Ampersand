@@ -117,6 +117,30 @@ extension PlanBoardView {
                         }
                     }
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
+                    
+                    if viewStore.hoveredItem == PlanBoardAreaName.lineIndexArea.rawValue {
+                        if let hoveredRow = viewStore.lineIndexAreaHoveredCellRow {
+                            Rectangle()
+                                .fill(Color.itemHovered)
+                                .frame(
+                                    width: geometry.size.width,
+                                    height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                                )
+                                .position(x: geometry.size.width / 2,
+                                          y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
+                                .onTapGesture {
+                                    // TODO: - line 선택되게
+                                }
+                        }
+                    }
+                }
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredCell(.lineIndexArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredCell(.lineIndexArea, false, nil))
+                    }
                 }
             }
         }
