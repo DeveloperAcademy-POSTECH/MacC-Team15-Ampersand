@@ -295,7 +295,7 @@ extension ProjectBoardView {
                             viewStore.send(.hoveredItem(name: isHovered ? "personalProject" : ""))
                         }
                         .background(
-                            viewStore.isDisclosureGroupExpanded  || viewStore.hoveredItem == "personalProject" ?
+                            viewStore.isDisclosureGroupExpanded || viewStore.hoveredItem == "personalProject" ?
                             Color.itemHovered : .clear
                         )
                         .onTapGesture {
@@ -553,7 +553,7 @@ extension ProjectBoardView {
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .foregroundStyle(
-                            viewStore.themeFocusGroupClickedItem == .automaticButton ? 
+                            viewStore.themeFocusGroupClickedItem == .automaticButton ?
                             Color.blackWhite : viewStore.hoveredItem == "automatic" ? Color.blackWhite : .clear
                         )
                 )
@@ -573,7 +573,7 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .lightButton ? Color.title : .clear)
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem == .lightButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
@@ -581,7 +581,7 @@ extension ProjectBoardView {
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .foregroundStyle(
-                            viewStore.themeFocusGroupClickedItem  == .lightButton ?
+                            viewStore.themeFocusGroupClickedItem == .lightButton ?
                             Color.blackWhite : viewStore.hoveredItem == "light" ? Color.blackWhite : .clear
                         )
                 )
@@ -601,7 +601,7 @@ extension ProjectBoardView {
                         .fontWeight(.medium)
                         .foregroundStyle(Color.title)
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem  == .darkButton ? Color.title : .clear)
+                    Image(systemName: "checkmark").foregroundStyle(viewStore.themeFocusGroupClickedItem == .darkButton ? Color.title : .clear)
                 }
                 .frame(height: 40)
                 .padding(.leading, 16)
@@ -609,7 +609,7 @@ extension ProjectBoardView {
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .foregroundStyle(
-                            viewStore.themeFocusGroupClickedItem  == .darkButton ? 
+                            viewStore.themeFocusGroupClickedItem == .darkButton ?
                             Color.blackWhite : viewStore.hoveredItem == "dark" ? Color.blackWhite : .clear
                         )
                 )
