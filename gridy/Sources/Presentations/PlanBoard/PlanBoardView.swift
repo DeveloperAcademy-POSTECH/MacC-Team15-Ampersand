@@ -151,8 +151,9 @@ extension PlanBoardView {
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlLeft + String(layerIndex) : ""))
                                     }
                                     .onTapGesture {
-                                        // TODO: - layerCreate
+                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex))
                                     }
+//                                    .disabled(viewStore.map.count > 1)
                                 
                                 Rectangle()
                                     .foregroundStyle(.clear)
@@ -172,8 +173,9 @@ extension PlanBoardView {
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlRight + String(layerIndex) : ""))
                                     }
                                     .onTapGesture {
-                                        // TODO: - layerCreate
+                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex + 1))
                                     }
+//                                    .disabled(viewStore.map.count > 1)
                             }
                             .background {
                                 RoundedRectangle(cornerRadius: 16)

@@ -622,18 +622,29 @@ struct PlanBoard: Reducer {
                         state.existingPlans[newPlan.id] = newPlan
                         createdPlans.append(newPlan)
                         state.existingPlans[prevPlanID]!.childPlanIDs[String(index)] = [newPlan.id]
-                        if prevPlanID != state.rootPlan.id {
+                        
+                        if !updatedPlans.contains(state.existingPlans[prevPlanID]!) {
                             updatedPlans.append(state.existingPlans[prevPlanID]!)
                         }
+                        
+                        if prevPlanID == state.rootPlan.id {
+                            state.rootPlan.childPlanIDs[String(index)] = childPlanIDs
+                        }
+//                        if prevPlanID != state.rootPlan.id {
+//                            updatedPlans.append(state.existingPlans[prevPlanID]!)
+//                        } else {
+//                            state.rootPlan.childPlanIDs[String(index)] = childPlanIDs
+//                        }
                     }
-                    if prevPlanID == state.rootPlan.id && state.existingPlans[prevPlanID]!.childPlanIDs.isEmpty {
-                        updatedPlans.append(state.existingPlans[prevPlanID]!)
-                    }
+//                    if prevPlanID == state.rootPlan.id {
+//                        updatedPlans.append(state.existingPlans[prevPlanID]!)
+//                    }
                 }
                 let plansToUpdate = updatedPlans
                 let plansToCreate = createdPlans
                 let projectToUpdate = state.rootProject
                 return .run { send in
+                    await send(.reloadMap)
                     try await apiService.updateProjects([projectToUpdate])
                     try await apiService.createPlans(
                         plansToCreate,
@@ -643,7 +654,6 @@ struct PlanBoard: Reducer {
                         plansToUpdate,
                         projectID
                     )
-                    await send(.reloadMap)
                 }
                 
             case let .createLaneButtonClicked(row, createOnTop):
