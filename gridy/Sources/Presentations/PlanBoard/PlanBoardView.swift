@@ -154,7 +154,6 @@ extension PlanBoardView {
                                     .onTapGesture {
                                         viewStore.send(.createLayerButtonClicked(layer: layerIndex))
                                     }
-//                                    .disabled(viewStore.map.count > 1)
                                 
                                 Rectangle()
                                     .foregroundStyle(.clear)
@@ -177,13 +176,20 @@ extension PlanBoardView {
                                     .onTapGesture {
                                         viewStore.send(.createLayerButtonClicked(layer: layerIndex + 1))
                                     }
-//                                    .disabled(viewStore.map.count > 1)
                             }
                             .background {
                                 RoundedRectangle(cornerRadius: 16)
                                     .foregroundStyle(viewStore.hoveredItem.contains("layerControl") && viewStore.hoveredItem.contains(String(layerIndex)) ?
                                                      Color.itemHovered : .item
                                     )
+                            }
+                            .contextMenu {
+                                Button("Clear Layer") {
+                                    viewStore.send(.deleteLayerContents(layer: layerIndex))
+                                }
+                                Button("Delete Layer") {
+                                    
+                                }
                             }
                             .frame(height: 20)
                         }
