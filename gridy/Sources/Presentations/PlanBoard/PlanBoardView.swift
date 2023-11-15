@@ -145,6 +145,7 @@ extension PlanBoardView {
                                         Image(systemName: "chevron.left")
                                             .fontWeight(.bold)
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlLeft + String(layerIndex) ? .red : .red.opacity(0.5))
+                                            .opacity(viewStore.map.count > 1 ? 0 : 1)
                                     )
                                     .frame(width: 25)
                                     .onHover { isHovered in
@@ -167,6 +168,7 @@ extension PlanBoardView {
                                         Image(systemName: "chevron.right")
                                             .fontWeight(.bold)
                                             .foregroundStyle(viewStore.hoveredItem == .layerControlRight + String(layerIndex) ? .blue : .blue.opacity(0.5))
+                                            .opacity(viewStore.map.count > 1 ? 0 : 1)
                                     )
                                     .frame(width: 25)
                                     .onHover { isHovered in

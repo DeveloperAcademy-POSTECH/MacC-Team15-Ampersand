@@ -28,6 +28,7 @@ struct PlanBoard: Reducer {
     
     struct State: Equatable, Identifiable {
         var rootProject: Project
+        var id: String { rootProject.id }
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
         var searchPlanTypesResult = [PlanType]()
@@ -611,6 +612,9 @@ struct PlanBoard: Reducer {
                 
                 // MARK: - listArea
             case let .createLayerButtonClicked(layer):
+                if state.map.count > 1 {
+                    return .none
+                }
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
                 var createdPlans = [Plan]()
@@ -640,15 +644,7 @@ struct PlanBoard: Reducer {
                         if prevPlanID == state.rootPlan.id {
                             state.rootPlan.childPlanIDs[String(index)] = childPlanIDs
                         }
-//                        if prevPlanID != state.rootPlan.id {
-//                            updatedPlans.append(state.existingPlans[prevPlanID]!)
-//                        } else {
-//                            state.rootPlan.childPlanIDs[String(index)] = childPlanIDs
-//                        }
                     }
-//                    if prevPlanID == state.rootPlan.id {
-//                        updatedPlans.append(state.existingPlans[prevPlanID]!)
-//                    }
                 }
                 let plansToUpdate = updatedPlans
                 let plansToCreate = createdPlans
@@ -1811,9 +1807,9 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .projectTitleChanged:
-                let id = state.rootProject.id
+//                let id = state.rootProject.id
                 let changedTitle = state.title
-                state.rootProject.title = state.title
+                state.rootProject.title = changedTitle
                 let projectToUpdate = [state.rootProject]
                 return .run { send in
                     try await apiService.updateProjects(projectToUpdate)
