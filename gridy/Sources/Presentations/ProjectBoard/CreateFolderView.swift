@@ -74,7 +74,7 @@ extension CreateFolderView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 viewStore.send(.popoverPresent(
-                    button: .createPlanBoardButton,
+                    button: .createFolderButton,
                     bool: false
                 ))
             } label: {

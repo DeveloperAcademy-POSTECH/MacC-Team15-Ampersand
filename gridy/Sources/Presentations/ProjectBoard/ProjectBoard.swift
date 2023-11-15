@@ -69,6 +69,7 @@ struct ProjectBoard: Reducer {
         var isNotificationPresented = false
         var isUserSettingPresented = false
         var isCreatePlanBoardPresented = false
+        var isCreateFolderPresented = false
         var isEditPlanBoardPresented = false
         var isThemeSettingPresented = false
         var isSettingsViewPresented = false
@@ -164,6 +165,9 @@ struct ProjectBoard: Reducer {
                     state.isUserSettingPresented = bool
                 case .createPlanBoardButton:
                     state.isCreatePlanBoardPresented = bool
+                case .createFolderButton:
+                    state.isCreateFolderPresented = bool
+                    
                 case .editPlanBoardButton:
                     state.isEditPlanBoardPresented = bool
                 case .themeSettingButton:

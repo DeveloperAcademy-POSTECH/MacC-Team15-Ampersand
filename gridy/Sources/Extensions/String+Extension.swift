@@ -32,6 +32,7 @@ extension String {
     static let notificationButton = "notificationButton"
     static let userSettingButton = "userSettingButton"
     static let createPlanBoardButton = "createPlanBoardButton"
+    static let createFolderButton = "createFolderButton"
     static let editPlanBoardButton = "editPlanBoardButton"
     static let themeSettingButton = "themeSettingButton"
     static let settingButton = "settingButton"
