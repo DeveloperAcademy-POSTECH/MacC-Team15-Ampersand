@@ -45,4 +45,8 @@ extension String {
     static let layerControlButton = "layerControlButton"
     static let layerControlLeft = "layerControlLeft"
     static let layerControlRight = "layerControlRight"
+    
+    /* ListItem */
+    static let listItem = "listItem"
+    static let emptyListItem = "emptyListItem"
 }

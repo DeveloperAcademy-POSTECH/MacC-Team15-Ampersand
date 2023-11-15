@@ -181,8 +181,7 @@ struct PlanBoard: Reducer {
         case magnificationChangedInListArea(CGFloat, CGSize)
         
         // MARK: - list area
-        case emptyListItemDoubleClicked(Bool)
-        case listItemDoubleClicked(Bool)
+        case listItemDoubleClicked(String, Bool)
         case keywordChanged(String)
         
         case setSheet(Bool)
@@ -578,7 +577,7 @@ struct PlanBoard: Reducer {
                     ))
                 }
                 
-            // TODO: - 삭제
+                // TODO: - 삭제
             case let .readPlansResponse(.failure(_)):
                 print("fail")
                 return .none
@@ -1723,28 +1722,36 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .emptyListItemDoubleClicked(clicked):
-                if clicked {
-                    state.keyword = ""
-                    state.selectedEmptyRow = state.listAreaHoveredCellRow
-                    state.selectedEmptyColumn = state.listAreaHoveredCellCol
-                } else {
-                    state.keyword = ""
-                    state.selectedEmptyRow = nil
-                    state.selectedEmptyColumn = nil
-                }
-                return .none
-                
-            case let .listItemDoubleClicked(clicked):
-                if clicked {
-                    state.selectedListRow = state.listAreaHoveredCellRow
-                    state.selectedListColumn = state.listAreaHoveredCellCol
+            case let .listItemDoubleClicked(buttonName, clicked):
+                switch buttonName {
+                case .listItem:
+                    if clicked {
+                        state.selectedListRow = state.listAreaHoveredCellRow
+                        state.selectedListColumn = state.listAreaHoveredCellCol
+                        
+                        let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
+                        let planTypeId = state.existingPlans[planId]!.planTypeID
+                        
+                        state.keyword = state.existingPlanTypes[planTypeId]!.title
+                    } else {
+                        state.selectedListRow = nil
+                        state.selectedListColumn = nil
+                    }
                     
-                    let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
-                    state.keyword = planId
-                } else {
-                    state.selectedListRow = nil
-                    state.selectedListColumn = nil
+                case .emptyListItem:
+                    if clicked {
+                        state.keyword = ""
+                        state.selectedEmptyRow = state.listAreaHoveredCellRow
+                        state.selectedEmptyColumn = state.listAreaHoveredCellCol
+                        break
+                    } else {
+                        state.keyword = ""
+                        state.selectedEmptyRow = nil
+                        state.selectedEmptyColumn = nil
+                    }
+                    
+                default:
+                    break
                 }
                 return .none
                 

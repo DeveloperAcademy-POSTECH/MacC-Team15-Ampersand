@@ -231,13 +231,12 @@ extension PlanBoardView {
                             }
                             .highPriorityGesture(TapGesture(count: 2).onEnded({
                                 listItemFocused = true
-                                viewStore.send(.listItemDoubleClicked(false))
-                                viewStore.send(.emptyListItemDoubleClicked(true))
+                                viewStore.send(.listItemDoubleClicked(.listItem, false))
+                                viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
                                 viewStore.send(.setHoveredCell(.listArea, false, nil))
                             }))
                             .opacity((viewStore.selectedEmptyRow == viewStore.listAreaHoveredCellRow)&&(viewStore.selectedEmptyColumn == viewStore.listAreaHoveredCellCol) ? 0 : 1)
                     }
-                    /// click 되었을 때
                     
                     /// double click 되었을 때
                     if let columnOffset = viewStore.selectedEmptyColumn, let rowOffset = viewStore.selectedEmptyRow {
@@ -260,10 +259,10 @@ extension PlanBoardView {
                                         text: viewStore.keyword,
                                         colorCode: PlanType.emptyPlanType.colorCode)
                                     )
-                                    viewStore.send(.emptyListItemDoubleClicked(false))
+                                    viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                 }
                                 .onExitCommand {
-                                    viewStore.send(.emptyListItemDoubleClicked(false))
+                                    viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                 }
                             )
                             .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
@@ -311,14 +310,17 @@ extension PlanBoardView {
                                             .textFieldStyle(.plain)
                                             .padding(.horizontal, 16)
                                             .onSubmit {
-                                                // TODO: - updatePlanTypeOnList
-                                                viewStore.send(.listItemDoubleClicked(false))
+                                                viewStore.send(.updatePlanTypeOnList(
+                                                    targetPlanID: layer[rowIndex],
+                                                    text: viewStore.keyword,
+                                                    colorCode: PlanType.emptyPlanType.colorCode
+                                                ))
+                                                viewStore.send(.listItemDoubleClicked(.listItem, false))
                                             }
                                             .onExitCommand {
-                                                viewStore.send(.listItemDoubleClicked(false))
+                                                viewStore.send(.listItemDoubleClicked(.listItem, false))
                                             }
                                         )
-                                /// hover 되었을 때
                                 } else {
                                     Rectangle()
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
@@ -330,8 +332,8 @@ extension PlanBoardView {
                                         }
                                         .onTapGesture(count: 2) {
                                             listItemFocused = true
-                                            viewStore.send(.emptyListItemDoubleClicked(false))
-                                            viewStore.send(.listItemDoubleClicked(true))
+                                            viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
+                                            viewStore.send(.listItemDoubleClicked(.listItem, true))
                                         }
                                 }
                             }
@@ -342,51 +344,6 @@ extension PlanBoardView {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-struct ListItemView: View {
-    let store: StoreOf<PlanBoard>
-    let layer: Int
-    let row: Int
-    @FocusState var textFieldFocused: Bool
-    
-    var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            if viewStore.selectedListRow == row && viewStore.selectedListColumn == layer {
-                Rectangle()
-                    .fill(Color.list)
-                    .overlay(
-                        TextField("editing",
-                                  text: viewStore.binding(
-                                    get: \.keyword,
-                                    send: { .keywordChanged($0) }
-                                  ))
-                        .focused($textFieldFocused)
-                        .multilineTextAlignment(.center)
-                        .textFieldStyle(.plain)
-                        .padding(.horizontal, 16)
-                        .onSubmit {
-                            // TODO: - updatePlanTypeOnList
-                            viewStore.send(.listItemDoubleClicked(false))
-                        }
-                        .onExitCommand {
-                            viewStore.send(.listItemDoubleClicked(false))
-                        }
-                    )
-            } else {
-                Rectangle()
-                    .fill(viewStore.listAreaHoveredCellCol == layer && viewStore.listAreaHoveredCellRow == row ? Color.itemHovered : Color.list)
-                    .overlay(
-                        Text(viewStore.map[layer][row])
-                    )
-                    .onTapGesture(count: 2) {
-                        textFieldFocused = true
-                        viewStore.send(.emptyListItemDoubleClicked(false))
-                        viewStore.send(.listItemDoubleClicked(true))
-                    }
             }
         }
     }
