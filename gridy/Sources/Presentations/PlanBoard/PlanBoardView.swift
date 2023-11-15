@@ -271,20 +271,6 @@ extension PlanBoardView {
                     }
                     /// map에 있는 정보
                     listMap
-//                    HStack(alignment: .top, spacing: viewStore.columnStroke) {
-//                        ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
-//                            let layer = viewStore.map[layerIndex]
-//                            VStack(alignment: .leading, spacing: viewStore.rowStroke) {
-//                                ForEach(layer.indices, id: \.self) { rowIndex in
-//                                    ListItemView(store: store, layer: layerIndex, row: rowIndex)
-//                                        .frame(
-//                                            width: gridWidth,
-//                                            height: viewStore.lineAreaGridHeight - viewStore.rowStroke
-//                                        )
-//                                }
-//                            }
-//                        }
-//                    }
                 }
                 .onContinuousHover { phase in
                     switch phase {

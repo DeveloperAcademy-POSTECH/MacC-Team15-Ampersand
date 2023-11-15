@@ -203,7 +203,6 @@ struct PlanBoard: Reducer {
                 } else {
                     state.rootPlan.id = state.rootProject.rootPlanID
                 }
-//                state.existingPlans = [state.rootPlan.id: state.rootPlan]
                 
                 return .run { send in
                     await send(.reloadMap)
