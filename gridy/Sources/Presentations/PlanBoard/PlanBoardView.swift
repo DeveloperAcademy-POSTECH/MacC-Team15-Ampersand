@@ -187,9 +187,11 @@ extension PlanBoardView {
                                 Button("Clear Layer") {
                                     viewStore.send(.deleteLayerContents(layer: layerIndex))
                                 }
+                                
                                 Button("Delete Layer") {
-                                    
+                                    viewStore.send(.deleteLayer(layer: layerIndex))
                                 }
+                                .disabled(viewStore.map.count == 1)
                             }
                             .frame(height: 20)
                         }
@@ -336,7 +338,8 @@ extension PlanBoardView {
                                         .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
                                         .overlay {
                                             let planID = viewStore.map[layerIndex][rowIndex]
-                                            let planTypeID = viewStore.existingPlans[planID]!.planTypeID
+                                            let plan = viewStore.existingPlans[planID] ?? Plan.mock
+                                            let planTypeID = plan.planTypeID
                                             
                                             Text("\(viewStore.existingPlanTypes[planTypeID]!.title)")
                                         }

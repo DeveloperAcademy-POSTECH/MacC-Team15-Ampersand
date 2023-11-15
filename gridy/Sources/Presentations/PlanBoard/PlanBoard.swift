@@ -622,7 +622,10 @@ struct PlanBoard: Reducer {
                 state.rootProject.countLayerInListArea += 1
                 let prevLayerPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                 if state.map.flatMap({ $0 }).isEmpty {
-                    return .none
+                    let projectToUpdate = state.rootProject
+                    return .run { _ in
+                        try await apiService.updateProjects([projectToUpdate])
+                    }
                 }
                 for prevPlanID in prevLayerPlanIDs {
                     let prevPlan = state.existingPlans[prevPlanID]!
@@ -736,15 +739,25 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .deleteLayer(layer):
+                /// layer가 1개 일 때 > 삭제 할 수 없음
+                if state.map.count == 1 {
+                    return .none
+                }
+                
                 let projectID = state.rootProject.id
                 var deletedPlans = [Plan]()
                 var updatedPlans = [Plan]()
                 state.rootProject.countLayerInListArea -= 1
-                /// layer가 하나인데 layer 삭제를 했을 때는 view에서 막아야 함. 혹시나 해서.
-                if state.map.count == 1 {
-                    return .none
+                
+                /// layer 2개 일 때
+                if state.map[layer].isEmpty {
+                    state.map.remove(at: layer)
+                    let projectToUpdate = state.rootProject
+                    return .run { send in
+                        await send(.reloadMap)
+                        try await apiService.updateProjects([projectToUpdate])
+                    }
                 } else {
-                    /// layer 2개 일 때
                     let parentPlanIDs = layer == 0 ? [state.rootPlan.id] : state.map[layer - 1]
                     for parentPlanID in parentPlanIDs {
                         let parentPlan = state.existingPlans[parentPlanID]!
@@ -774,6 +787,7 @@ struct PlanBoard: Reducer {
                 let plansToDelete = deletedPlans
                 let projectToUpdate = state.rootProject
                 return .run { send in
+                    await send(.reloadMap)
                     try await apiService.updateProjects([projectToUpdate])
                     try await apiService.updatePlans(
                         plansToUpdate,
@@ -785,10 +799,13 @@ struct PlanBoard: Reducer {
                             projectID
                         )
                     }
-                    await send(.reloadMap)
                 }
                 
             case let .deleteLayerContents(layer):
+                if state.map[layer].isEmpty {
+                    return .none
+                }
+                
                 let projectID = state.rootProject.id
                 var updatedPlanIDs = Set<String>()
                 let planIDsArray = state.map[layer]
@@ -1821,16 +1838,14 @@ struct PlanBoard: Reducer {
                 var tempLayer: [String] = []
                 var totalLoop = 0
                 
-                while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
+                while totalLoop < state.rootProject.countLayerInListArea {
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
                             tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
                         }
                     }
-                    if !tempLayer.isEmpty {
                         newMap.append(tempLayer)
-                    }
                     planIDsQ.removeAll()
                     planIDsQ.append(contentsOf: tempLayer)
                     tempLayer = []
