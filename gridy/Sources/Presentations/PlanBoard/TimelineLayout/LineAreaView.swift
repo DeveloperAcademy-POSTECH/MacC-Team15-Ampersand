@@ -8,27 +8,11 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct DrawnLine: Identifiable, Equatable {
-    let id = UUID()
-    var start: CGPoint
-    var end: CGPoint
-    var diamondStart: CGPoint
-    var diamondEnd: CGPoint
-}
-
 struct LineAreaView: View {
     
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
     @State private var timer: Timer?
-    
-    @State private var drawnRange: SelectedGridRange?
-    @State private var shouldDrawLine: Bool = false
-    @State private var drawLine: Bool = false
-    @State private var lineStart: CGPoint = .zero
-    @State private var lineEnd: CGPoint = .zero
-    @State private var diamondPosition: CGPoint = .zero
-    @State private var drawnLines: [DrawnLine] = []
     
     let store: StoreOf<PlanBoard>
     
@@ -133,7 +117,7 @@ struct LineAreaView: View {
                         Button {
                             viewStore.send(.escapeSelectedCell)
                         } label: { }
-                            .keyboardShortcut(.escape, modifiers: [])
+                        .keyboardShortcut(.escape, modifiers: [])
                     }
                     Color.white
                     
@@ -199,106 +183,62 @@ struct LineAreaView: View {
                             }
                         }
                     }
-                    
-                    if shouldDrawLine, let range = drawnRange {
-                        let startY = CGFloat(range.start.row + 1) * viewStore.lineAreaGridHeight
-                        let endY = CGFloat(range.end.row + 1) * viewStore.lineAreaGridHeight
-                        let startX = CGFloat(range.start.col) * viewStore.gridWidth
-                        let endX = CGFloat(range.end.col + 1) * viewStore.gridWidth
-                        
+                    if viewStore.shiftedCol == 0 {
+                            Rectangle()
+                                .fill(Color.green.opacity(0.5))  // 여기서 원하는 색상과 투명도를 설정
+                                .frame(width: viewStore.gridWidth, height: geometry.size.height)
+                                .position(x: viewStore.gridWidth / 2, y: geometry.size.height / 2)
+                        }
+                    if viewStore.shiftedRow == 0 {
                         Rectangle()
-                            .fill(Color.black)
-                            .frame(width: abs(endX - startX), height: 2)
-                            .position(x: (startX + endX) / 2, y: startY)
-                        
-                        let startcenterX = startX
-                        let centerX = endX
-                        let centerY = startY
-                        
-                        Path { path in
-                            let diamondSize: CGFloat = 10
-                            
-                            path.move(to: CGPoint(x: startcenterX, y: centerY - diamondSize / 2))
-                            path.addLine(to: CGPoint(x: startcenterX + diamondSize / 2, y: centerY))
-                            path.addLine(to: CGPoint(x: startcenterX, y: centerY + diamondSize / 2))
-                            path.addLine(to: CGPoint(x: startcenterX - diamondSize / 2, y: centerY))
-                            
-                            path.move(to: CGPoint(x: centerX, y: centerY - diamondSize / 2))
-                            path.addLine(to: CGPoint(x: centerX + diamondSize / 2, y: centerY))
-                            path.addLine(to: CGPoint(x: centerX, y: centerY + diamondSize / 2))
-                            path.addLine(to: CGPoint(x: centerX - diamondSize / 2, y: centerY))
-                            path.closeSubpath()
-                            
-                        }
-                        .fill(Color.purple)
-                        
+                            .fill(Color.cyan.opacity(0.5))
+                            .frame(width: geometry.size.width, height: viewStore.lineAreaGridHeight)
+                            .position(x: geometry.size.width / 2, y: viewStore.lineAreaGridHeight / 2)
                     }
-                    
-                    ForEach(drawnLines) { line in
-                        Path { path in
-                            path.move(to: line.start)
-                            path.addLine(to: line.end)
-                        }
-                        .stroke(Color.black, lineWidth: 2)
-                        
-                        Path { path in
-                            let diamondSize: CGFloat = 10
-                            path.move(to: CGPoint(x: line.start.x, y: line.start.y - diamondSize / 2))
-                            path.addLine(to: CGPoint(x: line.start.x + diamondSize / 2, y: line.start.y))
-                            path.addLine(to: CGPoint(x: line.start.x, y: line.start.y + diamondSize / 2))
-                            path.addLine(to: CGPoint(x: line.start.x - diamondSize / 2, y: line.start.y))
-                            
-                            path.move(to: CGPoint(x: line.end.x, y: line.end.y - diamondSize / 2))
-                            path.addLine(to: CGPoint(x: line.end.x + diamondSize / 2, y: line.end.y))
-                            path.addLine(to: CGPoint(x: line.end.x, y: line.end.y + diamondSize / 2))
-                            path.addLine(to: CGPoint(x: line.end.x - diamondSize / 2, y: line.end.y))
-                        }
-                        .fill(Color.red)
-                    }
+
                     
                 }
-                
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .onChange(of: exceededDirection) { direction in
                     if temporarySelectedGridRange != nil {
                         switch direction {
-                            case [true, false, false, false]:
-                                viewStore.send(
-                                    .dragExceeded(
-                                        shiftedRow: 0,
-                                        shiftedCol: -1,
-                                        exceededRow: 0,
-                                        exceededCol: -1
-                                    )
+                        case [true, false, false, false]:
+                            viewStore.send(
+                                .dragExceeded(
+                                    shiftedRow: 0,
+                                    shiftedCol: -1,
+                                    exceededRow: 0,
+                                    exceededCol: -1
                                 )
-                            case [false, true, false, false]:
-                                viewStore.send(
-                                    .dragExceeded(
-                                        shiftedRow: 0,
-                                        shiftedCol: 1,
-                                        exceededRow: 0,
-                                        exceededCol: 1
-                                    )
+                            )
+                        case [false, true, false, false]:
+                            viewStore.send(
+                                .dragExceeded(
+                                    shiftedRow: 0,
+                                    shiftedCol: 1,
+                                    exceededRow: 0,
+                                    exceededCol: 1
                                 )
-                            case [false, false, true, false]:
-                                viewStore.send(
-                                    .dragExceeded(
-                                        shiftedRow: -1,
-                                        shiftedCol: 0,
-                                        exceededRow: -1,
-                                        exceededCol: 0
-                                    )
+                            )
+                        case [false, false, true, false]:
+                            viewStore.send(
+                                .dragExceeded(
+                                    shiftedRow: -1,
+                                    shiftedCol: 0,
+                                    exceededRow: -1,
+                                    exceededCol: 0
                                 )
-                            case [false, false, false, true]:
-                                viewStore.send(
-                                    .dragExceeded(
-                                        shiftedRow: 1,
-                                        shiftedCol: 0,
-                                        exceededRow: 1,
-                                        exceededCol: 0
-                                    )
+                            )
+                        case [false, false, false, true]:
+                            viewStore.send(
+                                .dragExceeded(
+                                    shiftedRow: 1,
+                                    shiftedCol: 0,
+                                    exceededRow: 1,
+                                    exceededCol: 0
                                 )
-                            default: break
+                            )
+                        default: break
                         }
                     }
                 }
@@ -310,37 +250,24 @@ struct LineAreaView: View {
                 }
                 .onContinuousHover { phase in
                     switch phase {
-                        case .active(let location):
-                            viewStore.send(.onContinuousHover(true, location))
-                        case .ended:
-                            viewStore.send(.onContinuousHover(false, nil))
+                    case .active(let location):
+                        viewStore.send(.onContinuousHover(true, location))
+                    case .ended:
+                        viewStore.send(.onContinuousHover(false, nil))
                     }
                 }
                 .gesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onChanged { gesture in
                             /// local 뷰 기준 절대적인 드래그 시작점과 끝 점.
-                            let dragStart = gesture.startLocation
                             let dragEnd = gesture.location
+                            let dragStart = gesture.startLocation
                             /// 드래그된 값을 기준으로 시작점과 끝점의 Row, Col 계산
                             let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
-                            
-                            let startX = min(dragStart.x, dragEnd.x)
-                            let endX = max(dragStart.x, dragEnd.x)
-                            let rowY = dragEnd.y // 혹은 dragStart.y
-                            
-                            // 상태 변수 업데이트
-                            self.drawLine = true
-                            self.lineStart = CGPoint(x: startX, y: rowY)
-                            self.lineEnd = CGPoint(x: endX, y: rowY)
-                            self.diamondPosition = CGPoint(x: (startX + endX) / 2, y: rowY - 10)
-                            
-                            self.drawLine = true
-                            
                             exceededDirection = [
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width,
@@ -384,36 +311,11 @@ struct LineAreaView: View {
                                 }
                             }
                         }
-                        .onEnded { gesture in
+                        .onEnded { _ in
                             viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            
                             if temporarySelectedGridRange != nil {
-                                drawnRange = temporarySelectedGridRange
-                                shouldDrawLine = true
                                 temporarySelectedGridRange = nil
                             }
-                            
-                            let dragStart = gesture.startLocation
-                            let dragEnd = gesture.location
-                            let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
-                            let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
-                            let startCol = Int(dragStart.x / viewStore.gridWidth)
-                            let endCol = Int(dragEnd.x / viewStore.gridWidth)
-                            
-                            let rowBottomY = CGFloat(startRow + 1) * viewStore.lineAreaGridHeight
-                            let colLeftX = CGFloat(min(startCol, endCol)) * viewStore.gridWidth
-                            let colRightX = CGFloat(max(startCol, endCol) + 1) * viewStore.gridWidth
-                            
-                            self.lineStart = CGPoint(x: colLeftX, y: rowBottomY)
-                            self.lineEnd = CGPoint(x: colRightX, y: rowBottomY)
-                            
-                            let diamondStart = CGPoint(x: colLeftX, y: self.lineStart.y)
-                            let diamondEnd = CGPoint(x: colRightX, y: self.lineEnd.y)
-                            
-                            let newLine = DrawnLine(start: self.lineStart, end: self.lineEnd, diamondStart: diamondStart, diamondEnd: diamondEnd)
-                            self.drawnLines.append(newLine)
-                            
-                            temporarySelectedGridRange = nil
                             exceededDirection = [false, false, false, false]
                         }
                 )
