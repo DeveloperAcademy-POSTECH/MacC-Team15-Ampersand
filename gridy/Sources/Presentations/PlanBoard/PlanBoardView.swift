@@ -505,7 +505,7 @@ extension PlanBoardView {
                     default: 
                         break
                     }
-                })
+                }
                 .onAppear {
                     viewStore.send(.windowSizeChanged(geometry.size))
                 }
