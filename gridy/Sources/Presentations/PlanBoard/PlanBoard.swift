@@ -597,11 +597,9 @@ struct PlanBoard: Reducer {
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod = [startDate, endDate]
                 }
                 
-                let map = state.map
                 plansToCreate.append(newPlanOnLine)
                 plansToUpdate.append(state.rootPlan)
-                let merge = state.map[lastLayerIndex][row]
-                plansToUpdate.append(state.existingPlans[merge]!)
+                plansToUpdate.append(state.existingPlans[state.map[lastLayerIndex][row]]!)
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
@@ -1663,16 +1661,15 @@ struct PlanBoard: Reducer {
                         start: (lastSelected.start.row, lastSelected.start.col),
                         end: (lastSelected.start.row, lastSelected.start.col)
                     )]
-                }
-                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
-                // TODO: - 🚨ERROR! 드래그하고 떼지않은 상태로 esc를 누르면 nil exception 발생
-                if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
-                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
-                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
-                }
-                if Int(state.selectedGridRanges.last!.start.row) < state.shiftedRow ||
-                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
-                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                    if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
+                        Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
+                        state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
+                    }
+                    if Int(state.selectedGridRanges.last!.start.row) < state.shiftedRow ||
+                        Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
+                        state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    }
                 }
                 return .none
                 
@@ -1690,16 +1687,6 @@ struct PlanBoard: Reducer {
                 state.hoveredArea = areaName
                 // TODO: 필요할 떄 각 영역 hover에 대한 action을 부여하기.
                 switch areaName {
-                case .scheduleIndexArea:
-                    break
-                case .extraArea:
-                    break
-                case .lineIndexArea:
-                    break
-                case .blackPinkInYourArea:
-                    break
-                case .listControlArea:
-                    break
                 case .listArea:
                     if isActive {
                         state.listAreaHoveredCellLocation = location!
@@ -1726,6 +1713,9 @@ struct PlanBoard: Reducer {
                         state.lineAreaHoveredCellCol = Int(state.lineAreaHoveredCellLocation.x / state.gridWidth)
                     }
                 case .none:
+                    break
+                    
+                default:
                     break
                 }
                 return .none

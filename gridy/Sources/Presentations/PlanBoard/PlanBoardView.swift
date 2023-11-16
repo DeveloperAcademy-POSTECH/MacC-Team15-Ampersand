@@ -162,7 +162,11 @@ extension PlanBoardView {
             GeometryReader { _ in
                 HStack(alignment: .center, spacing: 0) {
                     ForEach(0..<viewStore.maxCol, id: \.self) { dayOffset in
-                        let date = Calendar.current.date(byAdding: .day, value: dayOffset + viewStore.shiftedCol + viewStore.scrolledCol, to: Date())!
+                        let date = Calendar.current.date(
+                            byAdding: .day,
+                            value: dayOffset + viewStore.shiftedCol + viewStore.scrolledCol,
+                            to: Date()
+                        )!
                         let dateInfo = DateInfo(date: date, isHoliday: viewStore.holidays.contains(date))
                         VStack(alignment: .center, spacing: 0) {
                             ZStack {
@@ -233,21 +237,21 @@ extension PlanBoardView {
                                 let lastRange = viewStore.selectedGridRanges.last!
                                 let startDate = min(
                                     Calendar.current.date(
-                                        byAdding: .day, value: viewStore.selectedGridRanges.last!.start.col,
+                                        byAdding: .day, value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: viewStore.selectedGridRanges.last!.end.col,
+                                        byAdding: .day, value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
                                 let endDate = max(
                                     Calendar.current.date(
-                                        byAdding: .day, value: viewStore.selectedGridRanges.last!.start.col,
+                                        byAdding: .day, value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: viewStore.selectedGridRanges.last!.end.col,
+                                        byAdding: .day, value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
@@ -346,26 +350,23 @@ extension PlanBoardView {
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
-                    //                    /// VECTORMODE
-                    //                    LinearGradient(colors: [Color.white.opacity(0.1), Color.clear], startPoint: .topLeading, endPoint: .trailing)
                     ZStack {
                         /// lineArea에 hover될 때 나타나는 뷰
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
-                            .position(x:
-                                        CGFloat(viewStore.lineAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
-                                      y:
-                                        CGFloat(viewStore.lineAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+                            .position(
+                                x: CGFloat(viewStore.lineAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                y: CGFloat(viewStore.lineAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
                             )
                             .opacity(viewStore.hoveredArea == .lineArea ? 1 :0)
                         /// timeAxisArea에 hover될 때 나타나는 뷰
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: geometry.size.height)
-                            .position(x:
-                                        CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
-                                      y: geometry.size.height / 2
+                            .position(
+                                x: CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                y: geometry.size.height / 2
                             )
                             .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 :0)
                         
@@ -390,17 +391,16 @@ extension PlanBoardView {
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
-                            let isStartRowSmaller: Bool = temporaryRange.start.row <= temporaryRange.end.row
-                            let isStartColSmaller: Bool = temporaryRange.start.col <= temporaryRange.end.col
+                            let isStartRowSmaller = temporaryRange.start.row <= temporaryRange.end.row
+                            let isStartColSmaller = temporaryRange.start.col <= temporaryRange.end.col
                             Rectangle()
                                 .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                 .frame(width: width, height: height)
-                                .position(x:
-                                            isStartColSmaller ?
+                                .position(
+                                    x: isStartColSmaller ?
                                           CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
                                             CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                          y:
-                                            isStartRowSmaller ?
+                                    y: isStartRowSmaller ?
                                           CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
@@ -416,19 +416,19 @@ extension PlanBoardView {
                                             .stroke(Color.boardSelectedBorder, lineWidth: 1)
                                     )
                                     .frame(width: width, height: height)
-                                    .position(x: isStartColSmaller ?
+                                    .position(
+                                        x: isStartColSmaller ?
                                               CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
                                                 CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                              y: isStartRowSmaller ?
+                                        y: isStartRowSmaller ?
                                               CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
                                                 CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
                             }
                         }
-                        
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
-                .onReceive(timer, perform: { _ in
+                .onReceive(timer) { _ in
                     switch exceededDirection {
                     case [true, false, false, false]:
                         viewStore.send(
@@ -502,7 +502,8 @@ extension PlanBoardView {
                                 exceededCol: 1
                             )
                         )
-                    default: break
+                    default: 
+                        break
                     }
                 })
                 .onAppear {
@@ -512,7 +513,6 @@ extension PlanBoardView {
                     viewStore.send(.windowSizeChanged(newSize))
                 }
                 .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
-                    // TODO: - Action에서 처리해야 될 것 같은데
                     viewStore.send(.gridSizeChanged(geometry.size))
                 }
                 .onContinuousHover { phase in
@@ -545,7 +545,6 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
                                     viewStore.send(.dragGestureChanged(.pressNothing, nil))
-                                    temporarySelectedGridRange = nil
                                     temporarySelectedGridRange = SelectedGridRange(
                                         start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
@@ -565,8 +564,11 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
                                     self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow, startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow, endCol + viewStore.shiftedCol + viewStore.scrolledCol))
+                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow, 
+                                                startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow, 
+                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol)
+                                    )
                                 } else {
                                     /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                     if let lastIndex = viewStore.selectedGridRanges.indices.last {
@@ -600,9 +602,6 @@ extension PlanBoardView {
                 )
                 NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
                     viewStore.send(.scrollGesture(event))
-                    if event.phase == .ended {
-                        
-                    }
                     return event
                 }
                 NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
