@@ -198,7 +198,6 @@ struct ProjectBoard: Reducer {
                 let title = state.title
                 let startDate = state.startDate
                 let endDate = state.endDate
-                
                 return .run { send in
                     await send(.createProjectResponse(
                         TaskResult {
@@ -209,6 +208,7 @@ struct ProjectBoard: Reducer {
                 
             case let .createProjectResponse(.success(response)):
                 state.projects.insert(ProjectItem.State(project: response), at: 0)
+                state.planBoards.insert(PlanBoard.State(rootProject: response), at: 0)
                 return .run { send in
                     await send(.sortProjectBy, animation: .default)
                 }
@@ -362,6 +362,7 @@ struct ProjectBoard: Reducer {
                 
             case .projectItemTapped(id: _, action: .binding(\.$isDeleted)):
                 return .run { send in
+                    // TODO: - delete project
                     await send(.fetchAllProjects)
                 }
                 

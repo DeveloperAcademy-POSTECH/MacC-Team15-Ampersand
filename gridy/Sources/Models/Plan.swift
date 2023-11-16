@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Plan: Identifiable, Equatable, Decodable {
+struct Plan: Identifiable, Equatable, Decodable, Hashable {
     var id: String
     var planTypeID: String
     var childPlanIDs: [String: [String]]

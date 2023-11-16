@@ -589,12 +589,17 @@ struct PlanBoard: Reducer {
                     periods: ["0": [startDate, endDate]]
                 )
                 let lastLayerIndex = state.map.count - 1
-                state.existingPlans[state.map[lastLayerIndex][row]]?.childPlanIDs["\(targetLaneIndex!)"]?.append(newPlanOnLine.id)
+                let parentID = state.map[lastLayerIndex][row]
+                if state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] == nil {
+                    state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] = []
+                }
+                state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"]!.append(newPlanOnLine.id)
+                state.existingPlans[newPlanOnLine.id] = newPlanOnLine
                 
                 /// 3. parentPlan의 total period를 업데이트
                 if let prevTotalPeriod = state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod {
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
+                    state.existingPlans[parentID]!.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
+                    state.existingPlans[parentID]!.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
                 } else {
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod = [startDate, endDate]
                 }
@@ -605,7 +610,7 @@ struct PlanBoard: Reducer {
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
-                
+                print("=== \(state.map)")
                 return .run { _ in
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -1827,6 +1832,8 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
+                print("===")
+                print(state.map)
                 return .none
                 
             default:

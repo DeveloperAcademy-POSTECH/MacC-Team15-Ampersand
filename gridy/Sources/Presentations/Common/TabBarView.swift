@@ -39,7 +39,10 @@ struct TabBarView: View {
                 Spacer()
                 systemBorder(.vertical)
                 notificationButton
-                    .popover(isPresented: isNotificationPresented, attachmentAnchor: .point(.bottom)) {
+                    .popover(
+                        isPresented: isNotificationPresented,
+                        attachmentAnchor: .point(.bottom)
+                    ) {
                         NotificationView(store: store)
                     }
             }

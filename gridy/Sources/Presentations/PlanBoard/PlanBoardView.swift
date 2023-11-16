@@ -373,24 +373,31 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 :0)
                         
-                        ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
-                            let today = Date().filteredDate
-                            let height = viewStore.lineAreaGridHeight * 0.5 - 4
-                            let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                            let width = CGFloat(dayDifference + 1)
-                            let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
-                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-                                .overlay(
+                        let existingPlans = Array(viewStore.existingPlans.values)
+                        ForEach(existingPlans, id: \.self) { plan in
+                            if let periods = plan.periods {
+                                let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                                ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                                    let today = Date().filteredDate
+                                    let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                                    let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                                    let width = CGFloat(dayDifference + 1)
+                                    let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
                                     RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                        .stroke(Color.white, lineWidth: 1)
-                                )
-                                .frame(width: width * viewStore.gridWidth, height: height)
-                                .position(
-                                    x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                    y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
-                                )
+                                        .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                                .stroke(Color.white, lineWidth: 1)
+                                        )
+                                        .frame(width: width * viewStore.gridWidth, height: height)
+                                        .position(
+                                            x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
+                                            y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
+                                        )
+                                }
+                            }
                         }
+                        
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
@@ -510,9 +517,7 @@ extension PlanBoardView {
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            if temporarySelectedGridRange != nil {
-                                temporarySelectedGridRange = nil
-                            }
+                            temporarySelectedGridRange = nil
                             exceededDirection = [false, false, false, false]
                         }
                 )
