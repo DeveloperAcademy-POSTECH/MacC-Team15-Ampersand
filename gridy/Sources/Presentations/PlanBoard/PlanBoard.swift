@@ -147,10 +147,11 @@ struct PlanBoard: Reducer {
         var isRightToolBarPresented = true
     }
     
-    enum Action: Equatable, Sendable {
+    enum Action: BindableAction, Equatable, Sendable {
         /// UserAction
+        case binding(BindingAction<State>)
         case fetchRootPlan
-        case onAppear
+        case initializeState
         case selectColorCode(Color)
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
@@ -237,7 +238,8 @@ struct PlanBoard: Reducer {
                     await send(.reloadMap)
                 }
                 
-            case .onAppear:
+            case .initializeState:
+                state.selectedDateRanges = []
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
@@ -628,6 +630,16 @@ struct PlanBoard: Reducer {
             case let .readPlansResponse(.success(responses)):
                 for response in responses {
                     state.existingPlans[response.id] = response
+                    if let periods = response.periods {
+                        for period in periods.values {
+                            state.selectedDateRanges.append(
+                                SelectedDateRange(
+                                    start: period[0], 
+                                    end: period[1]
+                                )
+                            )
+                        }
+                    }
                 }
                 return .none
                 
@@ -1788,11 +1800,9 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .projectTitleChanged:
-                let id = state.rootProject.id
-                let changedTitle = state.title
                 state.rootProject.title = state.title
                 let projectToUpdate = [state.rootProject]
-                return .run { send in
+                return .run { _ in
                     try await apiService.updateProjects(projectToUpdate)
                 }
                 

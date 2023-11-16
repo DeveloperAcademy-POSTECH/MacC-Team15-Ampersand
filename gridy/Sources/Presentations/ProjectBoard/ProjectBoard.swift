@@ -31,6 +31,7 @@ struct ProjectBoard: Reducer {
     struct State: Equatable {
         var user: User
         var projects: IdentifiedArrayOf<ProjectItem.State> = []
+        var planBoards: IdentifiedArrayOf<PlanBoard.State> = []
         var totalPeriods = [String: [Date]]()
         var successToFetchData = false
         var isInProgress = false
@@ -76,8 +77,6 @@ struct ProjectBoard: Reducer {
         var isLogoutViewPresented = false
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-        
-        var optionalPlanBoard = PlanBoard.State(rootProject: Project.mock)
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -117,16 +116,13 @@ struct ProjectBoard: Reducer {
         case selectedEndDateChanged(Date)
         case changeOption(Int)
         
-        case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
         case binding(BindingAction<State>)
-        case optionalPlanBoard(PlanBoard.Action)
+        case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case planBoardAction(id: PlanBoard.State.ID, action: PlanBoard.Action)
     }
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Scope(state: \.optionalPlanBoard, action: /Action.optionalPlanBoard) {
-            PlanBoard()
-        }
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -235,10 +231,15 @@ struct ProjectBoard: Reducer {
             case let .fetchAllProjectsResponse(.success(response)):
                 guard let response = response else { return .none }
                 state.projects = []
+                state.planBoards = []
                 for project in response {
                     state.projects.insert(
                         ProjectItem.State(project: project),
                         at: state.projects.count
+                    )
+                    state.planBoards.insert(
+                        PlanBoard.State(rootProject: project),
+                        at: state.planBoards.count
                     )
                 }
                 state.successToFetchData = true
@@ -250,7 +251,6 @@ struct ProjectBoard: Reducer {
                 
             case let .setShowingTab(project):
                 state.showingProject = project
-                state.optionalPlanBoard.rootProject = project
                 return .none
                 
             case let .deleteShowingTab(projectID):
@@ -417,7 +417,7 @@ struct ProjectBoard: Reducer {
                 state.selectionOption = option
                 return .none
                 
-            case .optionalPlanBoard:
+            case .planBoardAction(id: _, action: .projectTitleChanged):
                 return .run { send in
                     await send(.fetchShowingProject)
                 }
@@ -433,14 +433,19 @@ struct ProjectBoard: Reducer {
                 }
             case let .fetchShowingProjectResponse(.success(response)):
                 state.projects[id: response.id]!.project = response
+                state.planBoards[id: response.id]!.rootProject = response
                 return .none
                 
             default:
                 return .none
             }
         }
+        .forEach(\.planBoards, action: /Action.planBoardAction(id:action:)) {
+            PlanBoard()
+        }
         .forEach(\.projects, action: /Action.projectItemTapped(id:action:)) {
             ProjectItem()
         }
+        
     }
 }

@@ -237,28 +237,30 @@ extension PlanBoardView {
                                 let lastRange = viewStore.selectedGridRanges.last!
                                 let startDate = min(
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.start.col,
+                                        byAdding: .day,
+                                        value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.end.col,
+                                        byAdding: .day,
+                                        value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
                                 let endDate = max(
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.start.col,
+                                        byAdding: .day,
+                                        value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.end.col,
+                                        byAdding: .day,
+                                        value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
-                                // TODO: create plan on line
                                 let row = min(lastRange.start.row, lastRange.end.row)
                                 viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
-                                let store = viewStore
                             }
                         } label: {
                             Text("create Plan")
@@ -523,9 +525,7 @@ extension PlanBoardView {
             }
             .background(Color.lineArea)
             .onAppear {
-                viewStore.send(
-                    .onAppear
-                )
+                viewStore.send(.initializeState)
                 NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
                     viewStore.send(.scrollGesture(event))
                     return event
