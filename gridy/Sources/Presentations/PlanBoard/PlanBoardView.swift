@@ -258,6 +258,7 @@ extension PlanBoardView {
                                 // TODO: create plan on line
                                 let row = min(lastRange.start.row, lastRange.end.row)
                                 viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
+                                let store = viewStore
                             }
                         } label: {
                             Text("create Plan")
@@ -429,82 +430,7 @@ extension PlanBoardView {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .onReceive(timer) { _ in
-                    switch exceededDirection {
-                    case [true, false, false, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 0,
-                                shiftedCol: -1,
-                                exceededRow: 0,
-                                exceededCol: -1
-                            )
-                        )
-                    case [false, true, false, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 0,
-                                shiftedCol: 1,
-                                exceededRow: 0,
-                                exceededCol: 1
-                            )
-                        )
-                    case [false, false, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: 0,
-                                exceededRow: -1,
-                                exceededCol: 0
-                            )
-                        )
-                    case [false, false, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: 0,
-                                exceededRow: 1,
-                                exceededCol: 0
-                            )
-                        )
-                    case [true, false, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: -1,
-                                exceededRow: -1,
-                                exceededCol: -1
-                            )
-                        )
-                    case [true, false, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: -1,
-                                exceededRow: 1,
-                                exceededCol: -1
-                            )
-                        )
-                    case [false, true, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: 1,
-                                exceededRow: -1,
-                                exceededCol: 1
-                            )
-                        )
-                    case [false, true, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: 1,
-                                exceededRow: 1,
-                                exceededCol: 1
-                            )
-                        )
-                    default: 
-                        break
-                    }
+                    onReceiveTimer(viewStore: viewStore)
                 }
                 .onAppear {
                     viewStore.send(.windowSizeChanged(geometry.size))
@@ -613,6 +539,85 @@ extension PlanBoardView {
                     return event
                 }
             }
+        }
+    }
+    
+    private func onReceiveTimer(viewStore: ViewStoreOf<PlanBoard>) {
+        switch exceededDirection {
+        case [true, false, false, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 0,
+                    shiftedCol: -1,
+                    exceededRow: 0,
+                    exceededCol: -1
+                )
+            )
+        case [false, true, false, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 0,
+                    shiftedCol: 1,
+                    exceededRow: 0,
+                    exceededCol: 1
+                )
+            )
+        case [false, false, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: 0,
+                    exceededRow: -1,
+                    exceededCol: 0
+                )
+            )
+        case [false, false, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: 0,
+                    exceededRow: 1,
+                    exceededCol: 0
+                )
+            )
+        case [true, false, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: -1,
+                    exceededRow: -1,
+                    exceededCol: -1
+                )
+            )
+        case [true, false, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: -1,
+                    exceededRow: 1,
+                    exceededCol: -1
+                )
+            )
+        case [false, true, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: 1,
+                    exceededRow: -1,
+                    exceededCol: 1
+                )
+            )
+        case [false, true, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: 1,
+                    exceededRow: 1,
+                    exceededCol: 1
+                )
+            )
+        default:
+            break
         }
     }
 }
