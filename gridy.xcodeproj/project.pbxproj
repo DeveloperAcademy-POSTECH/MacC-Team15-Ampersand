@@ -217,7 +217,6 @@
 			children = (
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
-				EE3E22152AF9152A00D82F59 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};

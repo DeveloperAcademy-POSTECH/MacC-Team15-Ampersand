@@ -242,7 +242,7 @@ struct PlanBoard: Reducer {
                     await send(.readPlans)
                     await send(.readPlanTypes)
                     // TODO: - 삭제
-                    await Task.sleep(5 * 1_000_000_000)
+                    try await Task.sleep(nanoseconds: 5 * 1_000_000_000)
                     await send(.fetchRootPlan)
                 }
                 
@@ -485,7 +485,7 @@ struct PlanBoard: Reducer {
                         [rootPlanToUpdate],
                         projectID
                     )
-                    if let _ = originPlanTypeID {
+                    if originPlanTypeID == nil {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
                         try await apiService.updatePlans(
                             [planToUpdate],

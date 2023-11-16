@@ -41,7 +41,7 @@ extension Date {
     func getAllDates() -> [Date] {
         let calendar = Calendar.current
         let startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: self))!
-        var range = calendar.range(of: .day, in: .month, for: startDate)!
+        let range = calendar.range(of: .day, in: .month, for: startDate)!
         return range.compactMap { day -> Date in
             return calendar.date(byAdding: .day, value: day - 1, to: startDate)!
         }
@@ -62,7 +62,7 @@ extension Date {
     
     func extractDate() -> [DateValue] {
         let calendar = Calendar.current
-        var startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: self))!
+        let startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: self))!
         var days = startDate.getAllDates().compactMap { date -> DateValue in
             let day = calendar.component(.day, from: date)
             return DateValue(day: day, date: date)
