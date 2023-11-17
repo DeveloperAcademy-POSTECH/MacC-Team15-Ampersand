@@ -220,7 +220,7 @@ struct PlanBoard: Reducer {
         case escapeSelectedCell
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
-        case setHoveredLoaction(PlanBoardAreaName, Bool, CGPoint?)
+        case setHoveredLocation(PlanBoardAreaName, Bool, CGPoint?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         case scrollGesture(NSEvent)
         
@@ -1696,7 +1696,7 @@ struct PlanBoard: Reducer {
                 state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
                 return .none
 
-            case let .setHoveredLoaction(areaName, isActive, location):
+            case let .setHoveredLocation(areaName, isActive, location):
                 state.hoveredArea = areaName
                 // TODO: 필요할 떄 각 영역 hover에 대한 action을 부여하기.
                 switch areaName {

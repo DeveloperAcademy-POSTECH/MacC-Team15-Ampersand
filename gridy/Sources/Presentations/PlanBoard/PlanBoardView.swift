@@ -154,9 +154,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredCell(.lineIndexArea, true, location))
+                        viewStore.send(.setHoveredLocation(.lineIndexArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredCell(.lineIndexArea, false, nil))
+                        viewStore.send(.setHoveredLocation(.lineIndexArea, false, nil))
                     }
                 }
             }
@@ -174,7 +174,7 @@ extension PlanBoardView {
     var listControlArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
-                Color.list
+                Color.listArea
                 HStack {
                     ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
                         VStack {
@@ -246,11 +246,10 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var listArea: some View {
-<<<<<<< HEAD
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
-                    Color.list
+                    Color.listArea
                     Path { path in
                         for rowIndex in 1...viewStore.maxLineAreaRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
@@ -288,7 +287,7 @@ extension PlanBoardView {
                                     listItemFocused = true
                                     viewStore.send(.listItemDoubleClicked(.listItem, false))
                                     viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
-                                    viewStore.send(.setHoveredCell(.listArea, false, nil))
+                                    viewStore.send(.setHoveredLocation(.listArea, false, nil))
                                 }))
                                 .contextMenu {
                                     Button("Delete this Plan") {
@@ -335,9 +334,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredCell(.listArea, true, location))
+                        viewStore.send(.setHoveredLocation(.listArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredCell(.listArea, false, nil))
+                        viewStore.send(.setHoveredLocation(.listArea, false, nil))
                     }
                 }
             }
@@ -409,20 +408,6 @@ extension PlanBoardView {
                             }
                             .frame(width: gridWidth)
                         }
-=======
-        WithViewStore(store, observe: {$0}) { viewStore in
-            GeometryReader { _ in
-                ZStack {
-                    Color.listArea
-                }
-                .background(Color.listArea)
-                .onContinuousHover { phase in
-                    switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.listArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
->>>>>>> 4bb72984852ff84aed30021458badd007f46b594
                     }
                 }
             }
@@ -441,9 +426,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
+                        viewStore.send(.setHoveredLocation(.scheduleArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLocation(.none, false, nil))
                     }
                 }
             }
@@ -498,9 +483,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                        viewStore.send(.setHoveredLocation(.timeAxisArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLocation(.none, false, nil))
                     }
                 }
                 .background(Color.lineArea)
