@@ -288,10 +288,11 @@ extension APIService {
         [
             "id": plan.id,
             "planTypeID": plan.planTypeID,
-            "childPlanID": plan.childPlanIDs,
+            "childPlanIDs": plan.childPlanIDs,
             "periods": plan.periods as Any,
             "totalPeriod": plan.totalPeriod as Any,
             "description": plan.description as Any
         ]
     }
 }
+

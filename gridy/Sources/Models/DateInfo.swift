@@ -35,11 +35,11 @@ enum DayOfWeek: String {
          self.isFirstOfMonth = self.date.formattedDay == "1"
 
          if self.isHoliday || self.dayOfWeek == DayOfWeek.sunday {
-             self.fontColor = Color.red
+             self.fontColor = Color(hex: 0xE74967)
          } else if self.dayOfWeek == DayOfWeek.saturday {
-             self.fontColor = Color.black
+             self.fontColor = Color.subtitle
          } else {
-             self.fontColor = Color.black
+             self.fontColor = Color.subtitle
          }
      }
  }
