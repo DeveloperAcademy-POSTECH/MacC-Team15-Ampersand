@@ -45,6 +45,9 @@ struct Authentication: Reducer {
     }
     
     var body: some Reducer<State, Action> {
+        Scope(state: \.optionalProjectBoard, action: /Action.optionalProjectBoard) {
+            ProjectBoard()
+        }
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -116,10 +119,6 @@ struct Authentication: Reducer {
             case .optionalProjectBoard:
                 return .none
             }
-        }
-        
-        Scope(state: \.optionalProjectBoard, action: /Action.optionalProjectBoard) {
-            ProjectBoard()
         }
     }
     

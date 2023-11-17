@@ -37,6 +37,7 @@ struct PlanBoard: Reducer {
         var id: String { rootProject.id }
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
+        var listMap = [[Plan]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
@@ -133,12 +134,7 @@ struct PlanBoard: Reducer {
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-        
-        /// ListArea
-        var showingLayers = [0]
-        var showingRows = 20
-        var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
-        
+
         /// TopToolBarArea
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
@@ -147,10 +143,11 @@ struct PlanBoard: Reducer {
         var isRightToolBarPresented = true
     }
     
-    enum Action: Equatable, Sendable {
+    enum Action: BindableAction, Equatable, Sendable {
         /// UserAction
+        case binding(BindingAction<State>)
         case fetchRootPlan
-        case onAppear
+        case initializeState
         case selectColorCode(Color)
         case hoveredItem(name: String)
         case clickedItem(focusGroup: String, name: String)
@@ -219,6 +216,7 @@ struct PlanBoard: Reducer {
         
         /// Map
         case reloadMap
+        case reloadListMap
     }
     
     // MARK: - Body
@@ -237,12 +235,13 @@ struct PlanBoard: Reducer {
                     await send(.reloadMap)
                 }
                 
-            case .onAppear:
+            case .initializeState:
+                state.selectedDateRanges = []
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
                     // TODO: - 삭제
-                    await Task.sleep(5 * 1_000_000_000)
+                    try await Task.sleep(nanoseconds: 5 * 1_000_000_000)
                     await send(.fetchRootPlan)
                 }
                 
@@ -485,7 +484,7 @@ struct PlanBoard: Reducer {
                         [rootPlanToUpdate],
                         projectID
                     )
-                    if let _ = originPlanTypeID {
+                    if originPlanTypeID == nil {
                         /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
                         try await apiService.updatePlans(
                             [planToUpdate],
@@ -543,7 +542,7 @@ struct PlanBoard: Reducer {
                     let laneCount = state.existingPlans[parentPlanID]!.childPlanIDs.count
                     if currentRowCount < row, row <= currentRowCount + laneCount {
                         targetLaneParent = state.existingPlans[parentPlanID]
-                        targetLaneIndex = row - currentRowCount + 1
+                        targetLaneIndex = row - currentRowCount - 1
                         break
                     }
                     currentRowCount += laneCount
@@ -563,7 +562,7 @@ struct PlanBoard: Reducer {
                             let newDummyPlan = Plan(
                                 id: newDummyPlanID,
                                 planTypeID: PlanType.emptyPlanType.id,
-                                childPlanIDs: [:]
+                                childPlanIDs: ["0": []]
                             )
                             state.existingPlans[newDummyPlanID] = newDummyPlan
                             state.map[currentLayerIndex].append(newDummyPlanID)
@@ -587,12 +586,17 @@ struct PlanBoard: Reducer {
                     periods: ["0": [startDate, endDate]]
                 )
                 let lastLayerIndex = state.map.count - 1
-                state.existingPlans[state.map[lastLayerIndex][row]]?.childPlanIDs["\(targetLaneIndex!)"]?.append(newPlanOnLine.id)
+                let parentID = state.map[lastLayerIndex][row]
+                if state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] == nil {
+                    state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] = []
+                }
+                state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"]!.append(newPlanOnLine.id)
+                state.existingPlans[newPlanOnLine.id] = newPlanOnLine
                 
                 /// 3. parentPlan의 total period를 업데이트
                 if let prevTotalPeriod = state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod {
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
-                    state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
+                    state.existingPlans[parentID]!.totalPeriod![0] = min(startDate, prevTotalPeriod[0])
+                    state.existingPlans[parentID]!.totalPeriod![1] = min(endDate, prevTotalPeriod[1])
                 } else {
                     state.existingPlans[state.map[lastLayerIndex][row]]?.totalPeriod = [startDate, endDate]
                 }
@@ -603,7 +607,6 @@ struct PlanBoard: Reducer {
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
-                
                 return .run { _ in
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -628,6 +631,16 @@ struct PlanBoard: Reducer {
             case let .readPlansResponse(.success(responses)):
                 for response in responses {
                     state.existingPlans[response.id] = response
+                    if let periods = response.periods {
+                        for period in periods.values {
+                            state.selectedDateRanges.append(
+                                SelectedDateRange(
+                                    start: period[0], 
+                                    end: period[1]
+                                )
+                            )
+                        }
+                    }
                 }
                 return .none
                 
@@ -1788,11 +1801,9 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .projectTitleChanged:
-                let id = state.rootProject.id
-                let changedTitle = state.title
                 state.rootProject.title = state.title
                 let projectToUpdate = [state.rootProject]
-                return .run { send in
+                return .run { _ in
                     try await apiService.updateProjects(projectToUpdate)
                 }
                 
@@ -1817,6 +1828,22 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
+                return .run { send in
+                    await send(.reloadListMap)
+                }
+                
+            case .reloadListMap:
+                var newMap = [[Plan]]()
+                let lastLayerPlanIDs = state.map[state.map.count - 1]
+                for parentPlanID in lastLayerPlanIDs {
+                    let parentPlan = state.existingPlans[parentPlanID]!
+                    let childLanes = parentPlan.childPlanIDs.values
+                    for childLane in childLanes {
+                        let childPlans = childLane.map({ state.existingPlans[$0]! })
+                        newMap.append(childPlans)
+                    }
+                }
+                state.listMap = newMap
                 return .none
                 
             default:
