@@ -397,6 +397,34 @@ extension PlanBoardView {
                                 }
                             }
                         }
+//                        // TODO: - row 맞추어 띄우기
+//                        let today = Date().filteredDate.integerDate
+//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+//                            let plans = viewStore.listMap[lineIndex]
+//                            ForEach(plans, id: \.self) { plan in
+//                                if let periods = plan.periods {
+//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+//                                        let width = CGFloat(dayDifference + 1)
+//                                        let position = CGFloat(selectedRange.start.integerDate - today)
+//                                        let frameWidth = width * viewStore.gridWidth
+//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+//                                            .overlay(
+//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+//                                                    .stroke(Color.white, lineWidth: 1)
+//                                            )
+//                                            .frame(width: width, height: height)
+//                                            .position(
+//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+//                                            )
+//                                    }
+//                                }
+//                            }
+//                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -408,10 +436,12 @@ extension PlanBoardView {
                                 .frame(width: width, height: height)
                                 .position(
                                     x: isStartColSmaller ?
-                                          CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                            CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                    CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                        CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                     y: isStartRowSmaller ?
-                                          CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
+                                    CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                        CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                                )
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
@@ -428,11 +458,12 @@ extension PlanBoardView {
                                     .frame(width: width, height: height)
                                     .position(
                                         x: isStartColSmaller ?
-                                              CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                                CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                        CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                            CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                         y: isStartRowSmaller ?
-                                              CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                                CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
+                                        CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                            CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                                    )
                             }
                         }
                     }
@@ -499,9 +530,9 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
                                     self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow, 
+                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow, 
+                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
                                               endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                                     )
                                 } else {

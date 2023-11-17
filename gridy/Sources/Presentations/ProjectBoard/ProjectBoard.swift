@@ -360,9 +360,9 @@ struct ProjectBoard: Reducer {
                 state.notices = response
                 return .none
                 
-            case .projectItemTapped(id: _, action: .binding(\.$isDeleted)):
+            case let .projectItemTapped(id: id, action: .binding(\.$isDeleted)):
                 return .run { send in
-                    // TODO: - delete project
+                    try await apiService.deleteProjects([id])
                     await send(.fetchAllProjects)
                 }
                 

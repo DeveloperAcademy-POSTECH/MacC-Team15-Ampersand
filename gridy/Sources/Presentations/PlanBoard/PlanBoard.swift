@@ -37,6 +37,7 @@ struct PlanBoard: Reducer {
         var id: String { rootProject.id }
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
+        var listMap = [[Plan]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
@@ -220,6 +221,7 @@ struct PlanBoard: Reducer {
         
         /// Map
         case reloadMap
+        case reloadListMap
     }
     
     // MARK: - Body
@@ -610,7 +612,6 @@ struct PlanBoard: Reducer {
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
-                print("=== \(state.map)")
                 return .run { _ in
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -1832,8 +1833,22 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
-                print("===")
-                print(state.map)
+                return .run { send in
+                    await send(.reloadListMap)
+                }
+                
+            case .reloadListMap:
+                var newMap = [[Plan]]()
+                let lastLayerPlanIDs = state.map[state.map.count - 1]
+                for parentPlanID in lastLayerPlanIDs {
+                    let parentPlan = state.existingPlans[parentPlanID]!
+                    let childLanes = parentPlan.childPlanIDs.values
+                    for childLane in childLanes {
+                        let childPlans = childLane.map({ state.existingPlans[$0]! })
+                        newMap.append(childPlans)
+                    }
+                }
+                state.listMap = newMap
                 return .none
                 
             default:
