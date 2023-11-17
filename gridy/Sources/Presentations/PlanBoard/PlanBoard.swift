@@ -73,8 +73,8 @@ struct PlanBoard: Reducer {
         var isCommandKeyPressed = false
         
         /// ScheduleLine을 만들때 선과 다이아몬드를 저장해서 그려줍니다.
-//        var drawnLines: [DrawnLine] = []
-
+        var completedLines: [DrawnLine] = []
+        
         
         // MARK: - list area
         var showingLayers = [0]
@@ -135,6 +135,7 @@ struct PlanBoard: Reducer {
         // MARK: - ScheduleAreaView
         case magnificationChangedInScheduleArea(CGFloat)
         case scheduleShiftView(shiftedRow: Int, shiftedCol: Int)
+        case addCompletedLine(DrawnLine)
         
         // MARK: - LineAreaView
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
@@ -142,7 +143,7 @@ struct PlanBoard: Reducer {
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
-//        case addScheduleLine(DrawnLine)
+        //        case addScheduleLine(DrawnLine)
         
         /// source, destication: layer 내의 인덱스. row값은 또 따로 받음
         case dragToMovePlanInList(targetPlanID: String, source: Int, destination: Int, row: Int, layer: Int)
@@ -1180,8 +1181,11 @@ struct PlanBoard: Reducer {
                     state.gridWidth = min(max(state.gridWidth * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                     state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                     return .none
-                
-
+                    
+                case let .addCompletedLine(newLine):
+                    state.completedLines.append(newLine)
+                    return .none
+                    
                     
                     // MARK: - LineAreaView
                 case let .dragGestureChanged(dragType, updatedRange):
@@ -1318,10 +1322,6 @@ struct PlanBoard: Reducer {
                         await send(.fetchMap)
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
-                    
-//                case .addScheduleLine(let line):
-//                    state.drawnLines.append(line)
-//                    return .none
                     
                 case let .dragToMovePlanInList(targetID, source, destination, row, layer):
                     if source == destination { return .none }
@@ -1658,7 +1658,7 @@ struct PlanBoard: Reducer {
                     }
                     state.map = newMap.isEmpty ? [[]] : newMap
                     return .none
-                
+                    
             }
         }
     }
