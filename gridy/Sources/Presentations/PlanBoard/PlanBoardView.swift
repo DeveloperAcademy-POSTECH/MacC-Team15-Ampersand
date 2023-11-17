@@ -371,7 +371,7 @@ extension PlanBoardView {
                                 x: CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
                                 y: geometry.size.height / 2
                             )
-                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 :0)
+                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
                         
                         let existingPlans = Array(viewStore.existingPlans.values)
                         ForEach(existingPlans, id: \.self) { plan in

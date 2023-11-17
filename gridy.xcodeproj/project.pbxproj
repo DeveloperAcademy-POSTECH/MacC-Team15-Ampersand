@@ -17,13 +17,9 @@
 		8A6DC56B2AF626B70059ADAB /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6DC56A2AF626B70059ADAB /* Components.swift */; };
 		8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */; };
 		8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */; };
-		9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */; };
 		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
-		97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97806BB42AE15ACC0044FA0C /* ListItemView.swift */; };
-		9784DB542AECEB88002EB52F /* LayerControlAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */; };
-		97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C419DB2AE2CAEB00501321 /* ListAreaView.swift */; };
 		AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */; };
 		AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BD2AD7766200E3CC07 /* PlanType.swift */; };
 		AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BF2AD7767700E3CC07 /* Plan.swift */; };
@@ -92,13 +88,9 @@
 		8A6DC56A2AF626B70059ADAB /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGridRange.swift; sourceTree = "<group>"; };
 		8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedDateRange.swift; sourceTree = "<group>"; };
-		9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemEmptyView.swift; sourceTree = "<group>"; };
 		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
-		97806BB42AE15ACC0044FA0C /* ListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemView.swift; sourceTree = "<group>"; };
-		9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerControlAreaView.swift; sourceTree = "<group>"; };
-		97C419DB2AE2CAEB00501321 /* ListAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAreaView.swift; sourceTree = "<group>"; };
 		AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		AD06C4BD2AD7766200E3CC07 /* PlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanType.swift; sourceTree = "<group>"; };
 		AD06C4BF2AD7767700E3CC07 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
@@ -193,14 +185,6 @@
 				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		9784DB522AECEB66002EB52F /* LayerControlArea */ = {
-			isa = PBXGroup;
-			children = (
-				9784DB532AECEB88002EB52F /* LayerControlAreaView.swift */,
-			);
-			path = LayerControlArea;
 			sourceTree = "<group>";
 		};
 		AD68907B2AC707AE00539A5C /* Authentication */ = {
@@ -341,20 +325,8 @@
 			isa = PBXGroup;
 			children = (
 				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
-				9784DB522AECEB66002EB52F /* LayerControlArea */,
-				EE909A512AC3CEC600C9AAF0 /* ListArea */,
 			);
 			path = TimelineLayout;
-			sourceTree = "<group>";
-		};
-		EE909A512AC3CEC600C9AAF0 /* ListArea */ = {
-			isa = PBXGroup;
-			children = (
-				97C419DB2AE2CAEB00501321 /* ListAreaView.swift */,
-				97806BB42AE15ACC0044FA0C /* ListItemView.swift */,
-				9732FE992AEB9CE500900600 /* ListItemEmptyView.swift */,
-			);
-			path = ListArea;
 			sourceTree = "<group>";
 		};
 		EE909A692AC3D20D00C9AAF0 /* Common */ = {
@@ -493,7 +465,6 @@
 				AD52FE9F2AC965EF00AA001F /* User.swift in Sources */,
 				ADCBA9F82AFA9FAA000BBD1C /* Feedback.swift in Sources */,
 				AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */,
-				9784DB542AECEB88002EB52F /* LayerControlAreaView.swift in Sources */,
 				8A1D0C502AC3F79300C7FCF8 /* Font.swift in Sources */,
 				ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */,
 				AD74DAA12AEF9E4F00618FCC /* FirestoreService.swift in Sources */,
@@ -506,7 +477,6 @@
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
 				EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */,
-				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
 				D17800692AF35989002984CF /* PlanBoardView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
 				AD68907F2AC7F1AD00539A5C /* Authentication.swift in Sources */,
@@ -519,13 +489,11 @@
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				ADCBA9F42AF58603000BBD1C /* ImageUploader.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
-				9732FE9A2AEB9CE500900600 /* ListItemEmptyView.swift in Sources */,
 				EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */,
 				975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */,
 				8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */,
 				EEEF68242AF76858000B3CAF /* LogoutView.swift in Sources */,
 				AD96ED442AD30312005D197B /* APIError.swift in Sources */,
-				97C419DC2AE2CAEB00501321 /* ListAreaView.swift in Sources */,
 				AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */,
 				EEEF68262AF776A9000B3CAF /* SettingsView.swift in Sources */,
 				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,

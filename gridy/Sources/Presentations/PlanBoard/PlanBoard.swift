@@ -134,12 +134,7 @@ struct PlanBoard: Reducer {
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-        
-        /// ListArea
-        var showingLayers = [0]
-        var showingRows = 20
-        var listColumnWidth: [Int: [CGFloat]] = [0: [266.0], 1: [266.0], 2: [132.0, 132.0], 3: [24.0, 119.0, 119.0]]
-        
+
         /// TopToolBarArea
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
