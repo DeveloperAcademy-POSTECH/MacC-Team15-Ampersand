@@ -203,7 +203,7 @@ struct ProjectBoard: Reducer {
                         TaskResult {
                             try await apiService.createProject(title, [startDate, endDate])
                         }
-                    ))
+                    ), animation: .default)
                 }
                 
             case let .createProjectResponse(.success(response)):

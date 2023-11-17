@@ -545,7 +545,7 @@ struct PlanBoard: Reducer {
                     let laneCount = state.existingPlans[parentPlanID]!.childPlanIDs.count
                     if currentRowCount < row, row <= currentRowCount + laneCount {
                         targetLaneParent = state.existingPlans[parentPlanID]
-                        targetLaneIndex = row - currentRowCount + 1
+                        targetLaneIndex = row - currentRowCount - 1
                         break
                     }
                     currentRowCount += laneCount
@@ -565,7 +565,7 @@ struct PlanBoard: Reducer {
                             let newDummyPlan = Plan(
                                 id: newDummyPlanID,
                                 planTypeID: PlanType.emptyPlanType.id,
-                                childPlanIDs: [:]
+                                childPlanIDs: ["0": []]
                             )
                             state.existingPlans[newDummyPlanID] = newDummyPlan
                             state.map[currentLayerIndex].append(newDummyPlanID)
