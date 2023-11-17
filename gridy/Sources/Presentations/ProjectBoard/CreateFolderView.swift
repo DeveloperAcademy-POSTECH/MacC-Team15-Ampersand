@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct CreateFolderView: View {
-    @State var folderName = ""
-    @State var cancelHover = false
-    @State var createHover = false
+    let store: StoreOf<ProjectBoard>
     
     var body: some View {
         VStack(alignment: .center, spacing: 24) {
@@ -27,61 +26,75 @@ struct CreateFolderView: View {
 
 extension CreateFolderView {
     var folderNameTextField: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .foregroundStyle(Color.item)
-            .frame(height: 48)
-            .overlay(
-                TextField("Folder Name", text: $folderName)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.item)
+                .frame(height: 48)
+                .overlay(
+                    TextField(
+                        "Folder Name",
+                        text: viewStore.binding(
+                            get: \.folderName,
+                            send: { .folderTitleChanged($0) }
+                        )
+                    )
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 16)
-            )
+                )
+        }
     }
 }
 
 extension CreateFolderView {
     var cancel: some View {
-        Button {
-            // TODO: - Cancel Button
-        } label: {
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(cancelHover ? Color.buttonHovered : Color.button)
-                .frame(height: 32)
-                .overlay(
-                    Text("Cancel")
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.buttonText)
-                )
-        }
-        .buttonStyle(.link)
-        .onHover { isHovered in
-            cancelHover = isHovered
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .createFolderButton,
+                    bool: false
+                ))
+            } label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.buttonHovered : .button)
+                    .frame(height: 32)
+                    .overlay(
+                        Text("Cancel")
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.buttonText)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
+            }
         }
     }
 }
 
 extension CreateFolderView {
     var create: some View {
-        Button {
-            // TODO: - Create Button
-        } label: {
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(createHover ? Color.buttonHovered : Color.button)
-                .frame(height: 32)
-                .overlay(
-                    Text("Create")
-                        .font(.body)
-                        .fontWeight(.regular)
-                        .foregroundStyle(Color.buttonText)
-                )
-        }
-        .buttonStyle(.link)
-        .onHover { isHovered in
-            createHover = isHovered
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .createFolderButton,
+                    bool: false
+                ))
+            } label: {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == .createButton ? Color.buttonHovered : .button)
+                    .frame(height: 32)
+                    .overlay(
+                        Text("Create")
+                            .font(.body)
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.buttonText)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .createButton : ""))
+            }
         }
     }
-}
-
-#Preview {
-    CreateFolderView()
 }

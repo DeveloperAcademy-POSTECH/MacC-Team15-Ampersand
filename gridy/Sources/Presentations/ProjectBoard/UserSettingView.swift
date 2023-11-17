@@ -6,131 +6,149 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct UserSettingView: View {
-    @State var themeHover = false
-    @State var settingsHover = false
-    @State var settingsClicked = false
-    @State var logOutHover = false
-    @State var logOutClicked = false
-    @Binding var themeClicked: Bool
+    let store: StoreOf<ProjectBoard>
     
     var body: some View {
-        VStack(alignment: .center, spacing: 8) {
-            profile.padding(.bottom, 24)
-            theme
-            settings
-            logOut
+        WithViewStore(store, observe: { $0 }) { _ in
+            VStack(alignment: .center, spacing: 8) {
+                profile.padding(.bottom, 24)
+                theme
+                settings
+                logOut
+            }
+            .frame(width: 264, height: 300)
         }
-        .frame(width: 264, height: 300)
     }
 }
 
 extension UserSettingView {
     var profile: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Circle()
-                .frame(width: 48, height: 48)
-            Text("한가온")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.title)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(alignment: .center, spacing: 16) {
+                Circle()
+                    .frame(width: 48, height: 48)
+                Text(viewStore.user.username)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.title)
+            }
         }
     }
 }
 
 extension UserSettingView {
     var theme: some View {
-        ZStack {
-            if themeClicked {
-                Rectangle()
-                    .foregroundStyle(Color.blackWhite)
-                    .clipShape(
-                        .rect(
-                            topLeadingRadius: 8,
-                            bottomLeadingRadius: 8,
-                            bottomTrailingRadius: 0,
-                            topTrailingRadius: 0,
-                            style: .continuous
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                if viewStore.isThemeSettingPresented {
+                    Rectangle()
+                        .foregroundStyle(Color.blackWhite)
+                        .clipShape(
+                            .rect(
+                                topLeadingRadius: 8,
+                                bottomLeadingRadius: 8,
+                                bottomTrailingRadius: 0,
+                                topTrailingRadius: 0,
+                                style: .continuous
+                            )
                         )
+                        .padding(.leading, 16)
+                        .frame(height: 40)
+                }
+                HStack(alignment: .center, spacing: 8) {
+                    Image(systemName: "circle.lefthalf.filled")
+                    Text("Theme")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.title)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .frame(height: 40)
+                .padding(.horizontal, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(viewStore.hoveredItem == .themeSettingButton ? Color.blackWhite : .clear)
+                )
+                .onHover { isHovered in
+                    viewStore.send(.hoveredItem(name: isHovered ? .themeSettingButton : "")
                     )
-                    .padding(.leading, 16)
-                    .frame(height: 40)
+                }
+                .onTapGesture {
+                    viewStore.send(.popoverPresent(
+                        button: .themeSettingButton,
+                        bool: true
+                    ))
+                }
+                .padding(.horizontal, 16)
             }
-            HStack(alignment: .center, spacing: 8) {
-                Image(systemName: "circle.lefthalf.filled")
-                Text("Theme")
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.title)
-                Spacer()
-                Image(systemName: "chevron.right")
-            }
-            .frame(height: 40)
-            .padding(.horizontal, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(themeHover ? Color.blackWhite : .clear)
-            )
-            .onHover { isHovered in
-                themeHover = isHovered
-            }
-            .onTapGesture { themeClicked = true }
-            .padding(.horizontal, 16)
         }
     }
 }
 
 extension UserSettingView {
     var settings: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Image(systemName: "gear")
-            Text("Settings")
-                .font(.headline)
-                .fontWeight(.medium)
-                .foregroundStyle(Color.title)
-            Spacer()
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: "gear")
+                Text("Settings")
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.title)
+                Spacer()
+            }
+            .frame(height: 40)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == .settingButton ? Color.blackWhite : .clear)
+            )
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .settingButton : "")
+                )
+            }
+            .onTapGesture {
+                viewStore.send(.popoverPresent(
+                    button: .settingButton,
+                    bool: true
+                ))
+            }
+            .padding(.horizontal, 16)
         }
-        .frame(height: 40)
-        .padding(.horizontal, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(settingsClicked ? Color.blackWhite : settingsHover ? Color.blackWhite : .clear)
-        )
-        .onHover { isHovered in
-            settingsHover = isHovered
-        }
-        .onTapGesture {
-            themeClicked = false
-            settingsClicked = true
-        }
-        .padding(.horizontal, 16)
     }
 }
 
 extension UserSettingView {
     var logOut: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Image(systemName: "rectangle.portrait.and.arrow.right.fill")
-            Text("Logout")
-                .font(.headline)
-                .fontWeight(.medium)
-                .foregroundStyle(Color.title)
-            Spacer()
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: "rectangle.portrait.and.arrow.right.fill")
+                Text("Logout")
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.title)
+                Spacer()
+            }
+            .frame(height: 40)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(viewStore.hoveredItem == .logoutButton ? Color.blackWhite : .clear)
+            )
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .logoutButton : "")
+                )
+            }
+            .onTapGesture {
+                viewStore.send(.popoverPresent(
+                    button: .logoutButton,
+                    bool: true
+                ))
+            }
+            .padding(.horizontal, 16)
         }
-        .frame(height: 40)
-        .padding(.horizontal, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(logOutClicked ? Color.blackWhite : logOutHover ? Color.blackWhite : .clear)
-        )
-        .onHover { isHovered in
-            logOutHover = isHovered
-        }
-        .onTapGesture {
-            settingsClicked = false
-            logOutClicked = true
-        }
-        .padding(.horizontal, 16)
     }
 }

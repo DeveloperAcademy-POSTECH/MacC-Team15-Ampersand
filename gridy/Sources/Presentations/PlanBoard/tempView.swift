@@ -10,9 +10,16 @@ import ComposableArchitecture
 
 struct TempView: View {
     let store = Store(initialState: PlanBoard.State(
-        rootProject: Project(id: "project1", title: "", ownerUid: "", period: [Date(), Date()], lastModifiedDate: Date(), rootPlanID: ""),
-        rootPlan: Plan(id: "0000", planTypeID: "0000", childPlanIDs: [:]),
-        map: [[]])) {
+        rootProject: Project(
+            id: "project1",
+            title: "",
+            ownerUid: "",
+            period: [Date(), Date()],
+            createdDate: Date(),
+            lastModifiedDate: Date(),
+            rootPlanID: "",
+            countLayerInListArea: 1
+        ))) {
             PlanBoard()
         }
     
@@ -121,40 +128,6 @@ struct TempView: View {
                     .frame(width: 200)
                     .padding()
                     
-                    //                    VStack {
-                    //                        Text("create UpperLane At")
-                    //                        HStack {
-                    //                            Text("Row:")
-                    //                                TextField("", text: $laneRow)
-                    //                        }
-                    //                        Button {
-                    //                            viewStore.send(
-                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: true)
-                    //                            )
-                    //                        } label: {
-                    //                            Text("Create")
-                    //                        }
-                    //                    }
-                    //                    .frame(width: 200)
-                    //                    .padding()
-                    //
-                    //                    VStack {
-                    //                        Text("create lowerLane At")
-                    //                        HStack {
-                    //                            Text("Row:")
-                    //                                TextField("", text: $laneRow)
-                    //                        }
-                    //                        Button {
-                    //                            viewStore.send(
-                    //                                .createLaneButtonClicked(row: Int(laneRow)!, createOnTop: false)
-                    //                            )
-                    //                        } label: {
-                    //                            Text("Create")
-                    //                        }
-                    //                    }
-                    //                    .frame(width: 200)
-                    //                    .padding()
-                    
                     VStack {
                         Text("deleteLane")
                         HStack {
@@ -164,7 +137,7 @@ struct TempView: View {
                             Text("to:")
                             TextField("", text: $toRow)
                         }
-
+                        
                         Button {
                             viewStore.send(
                                 .deleteLaneConents(rows: [Int(fromRow)!, Int(toRow)!])
@@ -233,7 +206,7 @@ struct TempView: View {
                             VStack {
                                 ForEach(0..<viewStore.map[layerIndex].count, id: \.self) { rowIndex in
                                     let planID = viewStore.map[layerIndex][rowIndex]
-                                    let plan = viewStore.existingAllPlans[planID]!
+                                    let plan = viewStore.existingPlans[planID]!
                                     let planTypeID = plan.planTypeID
                                     let planType = viewStore.existingPlanTypes[planTypeID]!
                                     

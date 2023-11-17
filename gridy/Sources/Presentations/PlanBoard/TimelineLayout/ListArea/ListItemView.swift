@@ -32,11 +32,11 @@ struct ListItemView: View {
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
                 if !isSelected && !isEditing {
                     Rectangle()
-                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
+                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : .clear)
                         .overlay(
                             Text(editingText)
                                 .onAppear {
-                                    if let plan = viewStore.existingAllPlans[viewStore.map[layerIndex][rowIndex]],
+                                    if let plan = viewStore.existingPlans[viewStore.map[layerIndex][rowIndex]],
                                        let planType = viewStore.existingPlanTypes[plan.planTypeID] {
                                         let title = planType.title
                                         editingText = title

@@ -13,7 +13,7 @@ import ComposableArchitecture
 
 /// Client
 struct APIClient {
-    var fetchUser: () async throws -> User?
+    var fetchUser: () async throws -> User
     var signIn: @Sendable (_ credential: AuthCredential) async throws -> Void
     var signUp: @Sendable (
         _ user: User,
@@ -24,7 +24,7 @@ struct APIClient {
     var updateProfileImage: @Sendable (NSImage) async throws -> String
     
     init(
-        fetchUser: @escaping () async throws -> User?,
+        fetchUser: @escaping () async throws -> User,
         signIn: @escaping @Sendable (AuthCredential) async throws -> Void,
         signUp: @escaping @Sendable (User, AuthCredential) async throws -> Void,
         signOut: @escaping () async throws -> Void,
@@ -51,8 +51,8 @@ extension APIClient {
             let currentUser = Auth.auth().currentUser
             guard let currentUser = currentUser else { throw APIError.noResponseResult }
             let result = try await APIClient.clientCollection.document(currentUser.uid).getDocument()
-            let data = try? JSONSerialization.data(withJSONObject: result.data() as Any)
-            let decoded = try? JSONDecoder().decode(User.self, from: data!)
+            let data = try JSONSerialization.data(withJSONObject: result.data() as Any)
+            let decoded = try JSONDecoder().decode(User.self, from: data)
             return decoded
         },
         
@@ -106,7 +106,7 @@ extension APIClient {
 extension APIClient {
     static let testValue = Self(
         fetchUser: {
-            return User.mock
+            User.mock
         }, signIn: { _ in
         }, signUp: { _, _ in
         }, signOut: {},
@@ -115,7 +115,7 @@ extension APIClient {
     )
     static let mockValue = Self(
         fetchUser: {
-            return nil
+            User.mock
         }, signIn: { _ in
         }, signUp: { _, _ in
         }, signOut: {},

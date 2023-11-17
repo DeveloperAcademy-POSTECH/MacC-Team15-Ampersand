@@ -105,7 +105,7 @@ extension TopToolBarView {
                     ))
                 }
                 .sheet(isPresented: isBoardSettingPresented) {
-                    BoardSettingView()
+                    BoardSettingView(store: store)
                 }
         }
     }

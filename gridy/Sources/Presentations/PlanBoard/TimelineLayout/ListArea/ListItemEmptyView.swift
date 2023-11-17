@@ -32,7 +32,7 @@ struct ListItemEmptyView: View {
                 /// 빈 Text를 보여준다.  클릭, 더블클릭이 가능하고 호버링이 되면 배경이 회색으로 변경된다.
                 if !isSelected && !isEditing {
                     Rectangle()
-                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : Color.clear)
+                        .foregroundStyle(isHovering ? Color.gray.opacity(0.2) : .clear)
                         .overlay(
                             // TODO: - editingText로 변경
                             Text("\(rowIndex)")

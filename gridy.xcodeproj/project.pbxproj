@@ -68,10 +68,10 @@
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE2EF6AA2ADE6626007B94DF /* ProjectItemViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2EF6A92ADE6626007B94DF /* ProjectItemViewDeprecated.swift */; };
-		EE3E22272AFA091100D82F59 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3E22262AFA091000D82F59 /* CalendarView.swift */; };
 		EE4ADF5C2AD7CD9500D99AEA /* ProjectBoardMainViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainViewDeprecated.swift */; };
 		EE5C207C2AE15685005D2D7E /* ProjectSideItemViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C207B2AE15685005D2D7E /* ProjectSideItemViewDeprecated.swift */; };
 		EE5C20992AE2B004005D2D7E /* ProjectEditViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5C20982AE2B004005D2D7E /* ProjectEditViewDeprecated.swift */; };
+		EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE780DB62B023686005E761F /* EditPlanBoardView.swift */; };
 		EE909A582AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */; };
 		EE909A5C2AC3CF9900C9AAF0 /* LineAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */; };
 		EE909A602AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A5F2AC3CFAF00C9AAF0 /* TimeAxisAreaView.swift */; };
@@ -98,7 +98,6 @@
 		8A1D0C4F2AC3F79300C7FCF8 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
 		8A1D0C532AC3FD0600C7FCF8 /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
 		8A3FF43B2AF93E2A002919DB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8A3FF43F2AF9401F002919DB /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarView.swift; path = gridy/Sources/Presentations/PlanBoard/CalendarView.swift; sourceTree = SOURCE_ROOT; };
 		8A5162452AC401EF00EEB1B4 /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
 		8A5162472AC403BB00EEB1B4 /* Lexend-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lexend-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		8A5162492AC404E600EEB1B4 /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
@@ -147,10 +146,10 @@
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE2EF6A92ADE6626007B94DF /* ProjectItemViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectItemViewDeprecated.swift; sourceTree = "<group>"; };
-		EE3E22262AFA091000D82F59 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE4ADF5B2AD7CD9500D99AEA /* ProjectBoardMainViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoardMainViewDeprecated.swift; sourceTree = "<group>"; };
 		EE5C207B2AE15685005D2D7E /* ProjectSideItemViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSideItemViewDeprecated.swift; sourceTree = "<group>"; };
 		EE5C20982AE2B004005D2D7E /* ProjectEditViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditViewDeprecated.swift; sourceTree = "<group>"; };
+		EE780DB62B023686005E761F /* EditPlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlanBoardView.swift; sourceTree = "<group>"; };
 		EE909A462AC3CE3C00C9AAF0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		EE909A572AC3CF5400C9AAF0 /* TimelineLayoutViewDeprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLayoutViewDeprecated.swift; sourceTree = "<group>"; };
 		EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAreaView.swift; sourceTree = "<group>"; };
@@ -303,6 +302,7 @@
 				EED5EC832AF2233400751FAE /* CreateFolderView.swift */,
 				EEEF68252AF776A9000B3CAF /* SettingsView.swift */,
 				EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */,
+				EE780DB62B023686005E761F /* EditPlanBoardView.swift */,
 				AD96ED412AD1BCAD005D197B /* ProjectItem.swift */,
 				EEEF68232AF76858000B3CAF /* LogoutView.swift */,
 			);
@@ -363,7 +363,6 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
-				EE3E22262AFA091000D82F59 /* CalendarView.swift */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				977208192AF4A2C30096769F /* tempView.swift */,
 				D17800682AF35989002984CF /* PlanBoardView.swift */,
@@ -381,7 +380,6 @@
 		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
 			isa = PBXGroup;
 			children = (
-				8A3FF43F2AF9401F002919DB /* CalendarView.swift */,
 				EEA539802AC400400000383F /* TimelineLayoutContentView.swift */,
 				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
 				EE909A5B2AC3CF9900C9AAF0 /* LineAreaView.swift */,
@@ -570,6 +568,7 @@
 				ADACF60A2AC26CDF008AADFA /* Color+Extension.swift in Sources */,
 				EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */,
 				EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */,
+				EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */,
 				97806BB52AE15ACC0044FA0C /* ListItemView.swift in Sources */,
 				D17800692AF35989002984CF /* PlanBoardView.swift in Sources */,
 				ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */,
@@ -604,7 +603,6 @@
 				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
-				EE3E22272AFA091100D82F59 /* CalendarView.swift in Sources */,
 				EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,

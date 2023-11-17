@@ -117,7 +117,7 @@ struct LineAreaView: View {
                         Button {
                             viewStore.send(.escapeSelectedCell)
                         } label: { }
-                        .keyboardShortcut(.escape, modifiers: [])
+                            .keyboardShortcut(.escape, modifiers: [])
                     }
                     Color.white
                     
@@ -183,62 +183,48 @@ struct LineAreaView: View {
                             }
                         }
                     }
-                    if viewStore.shiftedCol == 0 {
-                            Rectangle()
-                                .fill(Color.green.opacity(0.5))  // 여기서 원하는 색상과 투명도를 설정
-                                .frame(width: viewStore.gridWidth, height: geometry.size.height)
-                                .position(x: viewStore.gridWidth / 2, y: geometry.size.height / 2)
-                        }
-                    if viewStore.shiftedRow == 0 {
-                        Rectangle()
-                            .fill(Color.cyan.opacity(0.5))
-                            .frame(width: geometry.size.width, height: viewStore.lineAreaGridHeight)
-                            .position(x: geometry.size.width / 2, y: viewStore.lineAreaGridHeight / 2)
-                    }
-
-                    
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .onChange(of: exceededDirection) { direction in
                     if temporarySelectedGridRange != nil {
                         switch direction {
-                        case [true, false, false, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 0,
-                                    shiftedCol: -1,
-                                    exceededRow: 0,
-                                    exceededCol: -1
+                            case [true, false, false, false]:
+                                viewStore.send(
+                                    .dragExceeded(
+                                        shiftedRow: 0,
+                                        shiftedCol: -1,
+                                        exceededRow: 0,
+                                        exceededCol: -1
+                                    )
                                 )
-                            )
-                        case [false, true, false, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 0,
-                                    shiftedCol: 1,
-                                    exceededRow: 0,
-                                    exceededCol: 1
+                            case [false, true, false, false]:
+                                viewStore.send(
+                                    .dragExceeded(
+                                        shiftedRow: 0,
+                                        shiftedCol: 1,
+                                        exceededRow: 0,
+                                        exceededCol: 1
+                                    )
                                 )
-                            )
-                        case [false, false, true, false]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: -1,
-                                    shiftedCol: 0,
-                                    exceededRow: -1,
-                                    exceededCol: 0
+                            case [false, false, true, false]:
+                                viewStore.send(
+                                    .dragExceeded(
+                                        shiftedRow: -1,
+                                        shiftedCol: 0,
+                                        exceededRow: -1,
+                                        exceededCol: 0
+                                    )
                                 )
-                            )
-                        case [false, false, false, true]:
-                            viewStore.send(
-                                .dragExceeded(
-                                    shiftedRow: 1,
-                                    shiftedCol: 0,
-                                    exceededRow: 1,
-                                    exceededCol: 0
+                            case [false, false, false, true]:
+                                viewStore.send(
+                                    .dragExceeded(
+                                        shiftedRow: 1,
+                                        shiftedCol: 0,
+                                        exceededRow: 1,
+                                        exceededCol: 0
+                                    )
                                 )
-                            )
-                        default: break
+                            default: break
                         }
                     }
                 }
@@ -250,10 +236,10 @@ struct LineAreaView: View {
                 }
                 .onContinuousHover { phase in
                     switch phase {
-                    case .active(let location):
-                        viewStore.send(.onContinuousHover(true, location))
-                    case .ended:
-                        viewStore.send(.onContinuousHover(false, nil))
+                        case .active(let location):
+                            viewStore.send(.onContinuousHover(true, location))
+                        case .ended:
+                            viewStore.send(.onContinuousHover(false, nil))
                     }
                 }
                 .gesture(

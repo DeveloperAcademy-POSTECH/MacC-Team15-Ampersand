@@ -16,10 +16,9 @@ struct DrawnLine: Identifiable, Equatable {
 }
 
 struct ScheduleAreaView: View {
-    @State private var temporarySelectedGridRange: SelectedGridRange?
+    @State private var scheduleTemporarySelectedGridRange: SelectedGridRange?
     @State private var completedLines: [DrawnLine] = []
     @State private var drawingLine: DrawnLine?
-    @State private var shouldFinalizeDrawing: Bool = false
     
     let store: StoreOf<PlanBoard>
     
@@ -43,7 +42,7 @@ struct ScheduleAreaView: View {
                     }
                     .stroke(Color.gray, lineWidth: viewStore.columnStroke)
                     
-                    if let selectedRange = temporarySelectedGridRange {
+                    if let selectedRange = scheduleTemporarySelectedGridRange {
                         let startY = CGFloat(selectedRange.start.row) * viewStore.scheduleAreaGridHeight
                         let endY = CGFloat(selectedRange.end.row + 1) * viewStore.scheduleAreaGridHeight
                         let startX = CGFloat(selectedRange.start.col) * viewStore.gridWidth
@@ -85,15 +84,15 @@ struct ScheduleAreaView: View {
                         .fill(Color.purple)
                     }
                     Button(action: {
-                        guard let tempRange = temporarySelectedGridRange else { return }
-                                let startRow = tempRange.start.row
-                                let startCol = tempRange.start.col + viewStore.shiftedCol
-                                let endCol = tempRange.end.col + viewStore.shiftedCol
-                                let newLine = DrawnLine(startRow: startRow, startCol: startCol, endRow: startRow, endCol: endCol)
-                                self.completedLines.append(newLine)
-                                viewStore.send(.addCompletedLine(newLine))
-                                temporarySelectedGridRange = nil
-                                self.drawingLine = nil
+                        guard let tempRange = scheduleTemporarySelectedGridRange else { return }
+                        let startRow = tempRange.start.row
+                        let startCol = tempRange.start.col + viewStore.shiftedCol
+                        let endCol = tempRange.end.col + viewStore.shiftedCol
+                        let newLine = DrawnLine(startRow: startRow, startCol: startCol, endRow: startRow, endCol: endCol)
+                        self.completedLines.append(newLine)
+                        viewStore.send(.addCompletedLine(newLine))
+                        scheduleTemporarySelectedGridRange = nil
+                        self.drawingLine = nil
                     }) {
                         EmptyView()
                     }
@@ -103,14 +102,14 @@ struct ScheduleAreaView: View {
                 .gesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onChanged { gesture in
-                            temporarySelectedGridRange = nil
+                            scheduleTemporarySelectedGridRange = nil
                             let dragStart = gesture.startLocation
                             let dragEnd = gesture.location
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             let startRow = Int(dragStart.y / viewStore.scheduleAreaGridHeight)
                             let endRow = Int(dragEnd.y / viewStore.scheduleAreaGridHeight)
-                            temporarySelectedGridRange = SelectedGridRange(
+                            scheduleTemporarySelectedGridRange = SelectedGridRange(
                                 start: (startRow, startCol),
                                 end: (endRow, endCol)
                             )
