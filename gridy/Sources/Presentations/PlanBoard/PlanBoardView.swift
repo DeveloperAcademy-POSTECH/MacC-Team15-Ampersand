@@ -126,12 +126,32 @@ extension PlanBoardView {
                                     width: geometry.size.width,
                                     height: viewStore.lineAreaGridHeight - viewStore.rowStroke
                                 )
+                                .opacity(viewStore.selectedLineIndexRow == nil ? 1 : 1)
                                 .position(x: geometry.size.width / 2,
                                           y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
                                 .onTapGesture {
-                                    // TODO: - line 선택되게
+                                    viewStore.send(.lineIndexAreaClicked(true))
                                 }
                         }
+                    }
+                    if let clickedRow = viewStore.selectedLineIndexRow {
+                        Rectangle()
+                            .fill(Color.itemHovered)
+                            .border(.blue)
+                            .frame(
+                                width: geometry.size.width,
+                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                            )
+                            .position(x: geometry.size.width / 2,
+                                      y: CGFloat(Double(clickedRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
+                            .contextMenu {
+                                Button("Clear this lane") {
+                                    viewStore.send(.deleteLaneConents(
+                                        rows: [viewStore.selectedLineIndexRow!, viewStore.selectedLineIndexRow!]
+                                    ))
+                                    viewStore.send(.lineIndexAreaClicked(false))
+                                }
+                            }
                     }
                 }
                 .onContinuousHover { phase in
@@ -264,7 +284,7 @@ extension PlanBoardView {
                                 .position(x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
                                           y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
                                 .onTapGesture {
-                                    
+                                    // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
                                 }
                                 .highPriorityGesture(TapGesture(count: 2).onEnded({
                                     listItemFocused = true
@@ -272,6 +292,11 @@ extension PlanBoardView {
                                     viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
                                     viewStore.send(.setHoveredCell(.listArea, false, nil))
                                 }))
+                                .contextMenu {
+                                    Button("Delete this Plan") {
+                                        /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
+                                    }
+                                }
                                 .opacity((viewStore.selectedEmptyRow == hoveredRow)&&(viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
                         }
                     }
@@ -376,6 +401,12 @@ extension PlanBoardView {
                                             viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                             viewStore.send(.listItemDoubleClicked(.listItem, true))
                                         }
+                                        .contextMenu {
+                                            Button("Delete this Plan") {
+                                                viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
+                                            }
+                                        }
+                                        .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 }
                             }
                             .frame(width: gridWidth)

@@ -113,10 +113,14 @@ struct PlanBoard: Reducer {
         var selectedListRow: Int?
         var selectedListColumn: Int?
         
+        /// LineIndexArea
+        var selectedLineIndexRow: Int?
+        
         /// focusGroupClickedItems
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
         var rightToolBarFocusGroupClickedItem = ""
+        var planBoardFocusGroupClickedItem = ""
         var isHoveredOnLineArea = false
         
         /// popover
@@ -192,6 +196,9 @@ struct PlanBoard: Reducer {
         // MARK: - list area
         case listItemDoubleClicked(String, Bool)
         case keywordChanged(String)
+        
+        // MARK: - lineIndexArea
+        case lineIndexAreaClicked(Bool)
         
         // MARK: - BoardSettingView
         case titleChanged(String)
@@ -591,11 +598,6 @@ struct PlanBoard: Reducer {
                     ))
                 }
                 
-                // TODO: - 삭제
-            case let .readPlansResponse(.failure(_)):
-                print("fail")
-                return .none
-                
             case let .readPlansResponse(.success(responses)):
                 for response in responses {
                     state.existingPlans[response.id] = response
@@ -859,22 +861,15 @@ struct PlanBoard: Reducer {
                         break
                     }
                 }
+                let deletedPlanID = state.existingPlans[targetParentPlanID]!.childPlanIDs[targetKey]!.last!
                 /// 현재 listArea에 보여지는 Plan들은 부모의 childIDs 배열에서 한 lane에 나만 속해있다. 하나의 레인에 나 외에 다른 플랜들이 있는 상황은 가정하지 않음. 따라서 부모의 레인들 중 내가 속한 레인에서 나를 빼면 그 레인은 당연히 0이 됨.
                 /// 부모가 내 레인만 들고 있었을 경우
                 if state.existingPlans[targetParentPlanID]!.childPlanIDs.count == 1 {
                     /// 그 부모가 root일 경우: Layer가 0
                     if targetParentPlanID == state.rootPlan.id {
-                        state.existingPlans[targetParentPlanID]!.childPlanIDs = [:]
-                        /// 부모의 childs를 지워주면 map에 layer2개 이상이었을 때에도 layer는 1개만 보여지므로, map의 크기만큼 map에 빈 배열을 추가하고 빠져나감.
-                        if state.map.count != 1 {
-                            var newMap: [[String]] = []
-                            for _ in 0..<state.map.count {
-                                newMap.append([])
-                            }
-                            state.map = newMap
-                            return .none
-                        }
-                        /// 부모가 root가 아닐 경우: Layer가 1 이상
+                        state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
+                        state.rootPlan.childPlanIDs = ["0": []]
+                    /// 부모가 root가 아닐 경우: Layer가 1 이상
                     } else {
                         let newPlanID = UUID().uuidString
                         let newPlan = Plan(
@@ -887,7 +882,7 @@ struct PlanBoard: Reducer {
                         createdPlans.append(newPlan)
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
                     }
-                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -898,23 +893,33 @@ struct PlanBoard: Reducer {
                         orderedChildPlanIDs[String(index)] = sortedChildPlanIDs[index].value
                     }
                     state.existingPlans[targetParentPlanID]!.childPlanIDs = orderedChildPlanIDs
+                    // TODO: - 삭제
+                    if targetParentPlanID == state.rootPlan.id {
+                        state.rootPlan.childPlanIDs.removeValue(forKey: targetKey)
+                        let sortedChildPlanIDs = state.existingPlans[targetParentPlanID]!.childPlanIDs.sorted { Int($0.key)! < Int($1.key)! }
+                        var orderedChildPlanIDs = [String: [String]]()
+                        for index in 0..<sortedChildPlanIDs.count {
+                            orderedChildPlanIDs[String(index)] = sortedChildPlanIDs[index].value
+                        }
+                        state.rootPlan.childPlanIDs = orderedChildPlanIDs
+                    }
                 }
                 updatedPlans.append(state.existingPlans[targetParentPlanID]!)
                 
                 /// 삭제한 plan과 그 하위 플랜들을 삭제해줌.
-                let deletedPlanID = state.existingPlans[targetParentPlanID]!.childPlanIDs[targetKey]!.last!
                 var planIDsQ: [String] = [deletedPlanID]
                 var tempLayer: [String] = []
                 while !planIDsQ.isEmpty {
                     for planID in planIDsQ {
-                        deletedPlans.append(state.existingPlans[planID]!)
                         let plan = state.existingPlans[planID]!
+                        deletedPlans.append(plan)
                         for index in 0..<plan.childPlanIDs.count {
                             tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
                         }
                     }
                     planIDsQ.removeAll()
                     planIDsQ.append(contentsOf: tempLayer)
+                    tempLayer.removeAll()
                 }
                 for deletedPlan in deletedPlans {
                     state.existingPlans[deletedPlan.id] = nil
@@ -1802,6 +1807,14 @@ struct PlanBoard: Reducer {
             case let .keywordChanged(newKeyword):
                 state.keyword = newKeyword
                 return .none
+                
+            case let .lineIndexAreaClicked(clicked):
+                if clicked {
+                    state.selectedLineIndexRow = state.lineIndexAreaHoveredCellRow
+                } else {
+                    state.selectedLineIndexRow = nil
+                }
+                return .none
             
             case let .magnificationChangedInListArea(value, geometrySize):
                 state.gridWidth = min(
@@ -1835,11 +1848,10 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .projectTitleChanged:
-//                let id = state.rootProject.id
                 let changedTitle = state.title
                 state.rootProject.title = changedTitle
                 let projectToUpdate = [state.rootProject]
-                return .run { send in
+                return .run { _ in
                     try await apiService.updateProjects(projectToUpdate)
                 }
                 
