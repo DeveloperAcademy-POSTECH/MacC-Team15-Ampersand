@@ -517,25 +517,28 @@ extension PlanBoardView {
                                 let lastRange = viewStore.selectedGridRanges.last!
                                 let startDate = min(
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.start.col,
+                                        byAdding: .day,
+                                        value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.end.col,
+                                        byAdding: .day,
+                                        value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
                                 let endDate = max(
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.start.col,
+                                        byAdding: .day,
+                                        value: lastRange.start.col,
                                         to: today
                                     )!.filteredDate,
                                     Calendar.current.date(
-                                        byAdding: .day, value: lastRange.end.col,
+                                        byAdding: .day,
+                                        value: lastRange.end.col,
                                         to: today
                                     )!.filteredDate
                                 )
-                                // TODO: create plan on line
                                 let row = min(lastRange.start.row, lastRange.end.row)
                                 viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
                             }
@@ -648,26 +651,61 @@ extension PlanBoardView {
                                 x: CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
                                 y: geometry.size.height / 2
                             )
-                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 :0)
+                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
                         
-                        ForEach(viewStore.selectedDateRanges, id: \.self) { selectedRange in
-                            let today = Date().filteredDate
-                            let height = viewStore.lineAreaGridHeight * 0.5 - 4
-                            let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                            let width = CGFloat(dayDifference + 1)
-                            let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
-                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-                                .overlay(
+                        let existingPlans = Array(viewStore.existingPlans.values)
+                        ForEach(existingPlans, id: \.self) { plan in
+                            if let periods = plan.periods {
+                                let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                                ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                                    let today = Date().filteredDate
+                                    let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                                    let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                                    let width = CGFloat(dayDifference + 1)
+                                    let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
                                     RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                        .stroke(Color.white, lineWidth: 1)
-                                )
-                                .frame(width: width * viewStore.gridWidth, height: height)
-                                .position(
-                                    x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                    y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
-                                )
+                                        .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                                .stroke(Color.white, lineWidth: 1)
+                                        )
+                                        .frame(width: width * viewStore.gridWidth, height: height)
+                                        .position(
+                                            x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
+                                            y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
+                                        )
+                                }
+                            }
                         }
+//                        // TODO: - row 맞추어 띄우기
+//                        let today = Date().filteredDate.integerDate
+//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+//                            let plans = viewStore.listMap[lineIndex]
+//                            ForEach(plans, id: \.self) { plan in
+//                                if let periods = plan.periods {
+//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+//                                        let width = CGFloat(dayDifference + 1)
+//                                        let position = CGFloat(selectedRange.start.integerDate - today)
+//                                        let frameWidth = width * viewStore.gridWidth
+//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+//                                            .overlay(
+//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+//                                                    .stroke(Color.white, lineWidth: 1)
+//                                            )
+//                                            .frame(width: width, height: height)
+//                                            .position(
+//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+//                                            )
+//                                    }
+//                                }
+//                            }
+//                        }
+                        
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
@@ -678,10 +716,12 @@ extension PlanBoardView {
                                 .frame(width: width, height: height)
                                 .position(
                                     x: isStartColSmaller ?
-                                          CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                            CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                    CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                        CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                     y: isStartRowSmaller ?
-                                          CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 : CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
+                                    CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                        CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                                )
                         }
                         if !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
@@ -698,93 +738,19 @@ extension PlanBoardView {
                                     .frame(width: width, height: height)
                                     .position(
                                         x: isStartColSmaller ?
-                                              CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                                CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                        CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                            CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                         y: isStartRowSmaller ?
-                                              CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                                CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2)
+                                        CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                            CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                                    )
                             }
                         }
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .onReceive(timer) { _ in
-                    switch exceededDirection {
-                    case [true, false, false, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 0,
-                                shiftedCol: -1,
-                                exceededRow: 0,
-                                exceededCol: -1
-                            )
-                        )
-                    case [false, true, false, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 0,
-                                shiftedCol: 1,
-                                exceededRow: 0,
-                                exceededCol: 1
-                            )
-                        )
-                    case [false, false, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: 0,
-                                exceededRow: -1,
-                                exceededCol: 0
-                            )
-                        )
-                    case [false, false, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: 0,
-                                exceededRow: 1,
-                                exceededCol: 0
-                            )
-                        )
-                    case [true, false, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: -1,
-                                exceededRow: -1,
-                                exceededCol: -1
-                            )
-                        )
-                    case [true, false, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: -1,
-                                exceededRow: 1,
-                                exceededCol: -1
-                            )
-                        )
-                    case [false, true, true, false]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: -1,
-                                shiftedCol: 1,
-                                exceededRow: -1,
-                                exceededCol: 1
-                            )
-                        )
-                    case [false, true, false, true]:
-                        viewStore.send(
-                            .dragExceeded(
-                                shiftedRow: 1,
-                                shiftedCol: 1,
-                                exceededRow: 1,
-                                exceededCol: 1
-                            )
-                        )
-                    default: 
-                        break
-                    }
+                    onReceiveTimer(viewStore: viewStore)
                 }
                 .onAppear {
                     viewStore.send(.windowSizeChanged(geometry.size))
@@ -844,9 +810,9 @@ extension PlanBoardView {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
                                     self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow, 
+                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow, 
+                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
                                               endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                                     )
                                 } else {
@@ -862,9 +828,7 @@ extension PlanBoardView {
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            if temporarySelectedGridRange != nil {
-                                temporarySelectedGridRange = nil
-                            }
+                            temporarySelectedGridRange = nil
                             exceededDirection = [false, false, false, false]
                         }
                 )
@@ -877,9 +841,7 @@ extension PlanBoardView {
             }
             .background(Color.lineArea)
             .onAppear {
-                viewStore.send(
-                    .onAppear
-                )
+                viewStore.send(.initializeState)
                 NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
                     viewStore.send(.scrollGesture(event))
                     return event
@@ -893,6 +855,85 @@ extension PlanBoardView {
                     return event
                 }
             }
+        }
+    }
+    
+    private func onReceiveTimer(viewStore: ViewStoreOf<PlanBoard>) {
+        switch exceededDirection {
+        case [true, false, false, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 0,
+                    shiftedCol: -1,
+                    exceededRow: 0,
+                    exceededCol: -1
+                )
+            )
+        case [false, true, false, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 0,
+                    shiftedCol: 1,
+                    exceededRow: 0,
+                    exceededCol: 1
+                )
+            )
+        case [false, false, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: 0,
+                    exceededRow: -1,
+                    exceededCol: 0
+                )
+            )
+        case [false, false, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: 0,
+                    exceededRow: 1,
+                    exceededCol: 0
+                )
+            )
+        case [true, false, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: -1,
+                    exceededRow: -1,
+                    exceededCol: -1
+                )
+            )
+        case [true, false, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: -1,
+                    exceededRow: 1,
+                    exceededCol: -1
+                )
+            )
+        case [false, true, true, false]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: -1,
+                    shiftedCol: 1,
+                    exceededRow: -1,
+                    exceededCol: 1
+                )
+            )
+        case [false, true, false, true]:
+            viewStore.send(
+                .dragExceeded(
+                    shiftedRow: 1,
+                    shiftedCol: 1,
+                    exceededRow: 1,
+                    exceededCol: 1
+                )
+            )
+        default:
+            break
         }
     }
 }
