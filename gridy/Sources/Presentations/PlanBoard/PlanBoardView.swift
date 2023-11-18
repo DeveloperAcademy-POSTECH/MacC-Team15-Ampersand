@@ -1,4 +1,20 @@
+//
+//  PlanBoardView.swift
+//  gridy
+//
+//  Created by Jin Sang woo on 11/2/23.
+//
 
+import SwiftUI
+import ComposableArchitecture
+
+struct PlanBoardView: View {
+    @State private var temporarySelectedGridRange: SelectedGridRange?
+    @State private var exceededDirection = [false, false, false, false]
+    @FocusState var listItemFocused: Bool
+    let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
+    let store: StoreOf<PlanBoard>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
