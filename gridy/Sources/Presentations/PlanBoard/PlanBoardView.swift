@@ -48,7 +48,7 @@ struct PlanBoardView: View {
                             planBoardBorder(.horizontal)
                             listArea
                         }
-                        .frame(width: 150)
+                        .frame(width: 150 * CGFloat(viewStore.map.count))
                         planBoardBorder(.vertical)
                     }
                     .zIndex(4)
