@@ -113,6 +113,7 @@ struct PlanBoard: Reducer {
         /// GeometryReader proxy값의 변화에 따라 Max 그리드 갯수가 변화합니다.
         var maxCol = 0
         var maxLineAreaRow = 0
+        var defaultLineAreaRow = 20
         var maxScheduleAreaRow = 6
         
         /// 뷰가 움직인 크기를 나타내는 변수입니다. ListArea, LineArea가 공유합니다.

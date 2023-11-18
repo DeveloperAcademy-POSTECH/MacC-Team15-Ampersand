@@ -104,7 +104,8 @@ extension PlanBoardView {
                 ZStack {
                     Color.index
                     Path { path in
-                        for rowIndex in 1...viewStore.maxLineAreaRow {
+                        let maxRow = viewStore.maxLineAreaRow == 0 ? viewStore.defaultLineAreaRow : viewStore.maxLineAreaRow
+                        for rowIndex in 1...maxRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
@@ -248,7 +249,8 @@ extension PlanBoardView {
                 ZStack(alignment: .topLeading) {
                     Color.listArea
                     Path { path in
-                        for rowIndex in 1...viewStore.maxLineAreaRow {
+                        let maxRow = viewStore.maxLineAreaRow == 0 ? viewStore.defaultLineAreaRow : viewStore.maxLineAreaRow
+                        for rowIndex in 1...maxRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
@@ -356,7 +358,7 @@ extension PlanBoardView {
                                 /// doubleClick 되었을 떄
                                 if viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex {
                                     Rectangle()
-                                        .fill(Color.list)
+                                        .fill(Color.listArea)
                                         .overlay(
                                             TextField("editing",
                                                       text: viewStore.binding(
@@ -382,7 +384,7 @@ extension PlanBoardView {
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {
                                     Rectangle()
-                                        .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.list)
+                                        .fill(viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ? Color.itemHovered : Color.listArea)
                                         .overlay {
                                             let planID = viewStore.map[layerIndex][rowIndex]
                                             let plan = viewStore.existingPlans[planID] ?? Plan.mock
@@ -761,9 +763,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.lineArea, true, location))
+                        viewStore.send(.setHoveredLocation(.lineArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLocation(.none, false, nil))
                     }
                 }
                 .gesture(
