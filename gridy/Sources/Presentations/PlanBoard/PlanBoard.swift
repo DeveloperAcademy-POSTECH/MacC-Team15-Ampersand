@@ -644,7 +644,7 @@ struct PlanBoard: Reducer {
                         for period in periods.values {
                             state.selectedDateRanges.append(
                                 SelectedDateRange(
-                                    start: period[0], 
+                                    start: period[0],
                                     end: period[1]
                                 )
                             )
@@ -1925,4 +1925,3 @@ struct PlanBoard: Reducer {
         }
     }
 }
-

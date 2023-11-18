@@ -121,7 +121,7 @@ extension PlanBoardView {
                                     width: geometry.size.width,
                                     height: viewStore.lineAreaGridHeight - viewStore.rowStroke
                                 )
-                                .opacity(viewStore.selectedLineIndexRow == nil ? 1 : 1)
+                                .opacity(viewStore.selectedLineIndexRow == nil ? 0 : 1)
                                 .position(x: geometry.size.width / 2,
                                           y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
                                 .onTapGesture {
@@ -389,8 +389,9 @@ extension PlanBoardView {
                                             let planID = viewStore.map[layerIndex][rowIndex]
                                             let plan = viewStore.existingPlans[planID] ?? Plan.mock
                                             let planTypeID = plan.planTypeID
+                                            let planType = viewStore.existingPlanTypes[planTypeID] ?? PlanType.emptyPlanType
                                             
-                                            Text("\(viewStore.existingPlanTypes[planTypeID]!.title)")
+                                            Text("\(planType.title)")
                                         }
                                         .onTapGesture(count: 2) {
                                             listItemFocused = true
