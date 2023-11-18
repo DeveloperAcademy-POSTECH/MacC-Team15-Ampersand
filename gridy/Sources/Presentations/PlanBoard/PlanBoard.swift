@@ -82,8 +82,8 @@ struct PlanBoard: Reducer {
         
         /// ListArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var listAreaHoveredCellLocation: CGPoint = .zero
-        var listAreaHoveredCellRow = Int?
-        var listAreaHoveredCellCol = Int?
+        var listAreaHoveredCellRow: Int?
+        var listAreaHoveredCellCol: Int?
         
         /// LineIndexArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineIndexAreaHoveredCellLocation: CGPoint = .zero
