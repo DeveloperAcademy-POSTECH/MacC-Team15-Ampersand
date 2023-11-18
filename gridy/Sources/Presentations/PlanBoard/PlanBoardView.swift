@@ -287,10 +287,11 @@ extension PlanBoardView {
                                     x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
                                     y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                                 )
-                                .onTapGesture {
+                                .highPriorityGesture(TapGesture(count: 1).onEnded({
                                     // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
-                                }
-                                .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                    viewStore.send(.lineIndexAreaClicked(false))
+                                }))
+                                .simultaneousGesture(TapGesture(count: 2).onEnded({
                                     listItemFocused = true
                                     viewStore.send(.listItemDoubleClicked(.listItem, false))
                                     viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
@@ -407,10 +408,11 @@ extension PlanBoardView {
                                             
                                             Text("\(planType.title)")
                                         }
-                                        .onTapGesture {
+                                        .highPriorityGesture(TapGesture(count: 1).onEnded({
                                             // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
-                                        }
-                                        .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                            viewStore.send(.lineIndexAreaClicked(false))
+                                        }))
+                                        .simultaneousGesture(TapGesture(count: 2).onEnded({
                                             listItemFocused = true
                                             viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                             viewStore.send(.listItemDoubleClicked(.listItem, true))
