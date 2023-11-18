@@ -1722,7 +1722,7 @@ struct PlanBoard: Reducer {
                     if isActive {
                         state.listAreaHoveredCellLocation = location!
                         state.listAreaHoveredCellRow = Int(state.listAreaHoveredCellLocation.y / state.lineAreaGridHeight)
-                        state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / 150)
+                        state.listAreaHoveredCellCol = Int(state.listAreaHoveredCellLocation.x / state.listGridWidth)
                     } else {
                         state.listAreaHoveredCellRow = nil
                         state.listAreaHoveredCellCol = nil
