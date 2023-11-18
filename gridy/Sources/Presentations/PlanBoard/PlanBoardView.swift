@@ -121,7 +121,7 @@ extension PlanBoardView {
                                     width: geometry.size.width,
                                     height: viewStore.lineAreaGridHeight - viewStore.rowStroke
                                 )
-                                .opacity(viewStore.selectedLineIndexRow == nil ? 0 : 1)
+                                .opacity(viewStore.selectedLineIndexRow == hoveredRow ? 0 : 1)
                                 .position(x: geometry.size.width / 2,
                                           y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2)
                                 .onTapGesture {
