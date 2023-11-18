@@ -51,6 +51,7 @@ struct PlanBoard: Reducer {
         let minGridSize = CGFloat(20)
         let maxGridSize = CGFloat(70)
         var gridWidth = CGFloat(45)
+        let listGridWidth = CGFloat(150)
         var scheduleAreaGridHeight = CGFloat(45)
         var lineAreaGridHeight = CGFloat(45)
         var horizontalMagnification = CGFloat(1.0)

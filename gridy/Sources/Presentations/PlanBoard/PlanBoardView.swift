@@ -48,7 +48,7 @@ struct PlanBoardView: View {
                             planBoardBorder(.horizontal)
                             listArea
                         }
-                        .frame(width: 150 * CGFloat(viewStore.map.count))
+                        .frame(width: viewStore.listGridWidth * CGFloat(viewStore.map.count))
                         planBoardBorder(.vertical)
                     }
                     .zIndex(4)
@@ -324,8 +324,8 @@ extension PlanBoardView {
                                     viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                 }
                             )
-                            .frame(width: 150 - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
-                            .position(x: CGFloat(Double(columnOffset) + 0.5) * 150 - viewStore.columnStroke / 2, y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
+                            .frame(width: viewStore.listGridWidth - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
+                            .position(x: CGFloat(Double(columnOffset) + 0.5) * viewStore.listGridWidth - viewStore.columnStroke / 2, y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke)
                     }
                     /// map에 있는 정보
                     listMap
