@@ -423,9 +423,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
+                        viewStore.send(.setHoveredLocation(.scheduleArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLocation(.none, false, nil))
                     }
                 }
             }
@@ -480,9 +480,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                        viewStore.send(.setHoveredLocation(.timeAxisArea, true, location))
                     case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLocation(.none, false, nil))
                     }
                 }
                 .background(Color.lineArea)
