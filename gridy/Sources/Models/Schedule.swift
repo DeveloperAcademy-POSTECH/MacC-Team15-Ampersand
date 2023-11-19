@@ -7,12 +7,19 @@
 
 import Foundation
 
-struct Schedule: Identifiable, Equatable, Decodable {
+enum ScheduleCategory: String, Decodable {
+    case none
+    case apple
+    case google
+}
+
+struct Schedule: Identifiable, Decodable, Equatable {
     var id: String
     var title: String?
     var startDate: Date
     var endDate: Date
     var colorCode: UInt
+    var category: ScheduleCategory
     
-    static let mock = Schedule(id: "", startDate: Date(), endDate: Date(), colorCode: 0x000000)
+    static let mock = Schedule(id: "", startDate: Date(), endDate: Date(), colorCode: 0x000000, category: .none)
 }

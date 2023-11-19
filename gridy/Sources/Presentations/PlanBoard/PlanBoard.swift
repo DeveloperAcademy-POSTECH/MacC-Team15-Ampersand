@@ -38,9 +38,11 @@ struct PlanBoard: Reducer {
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
         var listMap = [[Plan]]()
+        var scheduleMap = [[Schedule]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
+        var existingSchedules = [String: Schedule]()
         
         var keyword = ""
         var title = ""
@@ -167,6 +169,13 @@ struct PlanBoard: Reducer {
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan(targetPlanID: String, updateTo: Plan)
         
+        /// Schedule
+        case createSchedule(Date, Date, String, UInt)
+        case readSchedules
+        case readSchedulesRespones(TaskResult<[Schedule]>)
+        case updateSchedule
+        case deleteSchedule
+        
         /// ListArea
         case createLayerButtonClicked(layer: Int)
         case createLaneButtonClicked(row: Int, createOnTop: Bool)
@@ -217,6 +226,7 @@ struct PlanBoard: Reducer {
         /// Map
         case reloadMap
         case reloadListMap
+        case reloadScheduleMap
     }
     
     // MARK: - Body
@@ -653,6 +663,50 @@ struct PlanBoard: Reducer {
                         planToUpdate,
                         projectID
                     )
+                }
+                
+                // MARK: - Schedule
+            case let .createSchedule(startDate, endDate, text, colorCode):
+                let projectID = state.rootProject.id
+                //TODO: - 삭제
+                let schedule = Schedule.mock
+                return .run { send in
+                    await send(.reloadScheduleMap)
+                    try await apiService.createSchedule(schedule, projectID)
+                }
+                
+            case .readSchedules:
+                let projectID = state.rootProject.id
+                return .run { send in
+                    await send(.readSchedulesRespones(
+                        TaskResult {
+                            try await apiService.readAllSchedules(projectID)
+                        }
+                    ))
+                }
+                
+            case let .readSchedulesRespones(.success(responses)):
+                responses.forEach { schedule in
+                    state.existingSchedules[schedule.id] = schedule
+                }
+                return .none
+                
+            case let .updateSchedule:
+                let projectID = state.rootProject.id
+                //TODO: - 삭제
+                let schedule = Schedule.mock
+                return .run { send in
+                    await send(.reloadScheduleMap)
+                    try await apiService.updateSchedule(schedule, projectID)
+                }
+                
+            case let .deleteSchedule:
+                let projectID = state.rootProject.id
+                //TODO: - 삭제
+                let prevSchedule = Schedule.mock
+                return .run { send in
+                    await send(.reloadScheduleMap)
+                    try await apiService.deleteSchedule(prevSchedule, projectID)
                 }
                 
                 // MARK: - ListArea
@@ -1846,6 +1900,9 @@ struct PlanBoard: Reducer {
                 state.listMap = newMap
                 return .none
                 
+            case .reloadScheduleMap:
+                //TODO: - 작성
+                return .none
             default:
                 return .none
             }
