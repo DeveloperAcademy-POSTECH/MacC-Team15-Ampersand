@@ -17,66 +17,77 @@ struct PlanBoardView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(alignment: .leading, spacing: 0) {
-                systemBorder(.horizontal)
-                    .zIndex(5)
-                TopToolBarView(store: store)
-                    .frame(height: 48)
-                    .zIndex(5)
-                planBoardBorder(.horizontal)
-                    .zIndex(5)
-                HStack(alignment: .top, spacing: 0) {
+            if viewStore.loadInProgress {
+                Spacer()
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .onAppear { viewStore.send(.initializeState) }
+                    Spacer()
+                }
+                Spacer()
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    systemBorder(.horizontal)
+                        .zIndex(5)
+                    TopToolBarView(store: store)
+                        .frame(height: 48)
+                        .zIndex(5)
+                    planBoardBorder(.horizontal)
+                        .zIndex(5)
                     HStack(alignment: .top, spacing: 0) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            scheduleIndexArea
-                                .frame(height: 143)
-                            planBoardBorder(.horizontal)
-                            extraArea
-                                .frame(height: 48)
-                            planBoardBorder(.horizontal)
-                            lineIndexArea
+                        HStack(alignment: .top, spacing: 0) {
+                            VStack(alignment: .leading, spacing: 0) {
+                                scheduleIndexArea
+                                    .frame(height: 143)
+                                planBoardBorder(.horizontal)
+                                extraArea
+                                    .frame(height: 48)
+                                planBoardBorder(.horizontal)
+                                lineIndexArea
+                            }
+                            .frame(width: 20)
+                            planBoardBorder(.vertical)
+                            VStack(alignment: .leading, spacing: 0) {
+                                blackPinkInYourArea
+                                    .frame(height: 143)
+                                planBoardBorder(.horizontal)
+                                listControlArea
+                                    .frame(height: 48)
+                                planBoardBorder(.horizontal)
+                                listArea
+                            }
+                            .frame(width: 150)
+                            planBoardBorder(.vertical)
                         }
-                        .frame(width: 20)
-                        planBoardBorder(.vertical)
-                        VStack(alignment: .leading, spacing: 0) {
-                            blackPinkInYourArea
-                                .frame(height: 143)
-                            planBoardBorder(.horizontal)
-                            listControlArea
-                                .frame(height: 48)
-                            planBoardBorder(.horizontal)
-                            listArea
+                        .zIndex(4)
+                        .background(
+                            Color.white
+                                .shadow(color: .black.opacity(0.25), radius: 8, x: 4)
+                        )
+                        GeometryReader { _ in
+                            VStack(alignment: .leading, spacing: 0) {
+                                scheduleArea
+                                    .frame(height: 143)
+                                    .zIndex(2)
+                                planBoardBorder(.horizontal)
+                                timeAxisArea
+                                    .frame(height: 48)
+                                    .zIndex(3)
+                                planBoardBorder(.horizontal)
+                                lineArea
+                                    .zIndex(-1)
+                            }
                         }
-                        .frame(width: 150)
-                        planBoardBorder(.vertical)
-                    }
-                    .zIndex(4)
-                    .background(
-                        Color.white
-                            .shadow(color: .black.opacity(0.25), radius: 8, x: 4)
-                    )
-                    GeometryReader { _ in
-                        VStack(alignment: .leading, spacing: 0) {
-                            scheduleArea
-                                .frame(height: 143)
-                                .zIndex(2)
-                            planBoardBorder(.horizontal)
-                            timeAxisArea
-                                .frame(height: 48)
-                                .zIndex(3)
-                            planBoardBorder(.horizontal)
-                            lineArea
-                                .zIndex(-1)
+                        if viewStore.isRightToolBarPresented {
+                            RightToolBarView()
+                                .frame(width: 240)
+                                .zIndex(4)
+                                .background(
+                                    Color.white
+                                        .shadow(color: .black.opacity(0.25), radius: 8, x: -4)
+                                )
                         }
-                    }
-                    if viewStore.isRightToolBarPresented {
-                        RightToolBarView()
-                            .frame(width: 240)
-                            .zIndex(4)
-                            .background(
-                                Color.white
-                                    .shadow(color: .black.opacity(0.25), radius: 8, x: -4)
-                            )
                     }
                 }
             }
@@ -228,6 +239,17 @@ extension PlanBoardView {
 extension PlanBoardView {
     var lineArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isUpdatePlanTypePresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.updatePlanTypePresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .updatePlanTypeButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             GeometryReader { geometry in
                 ZStack {
                     HStack {
@@ -383,48 +405,60 @@ extension PlanBoardView {
                                     let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
                                     let width = CGFloat(dayDifference + 1)
                                     let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
+                                    let planType = viewStore.existingPlanTypes[plan.planTypeID]!
                                     RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                        .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                                        .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
                                                 .stroke(Color.white, lineWidth: 1)
                                         )
                                         .frame(width: width * viewStore.gridWidth, height: height)
+                                        .overlay {
+                                            HStack {
+                                                Text("\(planType.title)")
+                                                    .foregroundStyle(Color.white)
+                                                    .padding(.bottom, 40)
+                                                Spacer()
+                                            }
+                                        }
                                         .position(
                                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
                                             y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
                                         )
+                                        .onTapGesture(count: 2) {
+                                            viewStore.send(.setCurrentModifyingPlan(plan.id))
+                                        }
                                 }
                             }
                         }
-//                        // TODO: - row 맞추어 띄우기
-//                        let today = Date().filteredDate.integerDate
-//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-//                            let plans = viewStore.listMap[lineIndex]
-//                            ForEach(plans, id: \.self) { plan in
-//                                if let periods = plan.periods {
-//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
-//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-//                                        let width = CGFloat(dayDifference + 1)
-//                                        let position = CGFloat(selectedRange.start.integerDate - today)
-//                                        let frameWidth = width * viewStore.gridWidth
-//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                                    .stroke(Color.white, lineWidth: 1)
-//                                            )
-//                                            .frame(width: width, height: height)
-//                                            .position(
-//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
-//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
-//                                            )
-//                                    }
-//                                }
-//                            }
-//                        }
+                        //                        // TODO: - row 맞추어 띄우기
+                        //                        let today = Date().filteredDate.integerDate
+                        //                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                        //                            let plans = viewStore.listMap[lineIndex]
+                        //                            ForEach(plans, id: \.self) { plan in
+                        //                                if let periods = plan.periods {
+                        //                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                        //                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                        //                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                        //                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                        //                                        let width = CGFloat(dayDifference + 1)
+                        //                                        let position = CGFloat(selectedRange.start.integerDate - today)
+                        //                                        let frameWidth = width * viewStore.gridWidth
+                        //                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                        //                                            .overlay(
+                        //                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                                    .stroke(Color.white, lineWidth: 1)
+                        //                                            )
+                        //                                            .frame(width: width, height: height)
+                        //                                            .position(
+                        //                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+                        //                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+                        //                                            )
+                        //                                    }
+                        //                                }
+                        //                            }
+                        //                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -465,6 +499,37 @@ extension PlanBoardView {
                                             CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
                                     )
                             }
+                        }
+                        if isUpdatePlanTypePresented.wrappedValue {
+                            VStack {
+                                HStack(spacing: 20) {
+                                    TextField(
+                                        "제목을 입력하세요",
+                                        text: viewStore.binding(
+                                            get: \.planTitle,
+                                            send: { .planTitleChanged($0) }
+                                        )
+                                    )
+                                    ColorPicker(
+                                        "color",
+                                        selection: viewStore.binding(
+                                            get: \.selectedColorCode,
+                                            send: PlanBoard.Action.selectColorCode
+                                        )
+                                    )
+                                    .padding(.trailing, 20)
+                                }
+                                Button {
+                                    viewStore.send(.updatePlan)
+                                } label: {
+                                    Text("확인")
+                                }
+                            }
+                            .frame(width: 300, height: 200)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .foregroundStyle(Color.white.opacity(0.1))
+                            )
                         }
                     }
                 }
@@ -561,7 +626,6 @@ extension PlanBoardView {
             }
             .background(Color.lineArea)
             .onAppear {
-                viewStore.send(.initializeState)
                 NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
                     viewStore.send(.scrollGesture(event))
                     return event

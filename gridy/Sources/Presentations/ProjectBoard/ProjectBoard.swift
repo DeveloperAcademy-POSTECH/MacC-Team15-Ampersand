@@ -198,6 +198,7 @@ struct ProjectBoard: Reducer {
                 let title = state.title
                 let startDate = state.startDate
                 let endDate = state.endDate
+                state.title = ""
                 return .run { send in
                     await send(.createProjectResponse(
                         TaskResult {
