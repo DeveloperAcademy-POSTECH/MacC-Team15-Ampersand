@@ -245,6 +245,7 @@ struct PlanBoard: Reducer {
                 }
                 return .run { send in
                     await send(.reloadMap)
+                    await send(.reloadScheduleMap)
                 }
                 
             case .initializeState:
@@ -252,6 +253,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
+                    await send(.readSchedules)
                     // TODO: - 삭제
                     try await Task.sleep(nanoseconds: 5 * 1_000_000_000)
                     await send(.fetchRootPlan)
