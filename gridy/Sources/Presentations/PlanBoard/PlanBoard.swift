@@ -38,7 +38,7 @@ struct PlanBoard: Reducer {
         var rootPlan = Plan.mock
         var map: [[String]] = [[]]
         var listMap = [[Plan]]()
-        var scheduleMap = [[Schedule]]()
+        var scheduleMap = [[String]]()
         var searchPlanTypesResult = [PlanType]()
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
@@ -170,11 +170,13 @@ struct PlanBoard: Reducer {
         case updatePlan(targetPlanID: String, updateTo: Plan)
         
         /// Schedule
-        case createSchedule(Date, Date, String, UInt)
+        case createSchedule(startDate: Date, endDate: Date)
         case readSchedules
         case readSchedulesRespones(TaskResult<[Schedule]>)
-        case updateSchedule
-        case deleteSchedule
+        case updateScheduleDate(scheduleID: String, originPeriod: [Date], updatedPeriod: [Date])
+        case updateScheduleText(scheduleID: String, text: String)
+        case updateScheduleColorCode(scheduleID: String, colorCode: UInt)
+        case deleteSchedule(scheduleID: String)
         
         /// ListArea
         case createLayerButtonClicked(layer: Int)
@@ -666,13 +668,19 @@ struct PlanBoard: Reducer {
                 }
                 
                 // MARK: - Schedule
-            case let .createSchedule(startDate, endDate, text, colorCode):
+            case let .createSchedule(startDate, endDate):
                 let projectID = state.rootProject.id
-                //TODO: - 삭제
-                let schedule = Schedule.mock
+                let newScheduleID = UUID().uuidString
+                let newSchedule = Schedule(
+                    id: newScheduleID,
+                    startDate: startDate,
+                    endDate: endDate,
+                    colorCode: Schedule.mock.colorCode,
+                    category: Schedule.mock.category)
+                state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    try await apiService.createSchedule(schedule, projectID)
+                    try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
             case .readSchedules:
@@ -689,21 +697,49 @@ struct PlanBoard: Reducer {
                 responses.forEach { schedule in
                     state.existingSchedules[schedule.id] = schedule
                 }
-                return .none
-                
-            case let .updateSchedule:
-                let projectID = state.rootProject.id
-                //TODO: - 삭제
-                let schedule = Schedule.mock
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    try await apiService.updateSchedule(schedule, projectID)
                 }
                 
-            case let .deleteSchedule:
+            case let .updateScheduleDate(scheduleID, originPeriod, updatedPeriod):
+                if originPeriod == updatedPeriod { return .none }
+                // TODO: - drag했을 때 delete까지 되지 않는다면 삭제
+                if updatedPeriod[0] == updatedPeriod[1] { return .none }
                 let projectID = state.rootProject.id
-                //TODO: - 삭제
-                let prevSchedule = Schedule.mock
+                state.existingSchedules[scheduleID]!.startDate = updatedPeriod[0]
+                state.existingSchedules[scheduleID]!.endDate = updatedPeriod[1]
+                let updatedSchedule = state.existingSchedules[scheduleID]!
+                return .run { send in
+                    await send(.reloadScheduleMap)
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                }
+                
+            case let .updateScheduleText(scheduleID, text):
+                let projectID = state.rootProject.id
+                if state.existingSchedules[scheduleID]!.title == text {
+                    return .none
+                }
+                state.existingSchedules[scheduleID]!.title = text
+                let updatedSchedule = state.existingSchedules[scheduleID]!
+                return .run { send in
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                }
+                
+            case let .updateScheduleColorCode(scheduleID, colorCode):
+                let projectID = state.rootProject.id
+                if state.existingSchedules[scheduleID]!.colorCode == colorCode {
+                    return .none
+                }
+                state.existingSchedules[scheduleID]!.colorCode = colorCode
+                let updatedSchedule = state.existingSchedules[scheduleID]!
+                return .run { send in
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                }
+                
+            case let .deleteSchedule(scheduleID):
+                let projectID = state.rootProject.id
+                let prevSchedule = state.existingSchedules[scheduleID]!
+                state.existingSchedules[scheduleID] = nil
                 return .run { send in
                     await send(.reloadScheduleMap)
                     try await apiService.deleteSchedule(prevSchedule, projectID)
