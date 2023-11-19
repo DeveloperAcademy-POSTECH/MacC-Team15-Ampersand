@@ -8,10 +8,23 @@
 import SwiftUI
 import ComposableArchitecture
 
+struct DrawnLine: Identifiable, Equatable {
+    let id = UUID()
+    var startRow: Int
+    var startCol: Int
+    var endRow: Int
+    var endCol: Int
+}
+
 struct PlanBoardView: View {
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
+    @State private var scheduleTemporarySelectedGridRange: SelectedGridRange?
+    @State private var completedLines: [DrawnLine] = []
+    @State private var drawingLine: DrawnLine?
+    @State private var shouldFinalizeDrawing: Bool = false
     
     let store: StoreOf<PlanBoard>
     
@@ -124,10 +137,10 @@ extension PlanBoardView {
                 .background(Color.listArea)
                 .onContinuousHover { phase in
                     switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.listArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        case .active(let location):
+                            viewStore.send(.setHoveredLoaction(.listArea, true, location))
+                        case .ended:
+                            viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
             }
@@ -137,20 +150,114 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var scheduleArea: some View {
-        WithViewStore(store, observe: {$0}) { viewStore in
-            GeometryReader { _ in
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
                 ZStack {
-                    Color.lineArea
-                }
-                .background(Color.lineArea)
-                .onContinuousHover { phase in
-                    switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                    Color.white
+                    
+                    Path { path in
+                        for rowIndex in 0..<viewStore.numOfScheduleAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.scheduleAreaGridHeight - viewStore.rowStroke
+                            path.move(to: CGPoint(x: 0, y: yLocation))
+                            path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
+                        }
+                        for columnIndex in 0..<viewStore.maxCol {
+                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - viewStore.columnStroke
+                            path.move(to: CGPoint(x: xLocation, y: 0))
+                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                        }
                     }
+                    .stroke(Color.gray, lineWidth: viewStore.columnStroke)
+                    
+                    if let selectedRange = scheduleTemporarySelectedGridRange {
+                        let startY = CGFloat(selectedRange.start.row) * viewStore.scheduleAreaGridHeight
+                        let endY = CGFloat(selectedRange.end.row + 1) * viewStore.scheduleAreaGridHeight
+                        let startX = CGFloat(selectedRange.start.col) * viewStore.gridWidth
+                        let endX = CGFloat(selectedRange.end.col + 1) * viewStore.gridWidth
+                        Rectangle()
+                            .fill(Color.blue.opacity(0.3))
+                            .frame(width: endX - startX, height: endY - startY)
+                            .position(x: (startX + endX) / 2, y: (startY + endY) / 2)
+                    }
+                    
+                    ForEach(completedLines) { line in
+                        let startY = CGFloat(line.startRow + 1) * viewStore.scheduleAreaGridHeight
+                        let startX = CGFloat(line.startCol) * viewStore.gridWidth - CGFloat(viewStore.shiftedCol) * viewStore.gridWidth
+                        let endX = CGFloat(line.endCol + 1) * viewStore.gridWidth - CGFloat(viewStore.shiftedCol) * viewStore.gridWidth
+                        
+                        Path { path in
+                            path.move(to: CGPoint(x: startX, y: startY))
+                            path.addLine(to: CGPoint(x: endX, y: startY))
+                        }
+                        .stroke(Color.black, lineWidth: 2)
+                        
+                        let diamondSize: CGFloat = 10
+                        let diamondStart = CGPoint(x: startX, y: startY)
+                        let diamondEnd = CGPoint(x: endX, y: startY)
+                        
+                        Path { path in
+                            path.move(to: CGPoint(x: diamondStart.x, y: diamondStart.y - diamondSize / 2))
+                            path.addLine(to: CGPoint(x: diamondStart.x + diamondSize / 2, y: diamondStart.y))
+                            path.addLine(to: CGPoint(x: diamondStart.x, y: diamondStart.y + diamondSize / 2))
+                            path.addLine(to: CGPoint(x: diamondStart.x - diamondSize / 2, y: diamondStart.y))
+                            path.closeSubpath()
+                            
+                            path.move(to: CGPoint(x: diamondEnd.x, y: diamondEnd.y - diamondSize / 2))
+                            path.addLine(to: CGPoint(x: diamondEnd.x + diamondSize / 2, y: diamondEnd.y))
+                            path.addLine(to: CGPoint(x: diamondEnd.x, y: diamondEnd.y + diamondSize / 2))
+                            path.addLine(to: CGPoint(x: diamondEnd.x - diamondSize / 2, y: diamondEnd.y))
+                            path.closeSubpath()
+                        }
+                        .fill(Color.purple)
+                    }
+                    Button {
+                        guard let tempRange = scheduleTemporarySelectedGridRange else { return }
+                        let startRow = tempRange.start.row
+                        let startCol = tempRange.start.col + viewStore.shiftedCol
+                        let endCol = tempRange.end.col + viewStore.shiftedCol
+                        let newLine = DrawnLine(startRow: startRow, startCol: startCol, endRow: startRow, endCol: endCol)
+                        self.completedLines.append(newLine)
+                        viewStore.send(.addCompletedLine(newLine))
+                        scheduleTemporarySelectedGridRange = nil
+                        self.drawingLine = nil
+                    } label: {
+                        EmptyView()
+                    }
+                    //  .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut("s")
+                    .hidden()
                 }
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                        .onChanged { gesture in
+                            scheduleTemporarySelectedGridRange = nil
+                            let dragStart = gesture.startLocation
+                            let dragEnd = gesture.location
+                            let startCol = Int(dragStart.x / viewStore.gridWidth)
+                            let endCol = Int(dragEnd.x / viewStore.gridWidth)
+                            let startRow = Int(dragStart.y / viewStore.scheduleAreaGridHeight)
+                            let endRow = Int(dragEnd.y / viewStore.scheduleAreaGridHeight)
+                            scheduleTemporarySelectedGridRange = SelectedGridRange(
+                                start: (startRow, startCol),
+                                end: (endRow, endCol)
+                            )
+                            self.drawingLine = DrawnLine(startRow: startRow, startCol: startCol, endRow: startRow, endCol: endCol)
+                        }
+                        .onEnded { gesture in
+                            let dragStart = gesture.startLocation
+                            let dragEnd = gesture.location
+                            let startRow = Int(dragStart.y / viewStore.scheduleAreaGridHeight)
+                            let startCol = Int(dragStart.x / viewStore.gridWidth) + viewStore.shiftedCol
+                            let endCol = Int(dragEnd.x / viewStore.gridWidth) + viewStore.shiftedCol
+                            self.drawingLine = nil
+                        }
+                )
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            viewStore.send(.magnificationChangedInScheduleArea(value))
+                        }
+                )
             }
         }
     }
@@ -202,10 +309,10 @@ extension PlanBoardView {
                 }
                 .onContinuousHover { phase in
                     switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        case .active(let location):
+                            viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                        case .ended:
+                            viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .background(Color.lineArea)
@@ -397,34 +504,34 @@ extension PlanBoardView {
                                 }
                             }
                         }
-//                        // TODO: - row 맞추어 띄우기
-//                        let today = Date().filteredDate.integerDate
-//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-//                            let plans = viewStore.listMap[lineIndex]
-//                            ForEach(plans, id: \.self) { plan in
-//                                if let periods = plan.periods {
-//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
-//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-//                                        let width = CGFloat(dayDifference + 1)
-//                                        let position = CGFloat(selectedRange.start.integerDate - today)
-//                                        let frameWidth = width * viewStore.gridWidth
-//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                                    .stroke(Color.white, lineWidth: 1)
-//                                            )
-//                                            .frame(width: width, height: height)
-//                                            .position(
-//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
-//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
-//                                            )
-//                                    }
-//                                }
-//                            }
-//                        }
+                        //                        // TODO: - row 맞추어 띄우기
+                        //                        let today = Date().filteredDate.integerDate
+                        //                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                        //                            let plans = viewStore.listMap[lineIndex]
+                        //                            ForEach(plans, id: \.self) { plan in
+                        //                                if let periods = plan.periods {
+                        //                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                        //                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                        //                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                        //                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                        //                                        let width = CGFloat(dayDifference + 1)
+                        //                                        let position = CGFloat(selectedRange.start.integerDate - today)
+                        //                                        let frameWidth = width * viewStore.gridWidth
+                        //                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                        //                                            .overlay(
+                        //                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                                    .stroke(Color.white, lineWidth: 1)
+                        //                                            )
+                        //                                            .frame(width: width, height: height)
+                        //                                            .position(
+                        //                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+                        //                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+                        //                                            )
+                        //                                    }
+                        //                                }
+                        //                            }
+                        //                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -483,10 +590,10 @@ extension PlanBoardView {
                 }
                 .onContinuousHover { phase in
                     switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.lineArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        case .active(let location):
+                            viewStore.send(.setHoveredLoaction(.lineArea, true, location))
+                        case .ended:
+                            viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .gesture(
@@ -580,80 +687,80 @@ extension PlanBoardView {
     
     private func onReceiveTimer(viewStore: ViewStoreOf<PlanBoard>) {
         switch exceededDirection {
-        case [true, false, false, false]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: 0,
-                    shiftedCol: -1,
-                    exceededRow: 0,
-                    exceededCol: -1
+            case [true, false, false, false]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: 0,
+                        shiftedCol: -1,
+                        exceededRow: 0,
+                        exceededCol: -1
+                    )
                 )
-            )
-        case [false, true, false, false]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: 0,
-                    shiftedCol: 1,
-                    exceededRow: 0,
-                    exceededCol: 1
+            case [false, true, false, false]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: 0,
+                        shiftedCol: 1,
+                        exceededRow: 0,
+                        exceededCol: 1
+                    )
                 )
-            )
-        case [false, false, true, false]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: -1,
-                    shiftedCol: 0,
-                    exceededRow: -1,
-                    exceededCol: 0
+            case [false, false, true, false]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: -1,
+                        shiftedCol: 0,
+                        exceededRow: -1,
+                        exceededCol: 0
+                    )
                 )
-            )
-        case [false, false, false, true]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: 1,
-                    shiftedCol: 0,
-                    exceededRow: 1,
-                    exceededCol: 0
+            case [false, false, false, true]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: 1,
+                        shiftedCol: 0,
+                        exceededRow: 1,
+                        exceededCol: 0
+                    )
                 )
-            )
-        case [true, false, true, false]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: -1,
-                    shiftedCol: -1,
-                    exceededRow: -1,
-                    exceededCol: -1
+            case [true, false, true, false]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: -1,
+                        shiftedCol: -1,
+                        exceededRow: -1,
+                        exceededCol: -1
+                    )
                 )
-            )
-        case [true, false, false, true]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: 1,
-                    shiftedCol: -1,
-                    exceededRow: 1,
-                    exceededCol: -1
+            case [true, false, false, true]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: 1,
+                        shiftedCol: -1,
+                        exceededRow: 1,
+                        exceededCol: -1
+                    )
                 )
-            )
-        case [false, true, true, false]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: -1,
-                    shiftedCol: 1,
-                    exceededRow: -1,
-                    exceededCol: 1
+            case [false, true, true, false]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: -1,
+                        shiftedCol: 1,
+                        exceededRow: -1,
+                        exceededCol: 1
+                    )
                 )
-            )
-        case [false, true, false, true]:
-            viewStore.send(
-                .dragExceeded(
-                    shiftedRow: 1,
-                    shiftedCol: 1,
-                    exceededRow: 1,
-                    exceededCol: 1
+            case [false, true, false, true]:
+                viewStore.send(
+                    .dragExceeded(
+                        shiftedRow: 1,
+                        shiftedCol: 1,
+                        exceededRow: 1,
+                        exceededCol: 1
+                    )
                 )
-            )
-        default:
-            break
+            default:
+                break
         }
     }
 }
