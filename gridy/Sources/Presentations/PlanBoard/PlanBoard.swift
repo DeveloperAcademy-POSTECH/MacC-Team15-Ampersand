@@ -23,6 +23,7 @@ enum PlanBoardAreaName {
     case listControlArea
     case listArea
     case scheduleArea
+    case milestoneArea
     case timeAxisArea
     case lineArea
     case none
@@ -90,8 +91,11 @@ struct PlanBoard: Reducer {
         
         /// ScheduleArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var scheduleAreaHoveredCellLocation: CGPoint = .zero
-        var scheduleAreaHoveredCellRow = 0
         var scheduleAreaHoveredCellCol = 0
+        
+        /// MilestoneArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var milestoneAreaHoveredCellLocation: CGPoint = .zero
+        var milestoneAreaHoveredCellCol = 0
         
         /// TimeAxisArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var timeAxisAreaHoveredCellLocation: CGPoint = .zero
@@ -136,7 +140,7 @@ struct PlanBoard: Reducer {
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-
+        
         /// TopToolBarArea
         var hoveredItem = ""
         var topToolBarFocusGroupClickedItem = ""
@@ -649,7 +653,7 @@ struct PlanBoard: Reducer {
                         for period in periods.values {
                             state.selectedDateRanges.append(
                                 SelectedDateRange(
-                                    start: period[0], 
+                                    start: period[0],
                                     end: period[1]
                                 )
                             )
@@ -1801,7 +1805,11 @@ struct PlanBoard: Reducer {
                 case .scheduleArea:
                     if isActive {
                         state.scheduleAreaHoveredCellLocation = location!
-                        state.scheduleAreaHoveredCellRow = Int(state.scheduleAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+                case .milestoneArea:
+                    if isActive {
+                        state.scheduleAreaHoveredCellLocation = location!
                         state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
                     }
                 case .timeAxisArea:

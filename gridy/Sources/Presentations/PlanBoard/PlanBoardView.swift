@@ -58,7 +58,11 @@ struct PlanBoardView: View {
                     GeometryReader { _ in
                         VStack(alignment: .leading, spacing: 0) {
                             scheduleArea
-                                .frame(height: 143)
+                                .frame(height: 88)
+                                .zIndex(2)
+                            planBoardBorder(.horizontal)
+                            milestoneArea
+                                .frame(height: 45)
                                 .zIndex(2)
                             planBoardBorder(.horizontal)
                             timeAxisArea
@@ -137,7 +141,55 @@ extension PlanBoardView {
 
 extension PlanBoardView {
     var scheduleArea: some View {
-        WithViewStore(store, observe: {$0}) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    Color.lineArea
+                    Path { path in
+                        for columnIndex in 0..<viewStore.maxCol {
+                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - viewStore.columnStroke
+                            path.move(to: CGPoint(x: xLocation, y: 0))
+                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                        }
+                    }
+                    .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
+                    ZStack {
+                        /// scheduleArea에 hover될 때 나타나는 뷰
+                        Rectangle()
+                            .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                            .frame(width: viewStore.gridWidth, height: geometry.size.height)
+                            .position(
+                                x: CGFloat(viewStore.scheduleAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                                y: geometry.size.height / 2
+                            )
+                            .opacity(viewStore.hoveredArea == .scheduleArea ? 1 : 0)
+                    }
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let location):
+                            viewStore.send(.setHoveredLoaction(.milestoneArea, true, location))
+                        case .ended:
+                            viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        }
+                    }
+                }
+                .background(Color.lineArea)
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let location):
+                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
+                    case .ended:
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension PlanBoardView {
+    var milestoneArea: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { _ in
                 ZStack {
                     Color.lineArea
@@ -146,7 +198,7 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                        viewStore.send(.setHoveredLoaction(.scheduleArea, true, location))
+                        viewStore.send(.setHoveredLoaction(.milestoneArea, true, location))
                     case .ended:
                         viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
@@ -397,34 +449,34 @@ extension PlanBoardView {
                                 }
                             }
                         }
-//                        // TODO: - row 맞추어 띄우기
-//                        let today = Date().filteredDate.integerDate
-//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-//                            let plans = viewStore.listMap[lineIndex]
-//                            ForEach(plans, id: \.self) { plan in
-//                                if let periods = plan.periods {
-//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
-//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-//                                        let width = CGFloat(dayDifference + 1)
-//                                        let position = CGFloat(selectedRange.start.integerDate - today)
-//                                        let frameWidth = width * viewStore.gridWidth
-//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                                    .stroke(Color.white, lineWidth: 1)
-//                                            )
-//                                            .frame(width: width, height: height)
-//                                            .position(
-//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
-//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
-//                                            )
-//                                    }
-//                                }
-//                            }
-//                        }
+                        //                        // TODO: - row 맞추어 띄우기
+                        //                        let today = Date().filteredDate.integerDate
+                        //                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                        //                            let plans = viewStore.listMap[lineIndex]
+                        //                            ForEach(plans, id: \.self) { plan in
+                        //                                if let periods = plan.periods {
+                        //                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                        //                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                        //                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                        //                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                        //                                        let width = CGFloat(dayDifference + 1)
+                        //                                        let position = CGFloat(selectedRange.start.integerDate - today)
+                        //                                        let frameWidth = width * viewStore.gridWidth
+                        //                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                        //                                            .overlay(
+                        //                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                                    .stroke(Color.white, lineWidth: 1)
+                        //                                            )
+                        //                                            .frame(width: width, height: height)
+                        //                                            .position(
+                        //                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+                        //                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+                        //                                            )
+                        //                                    }
+                        //                                }
+                        //                            }
+                        //                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
