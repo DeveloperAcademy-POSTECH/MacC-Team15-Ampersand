@@ -35,6 +35,9 @@ struct ProjectBoardView: View {
                     }
                 )
             }
+            var currentShowingPlanBoardID: String {
+                viewStore.showingProject!.id
+            }
             VStack(alignment: .leading, spacing: 0) {
                 TabBarView(store: store)
                     .frame(height: 36)
@@ -74,10 +77,10 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(store: self.store.scope(
-                        state: \.optionalPlanBoard,
-                        action: { .optionalPlanBoard($0) })
-                    )
+                    PlanBoardView(store: store.scope(
+                        state: \.planBoards[id: currentShowingPlanBoardID]!,
+                        action: { .planBoardAction(id: currentShowingPlanBoardID, action: $0) }
+                    ))
                 }
             }
             .onAppear {
