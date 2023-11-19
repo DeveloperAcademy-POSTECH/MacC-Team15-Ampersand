@@ -721,7 +721,7 @@ struct PlanBoard: Reducer {
                 }
                 state.existingSchedules[scheduleID]!.title = text
                 let updatedSchedule = state.existingSchedules[scheduleID]!
-                return .run { send in
+                return .run { _ in
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
@@ -732,7 +732,7 @@ struct PlanBoard: Reducer {
                 }
                 state.existingSchedules[scheduleID]!.colorCode = colorCode
                 let updatedSchedule = state.existingSchedules[scheduleID]!
-                return .run { send in
+                return .run { _ in
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
