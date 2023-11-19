@@ -1939,8 +1939,15 @@ struct PlanBoard: Reducer {
             case .reloadScheduleMap:
                 // TODO: - scheduleMap에 schedule구조체 자체를 담아야 하면 타입 바꿔주기
                 var newMap = [[String]]()
+                let sortedSchedules = state.existingSchedules.values.sorted { (schedule1, schedule2) -> Bool in
+                    if schedule1.startDate == schedule2.startDate {
+                        return schedule1.endDate < schedule2.endDate
+                    } else {
+                        return schedule1.startDate < schedule2.startDate
+                    }
+                }
                 /// existingSchedules에 있는 schedule마다 돌거야.
-                for targetSchedule in state.existingSchedules.values {
+                for targetSchedule in sortedSchedules {
                     var rowIndex: Int?
                     /// map의 0번 row부터 돌자.
                     for index in 0..<newMap.count {
@@ -1954,13 +1961,13 @@ struct PlanBoard: Reducer {
                             }
                             let existingSchedule = state.existingSchedules[scheduleID]!
                             /// 같은 줄에 존재할 수 있는 경우의 수가 아니면
-                            if !(targetSchedule.endDate < existingSchedule.startDate && existingSchedule.endDate < targetSchedule.startDate){
+                            if !(targetSchedule.endDate < existingSchedule.startDate || existingSchedule.endDate < targetSchedule.startDate) {
                                 isAvailable = false
                             }
                         }
                         /// 끝까지 다 돌았으면 isAvailable이 true인채로 끝났을 테니
                         if isAvailable {
-                            ///내가 속해야 하는 row값을 저장해준다
+                            /// 내가 속해야 하는 row값을 저장해준다
                             rowIndex = index
                             break
                         }
@@ -1975,6 +1982,7 @@ struct PlanBoard: Reducer {
                 }
                 state.scheduleMap = newMap
                 return .none
+                
             default:
                 return .none
             }
