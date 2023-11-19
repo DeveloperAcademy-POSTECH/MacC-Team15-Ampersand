@@ -1937,7 +1937,43 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .reloadScheduleMap:
-                //TODO: - 작성
+                // TODO: - scheduleMap에 schedule구조체 자체를 담아야 하면 타입 바꿔주기
+                var newMap = [[String]]()
+                /// existingSchedules에 있는 schedule마다 돌거야.
+                for targetSchedule in state.existingSchedules.values {
+                    var rowIndex: Int?
+                    /// map의 0번 row부터 돌자.
+                    for index in 0..<newMap.count {
+                        let scheduleRow = newMap[index]
+                        var isAvailable = true
+                        /// 해당하는 row에 있는 scheduleID마다 돌거야.
+                        for scheduleID in scheduleRow {
+                            /// 이전에 isAvailable이 false가 되었다면 더 이상 돌 필요 없어
+                            if !isAvailable {
+                                break
+                            }
+                            let existingSchedule = state.existingSchedules[scheduleID]!
+                            /// 같은 줄에 존재할 수 있는 경우의 수가 아니면
+                            if !(targetSchedule.endDate < existingSchedule.startDate && existingSchedule.endDate < targetSchedule.startDate){
+                                isAvailable = false
+                            }
+                        }
+                        /// 끝까지 다 돌았으면 isAvailable이 true인채로 끝났을 테니
+                        if isAvailable {
+                            ///내가 속해야 하는 row값을 저장해준다
+                            rowIndex = index
+                            break
+                        }
+                    }
+                    
+                    if let targetRowIndex = rowIndex {
+                        newMap[targetRowIndex].append(targetSchedule.id)
+                    } else {
+                        newMap.append([])
+                        newMap[newMap.count - 1].append(targetSchedule.id)
+                    }
+                }
+                state.scheduleMap = newMap
                 return .none
             default:
                 return .none
