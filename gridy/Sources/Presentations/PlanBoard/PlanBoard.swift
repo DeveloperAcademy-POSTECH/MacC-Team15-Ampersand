@@ -714,8 +714,6 @@ struct PlanBoard: Reducer {
                 
             case let .updateScheduleDate(scheduleID, originPeriod, updatedPeriod):
                 if originPeriod == updatedPeriod { return .none }
-                // TODO: - drag했을 때 delete까지 되지 않는다면 삭제
-                if updatedPeriod[0] == updatedPeriod[1] { return .none }
                 let projectID = state.rootProject.id
                 state.existingSchedules[scheduleID]!.startDate = updatedPeriod[0]
                 state.existingSchedules[scheduleID]!.endDate = updatedPeriod[1]
