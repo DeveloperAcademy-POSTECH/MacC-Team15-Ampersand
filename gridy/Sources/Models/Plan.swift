@@ -15,5 +15,5 @@ struct Plan: Identifiable, Equatable, Codable, Hashable {
     var totalPeriod: [Date]? /// computed period for [minimum start date, maximum end date]
     var description: String?
     
-    static let mock = Plan(id: "", planTypeID: PlanType.emptyPlanType.id, childPlanIDs: [:])
+    static let mock = Plan(id: "", planTypeID: PlanType.emptyPlanType.id, childPlanIDs: ["0": []])
 }
