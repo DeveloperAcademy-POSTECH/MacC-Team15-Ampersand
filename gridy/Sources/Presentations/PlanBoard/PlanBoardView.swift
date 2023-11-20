@@ -12,6 +12,7 @@ struct PlanBoardView: View {
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var temporarySelectedScheduleRange: SelectedScheduleRange?
     @State private var exceededDirection = [false, false, false, false]
+    @State private var exceededDirectionScheduleArea = [false, false]
     @FocusState var listItemFocused: Bool
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
@@ -460,7 +461,6 @@ extension PlanBoardView {
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     ZStack {
-                        /// scheduleArea에 Hover될 때 나타나는 뷰
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: geometry.size.height)
@@ -469,6 +469,11 @@ extension PlanBoardView {
                                 y: geometry.size.height / 2
                             )
                             .opacity(viewStore.hoveredArea == .scheduleArea ? 1 : 0)
+                        
+                        if let temporaryRange = temporarySelectedScheduleRange {
+                            let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
+                            let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
+                        }
                     }
                 }
                 .onContinuousHover { phase in
@@ -487,13 +492,19 @@ extension PlanBoardView {
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             
-                            exceededDirection = [
+                            exceededDirectionScheduleArea = [
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width
                             ]
                         }
+                        .onEnded { _ in
+                            viewStore.send(.dragGestureEndedScheduleArea(temporarySelectedScheduleRange))
+                            temporarySelectedScheduleRange = nil
+                            exceededDirectionScheduleArea = [false, false]
+                        }
                 )
             }
+            .background(Color.lineArea)
         }
     }
 }

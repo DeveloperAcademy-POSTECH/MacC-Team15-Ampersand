@@ -226,6 +226,7 @@ struct PlanBoard: Reducer {
         /// LineAreaView
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
+        case dragGestureEndedScheduleArea(SelectedScheduleRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
@@ -1888,6 +1889,13 @@ struct PlanBoard: Reducer {
                 }
                 state.exceededCol = 0
                 state.exceededRow = 0
+                return .none
+                
+            case let .dragGestureEndedScheduleArea(newRange):
+                if let newRange = newRange {
+                    state.selectedScheduleRanges.append(newRange)
+                }
+                state.exceededCol = 0
                 return .none
                 
             case let .listItemDoubleClicked(buttonName, clicked):
