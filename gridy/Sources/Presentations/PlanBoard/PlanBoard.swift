@@ -1873,7 +1873,6 @@ struct PlanBoard: Reducer {
                     }
                 }
                 state.listMap = newMap
-                print("=== \(state.listMap)")
                 return .none
                 
             default:

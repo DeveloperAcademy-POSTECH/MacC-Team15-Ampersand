@@ -395,7 +395,6 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
                         
-                        // TODO: - row 맞추어 띄우기
                         let today = Date().filteredDate.integerDate
                         ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
                             let plans = viewStore.listMap[lineIndex]
