@@ -699,7 +699,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.readSchedulesRespones(
                         TaskResult {
-                            try await apiService.readAllSchedules(projectID)
+                            try await apiService.readSchedules(projectID)
                         }
                     ))
                 }
