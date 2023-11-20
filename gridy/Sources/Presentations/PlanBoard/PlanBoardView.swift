@@ -282,7 +282,7 @@ extension PlanBoardView {
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// hover 되었을 때
                     if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
-                        if let hoveredRow = viewStore.listAreaHoveredCellRow, 
+                        if let hoveredRow = viewStore.listAreaHoveredCellRow,
                             let hoveredCol = viewStore.listAreaHoveredCellCol {
                             Rectangle()
                                 .fill(Color.itemHovered)
@@ -314,7 +314,7 @@ extension PlanBoardView {
                     }
                     
                     /// double click 되었을 때
-                    if let columnOffset = viewStore.selectedEmptyColumn, 
+                    if let columnOffset = viewStore.selectedEmptyColumn,
                         let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
@@ -451,6 +451,25 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack {
+                    HStack {
+                        Button {
+                            print("schedule Create")
+                            if !viewStore.selectedScheduleRanges.isEmpty {
+                                let today = Date().filteredDate
+                                let scheduleRangeToCreate = viewStore.selectedScheduleRanges.last!
+                                let start = min(scheduleRangeToCreate.startCol, scheduleRangeToCreate.endCol)
+                                let end = max(scheduleRangeToCreate.startCol, scheduleRangeToCreate.endCol)
+                                
+                                if let startDay = Calendar.current.date(byAdding: .day, value: start, to: today)?.filteredDate,
+                                   let endDay = Calendar.current.date(byAdding: .day, value: end, to: today)?.filteredDate {
+                                    viewStore.send(.createSchedule(startDate: startDay, endDate: endDay))
+                                }
+                            }
+                        } label: {
+                            Text("create Schedule")
+                        }
+                        .keyboardShortcut("u", modifiers: [])
+                    }
                     Color.lineArea
                     Path { path in
                         for columnIndex in 0..<viewStore.maxCol {
@@ -473,9 +492,39 @@ extension PlanBoardView {
                         if let temporaryRange = temporarySelectedScheduleRange {
                             let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
                             let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
+                            Rectangle()
+                                .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                                .frame(width: width, height: geometry.size.height)
+                                .position(
+                                    x: isStartColSmaller ?
+                                    CGFloat(temporaryRange.startCol - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                        CGFloat(temporaryRange.endCol - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                    y: geometry.size.height / 2
+                                )
+                        }
+                        
+                        if !viewStore.selectedScheduleRanges.isEmpty {
+                            ForEach(viewStore.selectedScheduleRanges, id: \.self) { selectedScheduleRange in
+                                let width = CGFloat((selectedScheduleRange.endCol - selectedScheduleRange.startCol).magnitude + 1) * viewStore.gridWidth
+                                let isStartColSmaller = selectedScheduleRange.startCol <= selectedScheduleRange.endCol
+                                Rectangle()
+                                    .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                                    .overlay(
+                                        Rectangle()
+                                            .stroke(Color.boardSelectedBorder, lineWidth: 1)
+                                    )
+                                    .frame(width: width, height: geometry.size.height)
+                                    .position(
+                                        x: isStartColSmaller ?
+                                        CGFloat(selectedScheduleRange.startCol - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                            CGFloat(selectedScheduleRange.endCol - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                                        y: geometry.size.height / 2
+                                    )
+                            }
                         }
                     }
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
@@ -496,6 +545,12 @@ extension PlanBoardView {
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width
                             ]
+                            
+                            viewStore.send(.dragGestureChangedSchedule(.pressNothing, nil))
+                            temporarySelectedScheduleRange = SelectedScheduleRange(
+                                startCol: startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol,
+                                endCol: endCol + viewStore.shiftedCol + viewStore.scrolledCol
+                            )
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEndedScheduleArea(temporarySelectedScheduleRange))
@@ -504,7 +559,7 @@ extension PlanBoardView {
                         }
                 )
             }
-            .background(Color.lineArea)
+            .onAppear { viewStore.send(.initializeState) }
         }
     }
 }

@@ -15,6 +15,13 @@ enum LineAreaDragType {
     case pressBoth
 }
 
+enum ScheduleAreaDragType {
+    case pressNothing
+    case pressOnlyShift
+    case pressOnlyCommand
+    case pressBoth
+}
+
 enum PlanBoardAreaName: String {
     case scheduleIndexArea
     case extraArea
@@ -222,12 +229,14 @@ struct PlanBoard: Reducer {
         
         /// ScheduleAreaView
         case magnificationChangedInScheduleArea(CGFloat)
+        case dragGestureChangedSchedule(ScheduleAreaDragType, SelectedScheduleRange?)
+        case dragGestureEndedScheduleArea(SelectedScheduleRange?)
         
         /// LineAreaView
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
-        case dragGestureEndedScheduleArea(SelectedScheduleRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
+        case dragExceededSchedule(shiftedCl: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         
@@ -270,6 +279,7 @@ struct PlanBoard: Reducer {
                 // MARK: - UserAction
             case .initializeState:
                 state.selectedDateRanges = []
+                state.selectedScheduleRanges = []
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
@@ -697,7 +707,8 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    try await apiService.createSchedule(newSchedule, projectID)
+                    // TODO: -
+//                    try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
             case .readSchedules:
@@ -1440,6 +1451,11 @@ struct PlanBoard: Reducer {
                 state.exceededCol += exceededCol
                 return .none
                 
+            case let .dragExceededSchedule(shiftedCl, exceededCol):
+                state.shiftedCol += shiftedCl
+                state.exceededCol += exceededCol
+                return .none
+                
             case let .dragToChangePeriod(planID, originPeriod, updatedPeriod):
                 if originPeriod == updatedPeriod { return .none }
                 let periodIndex = state.existingPlans[planID]?.periods?.first(where: { $0.value == originPeriod })!.key
@@ -1879,6 +1895,24 @@ struct PlanBoard: Reducer {
                     if let lastIndex = state.selectedGridRanges.indices.last,
                        let updatedRange = updatedRange {
                         state.selectedGridRanges[lastIndex] = updatedRange
+                    }
+                }
+                return .none
+                
+            case let .dragGestureChangedSchedule(dragTypeSchedule, updatedScheduleRange):
+                switch dragTypeSchedule {
+                case .pressNothing:
+                    state.selectedScheduleRanges = []
+                case .pressOnlyShift:
+                    if let updatedScheduleRange = updatedScheduleRange {
+                        state.selectedScheduleRanges = [updatedScheduleRange]
+                    }
+                case .pressOnlyCommand:
+                    break
+                case .pressBoth:
+                    if let lastIndex = state.selectedScheduleRanges.indices.last,
+                       let updatedScheduleRange = updatedScheduleRange {
+                        state.selectedScheduleRanges[lastIndex] = updatedScheduleRange
                     }
                 }
                 return .none
