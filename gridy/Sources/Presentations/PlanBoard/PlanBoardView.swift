@@ -10,7 +10,9 @@ import ComposableArchitecture
 
 struct PlanBoardView: View {
     @State private var temporarySelectedGridRange: SelectedGridRange?
+    @State private var temporarySelectedScheduleRange: SelectedScheduleRange?
     @State private var exceededDirection = [false, false, false, false]
+    @
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
     let store: StoreOf<PlanBoard>
@@ -154,7 +156,7 @@ extension PlanBoardView {
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     ZStack {
-                        /// scheduleArea에 hover될 때 나타나는 뷰
+                        /// scheduleArea에 Hover될 때 나타나는 뷰
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: geometry.size.height)
@@ -164,16 +166,7 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .scheduleArea ? 1 : 0)
                     }
-                    .onContinuousHover { phase in
-                        switch phase {
-                        case .active(let location):
-                            viewStore.send(.setHoveredLoaction(.milestoneArea, true, location))
-                        case .ended:
-                            viewStore.send(.setHoveredLoaction(.none, false, nil))
-                        }
-                    }
                 }
-                .background(Color.lineArea)
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
@@ -182,6 +175,20 @@ extension PlanBoardView {
                         viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                        .onChanged { gesture in
+                            let dragEnd = gesture.location
+                            let dragStart = gesture.startLocation
+                            let startCol = Int(dragStart.x / viewStore.gridWidth)
+                            let endCol = Int(dragEnd.x / viewStore.gridWidth)
+                            
+                            exceededDirection = [
+                                dragEnd.x < 0,
+                                dragEnd.x > geometry.size.width
+                            ]
+                        }
+                )
             }
         }
     }
