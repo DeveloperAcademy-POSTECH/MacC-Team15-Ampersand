@@ -31,6 +31,7 @@ enum PlanBoardAreaName: String {
 struct PlanBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
+    @Dependency(\.continuousClock) var continuousClock
     
     struct State: Equatable, Identifiable {
         var rootProject: Project
@@ -277,7 +278,7 @@ struct PlanBoard: Reducer {
                     await send(.readPlanTypes)
                     await send(.readSchedules)
                     // TODO: - 삭제
-                    try await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                    try await continuousClock.sleep(for: .seconds(5))
                     await send(.reloadMap)
                 }
                 
