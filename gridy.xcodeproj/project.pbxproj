@@ -20,6 +20,7 @@
 		975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620A2ACE939900DE31AB /* DateInfo.swift */; };
 		975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620C2ACE946A00DE31AB /* Date+Extension.swift */; };
 		975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A620E2ACE950200DE31AB /* HolidayUtil.swift */; };
+		976492802B09C081004DC9E8 /* Schedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9764927F2B09C081004DC9E8 /* Schedule.swift */; };
 		AD01D50C2ACC7B5E00474E7A /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */; };
 		AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BD2AD7766200E3CC07 /* PlanType.swift */; };
 		AD06C4C02AD7767700E3CC07 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD06C4BF2AD7767700E3CC07 /* Plan.swift */; };
@@ -60,7 +61,6 @@
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE780DB62B023686005E761F /* EditPlanBoardView.swift */; };
-		EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */; };
 		EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6D2AF21D2700751FAE /* SplashView.swift */; };
 		EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */; };
 		EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC712AF21D5500751FAE /* LoadingView.swift */; };
@@ -91,6 +91,7 @@
 		975A620A2ACE939900DE31AB /* DateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInfo.swift; sourceTree = "<group>"; };
 		975A620C2ACE946A00DE31AB /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		975A620E2ACE950200DE31AB /* HolidayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayUtil.swift; sourceTree = "<group>"; };
+		9764927F2B09C081004DC9E8 /* Schedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schedule.swift; sourceTree = "<group>"; };
 		AD01D50B2ACC7B5E00474E7A /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		AD06C4BD2AD7766200E3CC07 /* PlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanType.swift; sourceTree = "<group>"; };
 		AD06C4BF2AD7767700E3CC07 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
@@ -120,7 +121,6 @@
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE780DB62B023686005E761F /* EditPlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlanBoardView.swift; sourceTree = "<group>"; };
-		EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarAreaView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		EED5EC712AF21D5500751FAE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
@@ -183,6 +183,7 @@
 				ADCBA9F72AFA9FAA000BBD1C /* Feedback.swift */,
 				8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */,
 				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
+				9764927F2B09C081004DC9E8 /* Schedule.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -316,17 +317,8 @@
 				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
 				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
-				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 			);
 			path = PlanBoard;
-			sourceTree = "<group>";
-		};
-		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
-			);
-			path = TimelineLayout;
 			sourceTree = "<group>";
 		};
 		EE909A692AC3D20D00C9AAF0 /* Common */ = {
@@ -489,6 +481,7 @@
 				AD96ED422AD1BCAD005D197B /* ProjectItem.swift in Sources */,
 				ADCBA9F42AF58603000BBD1C /* ImageUploader.swift in Sources */,
 				975A620D2ACE946A00DE31AB /* Date+Extension.swift in Sources */,
+				976492802B09C081004DC9E8 /* Schedule.swift in Sources */,
 				EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */,
 				975A620B2ACE939900DE31AB /* DateInfo.swift in Sources */,
 				8A84F13B2AD2C8150070EC72 /* SelectedGridRange.swift in Sources */,
@@ -504,7 +497,6 @@
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
-				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,
 			);

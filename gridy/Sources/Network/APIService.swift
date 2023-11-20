@@ -36,6 +36,12 @@ struct APIService {
     var deletePlans: @Sendable (_ plansToDelete: [Plan], _ projectID: String) async throws -> Void
     var deletePlansCompletely: @Sendable (_ planIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void
     
+    /// Schedule
+    var createSchedule: @Sendable (Schedule, String) async throws -> Void
+    var readSchedules: @Sendable (String) async throws -> [Schedule]
+    var updateSchedule: @Sendable (Schedule, String) async throws -> Void
+    var deleteSchedule: @Sendable (Schedule, String) async throws -> Void
+    
     /// Feedback
     var sendFeedback: @Sendable (_ content: String) async throws -> Void
     
@@ -64,6 +70,11 @@ struct APIService {
         deletePlans: @escaping @Sendable (_ plansToDelete: [Plan], _ projectID: String) async throws -> Void,
         deletePlansCompletely: @escaping @Sendable (_ planIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void,
         
+        createSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
+        readSchedules: @escaping @Sendable (String) async throws -> [Schedule],
+        updateSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
+        deleteSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
+        
         sendFeedback: @escaping @Sendable (_ content: String) async throws -> Void,
         
         readAllNotices: @escaping @Sendable () async throws -> [Notice]
@@ -88,6 +99,11 @@ struct APIService {
         self.updatePlans = updatePlans
         self.deletePlans = deletePlans
         self.deletePlansCompletely = deletePlansCompletely
+        
+        self.createSchedule = createSchedule
+        self.readSchedules = readSchedules
+        self.updateSchedule = updateSchedule
+        self.deleteSchedule = deleteSchedule
         
         self.sendFeedback = sendFeedback
         
@@ -268,6 +284,20 @@ extension APIService {
                 try await FirestoreService.deleteDocument(projectID, .plans, planID)
             }
         },
+        // MARK: - Schedule
+        createSchedule: { schedule, projectID in
+            try await FirestoreService.setDocumentData(projectID, .schedules, schedule.id, scheduleToDictionary(schedule))
+        },
+        readSchedules: { projectID in
+            return try await FirestoreService.getDocuments(projectID, .schedules, Schedule.self) as! [Schedule]
+        },
+        updateSchedule: { schedule, projectID in
+            try await FirestoreService.updateDocumentData(projectID, .schedules, schedule.id, scheduleToDictionary(schedule))
+        },
+        deleteSchedule: { schedule, projectID in
+            try await FirestoreService.setDocumentData(projectID, .deleteSchedules, schedule.id, scheduleToDictionary(schedule))
+            try await FirestoreService.deleteDocument(projectID, .schedules, schedule.id)
+        },
         sendFeedback: { content in
             if let uid = Auth.auth().currentUser?.uid {
                 try await FirestoreService.independentPath(.feedback).document(Date().description).setData(["uid": uid, "contents": content])
@@ -294,5 +324,15 @@ extension APIService {
             "description": plan.description as Any
         ]
     }
+    static func scheduleToDictionary(_ schedule: Schedule) -> [String: Any] {
+            [
+                "id": schedule.id,
+                "startDate": schedule.startDate,
+                "endDate": schedule.endDate,
+                "title": schedule.title,
+                "colorCode": schedule.colorCode,
+                "category": schedule.category
+            ]
+        }
 }
 
