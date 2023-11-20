@@ -2012,12 +2012,8 @@ struct PlanBoard: Reducer {
             case .reloadScheduleMap:
                 // TODO: - scheduleMap에 schedule구조체 자체를 담아야 하면 타입 바꿔주기
                 var newMap = [[String]]()
-                let sortedSchedules = state.existingSchedules.values.sorted { (schedule1, schedule2) -> Bool in
-                    if schedule1.startDate == schedule2.startDate {
-                        return schedule1.endDate < schedule2.endDate
-                    } else {
-                        return schedule1.startDate < schedule2.startDate
-                    }
+                let sortedSchedules = state.existingSchedules.values.sorted {
+                    ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)
                 }
                 /// existingSchedules에 있는 schedule마다 돌거야.
                 for targetSchedule in sortedSchedules {
