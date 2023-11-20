@@ -436,7 +436,7 @@ struct PlanBoard: Reducer {
                 if text.isEmpty { return .none }
                 let projectID = state.rootProject.id
                 var createdPlans = [Plan]()
-                var createdPlanType = PlanType.emptyPlanType
+                var createdPlanType: PlanType?
                 var parentPlanID = state.rootProject.rootPlanID
                 var newPlanID = UUID().uuidString
                 var childPlanID = UUID().uuidString
@@ -485,7 +485,6 @@ struct PlanBoard: Reducer {
                 let plansToCreate = createdPlans
                 let newPlanType = createdPlanType
                 let planID = parentPlanID
-                state.existingPlans[planID]!.planTypeID = originPlanTypeID ?? newPlanType.id
                 let rootPlanToUpdate = state.existingPlans[planID]!
                 let rootProjectToUpdate = state.rootProject
                 return .run { send in
@@ -501,21 +500,12 @@ struct PlanBoard: Reducer {
                         [rootPlanToUpdate],
                         projectID
                     )
-                    if originPlanTypeID == nil {
-                        /// colorCode가 있으면 다른 action(dragToMovePlanInList)에서 호출하는 것이기 때문에 기존에 존재하는 planType일 것이므로 업데이트만 한다.
-                        try await apiService.updatePlans(
-                            [rootPlanToUpdate],
+                    if newPlanType != nil {
+                        try await apiService.createPlanType(
+                            newPlanType!,
+                            planID,
                             projectID
                         )
-                    } else {
-                        /// colorCode가 없으면 새 타입을 생성하고, emptyType일 planID의 타입을 생성된 타입으로 변경한다.
-                        if newPlanType != PlanType.emptyPlanType {
-                            try await apiService.createPlanType(
-                                newPlanType,
-                                planID,
-                                projectID
-                            )
-                        }
                     }
                 }
                 
