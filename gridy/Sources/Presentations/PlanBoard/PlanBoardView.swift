@@ -276,7 +276,8 @@ extension PlanBoardView {
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// hover 되었을 때
                     if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
-                        if let hoveredRow = viewStore.listAreaHoveredCellRow, let hoveredCol = viewStore.listAreaHoveredCellCol {
+                        if let hoveredRow = viewStore.listAreaHoveredCellRow, 
+                            let hoveredCol = viewStore.listAreaHoveredCellCol {
                             Rectangle()
                                 .fill(Color.itemHovered)
                                 .frame(
@@ -307,7 +308,8 @@ extension PlanBoardView {
                     }
                     
                     /// double click 되었을 때
-                    if let columnOffset = viewStore.selectedEmptyColumn, let rowOffset = viewStore.selectedEmptyRow {
+                    if let columnOffset = viewStore.selectedEmptyColumn, 
+                        let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
