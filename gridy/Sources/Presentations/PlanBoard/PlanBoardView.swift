@@ -395,70 +395,51 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
                         
-                        let existingPlans = Array(viewStore.existingPlans.values)
-                        ForEach(existingPlans, id: \.self) { plan in
-                            if let periods = plan.periods {
-                                let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-                                ForEach(selectedDateRanges, id: \.self) { selectedRange in
-                                    let today = Date().filteredDate
-                                    let height = viewStore.lineAreaGridHeight * 0.5 - 4
-                                    let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                                    let width = CGFloat(dayDifference + 1)
-                                    let position = CGFloat(selectedRange.start.integerDate - today.integerDate)
-                                    let planType = viewStore.existingPlanTypes[plan.planTypeID]!
-                                    RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                        .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
-                                        .overlay(
+                        // TODO: - row 맞추어 띄우기
+                        let today = Date().filteredDate.integerDate
+                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                            let plans = viewStore.listMap[lineIndex]
+                            ForEach(plans, id: \.self) { plan in
+                                if let periods = plan.periods {
+                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                                        let plan: Plan = plan
+                                        let planType: PlanType = viewStore.existingPlanTypes[plan.planTypeID]!
+                                        let height = viewStore.lineAreaGridHeight * 0.5
+                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                                        let width = CGFloat(dayDifference + 1)
+                                        let widthInHalf = CGFloat(width / 2)
+                                        // TODO: - 축소, 확대할 때 선이 안맞는 버그가 있습니다 보정 필요 (지금 하드코딩한 보정값)
+                                        let correctionValue = CGFloat(viewStore.lineAreaGridHeight / 2) + 10
+                                        let position = CGFloat(selectedRange.start.integerDate - today)
+                                        let negativeShiftedRow = -viewStore.shiftedRow - viewStore.scrolledRow
+                                        ZStack {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                                .stroke(Color.white, lineWidth: 1)
-                                        )
-                                        .frame(width: width * viewStore.gridWidth, height: height)
-                                        .overlay {
+                                                .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                                        .stroke(Color.white, lineWidth: 1)
+                                                )
+                                                .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
                                             HStack {
-                                                Text("\(planType.title)")
+                                                Text(planType.title)
                                                     .foregroundStyle(Color.white)
-                                                    .padding(.bottom, 40)
+                                                    .padding(.bottom, 50)
                                                 Spacer()
                                             }
                                         }
+                                        .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
                                         .position(
-                                            x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                            y: 100 + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight)
+                                            x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
+                                            y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
                                         )
                                         .onTapGesture(count: 2) {
                                             viewStore.send(.setCurrentModifyingPlan(plan.id))
                                         }
+                                    }
                                 }
                             }
                         }
-                        //                        // TODO: - row 맞추어 띄우기
-                        //                        let today = Date().filteredDate.integerDate
-                        //                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-                        //                            let plans = viewStore.listMap[lineIndex]
-                        //                            ForEach(plans, id: \.self) { plan in
-                        //                                if let periods = plan.periods {
-                        //                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-                        //                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-                        //                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
-                        //                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                        //                                        let width = CGFloat(dayDifference + 1)
-                        //                                        let position = CGFloat(selectedRange.start.integerDate - today)
-                        //                                        let frameWidth = width * viewStore.gridWidth
-                        //                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                        //                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-                        //                                            .overlay(
-                        //                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                        //                                                    .stroke(Color.white, lineWidth: 1)
-                        //                                            )
-                        //                                            .frame(width: width, height: height)
-                        //                                            .position(
-                        //                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
-                        //                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
-                        //                                            )
-                        //                                    }
-                        //                                }
-                        //                            }
-                        //                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight

@@ -631,6 +631,7 @@ struct PlanBoard: Reducer {
                         plansToUpdateImmutable,
                         projectID
                     )
+                    await send(.reloadMap)
                 }
                 
             case .readPlans:
@@ -670,15 +671,17 @@ struct PlanBoard: Reducer {
                 if let originTypeID = state.existingPlanTypes.first(where: { $0.value.title == planTitle && $0.value.colorCode == colorCode })?.key {
                     state.existingPlans[currentModifyingPlanID]!.planTypeID = originTypeID
                     let planToUpdate = [state.existingPlans[currentModifyingPlanID]!]
-                    return .run { _ in
+                    return .run { send in
                         try await apiService.updatePlans(
                             planToUpdate,
                             projectID
                         )
+                        await send(.reloadListMap)
                     }
                 }
                 return .run { send in
                     await send(.createPlanType(currentModifyingPlanID, planTitle, colorCode))
+                    await send(.reloadListMap)
                 }
                 
             case let .setCurrentModifyingPlan(planID):
@@ -1870,6 +1873,7 @@ struct PlanBoard: Reducer {
                     }
                 }
                 state.listMap = newMap
+                print("=== \(state.listMap)")
                 return .none
                 
             default:
