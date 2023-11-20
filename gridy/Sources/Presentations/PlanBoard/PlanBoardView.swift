@@ -327,11 +327,13 @@ extension PlanBoardView {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
-                                TextField("editing",
-                                          text: viewStore.binding(
-                                            get: \.keyword,
-                                            send: { .keywordChanged($0) }
-                                          ))
+                                TextField(
+                                    "editing",
+                                    text: viewStore.binding(
+                                        get: \.keyword,
+                                        send: { .keywordChanged($0) }
+                                    )
+                                )
                                 .focused($listItemFocused)
                                 .multilineTextAlignment(.center)
                                 .textFieldStyle(.plain)
@@ -388,11 +390,13 @@ extension PlanBoardView {
                                     Rectangle()
                                         .fill(Color.listArea)
                                         .overlay(
-                                            TextField("editing",
-                                                      text: viewStore.binding(
-                                                        get: \.keyword,
-                                                        send: { .keywordChanged($0) }
-                                                      ))
+                                            TextField(
+                                                "editing",
+                                                text: viewStore.binding(
+                                                    get: \.keyword,
+                                                    send: { .keywordChanged($0) }
+                                                )
+                                            )
                                             .focused($listItemFocused)
                                             .multilineTextAlignment(.center)
                                             .textFieldStyle(.plain)
