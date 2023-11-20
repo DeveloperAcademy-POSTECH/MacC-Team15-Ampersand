@@ -938,7 +938,7 @@ struct PlanBoard: Reducer {
                 updatedPlans.append(state.existingPlans[targetParentPlanID]!)
                 /// 삭제한 plan과 그 하위 플랜들을 삭제해줌.
                 var planIDsQ: [String] = [deletedPlanID]
-                var tempLayer: [String] = []
+                var tempLayer = [String]()
                 while !planIDsQ.isEmpty {
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
@@ -947,9 +947,9 @@ struct PlanBoard: Reducer {
                             tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
                         }
                     }
-                    planIDsQ.removeAll()
+                    planIDsQ = []
                     planIDsQ.append(contentsOf: tempLayer)
-                    tempLayer.removeAll()
+                    tempLayer = []
                 }
                 for deletedPlan in deletedPlans {
                     state.existingPlans[deletedPlan.id] = nil
