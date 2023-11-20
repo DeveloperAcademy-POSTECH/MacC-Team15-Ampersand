@@ -290,7 +290,8 @@ extension PlanBoardView {
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// hover 되었을 때
                     if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
-                        if let hoveredRow = viewStore.listAreaHoveredCellRow, let hoveredCol = viewStore.listAreaHoveredCellCol {
+                        if let hoveredRow = viewStore.listAreaHoveredCellRow,
+                           let hoveredCol = viewStore.listAreaHoveredCellCol {
                             Rectangle()
                                 .fill(Color.itemHovered)
                                 .frame(
@@ -316,12 +317,13 @@ extension PlanBoardView {
                                         /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
                                     }
                                 }
-                                .opacity((viewStore.selectedEmptyRow == hoveredRow)&&(viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
+                                .opacity((viewStore.selectedEmptyRow == hoveredRow) && (viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
                         }
                     }
                     
                     /// double click 되었을 때
-                    if let columnOffset = viewStore.selectedEmptyColumn, let rowOffset = viewStore.selectedEmptyRow {
+                    if let columnOffset = viewStore.selectedEmptyColumn, 
+                        let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
