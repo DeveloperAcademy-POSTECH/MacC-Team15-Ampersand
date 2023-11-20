@@ -144,10 +144,24 @@ extension PlanBoardView {
                                 y: CGFloat(Double(clickedRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
                             )
                             .contextMenu {
+                                Button("Create a lane above") {
+                                    if clickedRow < viewStore.map.last!.count {
+                                        viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: true))
+                                        viewStore.send(.lineIndexAreaClicked(false))
+                                    }
+                                }
+                                
+                                Button("Create a lane below") {
+                                    if clickedRow < viewStore.map.last!.count {
+                                        viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: false))
+                                        viewStore.send(.lineIndexAreaClicked(false))
+                                    }
+                                }
+                                
                                 Button("Clear this lane") {
-                                    if viewStore.selectedLineIndexRow! < viewStore.map.last!.count {
+                                    if clickedRow < viewStore.map.last!.count {
                                         viewStore.send(.deleteLaneConents(
-                                            rows: [viewStore.selectedLineIndexRow!, viewStore.selectedLineIndexRow!]
+                                            rows: [clickedRow, clickedRow]
                                         ))
                                         viewStore.send(.lineIndexAreaClicked(false))
                                     }
@@ -397,7 +411,7 @@ extension PlanBoardView {
                                 } else {
                                     Rectangle()
                                         .fill(
-                                            viewStore.listAreaHoveredCellCol == layerIndex && viewStore.listAreaHoveredCellRow == rowIndex ?
+                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
                                             Color.itemHovered : Color.listArea
                                         )
                                         .overlay {
@@ -417,6 +431,14 @@ extension PlanBoardView {
                                             viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                             viewStore.send(.listItemDoubleClicked(.listItem, true))
                                         }))
+                                        .onContinuousHover { phase in
+                                            switch phase {
+                                            case .active:
+                                                viewStore.send(.setHoveredListItem(areaName: .listArea, row: rowIndex, column: layerIndex))
+                                            case .ended:
+                                                viewStore.send(.setHoveredListItem(areaName: .none, row: nil, column: nil))
+                                            }
+                                        }
                                         .contextMenu {
                                             Button("Delete this Plan") {
                                                 viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))

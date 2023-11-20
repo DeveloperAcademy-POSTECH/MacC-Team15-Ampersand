@@ -86,6 +86,10 @@ struct PlanBoard: Reducer {
         var listAreaHoveredCellRow: Int?
         var listAreaHoveredCellCol: Int?
         
+        /// ListMap의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var listMapHoveredCellRow: Int?
+        var listMapHoveredCellCol: Int?
+        
         /// LineIndexArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var lineIndexAreaHoveredCellLocation: CGPoint = .zero
         var lineIndexAreaHoveredCellRow: Int?
@@ -223,6 +227,7 @@ struct PlanBoard: Reducer {
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
         case setHoveredLocation(PlanBoardAreaName, Bool, CGPoint?)
+        case setHoveredListItem(areaName: PlanBoardAreaName, row: Int?, column: Int?)
         case magnificationChangedInListArea(CGFloat, CGSize)
         case scrollGesture(NSEvent)
         
@@ -1727,12 +1732,14 @@ struct PlanBoard: Reducer {
                         state.listAreaHoveredCellRow = nil
                         state.listAreaHoveredCellCol = nil
                     }
+                    
                 case .scheduleArea:
                     if isActive {
                         state.scheduleAreaHoveredCellLocation = location!
                         state.scheduleAreaHoveredCellRow = Int(state.scheduleAreaHoveredCellLocation.y / state.lineAreaGridHeight)
                         state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
                     }
+                    
                 case .timeAxisArea:
                     if isActive {
                         state.timeAxisAreaHoveredCellLocation = location!
@@ -1762,6 +1769,12 @@ struct PlanBoard: Reducer {
                 default:
                     break
                 }
+                return .none
+                
+            case let .setHoveredListItem(areaName, row, column):
+                state.hoveredItem = areaName.rawValue
+                    state.listMapHoveredCellRow = row
+                    state.listMapHoveredCellCol = column
                 return .none
                 
             case let .dragGestureChanged(dragType, updatedRange):
@@ -1794,12 +1807,10 @@ struct PlanBoard: Reducer {
                 switch buttonName {
                 case .listItem:
                     if clicked {
-                        state.selectedListRow = state.listAreaHoveredCellRow!
-                        state.selectedListColumn = state.listAreaHoveredCellCol!
-                        
+                        state.selectedListRow = state.listMapHoveredCellRow!
+                        state.selectedListColumn = state.listMapHoveredCellCol!
                         let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
                         let planTypeId = state.existingPlans[planId]!.planTypeID
-                        
                         state.keyword = state.existingPlanTypes[planTypeId]!.title
                     } else {
                         state.selectedListRow = nil
