@@ -302,7 +302,7 @@ extension PlanBoardView {
                                         /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
                                     }
                                 }
-                                .opacity((viewStore.selectedEmptyRow == hoveredRow)&&(viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
+                                .opacity((viewStore.selectedEmptyRow == hoveredRow) && (viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
                         }
                     }
                     
