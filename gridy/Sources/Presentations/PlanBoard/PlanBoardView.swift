@@ -20,11 +20,8 @@ struct PlanBoardView: View {
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var exceededDirection = [false, false, false, false]
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
-    
     @State private var scheduleTemporarySelectedGridRange: SelectedGridRange?
     @State private var completedLines: [DrawnLine] = []
-    @State private var drawingLine: DrawnLine?
-    @State private var shouldFinalizeDrawing = false
     
     let store: StoreOf<PlanBoard>
     
@@ -138,9 +135,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                    viewStore.send(.setHoveredLoaction(.listArea, true, location))
+                        viewStore.send(.setHoveredLoaction(.listArea, true, location))
                     case .ended:
-                    viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
             }
@@ -164,7 +161,7 @@ extension PlanBoardView {
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
-                    if let selectedRange = scheduleTemporarySelectedGridRange {
+                    if let selectedRange = viewStore.state.scheduleTemporarySelectedGridRange {
                         let startY = CGFloat(selectedRange.start.row) * viewStore.scheduleAreaGridHeight
                         let endY = CGFloat(selectedRange.end.row + 1) * viewStore.scheduleAreaGridHeight
                         let startX = CGFloat(selectedRange.start.col) * viewStore.gridWidth
@@ -175,7 +172,7 @@ extension PlanBoardView {
                             .position(x: (startX + endX) / 2, y: (startY + endY) / 2)
                     }
                     
-                    ForEach(completedLines) { line in
+                    ForEach(viewStore.state.completedLines, id: \.id) { line in
                         let startY = CGFloat(line.startRow + 1) * viewStore.scheduleAreaGridHeight
                         let startX = CGFloat(line.startCol) * viewStore.gridWidth - CGFloat(viewStore.shiftedCol) * viewStore.gridWidth
                         let endX = CGFloat(line.endCol + 1) * viewStore.gridWidth - CGFloat(viewStore.shiftedCol) * viewStore.gridWidth
@@ -229,7 +226,7 @@ extension PlanBoardView {
                         .fill(Color.purple)
                     }
                     Button {
-                        guard let tempRange = scheduleTemporarySelectedGridRange else { return }
+                        guard let tempRange = viewStore.state.scheduleTemporarySelectedGridRange else { return }
                         let startRow = tempRange.start.row
                         let startCol = tempRange.start.col + viewStore.shiftedCol
                         let endCol = tempRange.end.col + viewStore.shiftedCol
@@ -240,13 +237,14 @@ extension PlanBoardView {
                             endCol: endCol
                         )
                         self.completedLines.append(newLine)
-                        viewStore.send(.addCompletedLine(newLine))
-                        scheduleTemporarySelectedGridRange = nil
-                        self.drawingLine = nil
+                        store.send(.addCompletedLine(newLine))
+                        
+                        viewStore.send(.setTemporarySelectedGridRange(nil))
+                        viewStore.send(.setDrawingLine(nil))
                     } label: {
                         EmptyView()
                     }
-                    .keyboardShortcut("s")
+                    .keyboardShortcut("s", modifiers: [])
                     .hidden()
                 }
                 .gesture(
@@ -259,16 +257,14 @@ extension PlanBoardView {
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             let startRow = Int(dragStart.y / viewStore.scheduleAreaGridHeight)
                             let endRow = Int(dragEnd.y / viewStore.scheduleAreaGridHeight)
-                            scheduleTemporarySelectedGridRange = SelectedGridRange(
-                                start: (startRow, startCol),
-                                end: (endRow, endCol)
-                            )
-                            self.drawingLine = DrawnLine(
+                            let range = SelectedGridRange(start: (startRow, startCol), end: (endRow, endCol))
+                            viewStore.send(.setTemporarySelectedGridRange(range))
+                            viewStore.send(.setDrawingLine(DrawnLine(
                                 startRow: startRow,
                                 startCol: startCol,
-                                endRow: startRow,
+                                endRow: endRow,
                                 endCol: endCol
-                            )
+                            )))
                         }
                         .onEnded { gesture in
                             let dragStart = gesture.startLocation
@@ -276,7 +272,8 @@ extension PlanBoardView {
                             let startRow = Int(dragStart.y / viewStore.scheduleAreaGridHeight)
                             let startCol = Int(dragStart.x / viewStore.gridWidth) + viewStore.shiftedCol
                             let endCol = Int(dragEnd.x / viewStore.gridWidth) + viewStore.shiftedCol
-                            self.drawingLine = nil
+                            viewStore.send(.dragGestureEnded(scheduleTemporarySelectedGridRange))
+                            scheduleTemporarySelectedGridRange = nil
                         }
                 )
                 .gesture(
@@ -288,9 +285,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                    viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
                     case .ended:
-                    viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .background(Color.lineArea)
@@ -346,22 +343,22 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                    viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
+                        viewStore.send(.setHoveredLoaction(.timeAxisArea, true, location))
                     case .ended:
-                    viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .background(Color.lineArea)
                 .onAppear {
-//                TODO: holiday를 비동기 작업으로 받아오는 로직을 TCA로 변경할 것
-//                    Task {
-//                        do {
-//                            let fetchedHolidays = try await fetchKoreanHolidays()
-//                            viewStore.holidays = fetchedHolidays
-//                        } catch {
-//                            print("오류 발생: \(error.localizedDescription)")
-//                        }
-//                    }
+                    //                TODO: holiday를 비동기 작업으로 받아오는 로직을 TCA로 변경할 것
+                    //                    Task {
+                    //                        do {
+                    //                            let fetchedHolidays = try await fetchKoreanHolidays()
+                    //                            viewStore.holidays = fetchedHolidays
+                    //                        } catch {
+                    //                            print("오류 발생: \(error.localizedDescription)")
+                    //                        }
+                    //                    }
                 }
             }
         }
@@ -540,34 +537,34 @@ extension PlanBoardView {
                                 }
                             }
                         }
-//                        // TODO: - row 맞추어 띄우기
-//                        let today = Date().filteredDate.integerDate
-//                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-//                            let plans = viewStore.listMap[lineIndex]
-//                            ForEach(plans, id: \.self) { plan in
-//                                if let periods = plan.periods {
-//                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-//                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-//                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
-//                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-//                                        let width = CGFloat(dayDifference + 1)
-//                                        let position = CGFloat(selectedRange.start.integerDate - today)
-//                                        let frameWidth = width * viewStore.gridWidth
-//                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-//                                                    .stroke(Color.white, lineWidth: 1)
-//                                            )
-//                                            .frame(width: width, height: height)
-//                                            .position(
-//                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
-//                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
-//                                            )
-//                                    }
-//                                }
-//                            }
-//                        }
+                        //                        // TODO: - row 맞추어 띄우기
+                        //                        let today = Date().filteredDate.integerDate
+                        //                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                        //                            let plans = viewStore.listMap[lineIndex]
+                        //                            ForEach(plans, id: \.self) { plan in
+                        //                                if let periods = plan.periods {
+                        //                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                        //                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                        //                                        let height = viewStore.lineAreaGridHeight * 0.5 - 4
+                        //                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                        //                                        let width = CGFloat(dayDifference + 1)
+                        //                                        let position = CGFloat(selectedRange.start.integerDate - today)
+                        //                                        let frameWidth = width * viewStore.gridWidth
+                        //                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.7))
+                        //                                            .overlay(
+                        //                                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                        //                                                    .stroke(Color.white, lineWidth: 1)
+                        //                                            )
+                        //                                            .frame(width: width, height: height)
+                        //                                            .position(
+                        //                                                x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + CGFloat(width / 2)) * CGFloat(viewStore.gridWidth),
+                        //                                                y: 100 * lineIndex + (CGFloat(-viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight))
+                        //                                            )
+                        //                                    }
+                        //                                }
+                        //                            }
+                        //                        }
                         
                         if let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -627,9 +624,9 @@ extension PlanBoardView {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let location):
-                    viewStore.send(.setHoveredLoaction(.lineArea, true, location))
+                        viewStore.send(.setHoveredLoaction(.lineArea, true, location))
                     case .ended:
-                    viewStore.send(.setHoveredLoaction(.none, false, nil))
+                        viewStore.send(.setHoveredLoaction(.none, false, nil))
                     }
                 }
                 .gesture(
@@ -779,7 +776,7 @@ extension PlanBoardView {
             )
         case [false, true, true, false]:
             viewStore.send(
-            .dragExceeded(
+                .dragExceeded(
                     shiftedRow: -1,
                     shiftedCol: 1,
                     exceededRow: -1,
@@ -787,7 +784,7 @@ extension PlanBoardView {
                 )
             )
         case [false, true, false, true]:
-        viewStore.send(
+            viewStore.send(
                 .dragExceeded(
                     shiftedRow: 1,
                     shiftedCol: 1,
