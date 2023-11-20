@@ -38,7 +38,7 @@ struct APIService {
     
     /// Schedule
     var createSchedule: @Sendable (Schedule, String) async throws -> Void
-    var readAllSchedules: @Sendable (String) async throws -> [Schedule]
+    var readSchedules: @Sendable (String) async throws -> [Schedule]
     var updateSchedule: @Sendable (Schedule, String) async throws -> Void
     var deleteSchedule: @Sendable (Schedule, String) async throws -> Void
     
@@ -71,7 +71,7 @@ struct APIService {
         deletePlansCompletely: @escaping @Sendable (_ planIDsToDeleteCompletely: [String], _ projectID: String) async throws -> Void,
         
         createSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
-        readAllSchedules: @escaping @Sendable (String) async throws -> [Schedule],
+        readSchedules: @escaping @Sendable (String) async throws -> [Schedule],
         updateSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
         deleteSchedule: @escaping @Sendable (Schedule, String) async throws -> Void,
         
@@ -101,7 +101,7 @@ struct APIService {
         self.deletePlansCompletely = deletePlansCompletely
         
         self.createSchedule = createSchedule
-        self.readAllSchedules = readAllSchedules
+        self.readSchedules = readSchedules
         self.updateSchedule = updateSchedule
         self.deleteSchedule = deleteSchedule
         
@@ -288,7 +288,7 @@ extension APIService {
         createSchedule: { schedule, projectID in
             try await FirestoreService.setDocumentData(projectID, .schedules, schedule.id, scheduleToDictionary(schedule))
         },
-        readAllSchedules: { projectID in
+        readSchedules: { projectID in
             return try await FirestoreService.getDocuments(projectID, .schedules, Schedule.self) as! [Schedule]
         },
         updateSchedule: { schedule, projectID in
