@@ -12,7 +12,7 @@ struct ContentView: View {
     
     let store = Store(initialState: Authentication.State()) {
         Authentication()
-            ._printChanges()
+//            ._printChanges()
     }
     
     var body: some View {

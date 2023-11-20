@@ -453,7 +453,6 @@ extension PlanBoardView {
                 ZStack {
                     HStack {
                         Button {
-                            print("schedule Create")
                             if !viewStore.selectedScheduleRanges.isEmpty {
                                 let today = Date().filteredDate
                                 let scheduleRangeToCreate = viewStore.selectedScheduleRanges.last!
@@ -520,6 +519,24 @@ extension PlanBoardView {
                                             CGFloat(selectedScheduleRange.endCol - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
                                         y: geometry.size.height / 2
                                     )
+                            }
+                        }
+                        
+                        ForEach(viewStore.scheduleMap.indices, id: \.self) { scheduleRowIndex in
+                            let scheduleRow = viewStore.scheduleMap[scheduleRowIndex]
+                            let today = Date().filteredDate
+                            ForEach(scheduleRow, id: \.self) { scheduleID in
+                                if let schedule = viewStore.existingSchedules[scheduleID] {
+                                    let width = CGFloat(schedule.endDate.integerDate - schedule.startDate.integerDate + 1) * viewStore.gridWidth
+                                    let xOffset = CGFloat(schedule.startDate.integerDate - today.integerDate) * viewStore.gridWidth + width / 2
+                                    
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .position(
+                                            x: xOffset,
+                                            y: CGFloat(scheduleRowIndex * 20 / 2)
+                                        )
+                                        .frame(width: width, height: 10)
+                                }
                             }
                         }
                     }
