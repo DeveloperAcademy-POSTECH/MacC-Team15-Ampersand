@@ -145,21 +145,39 @@ extension PlanBoardView {
                             )
                             .contextMenu {
                                 Button("Create a lane above") {
-                                    if clickedRow < viewStore.map.last!.count {
+                                    var totalHeight = 0
+                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
+                                    for planID in viewStore.map[lastLayerIndex] {
+                                        let plan = viewStore.existingPlans[planID]!
+                                        totalHeight += plan.childPlanIDs.count
+                                    }
+                                    if clickedRow < totalHeight {
                                         viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: true))
                                         viewStore.send(.lineIndexAreaClicked(false))
                                     }
                                 }
                                 
                                 Button("Create a lane below") {
-                                    if clickedRow < viewStore.map.last!.count {
+                                    var totalHeight = 0
+                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
+                                    for planID in viewStore.map[lastLayerIndex] {
+                                        let plan = viewStore.existingPlans[planID]!
+                                        totalHeight += plan.childPlanIDs.count
+                                    }
+                                    if clickedRow < totalHeight {
                                         viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: false))
                                         viewStore.send(.lineIndexAreaClicked(false))
                                     }
                                 }
                                 
                                 Button("Clear this lane") {
-                                    if clickedRow < viewStore.map.last!.count {
+                                    var totalHeight = 0
+                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
+                                    for planID in viewStore.map[lastLayerIndex] {
+                                        let plan = viewStore.existingPlans[planID]!
+                                        totalHeight += plan.childPlanIDs.count
+                                    }
+                                    if clickedRow < totalHeight {
                                         viewStore.send(.deleteLaneConents(
                                             rows: [clickedRow, clickedRow]
                                         ))

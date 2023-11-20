@@ -732,11 +732,11 @@ struct PlanBoard: Reducer {
                             }
                             let planToUpdate = state.existingPlans[rootChildID]!
                             return .run { send in
+                                await send(.reloadMap)
                                 try await apiService.updatePlans(
                                     [planToUpdate],
                                     projectID
                                 )
-                                await send(.reloadMap)
                             }
                         }
                         laneCount += rootChildLaneCount
@@ -763,12 +763,13 @@ struct PlanBoard: Reducer {
                                 for index in stride(from: firstLayerPlanLaneCount - 1, through: -1, by: -1) {
                                     state.existingPlans[rootChildID]?.childPlanIDs["\(index + 1)"] = firstLayerPlanLanes["\(index)"]
                                 }
-                                state.existingPlans[firstLayerPlanID]!.childPlanIDs["0"] = [newChildPlan.id]
+                                state.existingPlans[rootChildID]!.childPlanIDs["0"] = [newChildPlan.id]
                             } else {
-                                state.existingPlans[firstLayerPlanID]!.childPlanIDs["\(firstLayerPlanLaneCount)"] = [newChildPlan.id]
+                                state.existingPlans[rootChildID]!.childPlanIDs["\(firstLayerPlanIDs.count)"] = [newChildPlan.id]
                             }
                             let planToUpdate = state.existingPlans[firstLayerPlanID]!
                             return .run { send in
+                                await send(.reloadMap)
                                 try await apiService.createPlans(
                                     [newChildPlan],
                                     projectID
@@ -777,9 +778,9 @@ struct PlanBoard: Reducer {
                                     [planToUpdate],
                                     projectID
                                 )
-                                await send(.reloadMap)
                             }
                         }
+                        laneCount += firstLayerPlanLaneCount
                     }
                 }
                 return .none
