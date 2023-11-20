@@ -41,7 +41,7 @@ struct PlanBoard: Reducer {
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
         
-        @BindingState var keyword = ""
+        var keyword = ""
         var title = ""
         var selectedColorCode = Color.red
         
