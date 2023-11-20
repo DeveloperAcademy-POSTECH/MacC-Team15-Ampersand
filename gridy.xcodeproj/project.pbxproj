@@ -60,7 +60,6 @@
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
 		EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE780DB62B023686005E761F /* EditPlanBoardView.swift */; };
-		EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */; };
 		EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6D2AF21D2700751FAE /* SplashView.swift */; };
 		EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */; };
 		EED5EC722AF21D5500751FAE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC712AF21D5500751FAE /* LoadingView.swift */; };
@@ -120,7 +119,6 @@
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
 		EE780DB62B023686005E761F /* EditPlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlanBoardView.swift; sourceTree = "<group>"; };
-		EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarAreaView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		EED5EC712AF21D5500751FAE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
@@ -316,17 +314,8 @@
 				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
 				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
-				EE909A452AC3CE1700C9AAF0 /* TimelineLayout */,
 			);
 			path = PlanBoard;
-			sourceTree = "<group>";
-		};
-		EE909A452AC3CE1700C9AAF0 /* TimelineLayout */ = {
-			isa = PBXGroup;
-			children = (
-				EE909A632AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift */,
-			);
-			path = TimelineLayout;
 			sourceTree = "<group>";
 		};
 		EE909A692AC3D20D00C9AAF0 /* Common */ = {
@@ -504,7 +493,6 @@
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
-				EE909A642AC3CFCA00C9AAF0 /* RightToolBarAreaView.swift in Sources */,
 				975A620F2ACE950200DE31AB /* HolidayUtil.swift in Sources */,
 				AD96ED3C2AD1183A005D197B /* Project.swift in Sources */,
 			);
