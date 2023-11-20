@@ -593,7 +593,7 @@ struct PlanBoard: Reducer {
                     for _ in currentRowCount+1...row {
                         for currentLayerIndex in 0..<state.map.count {
                             if currentLayerIndex == 0 {
-                                state.existingPlans[prevParentPlanID]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                                state.existingPlans[state.rootProject.rootPlanID]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
                             } else {
                                 state.existingPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
                             }
@@ -2007,16 +2007,14 @@ struct PlanBoard: Reducer {
                 var planIDsQ: [String] = [state.rootProject.rootPlanID]
                 var tempLayer: [String] = []
                 var totalLoop = 0
-                while !planIDsQ.isEmpty && totalLoop < state.rootProject.countLayerInListArea {
+                while totalLoop < state.rootProject.countLayerInListArea {
                     for planID in planIDsQ {
                         let plan = state.existingPlans[planID]!
                         for index in 0..<plan.childPlanIDs.count {
                             tempLayer.append(contentsOf: plan.childPlanIDs[String(index)]!)
                         }
                     }
-                    if !tempLayer.isEmpty {
-                        newMap.append(tempLayer)
-                    }
+                    newMap.append(tempLayer)
                     planIDsQ.removeAll()
                     planIDsQ.append(contentsOf: tempLayer)
                     tempLayer = []
