@@ -1101,6 +1101,7 @@ struct PlanBoard: Reducer {
             case let .deletePlanOnLineWithID(planID):
                 let projectID = state.rootProject.id
                 let planToDelete = state.existingPlans[planID]!
+                var plansToUpdate = [Plan]()
                 /// 지울 플랜의 부모 child에서도 삭제
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
@@ -1108,14 +1109,21 @@ struct PlanBoard: Reducer {
                     for (index, childLane) in childLanes.enumerated() {
                         if childLane.value.contains(where: { $0 == planID }) {
                             state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.remove(at: childLane.value.firstIndex(where: { $0 == planID})!)
+                            plansToUpdate.append(state.existingPlans[parentPlanID]!)
+                            break
                         }
                     }
                 }
                 state.existingPlans[planID] = nil
+                let plansToUpdateImmutable = plansToUpdate
                 return .run { send in
                     await send(.reloadListMap)
                     try await apiService.deletePlans(
                         [planToDelete],
+                        projectID
+                    )
+                    try await apiService.updatePlans(
+                        plansToUpdateImmutable,
                         projectID
                     )
                 }
