@@ -10,12 +10,10 @@ import ComposableArchitecture
 
 struct ContentView: View {
     let windowManager: WindowManager
-
     let store = Store(initialState: Authentication.State()) {
         Authentication()
             ._printChanges()
     }
-    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
@@ -23,7 +21,7 @@ struct ContentView: View {
                     ZStack {
                         SplashView()
                         AuthenticationView(store: store)
-                    
+                        
                     }
                 } else {
                     ProjectBoardView(
@@ -39,8 +37,9 @@ struct ContentView: View {
     }
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView()
-//    }
-//}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        let windowManager = WindowManager()
+        ContentView(windowManager: windowManager)
+    }
+}

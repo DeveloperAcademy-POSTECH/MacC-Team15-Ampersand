@@ -28,7 +28,6 @@ struct TabBarView: View {
             HStack(alignment: .center, spacing: 0) {
                 if !isMaximized {
                     Spacer().frame(width: 75)
-                    
                 }
                 systemBorder(.vertical)
                 homeButton
