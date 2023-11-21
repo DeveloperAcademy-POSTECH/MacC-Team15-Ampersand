@@ -535,15 +535,15 @@ extension PlanBoardView {
                             ForEach(scheduleRow, id: \.self) { scheduleID in
                                 if let schedule = viewStore.existingSchedules[scheduleID] {
                                     let today = Date().filteredDate
-                                    let dayDifference = CGFloat((schedule.endDate.integerDate - schedule.startDate.integerDate).magnitude)
+                                    let dayDifference = CGFloat(schedule.endDate.integerDate - schedule.startDate.integerDate)
                                     let width = CGFloat(dayDifference + 1)
                                     let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
                                     RoundedRectangle(cornerRadius: 4)
-                                        .frame(width: width * viewStore.gridWidth, height: 10)
+                                        .frame(width: width * viewStore.gridWidth, height: 8)
                                         .position(
                                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                            y: CGFloat(scheduleRowIndex * 20 / 2)
+                                            y: CGFloat(geometry.size.height) - CGFloat(4 + scheduleRowIndex * 10)
                                         )
                                 }
                             }
