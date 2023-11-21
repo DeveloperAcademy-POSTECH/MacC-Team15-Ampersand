@@ -372,8 +372,6 @@ struct ProjectBoard: Reducer {
                 }
                 return .run { send in
                     try await apiService.deleteProjects([id])
-                    // TODO: - 왜인지 sleep 필요, missing element warning 뜸
-                    try await continuousClock.sleep(for: .seconds(2))
                     await send(.removeStore(id))
                 }
                 .cancellable(id: CancelID.deleteAction, cancelInFlight: true)
