@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SelectedDateRange: Identifiable, Hashable {
+struct SelectedDateRange: Identifiable, Hashable, Codable {
     let id = UUID()
     var start: Date
     var end: Date

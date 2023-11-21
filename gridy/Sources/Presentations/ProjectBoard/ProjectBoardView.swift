@@ -77,10 +77,16 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(store: store.scope(
-                        state: \.planBoards[id: currentShowingPlanBoardID]!,
-                        action: { .planBoardAction(id: currentShowingPlanBoardID, action: $0) }
-                    ))
+                    IfLetStore(
+                        store.scope(
+                            state: \.planBoards[id: currentShowingPlanBoardID],
+                            action: { .planBoardAction(id: currentShowingPlanBoardID, action: $0) }
+                        )
+                    ) {
+                        PlanBoardView(store: $0)
+                    } else: {
+                        ProgressView()
+                    }
                 }
             }
             .onAppear {
