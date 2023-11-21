@@ -21,5 +21,5 @@ struct Schedule: Identifiable, Decodable, Equatable {
     var colorCode: UInt
     var category: String
     
-    static let mock = Schedule(id: "", startDate: Date(), endDate: Date(), colorCode: 0x000000, category: ScheduleCategory.none.rawValue)
+    static let mock = Schedule(id: "", title: "", startDate: Date(), endDate: Date(), colorCode: 0x000000, category: ScheduleCategory.none.rawValue)
 }

@@ -561,22 +561,28 @@ extension PlanBoardView {
                                     let width = CGFloat(dayDifference + 1)
                                     let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
-                                    RoundedRectangle(cornerRadius: 24 * 0.5)
-                                        .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.7))
-                                        .frame(width: width * viewStore.gridWidth, height: 20)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 24 * 0.5)
-                                                .stroke(Color.white, lineWidth: 1)
-                                        )
-                                        .position(
-                                            x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                            y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
-                                        )
-                                        .contextMenu {
-                                            Button("Delete") {
-                                                viewStore.send(.deleteSchedule(scheduleID: scheduleID))
-                                            }
+                                    ZStack(alignment: .leading) {
+                                        RoundedRectangle(cornerRadius: 24 * 0.5)
+                                            .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.7))
+                                            .frame(width: width * viewStore.gridWidth, height: 20)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 24 * 0.5)
+                                                    .stroke(Color.white, lineWidth: 1)
+                                            )
+                                        Text(schedule.title ?? "")
+                                            .foregroundStyle(Color.white)
+                                            .padding(.leading, 8)
+                                    }
+                                    .position(
+                                        x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
+                                        y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
+                                    )
+                                    
+                                    .contextMenu {
+                                        Button("Delete") {
+                                            viewStore.send(.deleteSchedule(scheduleID: scheduleID))
                                         }
+                                    }
                                 }
                             }
                         }
@@ -935,9 +941,6 @@ extension PlanBoardView {
                                             x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
                                             y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
                                         )
-                                        .onTapGesture(count: 2) {
-                                            viewStore.send(.setCurrentModifyingPlan(plan.id))
-                                        }
                                         .contextMenu {
                                             Button("Delete") {
                                                 viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
