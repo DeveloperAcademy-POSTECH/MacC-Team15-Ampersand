@@ -88,12 +88,12 @@ struct PlanBoardView: View {
                                     Color.white
                                         .shadow(color: .black.opacity(0.25), radius: 8, x: -4)
                                 )
+                        }
                     }
                 }
             }
         }
     }
-}
 }
 
 extension PlanBoardView {
@@ -288,7 +288,7 @@ extension PlanBoardView {
                     /// hover 되었을 때
                     if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
                         if let hoveredRow = viewStore.listAreaHoveredCellRow,
-                            let hoveredCol = viewStore.listAreaHoveredCellCol {
+                           let hoveredCol = viewStore.listAreaHoveredCellCol {
                             Rectangle()
                                 .fill(Color.itemHovered)
                                 .frame(
@@ -320,7 +320,7 @@ extension PlanBoardView {
                     
                     /// double click 되었을 때
                     if let columnOffset = viewStore.selectedEmptyColumn,
-                        let rowOffset = viewStore.selectedEmptyRow {
+                       let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
@@ -340,8 +340,8 @@ extension PlanBoardView {
                                         layer: viewStore.selectedEmptyColumn!,
                                         row: viewStore.selectedEmptyRow!,
                                         text: viewStore.keyword,
-                                        colorCode: PlanType.emptyPlanType.colorCode)
-                                    )
+                                        colorCode: PlanType.emptyPlanType.colorCode
+                                    ))
                                     viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                 }
                                     .onExitCommand {
