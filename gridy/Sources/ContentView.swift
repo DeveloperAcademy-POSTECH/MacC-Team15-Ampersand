@@ -9,7 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ContentView: View {
-    
+    let windowManager: WindowManager
+
     let store = Store(initialState: Authentication.State()) {
         Authentication()
             ._printChanges()
@@ -22,13 +23,15 @@ struct ContentView: View {
                     ZStack {
                         SplashView()
                         AuthenticationView(store: store)
+                    
                     }
                 } else {
                     ProjectBoardView(
                         store: store.scope(
                             state: \.optionalProjectBoard,
                             action: { .optionalProjectBoard($0) }
-                        )
+                        ),
+                        windowManager: windowManager
                     )
                 }
             }
@@ -36,8 +39,8 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
