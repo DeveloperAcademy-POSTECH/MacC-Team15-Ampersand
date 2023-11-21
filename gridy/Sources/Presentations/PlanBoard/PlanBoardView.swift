@@ -740,6 +740,11 @@ extension PlanBoardView {
                                         .onTapGesture(count: 2) {
                                             viewStore.send(.setCurrentModifyingPlan(plan.id))
                                         }
+                                        .contextMenu {
+                                            Button("Delete") {
+                                                viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
+                                            }
+                                        }
                                     }
                                 }
                             }

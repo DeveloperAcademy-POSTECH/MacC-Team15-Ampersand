@@ -209,6 +209,7 @@ struct PlanBoard: Reducer {
         case deleteLayer(layer: Int)
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
+        case deletePlanOnLineWithID(planID: String)
         case deletePlanOnLine(selectedRanges: [SelectedGridRange])
         case deleteLaneOnLine(row: Int)
         case deleteLaneConents(rows: [Int])
@@ -1093,6 +1094,28 @@ struct PlanBoard: Reducer {
                     )
                     try await apiService.deletePlans(
                         plansToDelete,
+                        projectID
+                    )
+                }
+                
+            case let .deletePlanOnLineWithID(planID):
+                let projectID = state.rootProject.id
+                let planToDelete = state.existingPlans[planID]!
+                /// 지울 플랜의 부모 child에서도 삭제
+                for parentPlanID in state.map[state.map.count - 1] {
+                    let parentPlan = state.existingPlans[parentPlanID]!
+                    let childLanes = parentPlan.childPlanIDs
+                    for (index, childLane) in childLanes.enumerated() {
+                        if childLane.value.contains(where: { $0 == planID }) {
+                            state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.remove(at: childLane.value.firstIndex(where: { $0 == planID})!)
+                        }
+                    }
+                }
+                state.existingPlans[planID] = nil
+                return .run { send in
+                    await send(.reloadListMap)
+                    try await apiService.deletePlans(
+                        [planToDelete],
                         projectID
                     )
                 }
