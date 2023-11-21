@@ -31,6 +31,7 @@ enum PlanBoardAreaName: String {
 struct PlanBoard: Reducer {
     
     @Dependency(\.apiService) var apiService
+    @Dependency(\.continuousClock) var continuousClock
     
     struct State: Equatable, Identifiable {
         var rootProject: Project
@@ -42,10 +43,12 @@ struct PlanBoard: Reducer {
         var existingPlanTypes = [PlanType.emptyPlanType.id: PlanType.emptyPlanType]
         var existingPlans = [String: Plan]()
         var existingSchedules = [String: Schedule]()
+        var loadInProgress = true
         
-        var keyword = ""
         var title = ""
-        var selectedColorCode = Color.red
+        var keyword = ""
+        var selectedColorCode = Color.white
+        var currentModifyingPlanID = Plan.mock.id
         
         /// 그리드 규격에 대한 변수들입니다.
         var columnStroke = CGFloat(1)
@@ -162,6 +165,9 @@ struct PlanBoard: Reducer {
         var isShareImagePresented = false
         var isBoardSettingPresented = false
         var isRightToolBarPresented = true
+        
+        /// each plan on line
+        var updatePlanTypePresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -185,7 +191,8 @@ struct PlanBoard: Reducer {
         case createPlanOnLine(row: Int, startDate: Date, endDate: Date)
         case readPlans
         case readPlansResponse(TaskResult<[Plan]>)
-        case updatePlan(targetPlanID: String, updateTo: Plan)
+        case updatePlan
+        case setCurrentModifyingPlan(_ planID: String)
         
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
@@ -202,6 +209,7 @@ struct PlanBoard: Reducer {
         case deleteLayer(layer: Int)
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
+        case deletePlanOnLineWithID(planID: String)
         case deletePlanOnLine(selectedRanges: [SelectedGridRange])
         case deleteLaneOnLine(row: Int)
         case deleteLaneConents(rows: [Int])
@@ -269,7 +277,7 @@ struct PlanBoard: Reducer {
                     await send(.readPlanTypes)
                     await send(.readSchedules)
                     // TODO: - 삭제
-                    try await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                    try await continuousClock.sleep(for: .seconds(5))
                     await send(.reloadMap)
                 }
                 
@@ -299,6 +307,8 @@ struct PlanBoard: Reducer {
                     state.isBoardSettingPresented = bool
                 case .rightToolBarButton:
                     state.isRightToolBarPresented = bool
+                case .updatePlanTypeButton:
+                    state.updatePlanTypePresented = bool
                 default:
                     break
                 }
@@ -578,7 +588,7 @@ struct PlanBoard: Reducer {
                     for _ in currentRowCount+1...row {
                         for currentLayerIndex in 0..<state.map.count {
                             if currentLayerIndex == 0 {
-                                state.existingPlans[prevParentPlanID]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                                state.existingPlans[state.rootProject.rootPlanID]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
                             } else {
                                 state.existingPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
                             }
@@ -630,7 +640,9 @@ struct PlanBoard: Reducer {
                 let plansToCreateImmutable = plansToCreate
                 let plansToUpdateImmutable = plansToUpdate
                 let projectID = state.rootProject.id
-                return .run { _ in
+                
+                return .run { send in
+                    await send(.setCurrentModifyingPlan(newPlanOnLine.id))
                     try await apiService.createPlans(
                         plansToCreateImmutable,
                         projectID
@@ -639,6 +651,7 @@ struct PlanBoard: Reducer {
                         plansToUpdateImmutable,
                         projectID
                     )
+                    await send(.reloadMap)
                 }
                 
             case .readPlans:
@@ -667,16 +680,37 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .updatePlan(targetPlanID, updateTo):
+            case .updatePlan:
+                state.updatePlanTypePresented = false
                 let projectID = state.rootProject.id
-                state.existingPlans[targetPlanID] = updateTo
-                let planToUpdate = [state.existingPlans[targetPlanID]!]
-                return .run { _ in
-                    try await apiService.updatePlans(
-                        planToUpdate,
-                        projectID
-                    )
+                let planTitle = state.keyword
+                let colorCode = state.selectedColorCode.getUIntCode()
+                let currentModifyingPlanID = state.currentModifyingPlanID
+                state.keyword = ""
+                state.selectedColorCode = Color.white
+                if let originTypeID = state.existingPlanTypes.first(where: { $0.value.title == planTitle && $0.value.colorCode == colorCode })?.key {
+                    state.existingPlans[currentModifyingPlanID]!.planTypeID = originTypeID
+                    let planToUpdate = [state.existingPlans[currentModifyingPlanID]!]
+                    return .run { send in
+                        try await apiService.updatePlans(
+                            planToUpdate,
+                            projectID
+                        )
+                        await send(.reloadListMap)
+                    }
                 }
+                return .run { send in
+                    await send(.createPlanType(currentModifyingPlanID, planTitle, colorCode))
+                    await send(.reloadListMap)
+                }
+                
+            case let .setCurrentModifyingPlan(planID):
+                state.currentModifyingPlanID = planID
+                let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
+                state.keyword = currentPlanType.title
+                state.selectedColorCode = Color(hex: currentPlanType.colorCode)
+                state.updatePlanTypePresented = true
+                return .none
                 
                 // MARK: - Schedule
             case let .createSchedule(startDate, endDate):
@@ -1060,6 +1094,36 @@ struct PlanBoard: Reducer {
                     )
                     try await apiService.deletePlans(
                         plansToDelete,
+                        projectID
+                    )
+                }
+                
+            case let .deletePlanOnLineWithID(planID):
+                let projectID = state.rootProject.id
+                let planToDelete = state.existingPlans[planID]!
+                var plansToUpdate = [Plan]()
+                /// 지울 플랜의 부모 child에서도 삭제
+                for parentPlanID in state.map[state.map.count - 1] {
+                    let parentPlan = state.existingPlans[parentPlanID]!
+                    let childLanes = parentPlan.childPlanIDs
+                    for (index, childLane) in childLanes.enumerated() {
+                        if childLane.value.contains(where: { $0 == planID }) {
+                            state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.remove(at: childLane.value.firstIndex(where: { $0 == planID})!)
+                            plansToUpdate.append(state.existingPlans[parentPlanID]!)
+                            break
+                        }
+                    }
+                }
+                state.existingPlans[planID] = nil
+                let plansToUpdateImmutable = plansToUpdate
+                return .run { send in
+                    await send(.reloadListMap)
+                    try await apiService.deletePlans(
+                        [planToDelete],
+                        projectID
+                    )
+                    try await apiService.updatePlans(
+                        plansToUpdateImmutable,
                         projectID
                     )
                 }
@@ -1512,13 +1576,8 @@ struct PlanBoard: Reducer {
                     }
                     state.existingPlans[foundSourceParentPlan.id]!.childPlanIDs["\(foundSourceParentPlan.childPlanIDs.count - 1)"] = nil
                     let plansToUpdate = [state.existingPlans[foundSourceParentPlan.id]!]
-                    let foundSourceParentPlanImmutable = foundSourceParentPlan
                     return .run { send in
                         await send(.createLaneButtonClicked(row: destinationIndexToMove, createOnTop: true))
-                        await send(.updatePlan(
-                            targetPlanID: foundSourceParentPlanImmutable.id,
-                            updateTo: foundSourceParentPlanImmutable)
-                        )
                         try await apiService.updatePlans(plansToUpdate, projectID)
                         await send(.reloadMap)
                     }
@@ -1565,9 +1624,9 @@ struct PlanBoard: Reducer {
                                 text: targetPlanType.title,
                                 colorCode: targetPlanType.colorCode)
                             )
-                            await send(.updatePlan(
-                                targetPlanID: targetPlan.id,
-                                updateTo: targetPlan)
+                            try await apiService.updatePlans(
+                                [targetPlan],
+                                projectID
                             )
                             await send(.reloadMap)
                         }
@@ -1603,10 +1662,6 @@ struct PlanBoard: Reducer {
                                     row: row,
                                     text: targetPlanType.title,
                                     colorCode: targetPlanType.colorCode)
-                                )
-                                await send(.updatePlan(
-                                    targetPlanID: targetPlan.id,
-                                    updateTo: targetPlan)
                                 )
                                 await send(.reloadMap)
                             }
@@ -1991,6 +2046,7 @@ struct PlanBoard: Reducer {
                     totalLoop += 1
                 }
                 state.map = newMap.isEmpty ? [[]] : newMap
+                state.loadInProgress = false
                 return .run { send in
                     await send(.reloadListMap)
                 }

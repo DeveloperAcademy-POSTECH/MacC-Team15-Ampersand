@@ -50,6 +50,7 @@
 		AD96ED442AD30312005D197B /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED432AD30312005D197B /* APIError.swift */; };
 		AD96ED642AD5BF94005D197B /* SignInWithAppleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED632AD5BF94005D197B /* SignInWithAppleButtonView.swift */; };
 		AD96ED6C2AD6FBBE005D197B /* PlanBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */; };
+		ADA1220B2B0C6EDF0064F29D /* OSLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADA122092B0C626B0064F29D /* OSLog.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		ADA3E9CE2AD0790600303958 /* ProjectBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */; };
 		ADA3E9D02AD07AF800303958 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA3E9CF2AD07AF800303958 /* APIService.swift */; };
 		ADACF5F92AC1FB1D008AADFA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = ADACF5F82AC1FB1D008AADFA /* ComposableArchitecture */; };
@@ -111,6 +112,7 @@
 		AD96ED432AD30312005D197B /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		AD96ED632AD5BF94005D197B /* SignInWithAppleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleButtonView.swift; sourceTree = "<group>"; };
 		AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoard.swift; sourceTree = "<group>"; };
+		ADA122092B0C626B0064F29D /* OSLog.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OSLog.framework; path = System/Library/Frameworks/OSLog.framework; sourceTree = SDKROOT; };
 		ADA3E9CD2AD0790600303958 /* ProjectBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectBoard.swift; sourceTree = "<group>"; };
 		ADA3E9CF2AD07AF800303958 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		ADACF6092AC26CDF008AADFA /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADA1220B2B0C6EDF0064F29D /* OSLog.framework in Frameworks */,
 				AD3DF4992ACD8F8C00F619DE /* FirebaseDatabaseSwift in Frameworks */,
 				AD3DF48F2ACD8F8C00F619DE /* FirebaseAnalyticsSwift in Frameworks */,
 				AD3DF48D2ACD8F8C00F619DE /* FirebaseAnalytics in Frameworks */,
@@ -202,6 +205,7 @@
 			children = (
 				AD8ECB8C2ABC7CA10040A0B8 /* gridy */,
 				AD8ECB8B2ABC7CA10040A0B8 /* Products */,
+				ADA122082B0C626A0064F29D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -247,6 +251,14 @@
 				AD8ECB962ABC7CA20040A0B8 /* gridy.entitlements */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		ADA122082B0C626A0064F29D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ADA122092B0C626B0064F29D /* OSLog.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		ADA3E9CC2AD078E300303958 /* ProjectBoard */ = {
