@@ -15,6 +15,8 @@ enum CollectionName: String {
     case deletedPlans = "DeletedPlans"
     case planTypes = "PlanTypes"
     case deletedPlanTypes = "DeletedPlanTypes"
+    case schedules = "Schedules"
+    case deleteSchedules = "DeletedSchedules"
     
     case feedback = "Feedback"
     case notice = "Notice"
