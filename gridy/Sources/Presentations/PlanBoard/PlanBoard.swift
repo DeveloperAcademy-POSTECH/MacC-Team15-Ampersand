@@ -57,6 +57,7 @@ struct PlanBoard: Reducer {
         var keyword = ""
         var selectedColorCode = Color.white
         var currentModifyingPlanID = Plan.mock.id
+        var currentModifyingScheduleID = Schedule.mock.id
         
         /// 그리드 규격에 대한 변수들입니다.
         var columnStroke = CGFloat(1)
@@ -179,6 +180,7 @@ struct PlanBoard: Reducer {
         
         /// each plan on line
         var updatePlanTypePresented = false
+        var updateSchedulePresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -210,9 +212,10 @@ struct PlanBoard: Reducer {
         case readSchedules
         case readSchedulesRespones(TaskResult<[Schedule]>)
         case updateScheduleDate(scheduleID: String, originPeriod: [Date], updatedPeriod: [Date])
-        case updateScheduleText(scheduleID: String, text: String)
-        case updateScheduleColorCode(scheduleID: String, colorCode: UInt)
+        case updateScheduleText
+        case updateScheduleColorCode
         case deleteSchedule(scheduleID: String)
+        case setCurrentModifyingSchedule(_ scheduleID: String)
         
         /// ListArea
         case createLayerButtonClicked(layer: Int)
@@ -740,6 +743,7 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
+                    await send(.setCurrentModifyingSchedule(newScheduleID))
                     try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
@@ -772,8 +776,11 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleText(scheduleID, text):
+            case let .updateScheduleText:
+                state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
+                let scheduleID = state.currentModifyingScheduleID
+                let text = state.keyword
                 if state.existingSchedules[scheduleID]!.title == text {
                     return .none
                 }
@@ -783,8 +790,11 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleColorCode(scheduleID, colorCode):
+            case let .updateScheduleColorCode:
+                state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
+                let scheduleID = state.currentModifyingScheduleID
+                let colorCode = state.selectedColorCode.getUIntCode()
                 if state.existingSchedules[scheduleID]!.colorCode == colorCode {
                     return .none
                 }
@@ -802,6 +812,14 @@ struct PlanBoard: Reducer {
                     await send(.reloadScheduleMap)
                     try await apiService.deleteSchedule(prevSchedule, projectID)
                 }
+                
+            case let .setCurrentModifyingSchedule(scheduleID):
+                state.currentModifyingScheduleID = scheduleID
+                let currentSchdule = state.existingSchedules[scheduleID]!
+                state.keyword = currentSchdule.title ?? ""
+                state.selectedColorCode = Color(hex: currentSchdule.colorCode)
+                state.updateSchedulePresented = true
+                return .none
                 
                 // MARK: - ListArea
             case let .createLayerButtonClicked(layer):

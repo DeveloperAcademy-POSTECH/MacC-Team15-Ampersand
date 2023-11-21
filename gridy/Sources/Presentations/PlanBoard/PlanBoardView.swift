@@ -460,6 +460,17 @@ extension PlanBoardView {
 extension PlanBoardView {
     var scheduleArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            var isUpdateSchedulePresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.updateSchedulePresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .updateScheduleButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
             GeometryReader { geometry in
                 ZStack {
                     /// ScheduleArea에서 쓰이는 버튼들을 HStack으로 묶어놓을 거에요.
@@ -551,7 +562,7 @@ extension PlanBoardView {
                                     let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
                                     RoundedRectangle(cornerRadius: 24 * 0.5)
-                                        .foregroundStyle(Color.red)
+                                        .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.7))
                                         .frame(width: width * viewStore.gridWidth, height: 20)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 24 * 0.5)
@@ -566,6 +577,33 @@ extension PlanBoardView {
                                                 viewStore.send(.deleteSchedule(scheduleID: scheduleID))
                                             }
                                         }
+                                }
+                            }
+                        }
+                        if isUpdateSchedulePresented.wrappedValue {
+                            VStack {
+                                HStack(spacing: 20) {
+                                    TextField(
+                                        "제목을 입력하세요",
+                                        text: viewStore.binding(
+                                            get: \.keyword,
+                                            send: { .keywordChanged($0) }
+                                        )
+                                    )
+                                    ColorPicker(
+                                        "color",
+                                        selection: viewStore.binding(
+                                            get: \.selectedColorCode,
+                                            send: PlanBoard.Action.selectColorCode
+                                        )
+                                    )
+                                    .padding(.trailing, 20)
+                                }
+                                Button {
+                                    viewStore.send(.updateScheduleText)
+                                    viewStore.send(.updateScheduleColorCode)
+                                } label: {
+                                    Text("확인")
                                 }
                             }
                         }
