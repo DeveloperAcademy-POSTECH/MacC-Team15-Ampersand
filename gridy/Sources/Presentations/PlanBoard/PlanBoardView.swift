@@ -577,7 +577,9 @@ extension PlanBoardView {
                                         x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
                                         y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
                                     )
-                                    
+                                    .onTapGesture(count: 2) {
+                                        viewStore.send(.setCurrentModifyingSchedule(scheduleID))
+                                    }
                                     .contextMenu {
                                         Button("Delete") {
                                             viewStore.send(.deleteSchedule(scheduleID: scheduleID))
@@ -941,6 +943,9 @@ extension PlanBoardView {
                                             x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
                                             y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
                                         )
+                                        .onTapGesture(count: 2) {
+                                            viewStore.send(.setCurrentModifyingPlan(plan.id))
+                                        }
                                         .contextMenu {
                                             Button("Delete") {
                                                 viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
