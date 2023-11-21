@@ -325,14 +325,13 @@ extension APIService {
         ]
     }
     static func scheduleToDictionary(_ schedule: Schedule) -> [String: Any] {
-            [
-                "id": schedule.id,
-                "startDate": schedule.startDate,
-                "endDate": schedule.endDate,
-                "title": schedule.title,
-                "colorCode": schedule.colorCode,
-                "category": schedule.category
-            ]
-        }
+        [
+            "id": schedule.id,
+            "startDate": schedule.startDate,
+            "endDate": schedule.endDate,
+            "title": schedule.title,
+            "colorCode": schedule.colorCode,
+            "category": schedule.category
+        ]
+    }
 }
-

@@ -707,7 +707,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.reloadScheduleMap)
                     // TODO: - 복구
-//                    try await apiService.createSchedule(newSchedule, projectID)
+                    try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
             case .readSchedules:
@@ -726,7 +726,7 @@ struct PlanBoard: Reducer {
                 }
                 return .run { send in
                     // TODO: - 복구
-//                    await send(.reloadScheduleMap)
+                    await send(.reloadScheduleMap)
                 }
                 
             case let .updateScheduleDate(scheduleID, originPeriod, updatedPeriod):
@@ -740,7 +740,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.reloadScheduleMap)
                     // TODO: - 복구
-//                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
             case let .updateScheduleText(scheduleID, text):
@@ -752,7 +752,7 @@ struct PlanBoard: Reducer {
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { _ in
                     // TODO: - 복구
-//                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
             case let .updateScheduleColorCode(scheduleID, colorCode):
@@ -764,7 +764,7 @@ struct PlanBoard: Reducer {
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { _ in
                     // TODO: - 복구
-//                    try await apiService.updateSchedule(updatedSchedule, projectID)
+                    try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
             case let .deleteSchedule(scheduleID):
@@ -774,7 +774,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.reloadScheduleMap)
                     // TODO: - 복구
-//                    try await apiService.deleteSchedule(prevSchedule, projectID)
+                    try await apiService.deleteSchedule(prevSchedule, projectID)
                 }
                 
                 // MARK: - ListArea

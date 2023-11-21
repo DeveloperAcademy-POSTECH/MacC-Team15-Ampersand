@@ -543,7 +543,8 @@ extension PlanBoardView {
                                         .frame(width: width * viewStore.gridWidth, height: 8)
                                         .position(
                                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                            y: CGFloat(geometry.size.height) - CGFloat(4 + scheduleRowIndex * 10)
+                                            y: CGFloat(geometry.size.height) - CGFloat(4
+                                                                                       + scheduleRowIndex * 10)
                                         )
                                 }
                             }
