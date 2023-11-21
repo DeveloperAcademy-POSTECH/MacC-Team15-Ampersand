@@ -129,7 +129,6 @@ struct PlanBoard: Reducer {
         var maxCol = 0
         var maxLineAreaRow = 0
         var defaultLineAreaRow = 20
-        var maxScheduleAreaRow = 6
         
         /// 뷰가 움직인 크기를 나타내는 변수입니다. ListArea, LineArea가 공유합니다.
         var shiftedRow = 0

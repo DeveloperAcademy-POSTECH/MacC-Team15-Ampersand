@@ -451,6 +451,7 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack {
+                    /// ScheduleArea에서 쓰이는 버튼들을 HStack으로 묶어놓을 거에요.
                     HStack {
                         Button {
                             if !viewStore.selectedScheduleRanges.isEmpty {
@@ -469,7 +470,9 @@ extension PlanBoardView {
                         }
                         .keyboardShortcut("u", modifiers: [])
                     }
+                    /// 버튼들을 색으로 가릴 거에요.
                     Color.lineArea
+                    /// ScheduleArea에서는 가로선이 필요없기 때문에, 세로선만 그을 거에요.
                     Path { path in
                         for columnIndex in 0..<viewStore.maxCol {
                             let xLocation = CGFloat(columnIndex) * viewStore.gridWidth - viewStore.columnStroke
@@ -478,7 +481,9 @@ extension PlanBoardView {
                         }
                     }
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
+                    /// 호버, 드래그, 엔터했을 때 생기는 뷰들을 그릴 거에요.
                     ZStack {
+                        /// 호버했을 때 생기는 사각형이에요.
                         Rectangle()
                             .foregroundStyle(Color.hoveredCell.opacity(0.5))
                             .frame(width: viewStore.gridWidth, height: geometry.size.height)
@@ -488,6 +493,7 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .scheduleArea ? 1 : 0)
                         
+                        /// 드래그했을 때 생기는 테두리가 없는 파란색 사각형이에요.
                         if let temporaryRange = temporarySelectedScheduleRange {
                             let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
                             let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
@@ -502,6 +508,7 @@ extension PlanBoardView {
                                 )
                         }
                         
+                        /// 드래그를 뗐을 때 생기는 테두리가 있는 파란색 사각형이에요.
                         if !viewStore.selectedScheduleRanges.isEmpty {
                             ForEach(viewStore.selectedScheduleRanges, id: \.self) { selectedScheduleRange in
                                 let width = CGFloat((selectedScheduleRange.endCol - selectedScheduleRange.startCol).magnitude + 1) * viewStore.gridWidth
@@ -522,20 +529,22 @@ extension PlanBoardView {
                             }
                         }
                         
+                        /// create Schedule 버튼을 누를 때 생기는 스케쥴 사각형이에요.
                         ForEach(viewStore.scheduleMap.indices, id: \.self) { scheduleRowIndex in
                             let scheduleRow = viewStore.scheduleMap[scheduleRowIndex]
-                            let today = Date().filteredDate
                             ForEach(scheduleRow, id: \.self) { scheduleID in
                                 if let schedule = viewStore.existingSchedules[scheduleID] {
-                                    let width = CGFloat(schedule.endDate.integerDate - schedule.startDate.integerDate + 1) * viewStore.gridWidth
-                                    let xOffset = CGFloat(schedule.startDate.integerDate - today.integerDate) * viewStore.gridWidth + width / 2
+                                    let today = Date().filteredDate
+                                    let dayDifference = CGFloat((schedule.endDate.integerDate - schedule.startDate.integerDate).magnitude)
+                                    let width = CGFloat(dayDifference + 1)
+                                    let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
                                     RoundedRectangle(cornerRadius: 4)
+                                        .frame(width: width * viewStore.gridWidth, height: 10)
                                         .position(
-                                            x: xOffset,
+                                            x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
                                             y: CGFloat(scheduleRowIndex * 20 / 2)
                                         )
-                                        .frame(width: width, height: 10)
                                 }
                             }
                         }
