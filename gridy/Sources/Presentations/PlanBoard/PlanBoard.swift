@@ -715,7 +715,7 @@ struct PlanBoard: Reducer {
                 return .run { send in
                     await send(.readSchedulesRespones(
                         TaskResult {
-                            try await apiService.readAllSchedules(projectID)
+                            try await apiService.readSchedules(projectID)
                         }
                     ))
                 }
@@ -731,8 +731,6 @@ struct PlanBoard: Reducer {
                 
             case let .updateScheduleDate(scheduleID, originPeriod, updatedPeriod):
                 if originPeriod == updatedPeriod { return .none }
-                // TODO: - drag했을 때 delete까지 되지 않는다면 삭제
-                if updatedPeriod[0] == updatedPeriod[1] { return .none }
                 let projectID = state.rootProject.id
                 state.existingSchedules[scheduleID]!.startDate = updatedPeriod[0]
                 state.existingSchedules[scheduleID]!.endDate = updatedPeriod[1]
@@ -2069,45 +2067,19 @@ struct PlanBoard: Reducer {
             case .reloadScheduleMap:
                 // TODO: - scheduleMap에 schedule구조체 자체를 담아야 하면 타입 바꿔주기
                 var newMap = [[String]]()
-                let sortedSchedules = state.existingSchedules.values.sorted { (schedule1, schedule2) -> Bool in
-                    if schedule1.startDate == schedule2.startDate {
-                        return schedule1.endDate < schedule2.endDate
-                    } else {
-                        return schedule1.startDate < schedule2.startDate
-                    }
-                }
-                /// existingSchedules에 있는 schedule마다 돌거야.
+                let sortedSchedules = state.existingSchedules.values.sorted {
+                    ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)
+                }                
                 for targetSchedule in sortedSchedules {
-                    var rowIndex: Int?
-                    /// map의 0번 row부터 돌자.
-                    for index in 0..<newMap.count {
-                        let scheduleRow = newMap[index]
-                        var isAvailable = true
-                        /// 해당하는 row에 있는 scheduleID마다 돌거야.
-                        for scheduleID in scheduleRow {
-                            /// 이전에 isAvailable이 false가 되었다면 더 이상 돌 필요 없어
-                            if !isAvailable {
-                                break
-                            }
-                            let existingSchedule = state.existingSchedules[scheduleID]!
-                            /// 같은 줄에 존재할 수 있는 경우의 수가 아니면
-                            if !(targetSchedule.endDate < existingSchedule.startDate || existingSchedule.endDate < targetSchedule.startDate) {
-                                isAvailable = false
-                            }
-                        }
-                        /// 끝까지 다 돌았으면 isAvailable이 true인채로 끝났을 테니
-                        if isAvailable {
-                            /// 내가 속해야 하는 row값을 저장해준다
-                            rowIndex = index
-                            break
-                        }
-                    }
-                    
-                    if let targetRowIndex = rowIndex {
+                    if let targetRowIndex = newMap.firstIndex(where: { scheduleRow in
+                        !scheduleRow.contains(where: { scheduleID in
+                            guard let existingSchedule = state.existingSchedules[scheduleID] else { return false }
+                            return !(targetSchedule.endDate < existingSchedule.startDate || existingSchedule.endDate < targetSchedule.startDate)
+                        })
+                    }) {
                         newMap[targetRowIndex].append(targetSchedule.id)
                     } else {
-                        newMap.append([])
-                        newMap[newMap.count - 1].append(targetSchedule.id)
+                        newMap.append([targetSchedule.id])
                     }
                 }
                 state.scheduleMap = newMap
