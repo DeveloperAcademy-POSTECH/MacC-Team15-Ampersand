@@ -791,8 +791,8 @@ extension PlanBoardView {
                                     TextField(
                                         "제목을 입력하세요",
                                         text: viewStore.binding(
-                                            get: \.planTitle,
-                                            send: { .planTitleChanged($0) }
+                                            get: \.keyword,
+                                            send: { .keywordChanged($0) }
                                         )
                                     )
                                     ColorPicker(

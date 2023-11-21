@@ -45,7 +45,6 @@ struct PlanBoard: Reducer {
         var existingSchedules = [String: Schedule]()
         var loadInProgress = true
         
-        var planTitle = ""
         var title = ""
         var keyword = ""
         var selectedColorCode = Color.white
@@ -181,7 +180,6 @@ struct PlanBoard: Reducer {
         case popoverPresent(button: String, bool: Bool)
         
         /// PlanType
-        case planTitleChanged(_ title: String)
         case createPlanType(_ targetPlanID: String, _ text: String, _ colorCode: UInt)
         case readPlanTypes
         case readPlanTypesResponse(TaskResult<[PlanType]>)
@@ -316,10 +314,6 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - PlanType
-            case let .planTitleChanged(title):
-                state.planTitle = title
-                return .none
-                
             case let .createPlanType(targetPlanID, text, colorCode):
                 let projectID = state.rootProject.id
                 if let originType = state.existingPlanTypes.values.first(where: { $0.title == text && $0.colorCode == colorCode}) {
@@ -688,10 +682,10 @@ struct PlanBoard: Reducer {
             case .updatePlan:
                 state.updatePlanTypePresented = false
                 let projectID = state.rootProject.id
-                let planTitle = state.planTitle
+                let planTitle = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
                 let currentModifyingPlanID = state.currentModifyingPlanID
-                state.planTitle = ""
+                state.keyword = ""
                 state.selectedColorCode = Color.white
                 if let originTypeID = state.existingPlanTypes.first(where: { $0.value.title == planTitle && $0.value.colorCode == colorCode })?.key {
                     state.existingPlans[currentModifyingPlanID]!.planTypeID = originTypeID
@@ -712,7 +706,7 @@ struct PlanBoard: Reducer {
             case let .setCurrentModifyingPlan(planID):
                 state.currentModifyingPlanID = planID
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
-                state.planTitle = currentPlanType.title
+                state.keyword = currentPlanType.title
                 state.selectedColorCode = Color(hex: currentPlanType.colorCode)
                 state.updatePlanTypePresented = true
                 return .none
