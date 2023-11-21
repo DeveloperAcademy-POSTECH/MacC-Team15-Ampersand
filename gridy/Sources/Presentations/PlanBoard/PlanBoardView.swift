@@ -551,16 +551,21 @@ extension PlanBoardView {
                                     let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
                                     RoundedRectangle(cornerRadius: 24 * 0.5)
-                                        .foregroundStyle(Color.red.opacity(0.3))
+                                        .foregroundStyle(Color.red)
                                         .frame(width: width * viewStore.gridWidth, height: 20)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 24 * 0.5)
-                                                .stroke(Color.red, lineWidth: 1)
+                                                .stroke(Color.white, lineWidth: 1)
                                         )
                                         .position(
                                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
                                             y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
                                         )
+                                        .contextMenu {
+                                            Button("Delete") {
+                                                viewStore.send(.deleteSchedule(scheduleID: scheduleID))
+                                            }
+                                        }
                                 }
                             }
                         }

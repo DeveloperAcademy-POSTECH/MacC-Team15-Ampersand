@@ -155,7 +155,7 @@ struct PlanBoard: Reducer {
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-
+        
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -164,7 +164,7 @@ struct PlanBoard: Reducer {
         
         /// LineIndexArea
         var selectedLineIndexRow: Int?
-
+        
         /// LineArea
         var isHoveredOnLineArea = false
         
@@ -740,7 +740,6 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    // TODO: - 복구
                     try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
@@ -759,7 +758,6 @@ struct PlanBoard: Reducer {
                     state.existingSchedules[schedule.id] = schedule
                 }
                 return .run { send in
-                    // TODO: - 복구
                     await send(.reloadScheduleMap)
                 }
                 
@@ -771,7 +769,6 @@ struct PlanBoard: Reducer {
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    // TODO: - 복구
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
@@ -783,7 +780,6 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[scheduleID]!.title = text
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { _ in
-                    // TODO: - 복구
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
@@ -795,7 +791,6 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[scheduleID]!.colorCode = colorCode
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { _ in
-                    // TODO: - 복구
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
@@ -805,7 +800,6 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[scheduleID] = nil
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    // TODO: - 복구
                     try await apiService.deleteSchedule(prevSchedule, projectID)
                 }
                 
@@ -1054,7 +1048,7 @@ struct PlanBoard: Reducer {
                     /// 그 부모가 root일 경우: Layer가 0
                     if targetParentPlanID == state.rootProject.rootPlanID {
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
-                    /// 부모가 root가 아닐 경우: Layer가 1 이상
+                        /// 부모가 root가 아닐 경우: Layer가 1 이상
                     } else {
                         let newPlanID = UUID().uuidString
                         let newPlan = Plan(
@@ -1067,7 +1061,7 @@ struct PlanBoard: Reducer {
                         createdPlans.append(newPlan)
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
                     }
-                /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -2125,7 +2119,7 @@ struct PlanBoard: Reducer {
                 var newMap = [[String]]()
                 let sortedSchedules = state.existingSchedules.values.sorted {
                     ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)
-                }                
+                }
                 for targetSchedule in sortedSchedules {
                     if let targetRowIndex = newMap.firstIndex(where: { scheduleRow in
                         !scheduleRow.contains(where: { scheduleID in
