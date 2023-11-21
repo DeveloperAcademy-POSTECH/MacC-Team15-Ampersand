@@ -539,12 +539,16 @@ extension PlanBoardView {
                                     let width = CGFloat(dayDifference + 1)
                                     let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                                     
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .frame(width: width * viewStore.gridWidth, height: 8)
+                                    RoundedRectangle(cornerRadius: 24 * 0.5)
+                                        .foregroundStyle(Color.red.opacity(0.3))
+                                        .frame(width: width * viewStore.gridWidth, height: 20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 24 * 0.5)
+                                                .stroke(Color.red, lineWidth: 1)
+                                        )
                                         .position(
                                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                                            y: CGFloat(geometry.size.height) - CGFloat(4
-                                                                                       + scheduleRowIndex * 10)
+                                            y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
                                         )
                                 }
                             }
