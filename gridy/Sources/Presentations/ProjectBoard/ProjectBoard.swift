@@ -26,7 +26,10 @@ struct ProjectBoard: Reducer {
     @Dependency(\.apiClient) var apiClient
     @Dependency(\.continuousClock) var continuousClock
     
-    private enum CancelID { case load }
+    private enum CancelID {
+        case deleteAction
+        case hoverItem
+    }
     
     struct State: Equatable {
         var user: User
@@ -118,6 +121,7 @@ struct ProjectBoard: Reducer {
         
         case binding(BindingAction<State>)
         case projectItemTapped(id: ProjectItem.State.ID, action: ProjectItem.Action)
+        case removeStore(String)
         case planBoardAction(id: PlanBoard.State.ID, action: PlanBoard.Action)
     }
     
@@ -133,6 +137,7 @@ struct ProjectBoard: Reducer {
             case let .hoveredItem(name: hoveredItem):
                 state.hoveredItem = hoveredItem
                 return .none
+                    .cancellable(id: CancelID.hoverItem, cancelInFlight: true)
                 
             case let .clickedItem(focusGroup: focusGroup, name: clickedItem):
                 switch focusGroup {
@@ -198,6 +203,7 @@ struct ProjectBoard: Reducer {
                 let title = state.title
                 let startDate = state.startDate
                 let endDate = state.endDate
+                state.title = ""
                 return .run { send in
                     await send(.createProjectResponse(
                         TaskResult {
@@ -361,10 +367,19 @@ struct ProjectBoard: Reducer {
                 return .none
                 
             case let .projectItemTapped(id: id, action: .binding(\.$isDeleted)):
+                if let index = state.showingProjects.firstIndex(of: id) {
+                    state.showingProjects.remove(at: index)
+                }
                 return .run { send in
                     try await apiService.deleteProjects([id])
-                    await send(.fetchAllProjects)
+                    await send(.removeStore(id))
                 }
+                .cancellable(id: CancelID.deleteAction, cancelInFlight: true)
+                
+            case let .removeStore(id):
+                state.projects.remove(id: id)
+                state.planBoards.remove(id: id)
+                return .none
                 
             case let .projectItemTapped(id: id, action: .binding(\.$isEditing)):
                 let projectId = id
