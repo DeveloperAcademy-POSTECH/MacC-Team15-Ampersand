@@ -30,6 +30,10 @@ enum PlanBoardAreaName: String {
 
 struct PlanBoard: Reducer {
     
+    private enum CancelID {
+        case export
+    }
+    
     @Dependency(\.apiService) var apiService
     @Dependency(\.continuousClock) var continuousClock
     
@@ -146,7 +150,7 @@ struct PlanBoard: Reducer {
         var endDatePickerPresented = false
         
         /// Export
-        var selectFullPeriod = true
+        var selectPeriodTag = 1
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -261,7 +265,7 @@ struct PlanBoard: Reducer {
         case projectTitleChanged
         
         /// Export
-        case periodSelectionChanged(selectedFullPeriod: Bool)
+        case periodSelectionChanged(selectedTag: Int)
         
         /// Map
         case reloadMap
@@ -1861,6 +1865,7 @@ struct PlanBoard: Reducer {
                 state.maxLineAreaRow = Int(newSize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(newSize.width / state.gridWidth) + 1
                 return .none
+                    .cancellable(id: CancelID.export, cancelInFlight: true)
                 
             case let .gridSizeChanged(geometrySize):
                 state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
@@ -2037,8 +2042,8 @@ struct PlanBoard: Reducer {
                     try await apiService.updateProjects(projectToUpdate)
                 }
                 
-            case let .periodSelectionChanged(isSelectedFullPeriod):
-                state.selectFullPeriod = isSelectedFullPeriod
+            case let .periodSelectionChanged(periodSelectionTag):
+                state.selectPeriodTag = periodSelectionTag
                 return .none
                 
             case .reloadMap:

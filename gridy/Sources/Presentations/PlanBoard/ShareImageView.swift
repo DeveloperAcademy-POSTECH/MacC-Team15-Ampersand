@@ -14,207 +14,19 @@ struct ShareImageView: View {
     let selfView: PlanBoardView
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            var isStartDatePickerPresented: Binding<Bool> {
-                Binding(
-                    get: { viewStore.startDatePickerPresented },
-                    set: { newValue in
-                        viewStore.send(.popoverPresent(
-                            button: .startDatePickerButton,
-                            bool: newValue
-                        ))
-                    }
-                )
-            }
-            var isEndDatePickerPresented: Binding<Bool> {
-                Binding(
-                    get: { viewStore.endDatePickerPresented },
-                    set: { newValue in
-                        viewStore.send(.popoverPresent(
-                            button: .endDatePickerButton,
-                            bool: newValue
-                        ))
-                    }
-                )
-            }
-            VStack(spacing: 16) {
-                // Thumnail
-                RoundedRectangle(cornerRadius: 8)
-                    .overlay {
-                        if let rederedNSImage = getRenderedImage() {
-                            Image(nsImage: rederedNSImage)
-                                .resizable()
-                                .scaledToFit()
-                        } else {
-                            Text("미리보기 실패")
-                                .foregroundStyle(Color.subtitle)
-                        }
-                    }
-                    .foregroundStyle(Color.item)
-                    .frame(width: 436, height: 330)
-                
-                RoundedRectangle(cornerRadius: 8)
-                    .overlay {
-                        VStack(alignment: .leading) {
-                            HStack(spacing: 8) {
-                                RadioButton(isSelected: viewStore.selectFullPeriod)
-                                    .onTapGesture {
-                                        viewStore.send(.periodSelectionChanged(selectedFullPeriod: true))
-                                    }
-                                    .padding(.leading, 16)
-                                Text("기간 모두")
-                                    .foregroundStyle(Color.title)
-                            }
-                            HStack {
-                                RadioButton(isSelected: !viewStore.selectFullPeriod)
-                                    .onTapGesture {
-                                        viewStore.send(.periodSelectionChanged(selectedFullPeriod: false))
-                                    }
-                                    .padding(.leading, 16)
-                                Text("기간 설정")
-                                    .foregroundStyle(Color.title)
-                                Spacer()
-                                    .frame(width: 16)
-                                // Start Date
-                                Button {
-                                    viewStore.send(.popoverPresent(
-                                        button: .startDatePickerButton,
-                                        bool: true
-                                    ))
-                                } label: {
-                                    Text("시작 : \(viewStore.selectedStartDate.formattedDate)")
-                                        .foregroundStyle(Color.title)
-                                        .frame(width: 132, height: 32)
-                                        .background(viewStore.hoveredItem == .startDateHoveredButton ? Color.itemHovered : Color.clear)
-                                        .cornerRadius(5)
-                                        .onHover { isHovered in
-                                            viewStore.send(.hoveredItem(name: isHovered ? .startDateHoveredButton : ""))
-                                        }
-                                }
-                                .buttonStyle(.link)
-                                .background(Color.clear)
-                                .disabled(viewStore.selectFullPeriod)
-                                .popover(isPresented: isStartDatePickerPresented) {
-                                    VStack {
-                                        DatePicker(
-                                            "",
-                                            selection: viewStore.binding(
-                                                get: \.selectedStartDate,
-                                                send: { .selectedStartDateChanged($0) }),
-                                            displayedComponents: [.date]
-                                        )
-                                        .datePickerStyle(GraphicalDatePickerStyle())
-                                        .labelsHidden()
-                                    }
-                                    .padding()
-                                }
-                                Spacer()
-                                    .frame(width: 8)
-                                // End Date
-                                Button {
-                                    viewStore.send(.popoverPresent(
-                                        button: .endDatePickerButton,
-                                        bool: true
-                                    ))
-                                } label: {
-                                    Text("종료 : \(viewStore.selectedEndDate.formattedDate)")
-                                        .foregroundStyle(Color.title)
-                                        .frame(width: 132, height: 32)
-                                        .background(viewStore.hoveredItem == .endDateHoveredButton ? Color.itemHovered : Color.clear)
-                                        .cornerRadius(5)
-                                        .onHover { isHovered in
-                                            viewStore.send(.hoveredItem(name: isHovered ? .endDateHoveredButton : ""))
-                                        }
-                                }
-                                .buttonStyle(.link)
-                                .background(Color.clear)
-                                .disabled(viewStore.selectFullPeriod)
-                                .popover(isPresented: isEndDatePickerPresented) {
-                                    VStack {
-                                        DatePicker(
-                                            "",
-                                            selection: viewStore.binding(
-                                                get: \.selectedEndDate,
-                                                send: { .selectedEndDateChanged($0) }),
-                                            displayedComponents: [.date]
-                                        )
-                                        .datePickerStyle(GraphicalDatePickerStyle())
-                                        .labelsHidden()
-                                    }
-                                    .padding()
-                                }
-                                Spacer()
-                            }
-                        }
-                    }
-                    .foregroundStyle(Color.item)
-                    .frame(width: 436, height: 88)
-                
-                systemBorder(.horizontal)
-                    .padding(.horizontal, 16)
-                
-                HStack {
-                    // Share
-                    Button {
-                        shareImage()
-                    } label: {
-                        RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(viewStore.hoveredItem == .shareButton ? Color.itemHovered : Color.item)
-                            .frame(width: 80, height: 24)
-                            .overlay(
-                                Text("Share")
-                                    .font(.system(size: 13))
-                                    .foregroundStyle(Color.button)
-                            )
-                    }
-                    .buttonStyle(.link)
-                    .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? .shareButton : ""))
-                    }
-                    Spacer()
-                    // Cancel
-                    Button {
-                        viewStore.send(.popoverPresent(
-                            button: .shareImageButton,
-                            bool: false
-                        ))
-                    } label: {
-                        RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.itemHovered : Color.item)
-                            .frame(width: 80, height: 24)
-                            .overlay(
-                                Text("Cancel")
-                                    .font(.system(size: 13))
-                                    .foregroundStyle(Color.button)
-                            )
-                    }
-                    .buttonStyle(.link)
-                    .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
-                    }
-                    // Save
-                    Button {
-                        saveImage()
-                    } label: {
-                        RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(viewStore.hoveredItem == .saveButton ? Color.itemHovered : Color.item)
-                            .frame(width: 80, height: 24)
-                            .overlay(
-                                Text("Save")
-                                    .font(.system(size: 13))
-                                    .foregroundStyle(Color.button)
-                            )
-                    }
-                    .buttonStyle(.link)
-                    .onHover { isHovered in
-                        viewStore.send(.hoveredItem(name: isHovered ? .saveButton : ""))
-                    }
-                }
-                .padding(.horizontal, 16)
+        VStack(spacing: 24) {
+            thumbnail
+            selectPeriodArea
+            
+            HStack(spacing: 12) {
+                cancelButton
+                shareButton
+                Spacer()
+                exportButton
             }
         }
-        .frame(width: 468, height: 523)
         .padding(16)
+        .frame(width: 468, height: 524)
         .background(Color.gray.opacity(0.3))
     }
     
@@ -266,23 +78,223 @@ struct ShareImageView: View {
     }
 }
 
-/// radio button custom
-struct RadioButton: View {
-    let isSelected: Bool
-    
-    var body: some View {
+@MainActor
+extension ShareImageView {
+    var thumbnail: some View {
         ZStack {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 14, height: 14)
-            
-            if isSelected {
-                Circle()
-                    .fill(Color.blue)
-                    .frame(width: 14, height: 14)
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 6, height: 6)
+            RoundedRectangle(cornerRadius: 8)
+                .foregroundStyle(Color.item)
+            if let rederedNSImage = getRenderedImage() {
+                Image(nsImage: rederedNSImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Text("미리보기 실패")
+                    .foregroundStyle(Color.subtitle)
+            }
+        }
+    }
+}
+
+extension ShareImageView {
+    var selectPeriodArea: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .foregroundStyle(Color.item)
+                Picker(
+                    "",
+                    selection: viewStore.binding(
+                        get: \.selectPeriodTag,
+                        send: { .periodSelectionChanged(selectedTag: $0) }
+                    )
+                ) {
+                    Text("현재 화면")
+                        .foregroundStyle(Color.title)
+                        .tag(1)
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 12)
+                    HStack {
+                        Text("기간 설정")
+                            .foregroundStyle(Color.title)
+                        
+                        HStack {
+                            selectStartDatePicker
+                            selectEndDatePicker
+                        }
+                        .opacity(viewStore.selectPeriodTag == 1 ? 0 : 1)
+                    }
+                    .padding(.horizontal, 4)
+                    .tag(2)
+                }
+                .pickerStyle(.radioGroup)
+            }
+            .frame(height: 92)
+        }
+    }
+    
+    var selectStartDatePicker: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isStartDatePickerPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.startDatePickerPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .startDatePickerButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            Text("시작")
+                .foregroundStyle(Color.title)
+                .padding(.leading, 24)
+                .padding(.trailing, 8)
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .startDatePickerButton,
+                    bool: true
+                ))
+            } label: {
+                Text(viewStore.selectedStartDate.formattedDate)
+                    .foregroundStyle(Color.title)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4)
+                    .background(Color.itemHovered)
+                    .cornerRadius(6)
+            }
+            .buttonStyle(.link)
+            .background(Color.clear)
+            .popover(isPresented: isStartDatePickerPresented) {
+                DatePicker(
+                    "",
+                    selection: viewStore.binding(
+                        get: \.selectedStartDate,
+                        send: { .selectedStartDateChanged($0) }),
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(GraphicalDatePickerStyle())
+                .labelsHidden()
+                .padding(4)
+            }
+        }
+    }
+    
+    var selectEndDatePicker: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            var isEndDatePickerPresented: Binding<Bool> {
+                Binding(
+                    get: { viewStore.endDatePickerPresented },
+                    set: { newValue in
+                        viewStore.send(.popoverPresent(
+                            button: .endDatePickerButton,
+                            bool: newValue
+                        ))
+                    }
+                )
+            }
+            Text("종료")
+                .foregroundStyle(Color.title)
+                .padding(.leading, 24)
+                .padding(.trailing, 8)
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .endDatePickerButton,
+                    bool: true
+                ))
+            } label: {
+                Text(viewStore.selectedEndDate.formattedDate)
+                    .foregroundStyle(Color.title)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4)
+                    .background(Color.itemHovered)
+                    .cornerRadius(6)
+            }
+            .buttonStyle(.link)
+            .background(Color.clear)
+            .popover(isPresented: isEndDatePickerPresented) {
+                DatePicker(
+                    "",
+                    selection: viewStore.binding(
+                        get: \.selectedEndDate,
+                        send: { .selectedEndDateChanged($0) }),
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(GraphicalDatePickerStyle())
+                .labelsHidden()
+                .padding(4)
+            }
+        }
+    }
+}
+
+@MainActor
+extension ShareImageView {
+    var cancelButton: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                viewStore.send(.popoverPresent(
+                    button: .shareImageButton,
+                    bool: false
+                ))
+            } label: {
+                Text("Cancel")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.button)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .foregroundStyle(viewStore.hoveredItem == .cancelButton ? Color.itemHovered : Color.item)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .cancelButton : ""))
+            }
+        }
+    }
+    
+    var shareButton: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                shareImage()
+            } label: {
+                Text("Share")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.button)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .foregroundStyle(viewStore.hoveredItem == .shareButton ? Color.itemHovered : Color.item)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .shareButton : ""))
+            }
+        }
+    }
+    
+    var exportButton: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Button {
+                saveImage()
+            } label: {
+                Text("Export to Image")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.button)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .foregroundStyle(Color.accentColor)
+                    )
+            }
+            .buttonStyle(.link)
+            .onHover { isHovered in
+                viewStore.send(.hoveredItem(name: isHovered ? .saveButton : ""))
             }
         }
     }
