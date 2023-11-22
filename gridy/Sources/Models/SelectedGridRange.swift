@@ -15,6 +15,14 @@ struct SelectedGridRange: Identifiable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    func minRow() -> Int {
+        return min(start.row, end.row)
+    }
+    
+    func minCol() -> Int {
+        return min(start.col, end.col)
+    }
 
     static func == (lhs: SelectedGridRange, rhs: SelectedGridRange) -> Bool {
         return lhs.id == rhs.id

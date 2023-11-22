@@ -104,84 +104,58 @@ extension PlanBoardView {
                 ZStack {
                     Color.index
                     Path { path in
-                        let maxRow = viewStore.maxLineAreaRow == 0 ? viewStore.defaultLineAreaRow : viewStore.maxLineAreaRow
-                        for rowIndex in 1...maxRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
+                        for rowIndex in 0..<viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
                     }
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
-                    
-                    if viewStore.hoveredItem == PlanBoardAreaName.lineIndexArea.rawValue {
-                        if let hoveredRow = viewStore.lineIndexAreaHoveredCellRow {
-                            Rectangle()
-                                .fill(Color.itemHovered)
-                                .frame(
-                                    width: geometry.size.width,
-                                    height: viewStore.lineAreaGridHeight - viewStore.rowStroke
-                                )
-                                .opacity(viewStore.selectedLineIndexRow == hoveredRow ? 0 : 1)
-                                .position(
-                                    x: geometry.size.width / 2,
-                                    y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
-                                )
-                                .onTapGesture {
-                                    viewStore.send(.lineIndexAreaClicked(true))
-                                }
-                        }
-                    }
-                    if let clickedRow = viewStore.selectedLineIndexRow {
+                    /// hover되면 보이는 사각형
+                    if let hoveredRow = viewStore.lineIndexAreaHoveredCellRow {
                         Rectangle()
-                            .fill(Color.itemHovered)
-                            .border(.blue)
+                            .fill(Color.itemHovered.opacity(0.5))
                             .frame(
                                 width: geometry.size.width,
                                 height: viewStore.lineAreaGridHeight - viewStore.rowStroke
                             )
+                            .opacity(viewStore.hoveredArea == .lineIndexArea ? 1 : 0)
                             .position(
                                 x: geometry.size.width / 2,
-                                y: CGFloat(Double(clickedRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
+                                y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight
                             )
+                    }
+                    /// drag중일 때 보이는 사각형
+                    if viewStore.clickedArea == .lineIndexArea, let temporaryRange = viewStore.temporarySelectedLineIndexRows {
+                        let height = CGFloat((temporaryRange.last! - temporaryRange.first!).magnitude + 1) * viewStore.lineAreaGridHeight
+                        let yPosition = CGFloat(temporaryRange.min()!) * viewStore.lineAreaGridHeight
+                        Rectangle()
+                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.1))
+                            .frame(width: geometry.size.width, height: height)
+                            .position(x: geometry.size.width / 2, y: yPosition + height / 2)
+                    }
+                    /// drag가 끝나고 보이는 border있는 사각형
+                    if viewStore.clickedArea == .lineIndexArea, let selectedRange = viewStore.selectedLineIndexRows {
+                        let height = CGFloat((selectedRange.last! - selectedRange.first!).magnitude + 1) * viewStore.lineAreaGridHeight
+                        let yPosition = CGFloat(selectedRange.min()!) * viewStore.lineAreaGridHeight
+                        Rectangle()
+                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.1))
+                            .overlay(
+                                Rectangle()
+                                    .stroke(Color.boardSelectedBorder, lineWidth: 1)
+                            )
+                            .frame(width: geometry.size.width, height: height)
+                            .position(x: geometry.size.width / 2, y: yPosition + height / 2)
                             .contextMenu {
-                                Button("Create a lane above") {
-                                    var totalHeight = 0
-                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
-                                    for planID in viewStore.map[lastLayerIndex] {
-                                        let plan = viewStore.existingPlans[planID]!
-                                        totalHeight += plan.childPlanIDs.count
+                                if let rows = viewStore.selectedLineIndexRows {
+                                    Button("Clear lanes") {
+                                        viewStore.send(.deleteLaneContents(rows: rows))
                                     }
-                                    if clickedRow < totalHeight {
-                                        viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: true))
-                                        viewStore.send(.lineIndexAreaClicked(false))
+                                    Button("Add a lane above") {
+                                        viewStore.send(.createLaneButtonClicked(row: rows.first!, createOnTop: true))
                                     }
-                                }
-                                
-                                Button("Create a lane below") {
-                                    var totalHeight = 0
-                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
-                                    for planID in viewStore.map[lastLayerIndex] {
-                                        let plan = viewStore.existingPlans[planID]!
-                                        totalHeight += plan.childPlanIDs.count
-                                    }
-                                    if clickedRow < totalHeight {
-                                        viewStore.send(.createLaneButtonClicked(row: clickedRow, createOnTop: false))
-                                        viewStore.send(.lineIndexAreaClicked(false))
-                                    }
-                                }
-                                
-                                Button("Clear this lane") {
-                                    var totalHeight = 0
-                                    let lastLayerIndex = viewStore.rootProject.countLayerInListArea - 1
-                                    for planID in viewStore.map[lastLayerIndex] {
-                                        let plan = viewStore.existingPlans[planID]!
-                                        totalHeight += plan.childPlanIDs.count
-                                    }
-                                    if clickedRow < totalHeight {
-                                        viewStore.send(.deleteLaneConents(
-                                            rows: [clickedRow, clickedRow]
-                                        ))
-                                        viewStore.send(.lineIndexAreaClicked(false))
+                                    Button("Add a lane below") {
+                                        viewStore.send(.createLaneButtonClicked(row: rows.last!, createOnTop: false))
                                     }
                                 }
                             }
@@ -195,6 +169,20 @@ extension PlanBoardView {
                         viewStore.send(.setHoveredLocation(.lineIndexArea, false, nil))
                     }
                 }
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                        .onChanged { gesture in
+                            let dragEnd = gesture.location
+                            let dragStart = gesture.startLocation
+                            let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
+                            let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
+                            
+                            viewStore.send(.lineIndexDragGestureChanged(range: [startRow, endRow]))
+                        }
+                        .onEnded { _ in
+                            viewStore.send(.lineIndexDragGestureEnded)
+                        }
+                )
             }
         }
     }
@@ -237,6 +225,9 @@ extension PlanBoardView {
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlButton + String(layerIndex) : ""))
                                     }
+                                    .onTapGesture {
+                                        viewStore.send(.listControlAreaClicked(layer: layerIndex))
+                                    }
                                 
                                 Rectangle()
                                     .foregroundStyle(.clear)
@@ -255,10 +246,16 @@ extension PlanBoardView {
                                     }
                             }
                             .background {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .foregroundStyle(viewStore.hoveredItem.contains("layerControl") && viewStore.hoveredItem.contains(String(layerIndex)) ?
-                                                     Color.itemHovered : .item
-                                    )
+                                if viewStore.clickedArea == .listControlArea, let layer = viewStore.selectedLayer, layer == layerIndex {
+                                    RoundedRectangle(cornerRadius: 16)
+                                                .strokeBorder(Color.blue)
+                                                .background(RoundedRectangle(cornerRadius: 16).fill(Color.itemHovered))
+                                } else {
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .foregroundStyle(viewStore.hoveredItem.contains("layerControl") && viewStore.hoveredItem.contains(String(layerIndex)) ?
+                                                         Color.itemHovered : .item
+                                        )
+                                }
                             }
                             .contextMenu {
                                 Button("Clear Layer") {
@@ -287,15 +284,13 @@ extension PlanBoardView {
                 ZStack(alignment: .topLeading) {
                     Color.listArea
                     Path { path in
-                        let maxRow = viewStore.maxLineAreaRow == 0 ? viewStore.defaultLineAreaRow : viewStore.maxLineAreaRow
-                        for rowIndex in 1...maxRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
+                        for rowIndex in 0..<viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
                     }
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
-                    
                     Path { path in
                         if viewStore.map.count > 1 {
                             let xLocation = geometry.size.width / 2
@@ -307,41 +302,61 @@ extension PlanBoardView {
                     
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// hover 되었을 때
-                    if viewStore.hoveredItem == PlanBoardAreaName.listArea.rawValue {
-                        if let hoveredRow = viewStore.listAreaHoveredCellRow,
-                           let hoveredCol = viewStore.listAreaHoveredCellCol {
+                    if let hoveredRow = viewStore.listAreaHoveredCellRow,
+                       let hoveredCol = viewStore.listAreaHoveredCellCol {
+                        Rectangle()
+                            .fill(Color.itemHovered.opacity(0.5))
+                            .frame(
+                                width: gridWidth,
+                                height: viewStore.lineAreaGridHeight
+                            )
+                            .position(
+                                x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
+                                y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight
+                            )
+                            .onTapGesture(count: 2) {
+                                listItemFocused = true
+                                viewStore.send(.listItemDoubleClicked(.listItem, false))
+                                viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
+                                viewStore.send(.setHoveredLocation(.listArea, false, nil))
+                            }
+                            .contextMenu {
+                                /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
+                                Button("Delete this Plan") { }
+                            }
+                            .opacity(viewStore.hoveredArea == .listArea ? 1 : 0)
+                    }
+                    /// drag중일 때 보이는 사각형
+                    if viewStore.clickedArea == .listArea, let temporaryRange = viewStore.temporarySelectedListGridRanges {
+                        let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
+                        let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.listGridWidth
+                        let xPosition = CGFloat(temporaryRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.listGridWidth + width / 2
+                        let yPosition = CGFloat(temporaryRange.minRow() - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                        Rectangle()
+                            .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                            .frame(width: width, height: height)
+                            .position(x: xPosition, y: yPosition)
+                    }
+                    /// drag가 끝나고 보이는 border있는 사각형
+                    if viewStore.clickedArea == .listArea, let selectedRanges = viewStore.selectedListGridRanges {
+                        ForEach(selectedRanges, id: \.self) { selectedRange in
+                            let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
+                            let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.listGridWidth
+                            let xPosition = CGFloat(selectedRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.listGridWidth + width / 2
+                            let yPosition = CGFloat(selectedRange.minRow() - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
                             Rectangle()
-                                .fill(Color.itemHovered)
-                                .frame(
-                                    width: gridWidth,
-                                    height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                                .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                                .overlay(
+                                    Rectangle()
+                                        .stroke(Color.boardSelectedBorder, lineWidth: 1)
                                 )
-                                .position(
-                                    x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
-                                    y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
-                                )
-                                .highPriorityGesture(TapGesture(count: 1).onEnded({
-                                    // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
-                                    viewStore.send(.lineIndexAreaClicked(false))
-                                }))
-                                .simultaneousGesture(TapGesture(count: 2).onEnded({
-                                    listItemFocused = true
-                                    viewStore.send(.listItemDoubleClicked(.listItem, false))
-                                    viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
-                                    viewStore.send(.setHoveredLocation(.listArea, false, nil))
-                                }))
-                                .contextMenu {
-                                    Button("Delete this Plan") {
-                                        /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
-                                    }
-                                }
-                                .opacity((viewStore.selectedEmptyRow == hoveredRow) && (viewStore.selectedEmptyColumn == hoveredCol) ? 0 : 1)
+                                .frame(width: width, height: height)
+                                .position(x: xPosition, y: yPosition)
                         }
                     }
-                    
                     /// double click 되었을 때
-                    if let columnOffset = viewStore.selectedEmptyColumn, 
-                        let rowOffset = viewStore.selectedEmptyRow {
+                    if let columnOffset = viewStore.selectedEmptyColumn,
+                       let rowOffset = viewStore.selectedEmptyRow {
                         Rectangle()
                             .fill(Color.clear)
                             .overlay(
@@ -386,6 +401,28 @@ extension PlanBoardView {
                         viewStore.send(.setHoveredLocation(.listArea, false, nil))
                     }
                 }
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                        .onChanged { gesture in
+                            let dragEnd = gesture.location
+                            let dragStart = gesture.startLocation
+                            let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
+                            let startCol = Int(dragStart.x / viewStore.listGridWidth)
+                            let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
+                            let endCol = Int(dragEnd.x / viewStore.listGridWidth)
+                            
+                            let newRange = SelectedGridRange(
+                                start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
+                                        startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
+                                      endCol + viewStore.shiftedCol + viewStore.scrolledCol)
+                            )
+                            viewStore.send(.listDragGestureChanged(cmdPressed: viewStore.isCommandKeyPressed, range: newRange))
+                        }
+                        .onEnded { _ in
+                            viewStore.send(.listDragGestureEnded)
+                        }
+                )
             }
         }
     }
@@ -396,7 +433,6 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
-                
                 HStack(alignment: .top, spacing: viewStore.columnStroke) {
                     ForEach(0..<viewStore.map.count, id: \.self) { layerIndex in
                         let layer = viewStore.map[layerIndex]
@@ -448,7 +484,6 @@ extension PlanBoardView {
                                         }
                                         .highPriorityGesture(TapGesture(count: 1).onEnded({
                                             // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
-                                            viewStore.send(.lineIndexAreaClicked(false))
                                         }))
                                         .simultaneousGesture(TapGesture(count: 2).onEnded({
                                             listItemFocused = true
@@ -771,29 +806,22 @@ extension PlanBoardView {
 //                            }
 //                        }
                         
-                        if let temporaryRange = temporarySelectedGridRange {
+                        if viewStore.clickedArea == .lineArea, let temporaryRange = temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
-                            let isStartRowSmaller = temporaryRange.start.row <= temporaryRange.end.row
-                            let isStartColSmaller = temporaryRange.start.col <= temporaryRange.end.col
+                            let xPosition = CGFloat(temporaryRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
+                            let yPosition = CGFloat(temporaryRange.minRow() - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
                             Rectangle()
                                 .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                 .frame(width: width, height: height)
-                                .position(
-                                    x: isStartColSmaller ?
-                                    CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                        CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                    y: isStartRowSmaller ?
-                                    CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                        CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
-                                )
+                                .position(x: xPosition, y: yPosition)
                         }
-                        if !viewStore.selectedGridRanges.isEmpty {
+                        if viewStore.clickedArea == .lineArea && !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
                                 let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                                 let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.gridWidth
-                                let isStartRowSmaller = selectedRange.start.row <= selectedRange.end.row
-                                let isStartColSmaller = selectedRange.start.col <= selectedRange.end.col
+                                let xPosition = CGFloat(selectedRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
+                                let yPosition = CGFloat(selectedRange.minRow() - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
                                 Rectangle()
                                     .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                     .overlay(
@@ -801,14 +829,7 @@ extension PlanBoardView {
                                             .stroke(Color.boardSelectedBorder, lineWidth: 1)
                                     )
                                     .frame(width: width, height: height)
-                                    .position(
-                                        x: isStartColSmaller ?
-                                        CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                            CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                        y: isStartRowSmaller ?
-                                        CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                            CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
-                                    )
+                                    .position(x: xPosition, y: yPosition)
                             }
                         }
                     }
