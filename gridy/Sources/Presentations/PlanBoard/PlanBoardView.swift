@@ -266,9 +266,8 @@ extension PlanBoardView {
                 ZStack(alignment: .topLeading) {
                     Color.listArea
                     Path { path in
-                        let maxRow = viewStore.maxLineAreaRow == 0 ? viewStore.defaultLineAreaRow : viewStore.maxLineAreaRow
-                        for rowIndex in 1...maxRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight - viewStore.rowStroke / 2
+                        for rowIndex in 0..<viewStore.maxLineAreaRow {
+                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
                             path.move(to: CGPoint(x: 0, y: yLocation))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
                         }
@@ -544,6 +543,399 @@ extension PlanBoardView {
 extension PlanBoardView {
     var lineArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
+            GeometryReader { geometry in
+                ZStack {
+                    ZStack {
+                        shortcutButtons()
+                        Color.lineArea
+                        horizontalGrid(geometry: geometry)
+                        verticalGrid(geometry: geometry)
+                            hoveringRectangle()
+                            hoveringVerticalRectangle(geometry: geometry)
+                            planItem()
+                            draggingRectangle()
+                            draggedRectangle()
+                    }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .onReceive(timer) { _ in
+                        onReceiveTimer(viewStore: viewStore)
+                    }
+                    .onAppear {
+                        viewStore.send(.windowSizeChanged(geometry.size))
+                    }
+                    .onChange(of: geometry.size) { newSize in
+                        viewStore.send(.windowSizeChanged(newSize))
+                    }
+                    .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
+                        viewStore.send(.gridSizeChanged(geometry.size))
+                    }
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let location):
+                            viewStore.send(.setHoveredLocation(.lineArea, true, location))
+                        case .ended:
+                            viewStore.send(.setHoveredLocation(.none, false, nil))
+                        }
+                    }
+                    .gesture(
+                        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                            .onChanged { gesture in
+                                /// local 뷰 기준 절대적인 드래그 시작점과 끝 점.
+                                let dragEnd = gesture.location
+                                let dragStart = gesture.startLocation
+                                /// 드래그된 값을 기준으로 시작점과 끝점의 Row, Col 계산
+                                let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
+                                let startCol = Int(dragStart.x / viewStore.gridWidth)
+                                let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
+                                let endCol = Int(dragEnd.x / viewStore.gridWidth)
+                                /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
+                                exceededDirection = [
+                                    dragEnd.x < 0,
+                                    dragEnd.x > geometry.size.width,
+                                    dragEnd.y < 0,
+                                    dragEnd.y > geometry.size.height
+                                ]
+                                if !viewStore.isCommandKeyPressed {
+                                    if !viewStore.isShiftKeyPressed {
+                                        ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
+                                        viewStore.send(.dragGestureChanged(.pressNothing, nil))
+                                        temporarySelectedGridRange = SelectedGridRange(
+                                            start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
+                                                    startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                            end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
+                                                  endCol + viewStore.shiftedCol + viewStore.scrolledCol)
+                                        )
+                                    } else {
+                                        /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
+                                        if let lastIndex = viewStore.selectedGridRanges.indices.last {
+                                            var updatedRange = viewStore.selectedGridRanges[lastIndex]
+                                            updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
+                                            updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
+                                            viewStore.send(.dragGestureChanged(.pressOnlyShift, updatedRange))
+                                        }
+                                    }
+                                } else {
+                                    if !viewStore.isShiftKeyPressed {
+                                        /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
+                                        self.temporarySelectedGridRange = SelectedGridRange(
+                                            start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
+                                                    startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
+                                            end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
+                                                  endCol + viewStore.shiftedCol + viewStore.scrolledCol)
+                                        )
+                                    } else {
+                                        /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
+                                        if let lastIndex = viewStore.selectedGridRanges.indices.last {
+                                            var updatedRange = viewStore.selectedGridRanges[lastIndex]
+                                            updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
+                                            updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
+                                            viewStore.send(.dragGestureChanged(.pressOnlyCommand, updatedRange))
+                                        }
+                                    }
+                                }
+                            }
+                            .onEnded { _ in
+                                viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
+                                temporarySelectedGridRange = nil
+                                exceededDirection = [false, false, false, false]
+                            }
+                    )
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                viewStore.send(.magnificationChangedInListArea(value, geometry.size))
+                            }
+                    )
+                  planItemEdit()
+                }
+                .background(Color.lineArea)
+                .onAppear {
+                    NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
+                        viewStore.send(.scrollGesture(event))
+                        return event
+                    }
+                    NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                        viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
+                        return event
+                    }
+                    NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+                        viewStore.send(.isCommandKeyPressed(event.modifierFlags.contains(.command)))
+                        return event
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    func shortcutButtons() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            HStack {
+                Button {
+                    if !viewStore.selectedGridRanges.isEmpty {
+                        let today = Date().filteredDate
+                        let lastRange = viewStore.selectedGridRanges.last!
+                        let startDate = min(
+                            Calendar.current.date(
+                                byAdding: .day,
+                                value: lastRange.start.col,
+                                to: today
+                            )!.filteredDate,
+                            Calendar.current.date(
+                                byAdding: .day,
+                                value: lastRange.end.col,
+                                to: today
+                            )!.filteredDate
+                        )
+                        let endDate = max(
+                            Calendar.current.date(
+                                byAdding: .day,
+                                value: lastRange.start.col,
+                                to: today
+                            )!.filteredDate,
+                            Calendar.current.date(
+                                byAdding: .day,
+                                value: lastRange.end.col,
+                                to: today
+                            )!.filteredDate
+                        )
+                        let row = min(lastRange.start.row, lastRange.end.row)
+                        viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
+                    }
+                } label: {
+                    Text("create Plan")
+                }
+                .keyboardShortcut(.return, modifiers: [])
+                
+                Button {
+                    viewStore.send(.shiftToToday)
+                } label: {
+                    Text("shift to today")
+                }
+                .keyboardShortcut(.return, modifiers: [.command])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: -1, colOffset: 0))
+                } label: {
+                    Text("shift 1 UP")
+                }
+                .keyboardShortcut(.upArrow, modifiers: [])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 1, colOffset: 0))
+                } label: {
+                    Text("shift 1 Down")
+                }
+                .keyboardShortcut(.downArrow, modifiers: [])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -1))
+                } label: {
+                    Text("shift 1 Left")
+                }
+                .keyboardShortcut(.leftArrow, modifiers: [])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 1))
+                } label: {
+                    Text("shift 1 Right")
+                }
+                .keyboardShortcut(.rightArrow, modifiers: [])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: -7, colOffset: 0))
+                } label: {
+                    Text("shift 7 Top")
+                }
+                .keyboardShortcut(.upArrow, modifiers: [.command])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 7, colOffset: 0))
+                } label: {
+                    Text("shift 7 Bottom")
+                }
+                .keyboardShortcut(.downArrow, modifiers: [.command])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -7))
+                } label: {
+                    Text("shift 7 Lead")
+                }
+                .keyboardShortcut(.leftArrow, modifiers: [.command])
+                
+                Button {
+                    viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 7))
+                } label: {
+                    Text("shift 7 Trail")
+                }
+                .keyboardShortcut(.rightArrow, modifiers: [.command])
+                
+                Button {
+                    viewStore.send(.escapeSelectedCell)
+                } label: { }
+                    .keyboardShortcut(.escape, modifiers: [])
+            }
+        }
+    }
+    
+    func horizontalGrid(geometry: GeometryProxy) -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Path { path in
+                for rowIndex in 0..<viewStore.maxLineAreaRow {
+                    let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
+                    path.move(to: CGPoint(x: 0, y: yLocation))
+                    path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
+                }
+            }
+            .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
+        }
+    }
+    
+    func verticalGrid(geometry: GeometryProxy) -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Path { path in
+                for columnIndex in 0..<viewStore.maxCol {
+                    let xLocation = CGFloat(columnIndex) * viewStore.gridWidth
+                    path.move(to: CGPoint(x: xLocation, y: 0))
+                    path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
+                }
+            }
+            .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
+        }
+    }
+    
+    func hoveringRectangle() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Rectangle()
+                .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
+                .position(
+                    x: CGFloat(viewStore.lineAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                    y: CGFloat(viewStore.lineAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+                )
+                .opacity(viewStore.hoveredArea == .lineArea ? 1 : 0)
+        }
+    }
+    
+    func hoveringVerticalRectangle(geometry: GeometryProxy) -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            Rectangle()
+                .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                .frame(width: viewStore.gridWidth, height: geometry.size.height)
+                .position(
+                    x: CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
+                    y: geometry.size.height / 2
+                )
+                .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
+        }
+    }
+    
+    func planItem() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            let today = Date().filteredDate.integerDate
+            ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
+                let plans = viewStore.listMap[lineIndex]
+                ForEach(plans, id: \.self) { plan in
+                    if let periods = plan.periods {
+                        let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
+                        ForEach(selectedDateRanges, id: \.self) { selectedRange in
+                            let plan: Plan = plan
+                            let planType: PlanType = viewStore.existingPlanTypes[plan.planTypeID]!
+                            let height = viewStore.lineAreaGridHeight * 0.5
+                            let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
+                            let width = CGFloat(dayDifference + 1)
+                            let widthInHalf = CGFloat(width / 2)
+                            // TODO: - 축소, 확대할 때 선이 안맞는 버그가 있습니다 보정 필요 (지금 하드코딩한 보정값)
+                            let correctionValue = CGFloat(viewStore.lineAreaGridHeight / 2) + 10
+                            let position = CGFloat(selectedRange.start.integerDate - today)
+                            let negativeShiftedRow = -viewStore.shiftedRow - viewStore.scrolledRow
+                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                .foregroundStyle(Color(hex: planType.colorCode).opacity(0.9))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                        .stroke(Color.white, lineWidth: 1)
+                                )
+                                .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
+                                .overlay(
+                                    HStack {
+                                        Text(planType.title)
+                                            .foregroundStyle(Color.white)
+                                            .padding(.leading, 4)
+                                            .offset(y: -viewStore.lineAreaGridHeight * 0.5)
+                                        Spacer()
+                                    }
+                                )
+                                .position(
+                                    x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
+                                    y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
+                                )
+                                .onTapGesture(count: 2) {
+                                    viewStore.send(.setCurrentModifyingPlan(plan.id))
+                                }
+                                .contextMenu {
+                                    Button("Delete") {
+                                        viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func draggingRectangle() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            if let temporaryRange = temporarySelectedGridRange {
+                let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
+                let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
+                let isStartRowSmaller = temporaryRange.start.row <= temporaryRange.end.row
+                let isStartColSmaller = temporaryRange.start.col <= temporaryRange.end.col
+                Rectangle()
+                    .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                    .frame(width: width, height: height)
+                    .position(
+                        x: isStartColSmaller ?
+                        CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                            CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                        y: isStartRowSmaller ?
+                        CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                            CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                    )
+            }
+        }
+    }
+    
+    func draggedRectangle() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            if !viewStore.selectedGridRanges.isEmpty {
+                ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
+                    let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
+                    let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.gridWidth
+                    let isStartRowSmaller = selectedRange.start.row <= selectedRange.end.row
+                    let isStartColSmaller = selectedRange.start.col <= selectedRange.end.col
+                    Rectangle()
+                        .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
+                        .overlay(
+                            Rectangle()
+                                .stroke(Color.boardSelectedBorder, lineWidth: 1)
+                        )
+                        .frame(width: width, height: height)
+                        .position(
+                            x: isStartColSmaller ?
+                            CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
+                                CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
+                            y: isStartRowSmaller ?
+                            CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
+                                CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                        )
+                }
+            }
+        }
+    }
+    
+    func planItemEdit() -> some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             var isUpdatePlanTypePresented: Binding<Bool> {
                 Binding(
                     get: { viewStore.updatePlanTypePresented },
@@ -555,379 +947,36 @@ extension PlanBoardView {
                     }
                 )
             }
-            GeometryReader { geometry in
-                ZStack {
-                    HStack {
-                        Button {
-                            if !viewStore.selectedGridRanges.isEmpty {
-                                let today = Date().filteredDate
-                                let lastRange = viewStore.selectedGridRanges.last!
-                                let startDate = min(
-                                    Calendar.current.date(
-                                        byAdding: .day,
-                                        value: lastRange.start.col,
-                                        to: today
-                                    )!.filteredDate,
-                                    Calendar.current.date(
-                                        byAdding: .day,
-                                        value: lastRange.end.col,
-                                        to: today
-                                    )!.filteredDate
-                                )
-                                let endDate = max(
-                                    Calendar.current.date(
-                                        byAdding: .day,
-                                        value: lastRange.start.col,
-                                        to: today
-                                    )!.filteredDate,
-                                    Calendar.current.date(
-                                        byAdding: .day,
-                                        value: lastRange.end.col,
-                                        to: today
-                                    )!.filteredDate
-                                )
-                                let row = min(lastRange.start.row, lastRange.end.row)
-                                viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
-                            }
-                        } label: {
-                            Text("create Plan")
-                        }
-                        .keyboardShortcut(.return, modifiers: [])
-                        
-                        Button {
-                            viewStore.send(.shiftToToday)
-                        } label: {
-                            Text("shift to today")
-                        }
-                        .keyboardShortcut(.return, modifiers: [.command])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: -1, colOffset: 0))
-                        } label: {
-                            Text("shift 1 UP")
-                        }
-                        .keyboardShortcut(.upArrow, modifiers: [])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 1, colOffset: 0))
-                        } label: {
-                            Text("shift 1 Down")
-                        }
-                        .keyboardShortcut(.downArrow, modifiers: [])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -1))
-                        } label: {
-                            Text("shift 1 Left")
-                        }
-                        .keyboardShortcut(.leftArrow, modifiers: [])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 1))
-                        } label: {
-                            Text("shift 1 Right")
-                        }
-                        .keyboardShortcut(.rightArrow, modifiers: [])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: -7, colOffset: 0))
-                        } label: {
-                            Text("shift 7 Top")
-                        }
-                        .keyboardShortcut(.upArrow, modifiers: [.command])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 7, colOffset: 0))
-                        } label: {
-                            Text("shift 7 Bottom")
-                        }
-                        .keyboardShortcut(.downArrow, modifiers: [.command])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: -7))
-                        } label: {
-                            Text("shift 7 Lead")
-                        }
-                        .keyboardShortcut(.leftArrow, modifiers: [.command])
-                        
-                        Button {
-                            viewStore.send(.shiftSelectedCell(rowOffset: 0, colOffset: 7))
-                        } label: {
-                            Text("shift 7 Trail")
-                        }
-                        .keyboardShortcut(.rightArrow, modifiers: [.command])
-                        
-                        Button {
-                            viewStore.send(.escapeSelectedCell)
-                        } label: { }
-                            .keyboardShortcut(.escape, modifiers: [])
-                    }
-                    Color.lineArea
-                    Path { path in
-                        for rowIndex in 0..<viewStore.maxLineAreaRow {
-                            let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
-                            path.move(to: CGPoint(x: 0, y: yLocation))
-                            path.addLine(to: CGPoint(x: geometry.size.width, y: yLocation))
-                        }
-                    }
-                    .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
-                    Path { path in
-                        for columnIndex in 0..<viewStore.maxCol {
-                            let xLocation = CGFloat(columnIndex) * viewStore.gridWidth
-                            path.move(to: CGPoint(x: xLocation, y: 0))
-                            path.addLine(to: CGPoint(x: xLocation, y: geometry.size.height))
-                        }
-                    }
-                    .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
-                    
-                    ZStack {
-                        /// lineArea에 hover될 때 나타나는 뷰
-                        Rectangle()
-                            .foregroundStyle(Color.hoveredCell.opacity(0.5))
-                            .frame(width: viewStore.gridWidth, height: viewStore.lineAreaGridHeight)
-                            .position(
-                                x: CGFloat(viewStore.lineAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
-                                y: CGFloat(viewStore.lineAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+            if isUpdatePlanTypePresented.wrappedValue {
+                VStack {
+                    HStack(spacing: 20) {
+                        TextField(
+                            "제목을 입력하세요",
+                            text: viewStore.binding(
+                                get: \.keyword,
+                                send: { .keywordChanged($0) }
                             )
-                            .opacity(viewStore.hoveredArea == .lineArea ? 1 :0)
-                        /// timeAxisArea에 hover될 때 나타나는 뷰
-                        Rectangle()
-                            .foregroundStyle(Color.hoveredCell.opacity(0.5))
-                            .frame(width: viewStore.gridWidth, height: geometry.size.height)
-                            .position(
-                                x: CGFloat(viewStore.timeAxisAreaHoveredCellCol) * viewStore.gridWidth + viewStore.gridWidth / 2,
-                                y: geometry.size.height / 2
+                        )
+                        ColorPicker(
+                            "color",
+                            selection: viewStore.binding(
+                                get: \.selectedColorCode,
+                                send: PlanBoard.Action.selectColorCode
                             )
-                            .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
-                        
-                        let today = Date().filteredDate.integerDate
-                        ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
-                            let plans = viewStore.listMap[lineIndex]
-                            ForEach(plans, id: \.self) { plan in
-                                if let periods = plan.periods {
-                                    let selectedDateRanges = periods.map({ SelectedDateRange(start: $0.value[0], end: $0.value[1]) })
-                                    ForEach(selectedDateRanges, id: \.self) { selectedRange in
-                                        let plan: Plan = plan
-                                        let planType: PlanType = viewStore.existingPlanTypes[plan.planTypeID]!
-                                        let height = viewStore.lineAreaGridHeight * 0.5
-                                        let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
-                                        let width = CGFloat(dayDifference + 1)
-                                        let widthInHalf = CGFloat(width / 2)
-                                        // TODO: - 축소, 확대할 때 선이 안맞는 버그가 있습니다 보정 필요 (지금 하드코딩한 보정값)
-                                        let correctionValue = CGFloat(viewStore.lineAreaGridHeight / 2) + 10
-                                        let position = CGFloat(selectedRange.start.integerDate - today)
-                                        let negativeShiftedRow = -viewStore.shiftedRow - viewStore.scrolledRow
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                                .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                                        .stroke(Color.white, lineWidth: 1)
-                                                )
-                                                .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
-                                            HStack {
-                                                Text(planType.title)
-                                                    .foregroundStyle(Color.white)
-                                                    .padding(.bottom, 50)
-                                                Spacer()
-                                            }
-                                        }
-                                        .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
-                                        .position(
-                                            x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
-                                            y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
-                                        )
-                                        .onTapGesture(count: 2) {
-                                            viewStore.send(.setCurrentModifyingPlan(plan.id))
-                                        }
-                                        .contextMenu {
-                                            Button("Delete") {
-                                                viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if let temporaryRange = temporarySelectedGridRange {
-                            let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
-                            let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
-                            let isStartRowSmaller = temporaryRange.start.row <= temporaryRange.end.row
-                            let isStartColSmaller = temporaryRange.start.col <= temporaryRange.end.col
-                            Rectangle()
-                                .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
-                                .frame(width: width, height: height)
-                                .position(
-                                    x: isStartColSmaller ?
-                                    CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                        CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                    y: isStartRowSmaller ?
-                                    CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                        CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
-                                )
-                        }
-                        if !viewStore.selectedGridRanges.isEmpty {
-                            ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
-                                let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
-                                let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.gridWidth
-                                let isStartRowSmaller = selectedRange.start.row <= selectedRange.end.row
-                                let isStartColSmaller = selectedRange.start.col <= selectedRange.end.col
-                                Rectangle()
-                                    .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
-                                    .overlay(
-                                        Rectangle()
-                                            .stroke(Color.boardSelectedBorder, lineWidth: 1)
-                                    )
-                                    .frame(width: width, height: height)
-                                    .position(
-                                        x: isStartColSmaller ?
-                                        CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                                            CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2,
-                                        y: isStartRowSmaller ?
-                                        CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                                            CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
-                                    )
-                            }
-                        }
-                        if isUpdatePlanTypePresented.wrappedValue {
-                            VStack {
-                                HStack(spacing: 20) {
-                                    TextField(
-                                        "제목을 입력하세요",
-                                        text: viewStore.binding(
-                                            get: \.keyword,
-                                            send: { .keywordChanged($0) }
-                                        )
-                                    )
-                                    ColorPicker(
-                                        "color",
-                                        selection: viewStore.binding(
-                                            get: \.selectedColorCode,
-                                            send: PlanBoard.Action.selectColorCode
-                                        )
-                                    )
-                                    .padding(.trailing, 20)
-                                }
-                                Button {
-                                    viewStore.send(.updatePlan)
-                                } label: {
-                                    Text("확인")
-                                }
-                            }
-                            .frame(width: 300, height: 200)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .foregroundStyle(Color.white.opacity(0.1))
-                            )
-                        }
+                        )
+                        .padding(.trailing, 20)
+                    }
+                    Button {
+                        viewStore.send(.updatePlan)
+                    } label: {
+                        Text("확인")
                     }
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .onReceive(timer) { _ in
-                    onReceiveTimer(viewStore: viewStore)
-                }
-                .onAppear {
-                    viewStore.send(.windowSizeChanged(geometry.size))
-                }
-                .onChange(of: geometry.size) { newSize in
-                    viewStore.send(.windowSizeChanged(newSize))
-                }
-                .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
-                    viewStore.send(.gridSizeChanged(geometry.size))
-                }
-                .onContinuousHover { phase in
-                    switch phase {
-                    case .active(let location):
-                        viewStore.send(.setHoveredLocation(.lineArea, true, location))
-                    case .ended:
-                        viewStore.send(.setHoveredLocation(.none, false, nil))
-                    }
-                }
-                .gesture(
-                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                        .onChanged { gesture in
-                            /// local 뷰 기준 절대적인 드래그 시작점과 끝 점.
-                            let dragEnd = gesture.location
-                            let dragStart = gesture.startLocation
-                            /// 드래그된 값을 기준으로 시작점과 끝점의 Row, Col 계산
-                            let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
-                            let startCol = Int(dragStart.x / viewStore.gridWidth)
-                            let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
-                            let endCol = Int(dragEnd.x / viewStore.gridWidth)
-                            /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
-                            exceededDirection = [
-                                dragEnd.x < 0,
-                                dragEnd.x > geometry.size.width,
-                                dragEnd.y < 0,
-                                dragEnd.y > geometry.size.height
-                            ]
-                            if !viewStore.isCommandKeyPressed {
-                                if !viewStore.isShiftKeyPressed {
-                                    ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
-                                    viewStore.send(.dragGestureChanged(.pressNothing, nil))
-                                    temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
-                                                startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
-                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol)
-                                    )
-                                } else {
-                                    /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
-                                    if let lastIndex = viewStore.selectedGridRanges.indices.last {
-                                        var updatedRange = viewStore.selectedGridRanges[lastIndex]
-                                        updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
-                                        updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
-                                        viewStore.send(.dragGestureChanged(.pressOnlyShift, updatedRange))
-                                    }
-                                }
-                            } else {
-                                if !viewStore.isShiftKeyPressed {
-                                    /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
-                                    self.temporarySelectedGridRange = SelectedGridRange(
-                                        start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
-                                                startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
-                                        end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
-                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol)
-                                    )
-                                } else {
-                                    /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
-                                    if let lastIndex = viewStore.selectedGridRanges.indices.last {
-                                        var updatedRange = viewStore.selectedGridRanges[lastIndex]
-                                        updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
-                                        updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
-                                        viewStore.send(.dragGestureChanged(.pressOnlyCommand, updatedRange))
-                                    }
-                                }
-                            }
-                        }
-                        .onEnded { _ in
-                            viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            temporarySelectedGridRange = nil
-                            exceededDirection = [false, false, false, false]
-                        }
+                .frame(width: 300, height: 200)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .foregroundStyle(Color.white.opacity(0.3))
                 )
-                .gesture(
-                    MagnificationGesture()
-                        .onChanged { value in
-                            viewStore.send(.magnificationChangedInListArea(value, geometry.size))
-                        }
-                )
-            }
-            .background(Color.lineArea)
-            .onAppear {
-                NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
-                    viewStore.send(.scrollGesture(event))
-                    return event
-                }
-                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                    viewStore.send(.isShiftKeyPressed(event.modifierFlags.contains(.shift)))
-                    return event
-                }
-                NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
-                    viewStore.send(.isCommandKeyPressed(event.modifierFlags.contains(.command)))
-                    return event
-                }
             }
         }
     }
