@@ -626,33 +626,6 @@ extension PlanBoardView {
                                 }
                             }
                         }
-                        //                        if isUpdateSchedulePresented.wrappedValue {
-                        //                            VStack {
-                        //                                HStack(spacing: 20) {
-                        //                                    TextField(
-                        //                                        "제목을 입력하세요",
-                        //                                        text: viewStore.binding(
-                        //                                            get: \.keyword,
-                        //                                            send: { .keywordChanged($0) }
-                        //                                        )
-                        //                                    )
-                        //                                    ColorPicker(
-                        //                                        "color",
-                        //                                        selection: viewStore.binding(
-                        //                                            get: \.selectedColorCode,
-                        //                                            send: PlanBoard.Action.selectColorCode
-                        //                                        )
-                        //                                    )
-                        //                                    .padding(.trailing, 20)
-                        //                                }
-                        //                                Button {
-                        //                                    viewStore.send(.updateScheduleText)
-                        //                                    viewStore.send(.updateScheduleColorCode)
-                        //                                } label: {
-                        //                                    Text("확인")
-                        //                                }
-                        //                            }
-                        //                        }
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
