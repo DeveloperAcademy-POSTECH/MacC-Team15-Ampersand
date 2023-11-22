@@ -139,12 +139,14 @@ struct PlanBoard: Reducer {
         /// TimeAxisArea에서 사용
         var holidays = [Date]()
         
-        /// BoardSettingView
+        /// BoardSettingView & Export
         var selectedStartDate = Date()
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-
+        
+        /// Export
+        var selectFullPeriod = true
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -258,6 +260,9 @@ struct PlanBoard: Reducer {
         case selectedEndDateChanged(Date)
         case projectTitleChanged
         
+        /// Export
+        case periodSelectionChanged(selectedFullPeriod: Bool)
+        
         /// Map
         case reloadMap
         case reloadListMap
@@ -309,6 +314,10 @@ struct PlanBoard: Reducer {
                     state.isRightToolBarPresented = bool
                 case .updatePlanTypeButton:
                     state.updatePlanTypePresented = bool
+                case .startDatePickerButton:
+                    state.startDatePickerPresented = bool
+                case .endDatePickerButton:
+                    state.endDatePickerPresented = bool
                 default:
                     break
                 }
@@ -1848,6 +1857,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .windowSizeChanged(newSize):
+                if state.isShareImagePresented { return .none }
                 state.maxLineAreaRow = Int(newSize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(newSize.width / state.gridWidth) + 1
                 return .none
@@ -2026,6 +2036,10 @@ struct PlanBoard: Reducer {
                 return .run { _ in
                     try await apiService.updateProjects(projectToUpdate)
                 }
+                
+            case let .periodSelectionChanged(isSelectedFullPeriod):
+                state.selectFullPeriod = isSelectedFullPeriod
+                return .none
                 
             case .reloadMap:
                 var newMap: [[String]] = []

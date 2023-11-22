@@ -31,7 +31,7 @@ struct PlanBoardView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     systemBorder(.horizontal)
                         .zIndex(5)
-                    TopToolBarView(store: store)
+                    TopToolBarView(store: store, selfView: self)
                         .frame(height: 48)
                         .zIndex(5)
                     planBoardBorder(.horizontal)
@@ -830,8 +830,8 @@ extension PlanBoardView {
                 .onAppear {
                     viewStore.send(.windowSizeChanged(geometry.size))
                 }
-                .onChange(of: geometry.size) { newSize in
-                    viewStore.send(.windowSizeChanged(newSize))
+                .onChange(of: geometry.size) {
+                    viewStore.send(.windowSizeChanged($0))
                 }
                 .onChange(of: [viewStore.gridWidth, viewStore.lineAreaGridHeight]) { _ in
                     viewStore.send(.gridSizeChanged(geometry.size))

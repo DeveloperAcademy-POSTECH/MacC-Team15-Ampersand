@@ -53,6 +53,8 @@ extension String {
     static let cancelButton = "cancelButton"
     static let editButton = "editButton"
     static let createButton = "createButton"
+    static let shareButton = "shareButton"
+    static let saveButton = "saveButton"
     
     // MARK: - PlanBoard
     /* FocusGroups */

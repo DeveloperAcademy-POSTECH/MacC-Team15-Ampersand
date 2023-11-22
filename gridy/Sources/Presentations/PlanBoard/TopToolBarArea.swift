@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct TopToolBarView: View {
     let store: StoreOf<PlanBoard>
+    let selfView: PlanBoardView
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -64,7 +65,7 @@ extension TopToolBarView {
                     ))
                 }
                 .sheet(isPresented: isShareImagePresented) {
-                    ShareImageView()
+                    ShareImageView(store: store, selfView: selfView)
                 }
         }
     }
