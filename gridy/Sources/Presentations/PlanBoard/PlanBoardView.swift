@@ -721,10 +721,65 @@ extension PlanBoardView {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
                                                 .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
                                                 .overlay(
-                                                    RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                                        .stroke(Color.white, lineWidth: 1)
+                                                    ZStack {
+                                                        RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                                            .stroke(Color.white, lineWidth: 1)
+                                                        if viewStore.currentModifyingPlanID == plan.id {
+                                                            HStack {
+                                                                Circle()
+                                                                    .gesture(DragGesture()
+                                                                        .onEnded({ value in
+                                                                            let currentX = value.location.x
+                                                                            let prevX = value.startLocation.x
+                                                                            let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                            let modifiedDate = Calendar.current.date(
+                                                                                byAdding: .day,
+                                                                                value: Int(countMovedLocation),
+                                                                                to: selectedRange.start
+                                                                            )!
+                                                                            if modifiedDate > selectedRange.end { return }
+                                                                            viewStore.send(.dragToChangePeriod(
+                                                                                planID: plan.id,
+                                                                                originPeriod: [selectedRange.start, selectedRange.end],
+                                                                                updatedPeriod: [modifiedDate, selectedRange.end]
+                                                                            ))
+                                                                        })
+                                                                    )
+                                                                Spacer()
+                                                                Circle()
+                                                                    .gesture(DragGesture()
+                                                                        .onEnded({ value in
+                                                                            let currentX = value.location.x
+                                                                            let prevX = value.startLocation.x
+                                                                            let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                            let modifiedDate = Calendar.current.date(
+                                                                                byAdding: .day,
+                                                                                value: Int(countMovedLocation),
+                                                                                to: selectedRange.end
+                                                                            )!
+                                                                            if modifiedDate < selectedRange.start { return }
+                                                                            viewStore.send(.dragToChangePeriod(
+                                                                                planID: plan.id,
+                                                                                originPeriod: [selectedRange.start, selectedRange.end],
+                                                                                updatedPeriod: [selectedRange.start, modifiedDate]
+                                                                            ))
+                                                                        })
+                                                                    )
+                                                            }
+                                                        }
+                                                    }
                                                 )
-                                                .frame(width: width * CGFloat(viewStore.gridWidth), height: height)
+                                                .frame(
+                                                    width: width * CGFloat(viewStore.gridWidth),
+                                                    height: height
+                                                )
+                                                .shadow(
+                                                    color: .white.opacity(viewStore.currentModifyingPlanID == plan.id ? 0.32 : 0),
+                                                    radius: 6,
+                                                    x: 8,
+                                                    y: 8
+                                                )
+                                            
                                             HStack {
                                                 Text(planType.title)
                                                     .foregroundStyle(Color.white)
@@ -737,9 +792,12 @@ extension PlanBoardView {
                                             x: (CGFloat(position) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + widthInHalf) * CGFloat(viewStore.gridWidth),
                                             y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
                                         )
-                                        .onTapGesture(count: 2) {
+                                        .highPriorityGesture(TapGesture(count: 1).onEnded({
                                             viewStore.send(.setCurrentModifyingPlan(plan.id))
-                                        }
+                                        }))
+                                        .simultaneousGesture(TapGesture(count: 2).onEnded({
+                                            viewStore.send(.modifyPlanType(plan.id))
+                                        }))
                                         .contextMenu {
                                             Button("Delete") {
                                                 viewStore.send(.deletePlanOnLineWithID(planID: plan.id))

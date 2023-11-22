@@ -198,7 +198,9 @@ struct PlanBoard: Reducer {
         case readPlans
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan
+        
         case setCurrentModifyingPlan(_ planID: String)
+        case modifyPlanType(_ planID: String)
         
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
@@ -655,7 +657,7 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 
                 return .run { send in
-                    await send(.setCurrentModifyingPlan(newPlanOnLine.id))
+                    await send(.modifyPlanType(newPlanOnLine.id))
                     try await apiService.createPlans(
                         plansToCreateImmutable,
                         projectID
@@ -718,6 +720,11 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .setCurrentModifyingPlan(planID):
+                state.updatePlanTypePresented = false
+                state.currentModifyingPlanID = planID
+                return .none
+                
+            case let .modifyPlanType(planID):
                 state.currentModifyingPlanID = planID
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
@@ -1526,7 +1533,8 @@ struct PlanBoard: Reducer {
                 }
                 let plansToUpdate = [state.existingPlans[planID]!, state.existingPlans[foundParentID!]!]
                 let projectID = state.rootProject.id
-                return .run { _ in
+                return .run { send in
+                    await send(.reloadListMap)
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
                 
@@ -1842,6 +1850,7 @@ struct PlanBoard: Reducer {
                 
                 // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
+                state.currentModifyingPlanID = ""
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
                     state.selectedGridRanges = [SelectedGridRange(
