@@ -68,7 +68,7 @@
 		EED5EC742AF21DCF00751FAE /* UserSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC732AF21DCF00751FAE /* UserSettingView.swift */; };
 		EED5EC762AF21DE000751FAE /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC752AF21DE000751FAE /* NotificationView.swift */; };
 		EED5EC782AF21E0E00751FAE /* CreatePlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */; };
-		EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC792AF21F0900751FAE /* ShareImageView.swift */; };
+		EED5EC7A2AF21F0900751FAE /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC792AF21F0900751FAE /* ExportView.swift */; };
 		EED5EC7C2AF21F2600751FAE /* BoardSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */; };
 		EED5EC802AF2209D00751FAE /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC7F2AF2209D00751FAE /* TabBarView.swift */; };
 		EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC812AF2210700751FAE /* RightToolBarView.swift */; };
@@ -129,7 +129,7 @@
 		EED5EC732AF21DCF00751FAE /* UserSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingView.swift; sourceTree = "<group>"; };
 		EED5EC752AF21DE000751FAE /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		EED5EC772AF21E0E00751FAE /* CreatePlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlanBoardView.swift; sourceTree = "<group>"; };
-		EED5EC792AF21F0900751FAE /* ShareImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareImageView.swift; sourceTree = "<group>"; };
+		EED5EC792AF21F0900751FAE /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingView.swift; sourceTree = "<group>"; };
 		EED5EC7F2AF2209D00751FAE /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		EED5EC812AF2210700751FAE /* RightToolBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightToolBarView.swift; sourceTree = "<group>"; };
@@ -326,7 +326,7 @@
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				D17800682AF35989002984CF /* PlanBoardView.swift */,
 				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
-				EED5EC792AF21F0900751FAE /* ShareImageView.swift */,
+				EED5EC792AF21F0900751FAE /* ExportView.swift */,
 				EED5EC812AF2210700751FAE /* RightToolBarView.swift */,
 				EED5EC7B2AF21F2600751FAE /* BoardSettingView.swift */,
 			);
@@ -504,7 +504,7 @@
 				EED5EC822AF2210700751FAE /* RightToolBarView.swift in Sources */,
 				8ADAEE4B2ADFC9AC008E6A2B /* SelectedDateRange.swift in Sources */,
 				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
-				EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */,
+				EED5EC7A2AF21F0900751FAE /* ExportView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,

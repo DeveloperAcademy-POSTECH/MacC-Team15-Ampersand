@@ -69,7 +69,7 @@ extension String {
     /* FocusedItemNames */
 
     /* PopOverButtonNames */
-    static let shareImageButton = "shareImageButton"
+    static let exportButton = "exportButton"
     static let boardSettingButton = "boardSettingButton"
     static let rightToolBarButton = "rightToolBarButton"
     

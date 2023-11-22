@@ -19,7 +19,7 @@ struct TopToolBarView: View {
                     .font(.title)
                 Spacer()
                 planBoardBorder(.vertical)
-                shareImageButton
+                exportImageButton
                 planBoardBorder(.vertical)
                 boardSettingButton
                 planBoardBorder(.vertical)
@@ -31,14 +31,14 @@ struct TopToolBarView: View {
 }
 
 extension TopToolBarView {
-    var shareImageButton: some View {
+    var exportImageButton: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            var isShareImagePresented: Binding<Bool> {
+            var isExportPresented: Binding<Bool> {
                 Binding(
-                    get: { viewStore.isShareImagePresented },
+                    get: { viewStore.isExportPresented },
                     set: { newValue in
                         viewStore.send(.popoverPresent(
-                            button: .shareImageButton,
+                            button: .exportButton,
                             bool: newValue
                         ))
                     }
@@ -46,8 +46,8 @@ extension TopToolBarView {
             }
             Rectangle()
                 .foregroundStyle(
-                    viewStore.hoveredItem == .shareImageButton ||
-                    viewStore.isShareImagePresented ?
+                    viewStore.hoveredItem == .exportButton ||
+                    viewStore.isExportPresented ?
                     Color.topToolItem : .clear
                 )
                 .overlay(
@@ -56,16 +56,16 @@ extension TopToolBarView {
                 )
                 .frame(width: 48)
                 .onHover { isHovered in
-                    viewStore.send(.hoveredItem(name: isHovered ? .shareImageButton : ""))
+                    viewStore.send(.hoveredItem(name: isHovered ? .exportButton : ""))
                 }
                 .onTapGesture {
                     viewStore.send(.popoverPresent(
-                        button: .shareImageButton,
+                        button: .exportButton,
                         bool: true
                     ))
                 }
-                .sheet(isPresented: isShareImagePresented) {
-                    ShareImageView(store: store, selfView: selfView)
+                .sheet(isPresented: isExportPresented) {
+                    ExportView(store: store, selfView: selfView)
                 }
         }
     }

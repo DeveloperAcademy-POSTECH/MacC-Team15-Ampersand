@@ -168,7 +168,7 @@ struct PlanBoard: Reducer {
         var topToolBarFocusGroupClickedItem = ""
         
         /// popover
-        var isShareImagePresented = false
+        var isExportPresented = false
         var isBoardSettingPresented = false
         var isRightToolBarPresented = true
         
@@ -309,8 +309,8 @@ struct PlanBoard: Reducer {
                 
             case let .popoverPresent(button: buttonName, bool: bool):
                 switch buttonName {
-                case .shareImageButton:
-                    state.isShareImagePresented = bool
+                case .exportButton:
+                    state.isExportPresented = bool
                 case .boardSettingButton:
                     state.title = state.rootProject.title
                     state.isBoardSettingPresented = bool
@@ -1861,7 +1861,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .windowSizeChanged(newSize):
-                if state.isShareImagePresented { return .none }
+                if state.isExportPresented { return .none }
                 state.maxLineAreaRow = Int(newSize.height / state.lineAreaGridHeight) + 1
                 state.maxCol = Int(newSize.width / state.gridWidth) + 1
                 return .none

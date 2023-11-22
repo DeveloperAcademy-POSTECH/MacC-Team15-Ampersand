@@ -1,5 +1,5 @@
 //
-//  ShareImageView.swift
+//  ExportView.swift
 //  gridy
 //
 //  Created by xnoag on 11/1/23.
@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 import ComposableArchitecture
 
-struct ShareImageView: View {
+struct ExportView: View {
     let store: StoreOf<PlanBoard>
     let selfView: PlanBoardView
     
@@ -47,7 +47,7 @@ struct ShareImageView: View {
         }
     }
     
-    @MainActor private func saveImage() {
+    @MainActor private func saveExportImage() {
         let savePanel = NSSavePanel()
         savePanel.allowedContentTypes = [.png]
         savePanel.canCreateDirectories = true
@@ -79,7 +79,7 @@ struct ShareImageView: View {
 }
 
 @MainActor
-extension ShareImageView {
+extension ExportView {
     var thumbnail: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
@@ -96,7 +96,7 @@ extension ShareImageView {
     }
 }
 
-extension ShareImageView {
+extension ExportView {
     var selectPeriodArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
@@ -229,12 +229,12 @@ extension ShareImageView {
 }
 
 @MainActor
-extension ShareImageView {
+extension ExportView {
     var cancelButton: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
                 viewStore.send(.popoverPresent(
-                    button: .shareImageButton,
+                    button: .exportButton,
                     bool: false
                 ))
             } label: {
@@ -280,7 +280,7 @@ extension ShareImageView {
     var exportButton: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             Button {
-                saveImage()
+                saveExportImage()
             } label: {
                 Text("Export to Image")
                     .font(.system(size: 12))
