@@ -460,17 +460,6 @@ extension PlanBoardView {
 extension PlanBoardView {
     var scheduleArea: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            var isUpdateSchedulePresented: Binding<Bool> {
-                Binding(
-                    get: { viewStore.updateSchedulePresented },
-                    set: { newValue in
-                        viewStore.send(.popoverPresent(
-                            button: .updateScheduleButton,
-                            bool: newValue
-                        ))
-                    }
-                )
-            }
             GeometryReader { geometry in
                 ZStack {
                     /// ScheduleArea에서 쓰이는 버튼들을 HStack으로 묶어놓을 거에요.
@@ -555,6 +544,17 @@ extension PlanBoardView {
                         ForEach(viewStore.scheduleMap.indices, id: \.self) { scheduleRowIndex in
                             let scheduleRow = viewStore.scheduleMap[scheduleRowIndex]
                             ForEach(scheduleRow, id: \.self) { scheduleID in
+                                var isUpdateSchedulePresented: Binding<Bool> {
+                                    Binding(
+                                        get: { viewStore.updateSchedulePresented && viewStore.currentModifyingScheduleID == scheduleID },
+                                        set: { newValue in
+                                            viewStore.send(.popoverPresent(
+                                                button: .updateScheduleButton,
+                                                bool: newValue
+                                            ))
+                                        }
+                                    )
+                                }
                                 if let schedule = viewStore.existingSchedules[scheduleID] {
                                     let today = Date().filteredDate
                                     let dayDifference = CGFloat(schedule.endDate.integerDate - schedule.startDate.integerDate)
@@ -573,13 +573,51 @@ extension PlanBoardView {
                                             .foregroundStyle(Color.white)
                                             .padding(.leading, 8)
                                     }
+                                    .popover(
+                                        isPresented: isUpdateSchedulePresented,
+                                        attachmentAnchor: .point(.trailing),
+                                        arrowEdge: .trailing
+                                    ) {
+                                        VStack {
+                                            HStack(spacing: 20) {
+                                                TextField(
+                                                    "제목을 입력하세요",
+                                                    text: viewStore.binding(
+                                                        get: \.keyword,
+                                                        send: { .keywordChanged($0) }
+                                                    )
+                                                )
+                                                ColorPicker(
+                                                    "color",
+                                                    selection: viewStore.binding(
+                                                        get: \.selectedColorCode,
+                                                        send: PlanBoard.Action.selectColorCode
+                                                    )
+                                                )
+                                            }
+                                            Button {
+                                                viewStore.send(.updateScheduleText)
+                                                viewStore.send(.updateScheduleColorCode)
+                                            } label: {
+                                                Text("확인")
+                                            }
+                                        }
+                                        .padding()
+                                        .frame(width: 250, height: 80)
+                                    }
                                     .position(
                                         x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
                                         y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
                                     )
-                                    .onTapGesture(count: 2) {
-                                        viewStore.send(.setCurrentModifyingSchedule(scheduleID))
-                                    }
+                                    .highPriorityGesture(TapGesture(count: 1).onEnded({
+                                        // TODO: - 한번탭
+                                    }))
+                                    .simultaneousGesture(
+                                        TapGesture(count: 2)
+                                            .onEnded { _ in
+                                                viewStore.send(.setCurrentModifyingSchedule(scheduleID))
+                                            }
+                                    )
                                     .contextMenu {
                                         Button("Delete") {
                                             viewStore.send(.deleteSchedule(scheduleID: scheduleID))
@@ -588,33 +626,33 @@ extension PlanBoardView {
                                 }
                             }
                         }
-                        if isUpdateSchedulePresented.wrappedValue {
-                            VStack {
-                                HStack(spacing: 20) {
-                                    TextField(
-                                        "제목을 입력하세요",
-                                        text: viewStore.binding(
-                                            get: \.keyword,
-                                            send: { .keywordChanged($0) }
-                                        )
-                                    )
-                                    ColorPicker(
-                                        "color",
-                                        selection: viewStore.binding(
-                                            get: \.selectedColorCode,
-                                            send: PlanBoard.Action.selectColorCode
-                                        )
-                                    )
-                                    .padding(.trailing, 20)
-                                }
-                                Button {
-                                    viewStore.send(.updateScheduleText)
-                                    viewStore.send(.updateScheduleColorCode)
-                                } label: {
-                                    Text("확인")
-                                }
-                            }
-                        }
+                        //                        if isUpdateSchedulePresented.wrappedValue {
+                        //                            VStack {
+                        //                                HStack(spacing: 20) {
+                        //                                    TextField(
+                        //                                        "제목을 입력하세요",
+                        //                                        text: viewStore.binding(
+                        //                                            get: \.keyword,
+                        //                                            send: { .keywordChanged($0) }
+                        //                                        )
+                        //                                    )
+                        //                                    ColorPicker(
+                        //                                        "color",
+                        //                                        selection: viewStore.binding(
+                        //                                            get: \.selectedColorCode,
+                        //                                            send: PlanBoard.Action.selectColorCode
+                        //                                        )
+                        //                                    )
+                        //                                    .padding(.trailing, 20)
+                        //                                }
+                        //                                Button {
+                        //                                    viewStore.send(.updateScheduleText)
+                        //                                    viewStore.send(.updateScheduleColorCode)
+                        //                                } label: {
+                        //                                    Text("확인")
+                        //                                }
+                        //                            }
+                        //                        }
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
