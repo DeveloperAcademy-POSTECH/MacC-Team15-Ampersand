@@ -563,24 +563,25 @@ struct PlanBoard: Reducer {
                         start: (lastSelected.start.row, lastSelected.start.col),
                         end: (lastSelected.start.row, lastSelected.start.col)
                     )]
+                    /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
+                    if Int(lastSelected.start.col) < (state.shiftedCol + state.scrolledCol) ||
+                        Int(lastSelected.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
+                        state.shiftedCol = lastSelected.start.col - 2
+                        state.scrolledX = 0
+                        state.scrolledY = 0
+                        state.scrolledRow = 0
+                        state.scrolledCol = 0
+                    }
+                    if Int(lastSelected.start.row) < (state.shiftedRow + state.scrolledRow) ||
+                        Int(lastSelected.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
+                        state.shiftedRow = max(lastSelected.start.row, 0)
+                        state.scrolledX = 0
+                        state.scrolledY = 0
+                        state.scrolledRow = 0
+                        state.scrolledCol = 0
+                    }
                 }
-                /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
-                if Int(state.selectedGridRanges.last!.start.col) < (state.shiftedCol + state.scrolledCol) ||
-                    Int(state.selectedGridRanges.last!.start.col) > state.maxCol + (state.shiftedCol + state.scrolledCol) - 2 {
-                    state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
-                    state.scrolledX = 0
-                    state.scrolledY = 0
-                    state.scrolledRow = 0
-                    state.scrolledCol = 0
-                }
-                if Int(state.selectedGridRanges.last!.start.row) < (state.shiftedRow + state.scrolledRow) ||
-                    Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + (state.shiftedRow + state.scrolledRow) - 2 {
-                    state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
-                    state.scrolledX = 0
-                    state.scrolledY = 0
-                    state.scrolledRow = 0
-                    state.scrolledCol = 0
-                }
+                
                 var plansToCreate = [Plan]()
                 var plansToUpdate = [Plan]()
                 /// 0. row를 child로 포함하는 parentPlan이 있는지 먼저 확인
@@ -623,7 +624,6 @@ struct PlanBoard: Reducer {
                             plansToCreate.append(state.existingPlans[prevParentPlanID]!)
                         }
                     }
-                    targetLaneParent = state.existingPlans[state.map[state.map.count-1][row]]
                     targetLaneIndex = 0
                 }
                 /// 2. (row, layer)에 플랜이 존재하는 경우: 새 플랜을 생성하고 childIDs에 넣어주면 된다.
@@ -1527,8 +1527,12 @@ struct PlanBoard: Reducer {
                     var parentPlan = state.existingPlans[parentPlanID]!
                     if parentPlan.childPlanIDs.map({$0.value}).flatMap({$0}).contains(planID) {
                         foundParentID = parentPlanID
-                        parentPlan.totalPeriod![0] = min(parentPlan.totalPeriod![0], updatedPeriod[0])
-                        parentPlan.totalPeriod![1] = min(parentPlan.totalPeriod![1], updatedPeriod[1])
+                        if let totalPeriod = parentPlan.totalPeriod {
+                            parentPlan.totalPeriod![0] = min(totalPeriod[0], updatedPeriod[0])
+                            parentPlan.totalPeriod![1] = min(totalPeriod[1], updatedPeriod[1])
+                        } else {
+                            parentPlan.totalPeriod = updatedPeriod
+                        }
                         break
                     }
                 }
@@ -1757,7 +1761,7 @@ struct PlanBoard: Reducer {
                 var targetParentPlan = state.existingPlans[state.rootProject.rootPlanID]!
                 var destinationParentPlan: Plan?
                 var laneIndexInParent = 0
-                /// 지우려는 targetPlan의 현재 부모를 찾는다
+                // MARK: - 지우려는 targetPlan의 현재 부모를 찾는다
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
                     if parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(targetPlanID) {
@@ -1769,6 +1773,8 @@ struct PlanBoard: Reducer {
                     }
                     currentRowCount += parentPlan.childPlanIDs.count
                 }
+                
+                // MARK: - 움직이려는 플랜을 먼저 수정
                 /// targetPlan이 periods가 여러개인 경우
                 if state.existingPlans[targetPlanID]!.periods!.count > 1 {
                     /// 기존 parent에서 해당하는 period만 삭제
@@ -1782,6 +1788,8 @@ struct PlanBoard: Reducer {
                     /// 기존 parent의 child lane에서 플랜을 삭제하는데, 플랜이 이 레인이 이거 하나뿐이었더라도 레인은 삭제되지 않음
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.remove(at: targetParentPlan.childPlanIDs["\(laneIndexInParent)"]!.firstIndex(of: targetPlanID)!)
                 }
+                
+                // MARK: - 옮긴 위치에 부모가 될 플랜이 이미 존재한다면
                 if let destinationParentPlan = destinationParentPlan {
                     // TODO:  이미 타입이 동일한 plan이 존재하고, 이에 종속시키는 경우
 //                    if destinationParentPlan.periods == nil {
@@ -1807,25 +1815,76 @@ struct PlanBoard: Reducer {
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
                 } else {
-                    let plansToUpdate = [
+                    /// parentPlan이 없는 곳에 위치시킨 경우
+                    var plansToCreate = [Plan]()
+                    var plansToUpdate = [
                         state.existingPlans[targetParentPlan.id]!,
                         state.existingPlans[targetPlanID]!
                     ]
-                    /// 없는 lane에 갖다넣은 경우
+                    var targetLaneIndex: Int?
+                    /// lane을 먼저 만들어야 함
+                    var prevParentPlanID = state.rootProject.rootPlanID
+                    var newDummyPlanID = UUID().uuidString
+                    for _ in currentRowCount+1...moveRowTo {
+                        for currentLayerIndex in 0..<state.map.count {
+                            if currentLayerIndex == 0 {
+                                state.existingPlans[state.rootProject.rootPlanID]?.childPlanIDs["\(state.map[0].count)"] = [newDummyPlanID]
+                            } else {
+                                state.existingPlans[prevParentPlanID]?.childPlanIDs["0"] = [newDummyPlanID]
+                            }
+                            let newDummyPlan = Plan(
+                                id: newDummyPlanID,
+                                planTypeID: PlanType.emptyPlanType.id,
+                                childPlanIDs: ["0": []]
+                            )
+                            state.existingPlans[newDummyPlanID] = newDummyPlan
+                            state.map[currentLayerIndex].append(newDummyPlanID)
+                            
+                            /// 다음 더미 생성을 위한 세팅
+                            prevParentPlanID = newDummyPlanID
+                            newDummyPlanID = UUID().uuidString
+                            
+                            /// DB에 생성해줄 플랜들 담아
+                            plansToCreate.append(state.existingPlans[prevParentPlanID]!)
+                        }
+                    }
+                    targetLaneIndex = 0
+                    /// target plan을 childIDs에 넣어주면 된다.
+                    let lastLayerIndex = state.map.count - 1
+                    let parentID = state.map[lastLayerIndex][moveRowTo]
+                    if state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] == nil {
+                        state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] = []
+                    }
+                    state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"]!.append(targetPlanID)
+                    
+                    /// parentPlan의 total period 업데이트
+                    if let prevTotalPeriod = state.existingPlans[state.map[lastLayerIndex][moveRowTo]]?.totalPeriod {
+                        state.existingPlans[parentID]!.totalPeriod![0] = min(updatedPeriod[0], prevTotalPeriod[0])
+                        state.existingPlans[parentID]!.totalPeriod![1] = min(updatedPeriod[1], prevTotalPeriod[1])
+                    } else {
+                        state.existingPlans[state.map[lastLayerIndex][moveRowTo]]?.totalPeriod = updatedPeriod
+                    }
+                    
+                    plansToUpdate.append(state.existingPlans[state.rootProject.rootPlanID]!)
+                    plansToUpdate.append(state.existingPlans[state.map[lastLayerIndex][moveRowTo]]!)
+                    let plansToCreateImmutable = plansToCreate
+                    let plansToUpdateImmutable = plansToUpdate
                     return .run { send in
-                        await send(.createPlanOnLine(
-                            row: moveRowTo,
-                            startDate: originPeriod[0],
-                            endDate: originPeriod[1])
+                        try await apiService.createPlans(
+                            plansToCreateImmutable,
+                            projectID
+                        )
+                        try await apiService.updatePlans(
+                            plansToUpdateImmutable,
+                            projectID
                         )
                         await send(.dragToChangePeriod(
                             planID: targetPlanID,
                             originPeriod: originPeriod,
                             updatedPeriod: updatedPeriod)
                         )
-                        await send(.reloadListMap)
                         await send(.reloadMap)
-                        try await apiService.updatePlans(plansToUpdate, projectID)
+                        await send(.reloadListMap)
                     }
                 }
                 
