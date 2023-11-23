@@ -1789,22 +1789,20 @@ struct PlanBoard: Reducer {
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.remove(at: targetParentPlan.childPlanIDs["\(laneIndexInParent)"]!.firstIndex(of: targetPlanID)!)
                 }
                 
+                var planIDsToUpdate = [String]()
                 // MARK: - 옮긴 위치에 부모가 될 플랜이 이미 존재한다면
                 if let destinationParentPlan = destinationParentPlan {
-                    // TODO:  이미 타입이 동일한 plan이 존재하고, 이에 종속시키는 경우
-//                    if destinationParentPlan.periods == nil {
-//                        state.existingPlans[destinationParentPlan.id]!.periods = [:]
-//                        state.existingPlans[destinationParentPlan.id]!.periods!["0"] = [startDate, endDate]
-//                    } else {
-//                        state.existingPlans[destinationParentPlan.id]!.periods!["\(destinationParentPlan.periods!.count)"] = [startDate, endDate]
-//                    }
-                    state.existingPlans[destinationParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.append(targetPlanID)
+                    /// 이미 타입이 동일한 plan이 존재하고, 이에 종속시키는 경우
+                    if let originPlanID = destinationParentPlan.childPlanIDs["\(laneIndexInParent)"]!.first(where: { state.existingPlans[$0]!.planTypeID == targetPlan.planTypeID }) {
+                        let originPlan = state.existingPlans[originPlanID]!
+                        state.existingPlans[originPlanID]!.periods!["\(originPlan.periods!.count)"] = updatedPeriod
+                        planIDsToUpdate.append(originPlanID)
+                    } else {
+                        state.existingPlans[destinationParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.append(targetPlanID)
+                    }
+                    planIDsToUpdate.append(contentsOf: [targetParentPlan.id, destinationParentPlan.id, targetPlanID])
+                    let plansToUpdate = planIDsToUpdate.map { state.existingPlans[$0]! }
                     
-                    let plansToUpdate = [
-                        state.existingPlans[targetParentPlan.id]!,
-                        state.existingPlans[destinationParentPlan.id]!,
-                        state.existingPlans[targetPlanID]!
-                    ]
                     return .run { send in
                         await send(.reloadMap)
                         await send(.dragToChangePeriod(
