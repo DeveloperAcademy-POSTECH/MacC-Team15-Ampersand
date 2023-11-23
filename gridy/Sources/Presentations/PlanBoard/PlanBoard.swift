@@ -166,6 +166,9 @@ struct PlanBoard: Reducer {
         /// LineIndexArea
         var selectedLineIndexRow: Int?
         
+        /// ScheduleArea
+        var editingSchedule = false
+        
         /// LineArea
         var isHoveredOnLineArea = false
         
@@ -216,6 +219,7 @@ struct PlanBoard: Reducer {
         case updateScheduleColorCode
         case deleteSchedule(scheduleID: String)
         case setCurrentModifyingSchedule(_ scheduleID: String)
+        case editSchedule(_ scheduleID: String)
         
         /// ListArea
         case createLayerButtonClicked(layer: Int)
@@ -819,6 +823,12 @@ struct PlanBoard: Reducer {
                 state.keyword = currentSchdule.title ?? ""
                 state.selectedColorCode = Color(hex: currentSchdule.colorCode)
                 state.updateSchedulePresented = true
+                return .none
+                
+            case let .editSchedule(scheduleID):
+                state.currentModifyingScheduleID = scheduleID
+                let currentSchedule = state.existingSchedules[scheduleID]!
+                state.editingSchedule = true
                 return .none
                 
                 // MARK: - ListArea
@@ -1867,6 +1877,7 @@ struct PlanBoard: Reducer {
                 
                 // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
+                state.currentModifyingScheduleID = ""
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
                     state.selectedGridRanges = [SelectedGridRange(

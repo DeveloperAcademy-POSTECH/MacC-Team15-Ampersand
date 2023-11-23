@@ -565,14 +565,59 @@ extension PlanBoardView {
                                         RoundedRectangle(cornerRadius: 24 * 0.5)
                                             .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.7))
                                             .frame(width: width * viewStore.gridWidth, height: 20)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 24 * 0.5)
-                                                    .stroke(Color.white, lineWidth: 1)
-                                            )
                                         Text(schedule.title ?? "")
                                             .foregroundStyle(Color.white)
                                             .padding(.leading, 8)
                                     }
+                                    .overlay(
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 24 * 0.5)
+                                                .stroke(Color.white, lineWidth: 1)
+                                            if viewStore.currentModifyingScheduleID == scheduleID {
+                                                HStack {
+                                                    Circle()
+                                                        .gesture(DragGesture()
+                                                            .onEnded({ value in
+                                                                let currentX = value.location.x
+                                                                let prevX = value.startLocation.x
+                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                let modifiedDate = Calendar.current.date(
+                                                                    byAdding: .day,
+                                                                    value: Int(countMovedLocation),
+                                                                    to: schedule.startDate
+                                                                )!
+                                                                if modifiedDate > schedule.endDate { return }
+                                                                viewStore.send(.updateScheduleDate(
+                                                                    scheduleID: scheduleID,
+                                                                    originPeriod: [schedule.startDate, schedule.endDate],
+                                                                    updatedPeriod: [modifiedDate, schedule.endDate]
+                                                                ))
+                                                            })
+                                                        )
+                                                    Spacer()
+                                                    Circle()
+                                                        .gesture(DragGesture()
+                                                            .onEnded({ value in
+                                                                let currentX = value.location.x
+                                                                let prevX = value.startLocation.x
+                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                let modifiedDate = Calendar.current.date(
+                                                                    byAdding: .day,
+                                                                    value: Int(countMovedLocation),
+                                                                    to: schedule.endDate
+                                                                )!
+                                                                if modifiedDate < schedule.startDate { return }
+                                                                viewStore.send(.updateScheduleDate(
+                                                                    scheduleID: scheduleID,
+                                                                    originPeriod: [schedule.startDate, schedule.endDate],
+                                                                    updatedPeriod: [schedule.startDate, modifiedDate]
+                                                                ))
+                                                            })
+                                                        )
+                                                }
+                                            }
+                                        }
+                                    )
                                     .popover(
                                         isPresented: isUpdateSchedulePresented,
                                         attachmentAnchor: .point(.trailing),
@@ -610,13 +655,34 @@ extension PlanBoardView {
                                         y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
                                     )
                                     .highPriorityGesture(TapGesture(count: 1).onEnded({
-                                        // TODO: - 한번탭
+                                        viewStore.send(.editSchedule(scheduleID))
                                     }))
-                                    .simultaneousGesture(
-                                        TapGesture(count: 2)
-                                            .onEnded { _ in
-                                                viewStore.send(.setCurrentModifyingSchedule(scheduleID))
+                                    .simultaneousGesture(TapGesture(count: 2).onEnded({
+                                        viewStore.send(.setCurrentModifyingSchedule(scheduleID))
+                                    }))
+                                    .gesture(DragGesture()
+                                        .onEnded({ value in
+                                            if viewStore.currentModifyingScheduleID == scheduleID {
+                                                let currentX = value.location.x
+                                                let prevX = value.startLocation.x
+                                                let countMovedLocationX = (currentX - prevX) / viewStore.gridWidth
+                                                let modifiedStartDate = Calendar.current.date(
+                                                    byAdding: .day,
+                                                    value: Int(countMovedLocationX),
+                                                    to: schedule.startDate
+                                                )!
+                                                let modifiedEndDate = Calendar.current.date(
+                                                    byAdding: .day,
+                                                    value: Int(countMovedLocationX),
+                                                    to: schedule.endDate
+                                                )!
+                                                viewStore.send(.updateScheduleDate(
+                                                    scheduleID: scheduleID,
+                                                    originPeriod: [schedule.startDate, schedule.endDate],
+                                                    updatedPeriod: [modifiedStartDate, modifiedEndDate]
+                                                ))
                                             }
+                                        })
                                     )
                                     .contextMenu {
                                         Button("Delete") {
