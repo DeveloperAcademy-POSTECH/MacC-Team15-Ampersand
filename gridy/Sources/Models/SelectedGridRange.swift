@@ -20,8 +20,16 @@ struct SelectedGridRange: Identifiable, Hashable {
         return min(start.row, end.row)
     }
     
+    func maxRow() -> Int {
+        return max(start.row, end.row)
+    }
+    
     func minCol() -> Int {
         return min(start.col, end.col)
+    }
+    
+    func maxCol() -> Int {
+        return max(start.col, end.col)
     }
 
     static func == (lhs: SelectedGridRange, rhs: SelectedGridRange) -> Bool {

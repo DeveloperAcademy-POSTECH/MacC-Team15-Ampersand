@@ -128,7 +128,7 @@ extension PlanBoardView {
                             .fill(Color.itemHovered.opacity(0.5))
                             .frame(
                                 width: geometry.size.width,
-                                height: viewStore.lineAreaGridHeight - viewStore.rowStroke
+                                height: viewStore.lineAreaGridHeight
                             )
                             .opacity(viewStore.hoveredArea == .lineIndexArea ? 1 : 0)
                             .position(
@@ -161,12 +161,13 @@ extension PlanBoardView {
                                 if let rows = viewStore.selectedLineIndexRows {
                                     Button("Clear lanes") {
                                         viewStore.send(.deleteLaneContents(rows: rows))
+                                        viewStore.send(.setClickedArea(areaName: .none))
                                     }
                                     Button("Add a lane above") {
-                                        viewStore.send(.createLaneButtonClicked(row: rows.first!, createOnTop: true))
+                                        // TODO: - create a lane on lineIndex
                                     }
                                     Button("Add a lane below") {
-                                        viewStore.send(.createLaneButtonClicked(row: rows.last!, createOnTop: false))
+                                        // TODO: - create a lane on lineIndex
                                     }
                                 }
                             }
@@ -271,10 +272,12 @@ extension PlanBoardView {
                             .contextMenu {
                                 Button("Clear Layer") {
                                     viewStore.send(.deleteLayerContents(layer: layerIndex))
+                                    viewStore.send(.setClickedArea(areaName: .none))
                                 }
                                 
                                 Button("Delete Layer") {
                                     viewStore.send(.deleteLayer(layer: layerIndex))
+                                    viewStore.send(.setClickedArea(areaName: .none))
                                 }
                                 .disabled(viewStore.map.count == 1)
                             }
@@ -293,6 +296,13 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
+                    Button("deletePlanContents") {
+                        if viewStore.clickedArea == .listArea, let ranges = viewStore.selectedListGridRanges {
+                            viewStore.send(.deletePlanContents(ranges: ranges))
+                            viewStore.send(.setClickedArea(areaName: .none))
+                        }
+                    }
+                    .keyboardShortcut(.delete, modifiers: [])
                     Color.listArea
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
@@ -312,7 +322,20 @@ extension PlanBoardView {
                     .stroke(Color.verticalLine, lineWidth: viewStore.columnStroke)
                     
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
-                    /// hover 되었을 때 
+                    /// layer가 선택되었을 때
+                    if viewStore.clickedArea == .listControlArea, let selectedLayer = viewStore.selectedLayer {
+                        Rectangle()
+                            .fill(Color.itemHovered.opacity(0.5))
+                            .frame(
+                                width: viewStore.listGridWidth,
+                                height: geometry.size.height
+                            )
+                            .position(
+                                x: CGFloat(Double(selectedLayer) + 0.5) * viewStore.listGridWidth,
+                                y: geometry.size.height / 2
+                            )
+                    }
+                    /// hover 되었을 때
                     if let hoveredRow = viewStore.listAreaHoveredCellRow,
                        let hoveredCol = viewStore.listAreaHoveredCellCol {
                         Rectangle()
@@ -325,12 +348,6 @@ extension PlanBoardView {
                                 x: gridWidth / 2 + (gridWidth + viewStore.columnStroke) * CGFloat(hoveredCol),
                                 y: CGFloat(Double(hoveredRow) + 0.5) * viewStore.lineAreaGridHeight
                             )
-                            .onTapGesture(count: 2) {
-                                listItemFocused = true
-                                viewStore.send(.listItemDoubleClicked(.listItem, false))
-                                viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
-                                viewStore.send(.setHoveredLocation(.listArea, false, nil))
-                            }
                             .contextMenu {
                                 /// Dummy ListItem View에도 일관성을 주기 위한 버튼으로 아무 액션도 수행하지 않음
                                 Button("Delete this Plan") { }
@@ -353,8 +370,8 @@ extension PlanBoardView {
                         ForEach(selectedRanges, id: \.self) { selectedRange in
                             let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.listGridWidth
-                            let xPosition = CGFloat(selectedRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.listGridWidth + width / 2
-                            let yPosition = CGFloat(selectedRange.minRow() - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                            let xPosition = CGFloat(selectedRange.minCol()) * width + width / 2
+                            let yPosition = CGFloat(selectedRange.minRow()) * viewStore.lineAreaGridHeight + height / 2
                             Rectangle()
                                 .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                                 .overlay(
@@ -412,7 +429,13 @@ extension PlanBoardView {
                         viewStore.send(.setHoveredLocation(.listArea, false, nil))
                     }
                 }
-                .gesture(
+                .highPriorityGesture(TapGesture(count: 2).onEnded({
+                    listItemFocused = true
+                    viewStore.send(.listItemDoubleClicked(.listItem, false))
+                    viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
+                    viewStore.send(.setHoveredLocation(.listArea, false, nil))
+                }))
+                .simultaneousGesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onChanged { gesture in
                             let dragEnd = gesture.location
@@ -428,6 +451,7 @@ extension PlanBoardView {
                                 end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
                                       endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                             )
+                            viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                             viewStore.send(.listDragGestureChanged(cmdPressed: viewStore.isCommandKeyPressed, range: newRange))
                         }
                         .onEnded { _ in
@@ -453,7 +477,7 @@ extension PlanBoardView {
                                 /// doubleClick 되었을 떄
                                 if viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex {
                                     Rectangle()
-                                        .fill(Color.listArea)
+                                        .fill(Color.blue.opacity(0.5))
                                         .overlay(
                                             TextField(
                                                 "editing",
@@ -482,8 +506,9 @@ extension PlanBoardView {
                                 } else {
                                     Rectangle()
                                         .fill(
-                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
-                                            Color.itemHovered : Color.listArea
+                                            .red.opacity(0.8)
+//                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
+//                                            Color.itemHovered.opacity(0.5) : Color.clear
                                         )
                                         .overlay {
                                             let planID = viewStore.map[layerIndex][rowIndex]
@@ -493,10 +518,7 @@ extension PlanBoardView {
                                             
                                             Text("\(planType.title)")
                                         }
-                                        .highPriorityGesture(TapGesture(count: 1).onEnded({
-                                            // TODO: - click 시 선택되어 보이는 사각형, drag와 함께 작업
-                                        }))
-                                        .simultaneousGesture(TapGesture(count: 2).onEnded({
+                                        .highPriorityGesture(TapGesture(count: 2).onEnded({
                                             listItemFocused = true
                                             viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                             viewStore.send(.listItemDoubleClicked(.listItem, true))
@@ -512,6 +534,7 @@ extension PlanBoardView {
                                         .contextMenu {
                                             Button("Delete this Plan") {
                                                 viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
+                                                viewStore.send(.setClickedArea(areaName: .none))
                                             }
                                         }
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)

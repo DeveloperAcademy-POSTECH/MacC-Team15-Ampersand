@@ -215,6 +215,7 @@ struct PlanBoard: Reducer {
         case createLayerButtonClicked(layer: Int)
         case createLaneButtonClicked(row: Int, createOnTop: Bool)
         case deleteLayer(layer: Int)
+        case deletePlanContents(ranges: [SelectedGridRange])
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
         case deletePlanOnLineWithID(planID: String)
@@ -977,6 +978,63 @@ struct PlanBoard: Reducer {
                             projectID
                         )
                     }
+                }
+                
+            case let .deletePlanContents(ranges):
+                let projectID = state.rootProject.id
+                var updatedPlans = [Plan]()
+                /// 각 Plan들의 높이를 계산
+                var planHeightsArray = [String: Int]()
+                var heightArray = (0..<state.map.count).map { _ in [Int]() }
+                for index in (0..<state.map.count).reversed() {
+                    let layer = state.map[index]
+                    for planID in layer {
+                        var laneHeight = 0
+                        let plan = state.existingPlans[planID]!
+                        let childIDs = plan.childPlanIDs
+                        let mappingByPlanIDs = childIDs.map { $0.value }.flatMap { $0 }
+                        
+                        for childPlanID in mappingByPlanIDs {
+                            laneHeight += planHeightsArray[childPlanID, default: 0]
+                        }
+                        planHeightsArray[planID] = laneHeight == 0 ? childIDs.count : laneHeight
+                        heightArray[index].append(planHeightsArray[planID]!)
+                    }
+                }
+                for range in ranges {
+                    let startRow = range.minRow(), endRow = range.maxRow()
+                    let startCol = range.minCol(), endCol = range.maxCol()
+                    
+                    for layerIndex in startCol...endCol {
+                        let sumOfLayerCount = heightArray[layerIndex].reduce(0, +)
+                        
+                        for rowIndex in startRow...endRow {
+                            if rowIndex + 1 > sumOfLayerCount { return .none }
+                            /// 내가 선택한 row가 어떤 plan인지 찾음
+                            var count = 0
+                            var targetRow = 0
+                            
+                            for heightCount in 0..<heightArray[layerIndex].count {
+                                let height = heightArray[layerIndex][heightCount]
+                                count += height
+                                if rowIndex + 1 <= count {
+                                    targetRow = heightCount
+                                    break
+                                }
+                            }
+                            let targetPlanID = state.map[layerIndex][targetRow]
+                            let targetPlan = state.existingPlans[targetPlanID]!
+                            state.existingPlans[targetPlanID]?.planTypeID = PlanType.emptyPlanType.id
+                            updatedPlans.append(targetPlan)
+                        }
+                    }
+                }
+                let plansToUpdate = updatedPlans
+                return .run { _ in
+                    try await apiService.updatePlans(
+                        plansToUpdate,
+                        projectID
+                    )
                 }
                 
             case let .deleteLayerContents(layer):
@@ -1991,10 +2049,6 @@ struct PlanBoard: Reducer {
             case  let .listDragGestureChanged(cmdPressed, newRange):
                 if !cmdPressed {
                     state.selectedListGridRanges = nil
-                }
-                if state.clickedArea != .listArea {
-                    state.selectedListGridRanges = nil
-                    state.temporarySelectedListGridRanges = nil
                 }
                 state.temporarySelectedListGridRanges = newRange
                 return .run { send in
