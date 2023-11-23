@@ -798,6 +798,32 @@ extension PlanBoardView {
                                         .simultaneousGesture(TapGesture(count: 2).onEnded({
                                             viewStore.send(.modifyPlanType(plan.id))
                                         }))
+                                        .gesture(DragGesture()
+                                            .onEnded({ value in
+                                                let currentX = value.location.x
+                                                let prevX = value.startLocation.x
+                                                let countMovedLocationX = (currentX - prevX) / viewStore.gridWidth
+                                                let modifiedStartDate = Calendar.current.date(
+                                                    byAdding: .day,
+                                                    value: Int(countMovedLocationX),
+                                                    to: selectedRange.start
+                                                )!
+                                                let modifiedEndDate = Calendar.current.date(
+                                                    byAdding: .day,
+                                                    value: Int(countMovedLocationX),
+                                                    to: selectedRange.end
+                                                )!
+                                                let currentY = value.location.y
+                                                let prevY = value.startLocation.y
+                                                let countMovedLocationY = (currentY - prevY) / viewStore.lineAreaGridHeight
+                                                viewStore.send(.dragToMovePlanInLine(
+                                                    lineIndex + Int(countMovedLocationY),
+                                                    plan.id,
+                                                    [selectedRange.start, selectedRange.end],
+                                                    [modifiedStartDate, modifiedEndDate])
+                                                )
+                                            })
+                                        )
                                         .contextMenu {
                                             Button("Delete") {
                                                 viewStore.send(.deletePlanOnLineWithID(planID: plan.id))

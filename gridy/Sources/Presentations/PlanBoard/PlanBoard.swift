@@ -243,7 +243,7 @@ struct PlanBoard: Reducer {
         
         /// source, destication: layer 내의 인덱스. row값은 또 따로 받음
         case dragToMovePlanInList(targetPlanID: String, source: Int, destination: Int, row: Int, layer: Int)
-        case dragToMovePlanInLine(Int, String, Date, Date)
+        case dragToMovePlanInLine(Int, String, [Date], [Date])
         case shiftSelectedCell(rowOffset: Int, colOffset: Int)
         case shiftToToday
         case escapeSelectedCell
@@ -667,6 +667,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                     await send(.reloadMap)
+                    await send(.reloadListMap)
                 }
                 
             case .readPlans:
@@ -1748,7 +1749,8 @@ struct PlanBoard: Reducer {
                     }
                 }
                 
-            case let .dragToMovePlanInLine(moveRowTo, targetPlanID, startDate, endDate):
+                // TODO: - 다른 플랜과 기간이 겹치도록 들어온 경우?
+            case let .dragToMovePlanInLine(moveRowTo, targetPlanID, originPeriod, updatedPeriod):
                 let projectID = state.rootProject.id
                 let targetPlan = state.existingPlans[targetPlanID]!
                 var currentRowCount = -1
@@ -1763,14 +1765,14 @@ struct PlanBoard: Reducer {
                     }
                     if currentRowCount < moveRowTo, moveRowTo <= currentRowCount + parentPlan.childPlanIDs.count {
                         destinationParentPlan = parentPlan
-                        laneIndexInParent = currentRowCount - moveRowTo
+                        laneIndexInParent = currentRowCount - moveRowTo + 1
                     }
                     currentRowCount += parentPlan.childPlanIDs.count
                 }
                 /// targetPlan이 periods가 여러개인 경우
                 if state.existingPlans[targetPlanID]!.periods!.count > 1 {
                     /// 기존 parent에서 해당하는 period만 삭제
-                    let periodsIndex = state.existingPlans[targetPlanID]!.periods!.filter { $0.value == [startDate, endDate] }[0].key
+                    let periodsIndex = state.existingPlans[targetPlanID]!.periods!.filter { $0.value == [originPeriod[0], originPeriod[1]] }[0].key
                     for currentPeriodsIndex in Int(periodsIndex)!..<targetPlan.periods!.count-1 {
                         state.existingPlans[targetPlanID]!.periods!["\(currentPeriodsIndex)"] = targetPlan.periods!["\(currentPeriodsIndex + 1)"]
                     }
@@ -1781,18 +1783,47 @@ struct PlanBoard: Reducer {
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.remove(at: targetParentPlan.childPlanIDs["\(laneIndexInParent)"]!.firstIndex(of: targetPlanID)!)
                 }
                 if let destinationParentPlan = destinationParentPlan {
-                    /// 이미 존재하는 plan에게 종속시키는 경우
-                    state.existingPlans[destinationParentPlan.id]!.periods!["\(destinationParentPlan.periods!.count)"] = [startDate, endDate]
-                    let plansToUpdate = [state.existingPlans[targetParentPlan.id]!, state.existingPlans[destinationParentPlan.id]!, state.existingPlans[targetPlanID]!]
+                    // TODO:  이미 타입이 동일한 plan이 존재하고, 이에 종속시키는 경우
+//                    if destinationParentPlan.periods == nil {
+//                        state.existingPlans[destinationParentPlan.id]!.periods = [:]
+//                        state.existingPlans[destinationParentPlan.id]!.periods!["0"] = [startDate, endDate]
+//                    } else {
+//                        state.existingPlans[destinationParentPlan.id]!.periods!["\(destinationParentPlan.periods!.count)"] = [startDate, endDate]
+//                    }
+                    state.existingPlans[destinationParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.append(targetPlanID)
+                    
+                    let plansToUpdate = [
+                        state.existingPlans[targetParentPlan.id]!,
+                        state.existingPlans[destinationParentPlan.id]!,
+                        state.existingPlans[targetPlanID]!
+                    ]
                     return .run { send in
                         await send(.reloadMap)
+                        await send(.dragToChangePeriod(
+                            planID: targetPlanID,
+                            originPeriod: originPeriod,
+                            updatedPeriod: updatedPeriod)
+                        )
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
                 } else {
-                    let plansToUpdate = [state.existingPlans[targetParentPlan.id]!, state.existingPlans[targetPlanID]!]
+                    let plansToUpdate = [
+                        state.existingPlans[targetParentPlan.id]!,
+                        state.existingPlans[targetPlanID]!
+                    ]
                     /// 없는 lane에 갖다넣은 경우
                     return .run { send in
-                        await send(.createPlanOnLine(row: moveRowTo, startDate: startDate, endDate: endDate))
+                        await send(.createPlanOnLine(
+                            row: moveRowTo,
+                            startDate: originPeriod[0],
+                            endDate: originPeriod[1])
+                        )
+                        await send(.dragToChangePeriod(
+                            planID: targetPlanID,
+                            originPeriod: originPeriod,
+                            updatedPeriod: updatedPeriod)
+                        )
+                        await send(.reloadListMap)
                         await send(.reloadMap)
                         try await apiService.updatePlans(plansToUpdate, projectID)
                     }
