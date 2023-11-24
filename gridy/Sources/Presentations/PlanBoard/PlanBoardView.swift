@@ -71,11 +71,11 @@ struct PlanBoardView: View {
                         GeometryReader { _ in
                             VStack(alignment: .leading, spacing: 0) {
                                 scheduleArea
-                                    .frame(height: 88)
+                                    .frame(height: 80)
                                     .zIndex(2)
                                 planBoardBorder(.horizontal)
                                 milestoneArea
-                                    .frame(height: 45)
+                                    .frame(height: 53)
                                     .zIndex(2)
                                 planBoardBorder(.horizontal)
                                 timeAxisArea
@@ -623,16 +623,16 @@ extension PlanBoardView {
                         let position = CGFloat(schedule.startDate.integerDate - today.integerDate)
                         
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 24 * 0.5)
+                            RoundedRectangle(cornerRadius: 19 * 0.5)
                                 .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.7))
-                                .frame(width: width * viewStore.gridWidth, height: 20)
+                                .frame(width: width * viewStore.gridWidth, height: 19)
                             Text(schedule.title ?? "")
                                 .foregroundStyle(Color.white)
                                 .padding(.leading, 8)
                         }
                         .overlay(
                             ZStack {
-                                RoundedRectangle(cornerRadius: 24 * 0.5)
+                                RoundedRectangle(cornerRadius: 19 * 0.5)
                                     .stroke(Color.white, lineWidth: 1)
                                 if viewStore.currentModifyingScheduleID == scheduleID {
                                     HStack {
@@ -713,7 +713,7 @@ extension PlanBoardView {
                         }
                         .position(
                             x: (position - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol) + (width / 2)) * viewStore.gridWidth,
-                            y: CGFloat(geometry.size.height - 10) - CGFloat(scheduleRowIndex * 24)
+                            y: CGFloat(geometry.size.height - 19/2 - 3) - CGFloat(scheduleRowIndex * 23)
                         )
                         .highPriorityGesture(TapGesture(count: 1).onEnded({
                             viewStore.send(.editSchedule(scheduleID))
