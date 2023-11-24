@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct ProjectBoardView: View {
     let store: StoreOf<ProjectBoard>
     let windowManager: WindowManager
-
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             var isUserSettingPresented: Binding<Bool> {
@@ -79,10 +79,16 @@ struct ProjectBoardView: View {
                         listArea
                     }
                 } else {
-                    PlanBoardView(store: store.scope(
-                        state: \.planBoards[id: currentShowingPlanBoardID]!,
-                        action: { .planBoardAction(id: currentShowingPlanBoardID, action: $0) }
-                    ))
+                    IfLetStore(
+                        store.scope(
+                            state: \.planBoards[id: currentShowingPlanBoardID],
+                            action: { .planBoardAction(id: currentShowingPlanBoardID, action: $0) }
+                        )
+                    ) {
+                        PlanBoardView(store: $0)
+                    } else: {
+                        ProgressView()
+                    }
                 }
             }
             .onAppear {

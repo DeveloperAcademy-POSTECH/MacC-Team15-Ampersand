@@ -24,7 +24,6 @@ struct GridyApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    @Published var isMaximized = false
     var windowManager = WindowManager()
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         FirebaseApp.configure()

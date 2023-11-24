@@ -21,7 +21,6 @@ struct ContentView: View {
                     ZStack {
                         SplashView()
                         AuthenticationView(store: store)
-                        
                     }
                 } else {
                     ProjectBoardView(
