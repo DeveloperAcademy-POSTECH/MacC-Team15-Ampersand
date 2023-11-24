@@ -168,6 +168,7 @@ struct PlanBoard: Reducer {
         
         /// ScheduleArea
         var editingSchedule = false
+        var updateSchedulePresented = false
         
         /// LineArea
         var isHoveredOnLineArea = false
@@ -183,7 +184,6 @@ struct PlanBoard: Reducer {
         
         /// each plan on line
         var updatePlanTypePresented = false
-        var updateSchedulePresented = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
