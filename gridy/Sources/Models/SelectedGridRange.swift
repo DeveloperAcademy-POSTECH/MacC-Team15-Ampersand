@@ -18,5 +18,7 @@ struct SelectedGridRange: Identifiable, Hashable {
 
     static func == (lhs: SelectedGridRange, rhs: SelectedGridRange) -> Bool {
         return lhs.id == rhs.id
+        && lhs.start == rhs.start
+        && lhs.end == rhs.end
     }
 }
