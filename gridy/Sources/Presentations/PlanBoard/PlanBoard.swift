@@ -117,6 +117,7 @@ struct PlanBoard: Reducer {
         var exceededDirection = [false, false, false, false]
         
         /// GeometryReader proxy값의 변화에 따라 Max 그리드 갯수가 변화합니다.
+        var geometrySize = CGSize(width: 0, height: 0)
         var maxCol = 0
         var maxLineAreaRow = 0
         var defaultLineAreaRow = 20
@@ -144,7 +145,7 @@ struct PlanBoard: Reducer {
         var selectedEndDate = Date()
         var startDatePickerPresented = false
         var endDatePickerPresented = false
-
+        
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -153,7 +154,7 @@ struct PlanBoard: Reducer {
         
         /// LineIndexArea
         var selectedLineIndexRow: Int?
-
+        
         /// LineArea
         var isHoveredOnLineArea = false
         
@@ -227,9 +228,9 @@ struct PlanBoard: Reducer {
         case magnificationChangedInScheduleArea(CGFloat)
         
         /// LineAreaView
-        case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
-        case dragGestureEnded(SelectedGridRange?)
-        case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
+        case dragGestureOnChanged(DragGesture.Value)
+        case dragGestureOnEnded
+        case onReceiveTimer
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         
@@ -242,7 +243,7 @@ struct PlanBoard: Reducer {
         case windowSizeChanged(CGSize)
         case gridSizeChanged(CGSize)
         case setHoveredLocation(PlanBoardAreaName, Bool, CGPoint?)
-        case magnificationChangedInListArea(CGFloat, CGSize)
+        case magnificationChangedInListArea(CGFloat)
         case scrollGesture(NSEvent)
         
         /// List area
@@ -1033,7 +1034,7 @@ struct PlanBoard: Reducer {
                     /// 그 부모가 root일 경우: Layer가 0
                     if targetParentPlanID == state.rootProject.rootPlanID {
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
-                    /// 부모가 root가 아닐 경우: Layer가 1 이상
+                        /// 부모가 root가 아닐 경우: Layer가 1 이상
                     } else {
                         let newPlanID = UUID().uuidString
                         let newPlan = Plan(
@@ -1046,7 +1047,7 @@ struct PlanBoard: Reducer {
                         createdPlans.append(newPlan)
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
                     }
-                /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -1489,13 +1490,6 @@ struct PlanBoard: Reducer {
                 state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 return .none
                 
-            case let .dragExceeded(shiftedRow, shiftedCol, exceededRow, exceededCol):
-                state.shiftedRow += shiftedRow
-                state.shiftedCol += shiftedCol
-                state.exceededRow += exceededRow
-                state.exceededCol += exceededCol
-                return .none
-                
             case let .dragToChangePeriod(planID, originPeriod, updatedPeriod):
                 if originPeriod == updatedPeriod { return .none }
                 let periodIndex = state.existingPlans[planID]?.periods?.first(where: { $0.value == originPeriod })!.key
@@ -1847,14 +1841,10 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .windowSizeChanged(newSize):
-                state.maxLineAreaRow = Int(newSize.height / state.lineAreaGridHeight) + 1
-                state.maxCol = Int(newSize.width / state.gridWidth) + 1
-                return .none
-                
-            case let .gridSizeChanged(geometrySize):
-                state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
-                state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
+            case let .windowSizeChanged(geometrySize):
+                state.geometrySize = geometrySize
+                state.maxLineAreaRow = Int(state.geometrySize.height / state.lineAreaGridHeight) + 1
+                state.maxCol = Int(state.geometrySize.width / state.gridWidth) + 1
                 return .none
                 
             case let .setHoveredLocation(areaName, isActive, location):
@@ -1908,30 +1898,117 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .dragGestureChanged(dragType, updatedRange):
-                switch dragType {
-                case .pressNothing:
-                    state.selectedGridRanges = []
-                case .pressOnlyShift:
-                    if let updatedRange = updatedRange {
-                        state.selectedGridRanges = [updatedRange]
+            case let .dragGestureOnChanged(dragGesture):
+                /// local 뷰 기준 절대적인 드래그 시작점과 끝 점.
+                let dragEnd = dragGesture.location
+                let dragStart = dragGesture.startLocation
+                /// 드래그된 값을 기준으로 시작점과 끝점의 Row, Col 계산
+                let startRow = Int(dragStart.y / state.lineAreaGridHeight)
+                let startCol = Int(dragStart.x / state.gridWidth)
+                let endRow = Int(dragEnd.y / state.lineAreaGridHeight)
+                let endCol = Int(dragEnd.x / state.gridWidth)
+                /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
+                state.exceededDirection = [
+                    dragEnd.x < 0,
+                    dragEnd.x > state.geometrySize.width,
+                    dragEnd.y < 0,
+                    dragEnd.y > state.geometrySize.height
+                ]
+                if !state.isCommandKeyPressed {
+                    if !state.isShiftKeyPressed {
+                        ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
+                        state.selectedGridRanges = []
+                        state.temporarySelectedGridRange = SelectedGridRange(
+                            start: (startRow + state.shiftedRow + state.scrolledRow - state.exceededRow,
+                                    startCol + state.shiftedCol + state.scrolledCol - state.exceededCol),
+                            end: (endRow + state.shiftedRow + state.scrolledRow,
+                                  endCol + state.shiftedCol + state.scrolledCol)
+                        )
+                    } else {
+                        /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
+                        if let lastRange = state.selectedGridRanges.last {
+                            var updatedRange = lastRange
+                            updatedRange.end.row = endRow + state.shiftedRow + state.scrolledRow - state.exceededRow
+                            updatedRange.end.col = endCol + state.shiftedCol + state.scrolledCol - state.exceededCol
+                            state.selectedGridRanges = [updatedRange]
+                        }
                     }
-                case .pressOnlyCommand:
-                    break
-                case .pressBoth:
-                    if let lastIndex = state.selectedGridRanges.indices.last,
-                       let updatedRange = updatedRange {
-                        state.selectedGridRanges[lastIndex] = updatedRange
+                } else {
+                    if !state.isShiftKeyPressed {
+                        /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
+                        state.temporarySelectedGridRange = SelectedGridRange(
+                            start: (startRow + state.shiftedRow + state.scrolledRow - state.exceededRow,
+                                    startCol + state.shiftedCol + state.scrolledCol - state.exceededCol),
+                            end: (endRow + state.shiftedRow + state.scrolledRow,
+                                  endCol + state.shiftedCol + state.scrolledCol)
+                        )
+                    } else {
+                        /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
+                        if let lastRange = state.selectedGridRanges.last {
+                            var updatedRange = lastRange
+                            updatedRange.end.row = endRow + state.shiftedRow + state.scrolledRow - state.exceededRow
+                            updatedRange.end.col = endCol + state.shiftedCol + state.scrolledCol - state.exceededCol
+                            state.selectedGridRanges[state.selectedGridRanges.indices.last!] = updatedRange
+                        }
                     }
                 }
                 return .none
                 
-            case let .dragGestureEnded(newRange):
-                if let newRange = newRange {
-                    state.selectedGridRanges.append(newRange)
+            case .dragGestureOnEnded:
+                if let temporaryRange = state.temporarySelectedGridRange {
+                    state.selectedGridRanges.append(temporaryRange)
                 }
+                state.temporarySelectedGridRange = nil
+                state.exceededDirection = [false, false, false, false]
                 state.exceededCol = 0
                 state.exceededRow = 0
+                return .none
+                
+            case .onReceiveTimer:
+                switch state.exceededDirection {
+                case [true, false, false, false]:
+                    state.shiftedRow += 0
+                    state.shiftedCol += -1
+                    state.exceededRow += 0
+                    state.exceededCol += -1
+                case [false, true, false, false]:
+                    state.shiftedRow += 0
+                    state.shiftedCol += 1
+                    state.exceededRow += 0
+                    state.exceededCol += 1
+                case [false, false, true, false]:
+                    state.shiftedRow += -1
+                    state.shiftedCol += 0
+                    state.exceededRow += -1
+                    state.exceededCol += 0
+                case [false, false, false, true]:
+                    state.shiftedRow += 1
+                    state.shiftedCol += 0
+                    state.exceededRow += 1
+                    state.exceededCol += 0
+                case [true, false, true, false]:
+                    state.shiftedRow += -1
+                    state.shiftedCol += -1
+                    state.exceededRow += -1
+                    state.exceededCol += -1
+                case [true, false, false, true]:
+                    state.shiftedRow += 1
+                    state.shiftedCol += -1
+                    state.exceededRow += 1
+                    state.exceededCol += -1
+                case [false, true, true, false]:
+                    state.shiftedRow += -1
+                    state.shiftedCol += 1
+                    state.exceededRow += -1
+                    state.exceededCol += 1
+                case [false, true, false, true]:
+                    state.shiftedRow += 1
+                    state.shiftedCol += 1
+                    state.exceededRow += 1
+                    state.exceededCol += 1
+                default:
+                    break
+                }
                 return .none
                 
             case let .listItemDoubleClicked(buttonName, clicked):
@@ -1979,7 +2056,7 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
-            case let .magnificationChangedInListArea(value, geometrySize):
+            case let .magnificationChangedInListArea(value):
                 state.gridWidth = min(
                     max(
                         state.gridWidth * min(max(value, 0.5), 2.0),
@@ -1994,15 +2071,15 @@ struct PlanBoard: Reducer {
                     ),
                     state.maxGridSize
                 )
-                state.maxLineAreaRow = Int(geometrySize.height / state.lineAreaGridHeight) + 1
-                state.maxCol = Int(geometrySize.width / state.gridWidth) + 1
+                state.maxLineAreaRow = Int(state.geometrySize.height / state.lineAreaGridHeight) + 1
+                state.maxCol = Int(state.geometrySize.width / state.gridWidth) + 1
                 return .none
                 
             case let .scrollGesture(event):
                 let magnitude = sqrt(event.scrollingDeltaX * event.scrollingDeltaX + event.scrollingDeltaY * event.scrollingDeltaY)
                 if magnitude != 0 {
-                    state.scrolledY += (-event.scrollingDeltaY / magnitude) / 4
-                    state.scrolledX += (-event.scrollingDeltaX / magnitude) / 4
+                    state.scrolledY += (-event.scrollingDeltaY / magnitude) / 2
+                    state.scrolledX += (-event.scrollingDeltaX / magnitude) / 2
                     state.scrolledRow = Int(state.scrolledY)
                     state.scrolledCol = Int(state.scrolledX)
                 }
@@ -2070,7 +2147,7 @@ struct PlanBoard: Reducer {
                 var newMap = [[String]]()
                 let sortedSchedules = state.existingSchedules.values.sorted {
                     ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)
-                }                
+                }
                 for targetSchedule in sortedSchedules {
                     if let targetRowIndex = newMap.firstIndex(where: { scheduleRow in
                         !scheduleRow.contains(where: { scheduleID in
