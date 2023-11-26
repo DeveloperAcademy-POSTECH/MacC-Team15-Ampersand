@@ -1011,6 +1011,17 @@ extension PlanBoardView {
                             )
                             .opacity(viewStore.hoveredArea == .timeAxisArea ? 1 : 0)
                         
+                        if let lineIndexAreaHoveredCellRow = viewStore.lineIndexAreaHoveredCellRow {
+                            Rectangle()
+                                .foregroundStyle(Color.hoveredCell.opacity(0.5))
+                                .frame(width: geometry.size.width * 2, height: viewStore.lineAreaGridHeight)
+                                .position(
+                                    x: 0,
+                                    y: CGFloat(lineIndexAreaHoveredCellRow) * viewStore.lineAreaGridHeight + viewStore.lineAreaGridHeight / 2
+                                )
+                                .opacity(viewStore.hoveredArea == .lineIndexArea ? 1 : 0)
+                        }
+                        
                         let today = Date().filteredDate.integerDate
                         ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
                             let plans = viewStore.listMap[lineIndex]
