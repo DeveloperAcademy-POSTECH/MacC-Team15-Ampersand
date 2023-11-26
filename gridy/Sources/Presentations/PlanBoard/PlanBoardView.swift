@@ -11,10 +11,7 @@ import ComposableArchitecture
 struct PlanBoardView: View {
     @State var topHovered = false
     @State var bottomHovered = false
-    @State private var temporarySelectedGridRange: SelectedGridRange?
-    @State private var temporarySelectedScheduleRange: SelectedScheduleRange?
     @State private var exceededDirection = [false, false, false, false]
-    @State private var exceededDirectionScheduleArea = [false, false]
     @FocusState var listItemFocused: Bool
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
@@ -622,21 +619,20 @@ extension PlanBoardView {
                             let startCol = Int(dragStart.x / viewStore.gridWidth)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             
-                            exceededDirectionScheduleArea = [
+                            let exceededDirection = [
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width
                             ]
-                            
-                            viewStore.send(.dragGestureChangedSchedule(.pressNothing, nil))
-                            temporarySelectedScheduleRange = SelectedScheduleRange(
+                            let newRange = SelectedScheduleRange(
                                 startCol: startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol,
                                 endCol: endCol + viewStore.shiftedCol + viewStore.scrolledCol
                             )
+                            viewStore.send(.setExceededScheduleDirection(exceededDirection))
+                            viewStore.send(.dragGestureChangedSchedule(.pressNothing, newRange))
                         }
                         .onEnded { _ in
-                            viewStore.send(.dragGestureEndedSchedule(temporarySelectedScheduleRange))
-                            temporarySelectedScheduleRange = nil
-                            exceededDirectionScheduleArea = [false, false]
+                            viewStore.send(.dragGestureEndedSchedule)
+                            viewStore.send(.setExceededScheduleDirection([false, false]))
                         }
                 )
             }
@@ -695,7 +691,7 @@ extension PlanBoardView {
     
     func scheduleDraggingRectangle(geometry: GeometryProxy) -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            if viewStore.clickedArea == .scheduleArea, let temporaryRange = temporarySelectedScheduleRange {
+            if viewStore.clickedArea == .scheduleArea, let temporaryRange = viewStore.temporarySelectedScheduleRange {
                 let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
                 let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
                 Rectangle()
@@ -1191,7 +1187,7 @@ extension PlanBoardView {
                             }
                         }
                         
-                        if viewStore.clickedArea == .lineArea, let temporaryRange = temporarySelectedGridRange {
+                        if viewStore.clickedArea == .lineArea, let temporaryRange = viewStore.temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
                             let xPosition = CGFloat(temporaryRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
@@ -1292,13 +1288,12 @@ extension PlanBoardView {
                             if !viewStore.isCommandKeyPressed {
                                 if !viewStore.isShiftKeyPressed {
                                     ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
-                                    viewStore.send(.dragGestureChanged(.pressNothing, nil))
-                                    temporarySelectedGridRange = SelectedGridRange(
+                                    let temporarySelectedGridRange = SelectedGridRange(
                                         start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
                                         end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
-                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol)
-                                    )
+                                              endCol + viewStore.shiftedCol + viewStore.scrolledCol))
+                                    viewStore.send(.dragGestureChanged(.pressNothing, temporarySelectedGridRange))
                                 } else {
                                     /// Shift가 클릭된 상태에서는, selectedGridRanges의 마지막 Range 끝 점의 Row, Col을 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                     if let lastIndex = viewStore.selectedGridRanges.indices.last {
@@ -1311,12 +1306,13 @@ extension PlanBoardView {
                             } else {
                                 if !viewStore.isShiftKeyPressed {
                                     /// Command가 클릭된 상태에서는 onEnded에서 append하게 될 temporarySelectedGridRange를 업데이트 한다.
-                                    self.temporarySelectedGridRange = SelectedGridRange(
+                                    let temporarySelectedGridRange = SelectedGridRange(
                                         start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                                 startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
                                         end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
                                               endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                                     )
+                                    viewStore.send(.dragGestureChanged(.pressOnlyCommand, temporarySelectedGridRange))
                                 } else {
                                     /// Command와 Shift가 클릭된 상태에서는 selectedGridRanges의 마지막 Range의 끝점을 업데이트 해주어 selectedGridRanges에 직접 담는다. 드래그 중에도 영역이 변하길 기대하기 때문.
                                     if let lastIndex = viewStore.selectedGridRanges.indices.last {
@@ -1329,8 +1325,7 @@ extension PlanBoardView {
                             }
                         }
                         .onEnded { _ in
-                            viewStore.send(.dragGestureEnded(temporarySelectedGridRange))
-                            temporarySelectedGridRange = nil
+                            viewStore.send(.dragGestureEnded)
                             exceededDirection = [false, false, false, false]
                         }
                 )

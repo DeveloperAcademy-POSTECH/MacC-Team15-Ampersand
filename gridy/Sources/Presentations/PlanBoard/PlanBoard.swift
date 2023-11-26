@@ -121,10 +121,12 @@ struct PlanBoard: Reducer {
         
         /// LineArea의 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
         var temporarySelectedGridRange: SelectedGridRange?
+        var temporarySelectedScheduleRange: SelectedScheduleRange?
         var selectedGridRanges = [SelectedGridRange]()
         var selectedScheduleRanges = [SelectedScheduleRange]()
         var selectedDateRanges = [SelectedDateRange]()
         var exceededDirection = [false, false, false, false]
+        var exceededScheduleDirection = [false, false]
         
         /// LineIndexArea의 선택된 영역을 배열로 담습니다.
         var temporarySelectedLineIndexRows: [Int]?
@@ -246,11 +248,12 @@ struct PlanBoard: Reducer {
         /// ScheduleAreaView
         case magnificationChangedInSchedule(CGFloat)
         case dragGestureChangedSchedule(DragType, SelectedScheduleRange?)
-        case dragGestureEndedSchedule(SelectedScheduleRange?)
+        case dragGestureEndedSchedule
+        case setExceededScheduleDirection([Bool])
         
         /// LineAreaView
         case dragGestureChanged(DragType, SelectedGridRange?)
-        case dragGestureEnded(SelectedGridRange?)
+        case dragGestureEnded
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragExceededSchedule(shiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
@@ -2068,7 +2071,9 @@ struct PlanBoard: Reducer {
                         state.selectedGridRanges = [updatedRange]
                     }
                 case .pressOnlyCommand:
-                    break
+                    if let updatedRange = updatedRange {
+                        state.temporarySelectedGridRange = updatedRange
+                    }
                 case .pressBoth:
                     if let lastIndex = state.selectedGridRanges.indices.last,
                        let updatedRange = updatedRange {
@@ -2095,14 +2100,18 @@ struct PlanBoard: Reducer {
                         state.selectedScheduleRanges[lastIndex] = updatedScheduleRange
                     }
                 }
+                if let newRanges = updatedScheduleRange {
+                    state.temporarySelectedScheduleRange = newRanges
+                }
                 return .run { send in
                     await send(.setClickedArea(areaName: .scheduleArea))
                 }
                 
-            case let .dragGestureEnded(newRange):
-                if let newRange = newRange {
+            case let .dragGestureEnded:
+                if let newRange = state.temporarySelectedGridRange {
                     state.selectedGridRanges.append(newRange)
                 }
+                state.temporarySelectedGridRange = nil
                 state.exceededCol = 0
                 state.exceededRow = 0
                 return .run { send in
@@ -2132,15 +2141,19 @@ struct PlanBoard: Reducer {
                     await send(.setClickedArea(areaName: .listArea))
                 }
                 
-            case let .dragGestureEndedSchedule(newRange):
-                if let newRange = newRange {
+            case let .dragGestureEndedSchedule:
+                if let newRange = state.temporarySelectedScheduleRange {
                     state.selectedScheduleRanges.append(newRange)
                 }
+                state.temporarySelectedScheduleRange = nil
                 state.exceededCol = 0
                 return .run { send in
                     await send(.setClickedArea(areaName: .scheduleArea))
                 }
                 
+            case let .setExceededScheduleDirection(newDirection):
+                state.exceededScheduleDirection = newDirection
+                return .none
             case .listItemDoubleClicked:
                 /// clicked 위치가 listMap인지 listArea인지 계산
                 var planHeightsArray = [String: Int]()
