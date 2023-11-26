@@ -8,15 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-enum LineAreaDragType {
+enum DragType {
     case pressNothing /// no command, no shift
-    case pressOnlyShift
-    case pressOnlyCommand
-    case pressBoth
-}
-
-enum ScheduleAreaDragType {
-    case pressNothing
     case pressOnlyShift
     case pressOnlyCommand
     case pressBoth
@@ -243,11 +236,11 @@ struct PlanBoard: Reducer {
         
         /// ScheduleAreaView
         case magnificationChangedInScheduleArea(CGFloat)
-        case dragGestureChangedSchedule(ScheduleAreaDragType, SelectedScheduleRange?)
+        case dragGestureChangedSchedule(DragType, SelectedScheduleRange?)
         case dragGestureEndedScheduleArea(SelectedScheduleRange?)
         
         /// LineAreaView
-        case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
+        case dragGestureChanged(DragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragExceededSchedule(ShiftedCol: Int, exceededCol: Int)
