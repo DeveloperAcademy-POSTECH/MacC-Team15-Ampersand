@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PlanBoardView: View {
+    @State var topHovered = false
+    @State var bottomHovered = false
     @State private var temporarySelectedGridRange: SelectedGridRange?
     @State private var temporarySelectedScheduleRange: SelectedScheduleRange?
     @State private var exceededDirection = [false, false, false, false]
@@ -514,39 +516,77 @@ extension PlanBoardView {
                                         )
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {
-                                    Rectangle()
-                                        .fill(
-                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
-                                            Color.itemHovered.opacity(0.5) : Color.clear
-                                        )
-                                        .overlay {
-                                            let planID = viewStore.map[layerIndex][rowIndex]
-                                            let plan = viewStore.existingPlans[planID] ?? Plan.mock
-                                            let planTypeID = plan.planTypeID
-                                            let planType = viewStore.existingPlanTypes[planTypeID] ?? PlanType.emptyPlanType
-                                            
-                                            Text("\(planType.title)")
+                                    ZStack(alignment: .topLeading) {
+                                        Rectangle()
+                                            .fill(
+                                                viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
+                                                Color.itemHovered.opacity(0.5) : Color.clear
+                                            )
+                                        VStack {
+                                            Circle()
+                                                .fill(.clear)
+                                                .overlay(
+                                                    Image(systemName: "chevron.up")
+                                                        .padding(2)
+                                                        .foregroundStyle(topHovered ? .red : .red.opacity(0.5))
+                                                )
+                                                .onHover { isHovered in
+                                                    topHovered = isHovered
+                                                }
+                                                .onTapGesture {
+                                                    // TODO: - Add Plan On List
+                                                }
+                                            Spacer()
+                                            Circle()
+                                                .fill(.clear)
+                                                .overlay(
+                                                    Image(systemName: "chevron.down")
+                                                        .padding(2)
+                                                        .foregroundStyle(bottomHovered ? .blue : .blue.opacity(0.5))
+                                                )
+                                                .onHover { isHovered in
+                                                    bottomHovered = isHovered
+                                                }
+                                                .onTapGesture {
+                                                    // TODO: - Add Plan On List
+                                                }
                                         }
-                                        .highPriorityGesture(TapGesture(count: 2).onEnded({
-                                            listItemFocused = true
-                                            viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
-                                            viewStore.send(.listItemDoubleClicked(.listItem, true))
-                                        }))
-                                        .onContinuousHover { phase in
-                                            switch phase {
-                                            case .active:
-                                                viewStore.send(.setHoveredListItem(areaName: .listArea, row: rowIndex, column: layerIndex))
-                                            case .ended:
-                                                viewStore.send(.setHoveredListItem(areaName: .none, row: nil, column: nil))
-                                            }
+                                        .background {
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .backgroundStyle(Color.item.opacity(0.3))
                                         }
-                                        .contextMenu {
-                                            Button("Delete this Plan") {
-                                                viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
-                                                viewStore.send(.setClickedArea(areaName: .none))
-                                            }
+                                        .opacity(viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ? 1: 0)
+                                        .frame(width: 16)
+                                        .padding(2)
+                                    }
+                                    .overlay {
+                                        let planID = viewStore.map[layerIndex][rowIndex]
+                                        let plan = viewStore.existingPlans[planID] ?? Plan.mock
+                                        let planTypeID = plan.planTypeID
+                                        let planType = viewStore.existingPlanTypes[planTypeID] ?? PlanType.emptyPlanType
+                                        
+                                        Text("\(planType.title)")
+                                    }
+                                    .highPriorityGesture(TapGesture(count: 2).onEnded({
+                                        listItemFocused = true
+                                        viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
+                                        viewStore.send(.listItemDoubleClicked(.listItem, true))
+                                    }))
+                                    .onContinuousHover { phase in
+                                        switch phase {
+                                        case .active:
+                                            viewStore.send(.setHoveredListItem(areaName: .listArea, row: rowIndex, column: layerIndex))
+                                        case .ended:
+                                            viewStore.send(.setHoveredListItem(areaName: .none, row: nil, column: nil))
                                         }
-                                        .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
+                                    }
+                                    .contextMenu {
+                                        Button("Delete this Plan") {
+                                            viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
+                                            viewStore.send(.setClickedArea(areaName: .none))
+                                        }
+                                    }
+                                    .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 }
                             }
                             .frame(width: gridWidth)
