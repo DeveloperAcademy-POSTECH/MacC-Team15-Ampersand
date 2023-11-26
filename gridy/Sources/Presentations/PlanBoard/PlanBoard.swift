@@ -273,7 +273,8 @@ struct PlanBoard: Reducer {
         /// ListArea
         case listDragGestureChanged(cmdPressed: Bool, range: SelectedGridRange?)
         case listDragGestureEnded
-        case listItemDoubleClicked(String, Bool)
+        case listItemDoubleClicked
+        case dismissTextFieldOnList
         case keywordChanged(String)
         
         /// LineIndexArea
@@ -780,7 +781,7 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleText:
+            case .updateScheduleText:
                 state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
                 let scheduleID = state.currentModifyingScheduleID
@@ -794,7 +795,7 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleColorCode:
+            case .updateScheduleColorCode:
                 state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
                 let scheduleID = state.currentModifyingScheduleID
@@ -827,7 +828,6 @@ struct PlanBoard: Reducer {
                 
             case let .editSchedule(scheduleID):
                 state.currentModifyingScheduleID = scheduleID
-                let currentSchedule = state.existingSchedules[scheduleID]!
                 state.editingSchedule = true
                 return .none
                 
@@ -1045,7 +1045,7 @@ struct PlanBoard: Reducer {
                         let sumOfLayerCount = heightArray[layerIndex].reduce(0, +)
                         
                         for rowIndex in startRow...endRow {
-                            if rowIndex + 1 > sumOfLayerCount { return .none }
+                            if rowIndex + 1 > sumOfLayerCount { break }
                             /// 내가 선택한 row가 어떤 plan인지 찾음
                             var count = 0
                             var targetRow = 0
@@ -1207,12 +1207,10 @@ struct PlanBoard: Reducer {
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
                     let childLanes = parentPlan.childPlanIDs
-                    for (index, childLane) in childLanes.enumerated() {
-                        if childLane.value.contains(where: { $0 == planID }) {
-                            state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.remove(at: childLane.value.firstIndex(where: { $0 == planID})!)
-                            plansToUpdate.append(state.existingPlans[parentPlanID]!)
-                            break
-                        }
+                    for (index, childLane) in childLanes.enumerated() where childLane.value.contains(planID) {
+                        state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.removeAll { $0 == planID }
+                        plansToUpdate.append(state.existingPlans[parentPlanID]!)
+                        break
                     }
                 }
                 state.existingPlans[planID] = nil
@@ -2001,7 +1999,7 @@ struct PlanBoard: Reducer {
                 
             case let .setHoveredLocation(areaName, isActive, location):
                 state.hoveredArea = areaName
-                // TODO: 필요할 떄 각 영역 hover에 대한 action을 부여하기.
+                // TODO: 필요할 때 각 영역 hover에 대한 action을 부여하기.
                 switch areaName {
                 case .listArea:
                     state.hoveredArea = areaName
@@ -2051,11 +2049,10 @@ struct PlanBoard: Reducer {
                     break
                     
                 default:
-                    break
+                    return .none
                 }
                 return .none
                 
-                // TODO: - 삭제
             case let .setHoveredListItem(areaName, row, column):
                 state.hoveredItem = areaName.rawValue
                 state.listMapHoveredCellRow = row
@@ -2144,35 +2141,53 @@ struct PlanBoard: Reducer {
                     await send(.setClickedArea(areaName: .scheduleArea))
                 }
                 
-            case let .listItemDoubleClicked(buttonName, clicked):
-                switch buttonName {
-                case .listItem:
-                    if clicked {
+            case .listItemDoubleClicked:
+                /// clicked 위치가 listMap인지 listArea인지 계산
+                var planHeightsArray = [String: Int]()
+                var heightArray = (0..<state.map.count).map { _ in [Int]() }
+                for index in (0..<state.map.count).reversed() {
+                    let layer = state.map[index]
+                    for planID in layer {
+                        var laneHeight = 0
+                        let plan = state.existingPlans[planID]!
+                        let childIDs = plan.childPlanIDs
+                        let mappingByPlanIDs = childIDs.map { $0.value }.flatMap { $0 }
+                        
+                        for childPlanID in mappingByPlanIDs {
+                            laneHeight += planHeightsArray[childPlanID, default: 0]
+                        }
+                        planHeightsArray[planID] = laneHeight == 0 ? childIDs.count : laneHeight
+                        heightArray[index].append(planHeightsArray[planID]!)
+                    }
+                }
+                if let clickedRow = state.listAreaHoveredCellRow, let clickedLayer = state.listAreaHoveredCellCol {
+                    let sumOfLayerCount = heightArray[clickedLayer].reduce(0, +)
+                    
+                    if clickedRow + 1 > sumOfLayerCount {
+                        state.keyword = ""
+                        state.selectedListRow = nil
+                        state.selectedListColumn = nil
+                        state.selectedEmptyRow = clickedRow
+                        state.selectedEmptyColumn = clickedLayer
+                    } else {
+                        state.selectedEmptyRow = nil
+                        state.selectedEmptyColumn =  nil
                         state.selectedListRow = state.listMapHoveredCellRow!
                         state.selectedListColumn = state.listMapHoveredCellCol!
                         let planId = state.map[state.selectedListColumn!][state.selectedListRow!]
-                        let planTypeId = state.existingPlans[planId]!.planTypeID
-                        state.keyword = state.existingPlanTypes[planTypeId]!.title
-                    } else {
-                        state.selectedListRow = nil
-                        state.selectedListColumn = nil
+                        if let planTypeId = state.existingPlans[planId]?.planTypeID {
+                            state.keyword = state.existingPlanTypes[planTypeId]!.title
+                        }
                     }
-                    
-                case .emptyListItem:
-                    if clicked {
-                        state.keyword = ""
-                        state.selectedEmptyRow = state.listAreaHoveredCellRow!
-                        state.selectedEmptyColumn = state.listAreaHoveredCellCol!
-                        break
-                    } else {
-                        state.keyword = ""
-                        state.selectedEmptyRow = nil
-                        state.selectedEmptyColumn = nil
-                    }
-                    
-                default:
-                    break
                 }
+                return .none
+                
+            case .dismissTextFieldOnList:
+                state.keyword = ""
+                state.selectedEmptyRow = nil
+                state.selectedEmptyColumn =  nil
+                state.selectedListRow = nil
+                state.selectedListColumn = nil
                 return .none
                 
             case let .keywordChanged(newKeyword):
@@ -2286,7 +2301,6 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case .reloadScheduleMap:
-                // TODO: - scheduleMap에 schedule구조체 자체를 담아야 하면 타입 바꿔주기
                 var newMap = [[String]]()
                 let sortedSchedules = state.existingSchedules.values.sorted {
                     ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)

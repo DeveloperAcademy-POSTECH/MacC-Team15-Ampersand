@@ -419,11 +419,11 @@ extension PlanBoardView {
                                         text: viewStore.keyword,
                                         colorCode: PlanType.emptyPlanType.colorCode
                                     ))
-                                    viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
+                                    viewStore.send(.dismissTextFieldOnList)
                                 }
-                                    .onExitCommand {
-                                        viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
-                                    }
+                                .onExitCommand {
+                                    viewStore.send(.dismissTextFieldOnList)
+                                }
                             )
                         // TODO: - 높이 수정
                             .frame(width: viewStore.listGridWidth - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
@@ -443,9 +443,8 @@ extension PlanBoardView {
                 }
                 .highPriorityGesture(TapGesture(count: 2).onEnded({
                     listItemFocused = true
-                    viewStore.send(.listItemDoubleClicked(.listItem, false))
-                    viewStore.send(.listItemDoubleClicked(.emptyListItem, true))
-                    viewStore.send(.setHoveredLocation(.listArea, false, nil))
+                    viewStore.send(.listItemDoubleClicked)
+                    viewStore.send(.setHoveredLocation(.none, false, nil))
                 }))
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -463,7 +462,7 @@ extension PlanBoardView {
                                 end: (endRow + viewStore.shiftedRow + viewStore.scrolledRow,
                                       endCol + viewStore.shiftedCol + viewStore.scrolledCol)
                             )
-                            viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
+                            viewStore.send(.setHoveredLocation(.none, false, nil))
                             viewStore.send(.listDragGestureChanged(cmdPressed: viewStore.isCommandKeyPressed, range: newRange))
                         }
                         .onEnded { _ in
@@ -508,11 +507,11 @@ extension PlanBoardView {
                                                     text: viewStore.keyword,
                                                     colorCode: PlanType.emptyPlanType.colorCode
                                                 ))
-                                                viewStore.send(.listItemDoubleClicked(.listItem, false))
+                                                viewStore.send(.dismissTextFieldOnList)
                                             }
-                                                .onExitCommand {
-                                                    viewStore.send(.listItemDoubleClicked(.listItem, false))
-                                                }
+                                            .onExitCommand {
+                                                viewStore.send(.dismissTextFieldOnList)
+                                            }
                                         )
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {
@@ -566,12 +565,8 @@ extension PlanBoardView {
                                         let planType = viewStore.existingPlanTypes[planTypeID] ?? PlanType.emptyPlanType
                                         
                                         Text("\(planType.title)")
+                                            .opacity(viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex ? 0 : 1)
                                     }
-                                    .highPriorityGesture(TapGesture(count: 2).onEnded({
-                                        listItemFocused = true
-                                        viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
-                                        viewStore.send(.listItemDoubleClicked(.listItem, true))
-                                    }))
                                     .onContinuousHover { phase in
                                         switch phase {
                                         case .active:
