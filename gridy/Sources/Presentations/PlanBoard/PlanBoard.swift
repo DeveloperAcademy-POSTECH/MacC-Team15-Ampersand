@@ -232,7 +232,7 @@ struct PlanBoard: Reducer {
         case deletePlanOnLineWithID(planID: String)
         case deletePlanOnLineWithRanges
         case deleteLaneOnLine(row: Int)
-        case deleteLaneConents(rows: [Int])
+        case deleteLaneContents(rows: [Int])
         case mergePlans(layer: Int, planIDs: [String])
         
         /// PlanBoard
@@ -1376,7 +1376,7 @@ struct PlanBoard: Reducer {
                     }
                 }
                 
-            case let .deleteLaneConents(rows):
+            case let .deleteLaneContents(rows):
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
                 var deletedPlans = [Plan]()

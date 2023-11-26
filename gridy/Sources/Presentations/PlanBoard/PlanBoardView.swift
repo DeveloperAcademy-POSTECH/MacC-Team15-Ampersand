@@ -163,7 +163,7 @@ extension PlanBoardView {
                             .contextMenu {
                                 Button("Clear this lane") {
                                     if viewStore.selectedLineIndexRow! < viewStore.map.last!.count {
-                                        viewStore.send(.deleteLaneConents(
+                                        viewStore.send(.deleteLaneContents(
                                             rows: [viewStore.selectedLineIndexRow!, viewStore.selectedLineIndexRow!]
                                         ))
                                         viewStore.send(.lineIndexAreaClicked(false))
