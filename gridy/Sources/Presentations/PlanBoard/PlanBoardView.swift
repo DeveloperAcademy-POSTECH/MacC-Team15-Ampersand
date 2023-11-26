@@ -551,10 +551,15 @@ extension PlanBoardView {
                         verticalGrid(geometry: geometry)
                         hoveringRectangle()
                         hoveringVerticalRectangle(geometry: geometry)
+                        planItem()
+                        draggingRectangle()
+                        draggedRectangle()
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .onReceive(timer) { _ in
-                        viewStore.send(.onReceiveTimer)
+                        if viewStore.exceededDirection.contains(true) {
+                            viewStore.send(.onReceiveTimer)
+                        }
                     }
                     .onAppear {
                         viewStore.send(.windowSizeChanged(geometry.size))
@@ -585,11 +590,7 @@ extension PlanBoardView {
                                 viewStore.send(.magnificationChangedInListArea(value))
                             }
                     )
-                    planItem()
-                    draggingRectangle()
-                    draggedRectangle()
                     planItemEdit()
-
                 }
                 .background(Color.lineArea)
                 .onAppear {
@@ -788,57 +789,34 @@ extension PlanBoardView {
                             let height = viewStore.lineAreaGridHeight
                             let positionX = (CGFloat(selectedRange.start.integerDate - today) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol)) * CGFloat(viewStore.gridWidth) + CGFloat(width * 0.5)
                             let positionY = (CGFloat(lineIndex) - CGFloat(viewStore.shiftedRow) - CGFloat(viewStore.scrolledRow)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(height * 0.5)
-                            let barHeight = height * 0.5
+                            let barHeight = height * 0.45
                             Rectangle()
                                 .foregroundStyle(Color.clear)
                                 .overlay(
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        if viewStore.updatePlanTypePresented && viewStore.currentModifyingPlanID == plan.id {
-                                            HStack {
-                                                TextField(
-                                                    "제목을 입력하세요",
-                                                    text: viewStore.binding(
-                                                        get: \.keyword,
-                                                        send: { .keywordChanged($0) }
-                                                    ),
-                                                    onCommit: {
-                                                        viewStore.send(.updatePlan)
-                                                    }
-                                                )
-                                                .foregroundStyle(Color.white)
-                                                .padding(.leading, 4)
-                                                .focusable()
-                                                Spacer()
-                                                ColorPicker(
-                                                    "color",
-                                                    selection: viewStore.binding(
-                                                        get: \.selectedColorCode,
-                                                        send: PlanBoard.Action.selectColorCode
-                                                    )
-                                                )
-                                            }
-                                            .background(Color.red)
-                                        } else {
+                                    ZStack {
                                             HStack {
                                                 Text(planType.title)
-                                                    .foregroundStyle(Color.white)
+                                                    .foregroundStyle(Color.title)
                                                     .padding(.leading, 4)
+                                                    .frame(height: height * 0.5)
                                                 Spacer()
                                             }
-                                        }
+                                            .offset(y: -height * 0.25)
                                         RoundedRectangle(cornerRadius: height)
                                             .foregroundStyle(Color(hex: planType.colorCode).opacity(0.9))
                                             .frame(height: barHeight)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: height)
-                                                    .strokeBorder(Color.white, lineWidth: 2)
-                                            )
+//                                            .overlay(
+//                                                RoundedRectangle(cornerRadius: height)
+//                                                    .strokeBorder(Color.white, lineWidth: 2)
+//                                            )
+                                            .offset(y: barHeight * 0.5)
                                     }
+                                    
                                 )
                                 .frame(width: width, height: height)
                                 .position(x: positionX, y: positionY)
                                 .onTapGesture(count: 2) {
-                                    viewStore.send(.setCurrentModifyingPlan(plan.id))
+                                    viewStore.send(.setCurrentModifyingPlan(plan.id, frame: CGSize(width: width, height: height), position: CGPoint(x: positionX, y: positionY)))
                                 }
                                 .contextMenu {
                                     Button("Delete") {
@@ -898,27 +876,29 @@ extension PlanBoardView {
     
     func planItemEdit() -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            var isUpdatePlanTypePresented: Binding<Bool> {
-                Binding(
-                    get: { viewStore.updatePlanTypePresented },
-                    set: { newValue in
-                        viewStore.send(.popoverPresent(
-                            button: .updatePlanTypeButton,
-                            bool: newValue
-                        ))
-                    }
-                )
-            }
-            if isUpdatePlanTypePresented.wrappedValue {
-                VStack {
-                    HStack(spacing: 20) {
+            if viewStore.updatePlanTypePresented {
+//                let plan = viewStore.clickedPlan!
+//                let planType = viewStore.existingPlanTypes[plan.planTypeID]!
+                let width = viewStore.clickedPlanFrame!.width
+                let height = viewStore.clickedPlanFrame!.height
+                let positionX = viewStore.clickedPlanPosition!.x
+                let positionY = viewStore.clickedPlanPosition!.y
+                    HStack {
                         TextField(
                             "제목을 입력하세요",
                             text: viewStore.binding(
                                 get: \.keyword,
                                 send: { .keywordChanged($0) }
-                            )
+                            ),
+                            onCommit: {
+                                viewStore.send(.updatePlan)
+                            }
                         )
+                        .foregroundStyle(Color.title)
+                        .padding(.leading, 4)
+                        .frame(height: height * 0.5)
+                        .focusable()
+                        Spacer()
                         ColorPicker(
                             "color",
                             selection: viewStore.binding(
@@ -926,20 +906,58 @@ extension PlanBoardView {
                                 send: PlanBoard.Action.selectColorCode
                             )
                         )
-                        .padding(.trailing, 20)
                     }
-                    Button {
-                        viewStore.send(.updatePlan)
-                    } label: {
-                        Text("확인")
-                    }
-                }
-                .frame(width: 300, height: 200)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .foregroundStyle(Color.white.opacity(0.3))
-                )
+                    .frame(width: width, height: height)
+                    .position(x: positionX, y: positionY)
+                    .offset(y: -height * 0.25)
             }
         }
     }
+    
+//    func planItemEdit() -> some View {
+//        WithViewStore(store, observe: { $0 }) { viewStore in
+//            var isUpdatePlanTypePresented: Binding<Bool> {
+//                Binding(
+//                    get: { viewStore.updatePlanTypePresented },
+//                    set: { newValue in
+//                        viewStore.send(.popoverPresent(
+//                            button: .updatePlanTypeButton,
+//                            bool: newValue
+//                        ))
+//                    }
+//                )
+//            }
+//            if isUpdatePlanTypePresented.wrappedValue {
+//                VStack {
+//                    HStack(spacing: 20) {
+//                        TextField(
+//                            "제목을 입력하세요",
+//                            text: viewStore.binding(
+//                                get: \.keyword,
+//                                send: { .keywordChanged($0) }
+//                            )
+//                        )
+//                        ColorPicker(
+//                            "color",
+//                            selection: viewStore.binding(
+//                                get: \.selectedColorCode,
+//                                send: PlanBoard.Action.selectColorCode
+//                            )
+//                        )
+//                        .padding(.trailing, 20)
+//                    }
+//                    Button {
+//                        viewStore.send(.updatePlan)
+//                    } label: {
+//                        Text("확인")
+//                    }
+//                }
+//                .frame(width: 300, height: 200)
+//                .background(
+//                    RoundedRectangle(cornerRadius: 20)
+//                        .foregroundStyle(Color.white.opacity(0.3))
+//                )
+//            }
+//        }
+//    }
 }

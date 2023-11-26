@@ -169,6 +169,10 @@ struct PlanBoard: Reducer {
         
         /// each plan on line
         var updatePlanTypePresented = false
+        var clickedPlan: Plan?
+        var clickedPlanFrame: CGSize?
+        var clickedPlanPosition: CGPoint?
+
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -194,6 +198,7 @@ struct PlanBoard: Reducer {
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan
         case setCurrentModifyingPlan(_ planID: String)
+        case setCurrentModifyingPlan(_ planID: String, frame: CGSize, position: CGPoint)
         
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
@@ -705,12 +710,15 @@ struct PlanBoard: Reducer {
                     await send(.reloadListMap)
                 }
                 
-            case let .setCurrentModifyingPlan(planID):
+            case let .setCurrentModifyingPlan(planID, frame, position):
                 state.currentModifyingPlanID = planID
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
                 state.selectedColorCode = Color(hex: currentPlanType.colorCode)
                 state.updatePlanTypePresented = true
+                state.clickedPlan = state.existingPlans[planID]!
+                state.clickedPlanFrame = frame
+                state.clickedPlanPosition = position
                 return .none
                 
                 // MARK: - Schedule
