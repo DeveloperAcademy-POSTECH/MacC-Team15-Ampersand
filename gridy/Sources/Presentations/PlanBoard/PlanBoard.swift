@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-enum LineAreaDragType {
+enum DragType {
     case pressNothing /// no command, no shift
     case pressOnlyShift
     case pressOnlyCommand
@@ -23,6 +23,7 @@ enum PlanBoardAreaName: String {
     case listControlArea
     case listArea
     case scheduleArea
+    case milestoneArea
     case timeAxisArea
     case lineArea
     case none
@@ -53,6 +54,7 @@ struct PlanBoard: Reducer {
         var keyword = ""
         var selectedColorCode = Color.white
         var currentModifyingPlanID = Plan.mock.id
+        var currentModifyingScheduleID = Schedule.mock.id
         
         /// 그리드 규격에 대한 변수들입니다.
         var columnStroke = CGFloat(1)
@@ -101,8 +103,11 @@ struct PlanBoard: Reducer {
         
         /// ScheduleArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var scheduleAreaHoveredCellLocation: CGPoint = .zero
-        var scheduleAreaHoveredCellRow = 0
         var scheduleAreaHoveredCellCol = 0
+        
+        /// MilestoneArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
+        var milestoneAreaHoveredCellLocation: CGPoint = .zero
+        var milestoneAreaHoveredCellCol = 0
         
         /// TimeAxisArea의 local 영역에서 마우스가 호버링 된 위치의 셀정보를 담습니다.
         var timeAxisAreaHoveredCellLocation: CGPoint = .zero
@@ -117,6 +122,7 @@ struct PlanBoard: Reducer {
         /// 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
         var temporarySelectedGridRange: SelectedGridRange?
         var selectedGridRanges: [SelectedGridRange] = []
+        var selectedScheduleRanges: [SelectedScheduleRange] = []
         var selectedDateRanges: [SelectedDateRange] = []
         var exceededDirection = [false, false, false, false]
         
@@ -124,7 +130,6 @@ struct PlanBoard: Reducer {
         var maxCol = 0
         var maxLineAreaRow = 0
         var defaultLineAreaRow = 20
-        var maxScheduleAreaRow = 6
         
         /// 뷰가 움직인 크기를 나타내는 변수입니다. ListArea, LineArea가 공유합니다.
         var shiftedRow = 0
@@ -151,6 +156,7 @@ struct PlanBoard: Reducer {
         
         /// Export
         var selectPeriodTag = 1
+        
         /// ListArea
         var selectedEmptyRow: Int?
         var selectedEmptyColumn: Int?
@@ -159,7 +165,11 @@ struct PlanBoard: Reducer {
         
         /// LineIndexArea
         var selectedLineIndexRow: Int?
-
+        
+        /// ScheduleArea
+        var editingSchedule = false
+        var updateSchedulePresented = false
+        
         /// LineArea
         var isHoveredOnLineArea = false
         
@@ -207,9 +217,11 @@ struct PlanBoard: Reducer {
         case readSchedules
         case readSchedulesRespones(TaskResult<[Schedule]>)
         case updateScheduleDate(scheduleID: String, originPeriod: [Date], updatedPeriod: [Date])
-        case updateScheduleText(scheduleID: String, text: String)
-        case updateScheduleColorCode(scheduleID: String, colorCode: UInt)
+        case updateScheduleText
+        case updateScheduleColorCode
         case deleteSchedule(scheduleID: String)
+        case setCurrentModifyingSchedule(_ scheduleID: String)
+        case editSchedule(_ scheduleID: String)
         
         /// ListArea
         case createLayerButtonClicked(layer: Int)
@@ -232,12 +244,15 @@ struct PlanBoard: Reducer {
         case changeHeightButtonTapped(CGFloat)
         
         /// ScheduleAreaView
-        case magnificationChangedInScheduleArea(CGFloat)
+        case magnificationChangedInSchedule(CGFloat)
+        case dragGestureChangedSchedule(DragType, SelectedScheduleRange?)
+        case dragGestureEndedSchedule(SelectedScheduleRange?)
         
         /// LineAreaView
-        case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
+        case dragGestureChanged(DragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
+        case dragExceededSchedule(shiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         
@@ -283,6 +298,7 @@ struct PlanBoard: Reducer {
                 // MARK: - UserAction
             case .initializeState:
                 state.selectedDateRanges = []
+                state.selectedScheduleRanges = []
                 return .run { send in
                     await send(.readPlans)
                     await send(.readPlanTypes)
@@ -553,6 +569,7 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .createPlanOnLine(row, startDate, endDate):
+                if row < 0 { return .none }
                 state.selectedDateRanges.append(SelectedDateRange(
                     start: startDate,
                     end: endDate)
@@ -747,6 +764,7 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
+                    await send(.setCurrentModifyingSchedule(newScheduleID))
                     try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
@@ -779,8 +797,11 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleText(scheduleID, text):
+            case let .updateScheduleText:
+                state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
+                let scheduleID = state.currentModifyingScheduleID
+                let text = state.keyword
                 if state.existingSchedules[scheduleID]!.title == text {
                     return .none
                 }
@@ -790,8 +811,11 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case let .updateScheduleColorCode(scheduleID, colorCode):
+            case let .updateScheduleColorCode:
+                state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
+                let scheduleID = state.currentModifyingScheduleID
+                let colorCode = state.selectedColorCode.getUIntCode()
                 if state.existingSchedules[scheduleID]!.colorCode == colorCode {
                     return .none
                 }
@@ -809,6 +833,20 @@ struct PlanBoard: Reducer {
                     await send(.reloadScheduleMap)
                     try await apiService.deleteSchedule(prevSchedule, projectID)
                 }
+                
+            case let .setCurrentModifyingSchedule(scheduleID):
+                state.currentModifyingScheduleID = scheduleID
+                let currentSchdule = state.existingSchedules[scheduleID]!
+                state.keyword = currentSchdule.title ?? ""
+                state.selectedColorCode = Color(hex: currentSchdule.colorCode)
+                state.updateSchedulePresented = true
+                return .none
+                
+            case let .editSchedule(scheduleID):
+                state.currentModifyingScheduleID = scheduleID
+                let currentSchedule = state.existingSchedules[scheduleID]!
+                state.editingSchedule = true
+                return .none
                 
                 // MARK: - ListArea
             case let .createLayerButtonClicked(layer):
@@ -1055,7 +1093,7 @@ struct PlanBoard: Reducer {
                     /// 그 부모가 root일 경우: Layer가 0
                     if targetParentPlanID == state.rootProject.rootPlanID {
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": []]
-                    /// 부모가 root가 아닐 경우: Layer가 1 이상
+                        /// 부모가 root가 아닐 경우: Layer가 1 이상
                     } else {
                         let newPlanID = UUID().uuidString
                         let newPlan = Plan(
@@ -1068,7 +1106,7 @@ struct PlanBoard: Reducer {
                         createdPlans.append(newPlan)
                         state.existingPlans[targetParentPlanID]!.childPlanIDs = ["0": [newPlanID]]
                     }
-                /// 부모가 나말고 다른 레인도 들고 있었을 경우
+                    /// 부모가 나말고 다른 레인도 들고 있었을 경우
                 } else {
                     /// 부모의 childPlanIDs에서 내 레인을 제거하고
                     state.existingPlans[targetParentPlanID]!.childPlanIDs.removeValue(forKey: targetKey)
@@ -1511,7 +1549,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - scheduleAreaView
-            case let .magnificationChangedInScheduleArea(value):
+            case let .magnificationChangedInSchedule(value):
                 state.gridWidth = min(max(state.gridWidth * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 return .none
@@ -1520,6 +1558,11 @@ struct PlanBoard: Reducer {
                 state.shiftedRow += shiftedRow
                 state.shiftedCol += shiftedCol
                 state.exceededRow += exceededRow
+                state.exceededCol += exceededCol
+                return .none
+                
+            case let .dragExceededSchedule(shiftedCol, exceededCol):
+                state.shiftedCol += shiftedCol
                 state.exceededCol += exceededCol
                 return .none
                 
@@ -1945,6 +1988,7 @@ struct PlanBoard: Reducer {
                 // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
                 state.currentModifyingPlanID = ""
+                state.currentModifyingScheduleID = ""
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
                     state.selectedGridRanges = [SelectedGridRange(
@@ -1992,7 +2036,11 @@ struct PlanBoard: Reducer {
                 case .scheduleArea:
                     if isActive {
                         state.scheduleAreaHoveredCellLocation = location!
-                        state.scheduleAreaHoveredCellRow = Int(state.scheduleAreaHoveredCellLocation.y / state.lineAreaGridHeight)
+                        state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
+                    }
+                case .milestoneArea:
+                    if isActive {
+                        state.scheduleAreaHoveredCellLocation = location!
                         state.scheduleAreaHoveredCellCol = Int(state.scheduleAreaHoveredCellLocation.x / state.gridWidth)
                     }
                 case .timeAxisArea:
@@ -2044,12 +2092,37 @@ struct PlanBoard: Reducer {
                 }
                 return .none
                 
+            case let .dragGestureChangedSchedule(dragTypeSchedule, updatedScheduleRange):
+                switch dragTypeSchedule {
+                case .pressNothing:
+                    state.selectedScheduleRanges = []
+                case .pressOnlyShift:
+                    if let updatedScheduleRange = updatedScheduleRange {
+                        state.selectedScheduleRanges = [updatedScheduleRange]
+                    }
+                case .pressOnlyCommand:
+                    break
+                case .pressBoth:
+                    if let lastIndex = state.selectedScheduleRanges.indices.last,
+                       let updatedScheduleRange = updatedScheduleRange {
+                        state.selectedScheduleRanges[lastIndex] = updatedScheduleRange
+                    }
+                }
+                return .none
+                
             case let .dragGestureEnded(newRange):
                 if let newRange = newRange {
                     state.selectedGridRanges.append(newRange)
                 }
                 state.exceededCol = 0
                 state.exceededRow = 0
+                return .none
+                
+            case let .dragGestureEndedSchedule(newRange):
+                if let newRange = newRange {
+                    state.selectedScheduleRanges.append(newRange)
+                }
+                state.exceededCol = 0
                 return .none
                 
             case let .listItemDoubleClicked(buttonName, clicked):
@@ -2192,7 +2265,7 @@ struct PlanBoard: Reducer {
                 var newMap = [[String]]()
                 let sortedSchedules = state.existingSchedules.values.sorted {
                     ($0.startDate, $0.endDate) < ($1.startDate, $1.endDate)
-                }                
+                }
                 for targetSchedule in sortedSchedules {
                     if let targetRowIndex = newMap.firstIndex(where: { scheduleRow in
                         !scheduleRow.contains(where: { scheduleID in
