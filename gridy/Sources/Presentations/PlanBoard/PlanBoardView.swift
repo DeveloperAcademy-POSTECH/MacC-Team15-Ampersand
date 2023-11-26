@@ -661,6 +661,11 @@ extension PlanBoardView {
                             viewStore.send(.escapeSelectedCell)
                         } label: { }
                             .keyboardShortcut(.escape, modifiers: [])
+                        
+                        Button {
+                            viewStore.send(.deletePlanOnLineWithRanges)
+                        } label: { }
+                            .keyboardShortcut(.delete, modifiers: [])
                     }
                     Color.lineArea
                     Path { path in

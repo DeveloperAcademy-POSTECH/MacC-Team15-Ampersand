@@ -218,7 +218,7 @@ struct PlanBoard: Reducer {
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
         case deletePlanOnLineWithID(planID: String)
-        case deletePlanOnLine(selectedRanges: [SelectedGridRange])
+        case deletePlanOnLineWithRanges
         case deleteLaneOnLine(row: Int)
         case deleteLaneConents(rows: [Int])
         case mergePlans(layer: Int, planIDs: [String])
@@ -1149,7 +1149,9 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            case let .deletePlanOnLine(selectedRanges):
+            case .deletePlanOnLineWithRanges:
+                let selectedRanges = state.selectedGridRanges
+                if selectedRanges.isEmpty { return .none }
                 let projectID = state.rootProject.id
                 var updatedPlans = [Plan]()
                 var deletedPlans = [Plan]()
@@ -1164,13 +1166,13 @@ struct PlanBoard: Reducer {
                 for selectedRange in selectedRanges {
                     let startRow = min(selectedRange.start.row, selectedRange.end.row)
                     let endRow = max(selectedRange.start.row, selectedRange.end.row)
-                    // TODO: - 기준 날짜로 대체
+                    // TODO: - 기준 날짜로 대체, UTC to KST
                     let startDate = Calendar.current.date(
                         byAdding: .day,
                         value: min(
                             selectedRange.start.col,
                             selectedRange.end.col
-                        ),
+                        ) - 1,
                         to: Date().filteredDate
                     )!
                     let endDate = Calendar.current.date(
@@ -1178,7 +1180,7 @@ struct PlanBoard: Reducer {
                         value: max(
                             selectedRange.start.col,
                             selectedRange.end.col
-                        ),
+                        ) + 1,
                         to: Date().filteredDate
                     )!
                     /// 범위 내의 row마다 순회한다.
@@ -1193,6 +1195,7 @@ struct PlanBoard: Reducer {
                                 break
                             }
                         }
+                        if targetPlanID.isEmpty { continue }
                         /// 몇 번째 레인인지 계산한다
                         let targetPlan = state.existingPlans[targetPlanID]!
                         let rowDifference = (sumOfHeights - 1) - row
@@ -1208,7 +1211,7 @@ struct PlanBoard: Reducer {
                                     
                                     if end < startDate || start > endDate {
                                         /// period가 범위 밖에 있는 경우 > 아무것도 안 함
-                                        break
+                                        continue
                                     } else if (start < startDate) && (end <= endDate) {
                                         /// period의 끝 날짜가 범위에 걸친 경우 >  끝 날짜를 startDate로 업데이트 해줌
                                         state.existingPlans[planID]!.periods![period.key] = [start, startDate]
@@ -1225,12 +1228,13 @@ struct PlanBoard: Reducer {
                                                 updatedPlans.remove(at: index)
                                             }
                                             /// 삭제할 plan에 추가
-                                            state.existingPlans[planID] = nil
                                             deletedPlans.append(state.existingPlans[planID]!)
+                                            state.existingPlans[planID] = nil
                                             /// 나를 들고 있는 plan의 childPlans에서 나를 빼주고(lane은 남아있음), updatedPlans에 나를 들고 있는 plan 추가
                                             if var array = state.existingPlans[targetPlanID]!.childPlanIDs[String(targetKey)] {
                                                 array = array.filter { $0 != planID }
                                                 state.existingPlans[targetPlanID]!.childPlanIDs[String(targetKey)]! = array
+                                                updatedPlans.append(state.existingPlans[targetPlanID]!)
                                             }
                                         } else {
                                             /// period 원소들을 key값에 따라 정렬해줌
@@ -1247,9 +1251,10 @@ struct PlanBoard: Reducer {
                                         let lastIndex = state.existingPlans[planID]!.periods!.count
                                         state.existingPlans[planID]!.periods![String(lastIndex)] = [endDate, end]
                                     }
-                                    if updatedPlans.firstIndex(where: { $0.id == planID }) == nil {
-                                        updatedPlans.append(state.existingPlans[planID]!)
-                                    }
+                                    // TODO: - 아래 코드 용도가 무엇인지? nil 에러 발생 @LiLy
+//                                    if updatedPlans.firstIndex(where: { $0.id == planID }) == nil {
+//                                        updatedPlans.append(state.existingPlans[planID]!)
+//                                    }
                                 }
                             }
                         }
