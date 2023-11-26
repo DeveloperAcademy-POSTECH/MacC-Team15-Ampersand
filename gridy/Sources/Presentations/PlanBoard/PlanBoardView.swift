@@ -42,7 +42,7 @@ struct PlanBoardView: View {
                         HStack(alignment: .top, spacing: 0) {
                             VStack(alignment: .leading, spacing: 0) {
                                 scheduleIndexArea
-                                    .frame(height: 143)
+                                    .frame(height: 134)
                                 planBoardBorder(.horizontal)
                                 extraArea
                                     .frame(height: 48)
@@ -53,7 +53,7 @@ struct PlanBoardView: View {
                             planBoardBorder(.vertical)
                             VStack(alignment: .leading, spacing: 0) {
                                 blackPinkInYourArea
-                                    .frame(height: 143)
+                                    .frame(height: 134)
                                 planBoardBorder(.horizontal)
                                 listControlArea
                                     .frame(height: 48)
@@ -658,7 +658,7 @@ extension PlanBoardView {
     
     func scheduleDraggingRectangle(geometry: GeometryProxy) -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            if let temporaryRange = temporarySelectedScheduleRange {
+            if viewStore.clickedArea == .scheduleArea, let temporaryRange = temporarySelectedScheduleRange {
                 let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
                 let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
                 Rectangle()
@@ -676,7 +676,7 @@ extension PlanBoardView {
     
     func scheduleDraggedRectangle(geometry: GeometryProxy) -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            if !viewStore.selectedScheduleRanges.isEmpty {
+            if viewStore.clickedArea == .scheduleArea && !viewStore.selectedScheduleRanges.isEmpty {
                 ForEach(viewStore.selectedScheduleRanges, id: \.self) { selectedScheduleRange in
                     let width = CGFloat((selectedScheduleRange.endCol - selectedScheduleRange.startCol).magnitude + 1) * viewStore.gridWidth
                     let isStartColSmaller = selectedScheduleRange.startCol <= selectedScheduleRange.endCol

@@ -122,7 +122,7 @@ struct PlanBoard: Reducer {
         /// LineArea의 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
         var temporarySelectedGridRange: SelectedGridRange?
         var selectedGridRanges = [SelectedGridRange]()
-        var selectedScheduleRanges = [SelectedDateRange]()
+        var selectedScheduleRanges = [SelectedScheduleRange]()
         var selectedDateRanges = [SelectedDateRange]()
         var exceededDirection = [false, false, false, false]
         
@@ -2098,7 +2098,9 @@ struct PlanBoard: Reducer {
                         state.selectedScheduleRanges[lastIndex] = updatedScheduleRange
                     }
                 }
-                return .none
+                return .run { send in
+                    await send(.setClickedArea(areaName: .scheduleArea))
+                }
                 
             case let .dragGestureEnded(newRange):
                 if let newRange = newRange {
@@ -2138,7 +2140,9 @@ struct PlanBoard: Reducer {
                     state.selectedScheduleRanges.append(newRange)
                 }
                 state.exceededCol = 0
-                return .none
+                return .run { send in
+                    await send(.setClickedArea(areaName: .scheduleArea))
+                }
                 
             case let .listItemDoubleClicked(buttonName, clicked):
                 switch buttonName {
