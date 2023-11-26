@@ -499,7 +499,7 @@ extension PlanBoardView {
                             )
                         }
                         .onEnded { _ in
-                            viewStore.send(.dragGestureEndedScheduleArea(temporarySelectedScheduleRange))
+                            viewStore.send(.dragGestureEndedSchedule(temporarySelectedScheduleRange))
                             temporarySelectedScheduleRange = nil
                             exceededDirectionScheduleArea = [false, false]
                         }

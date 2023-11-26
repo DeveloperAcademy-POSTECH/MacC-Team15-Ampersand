@@ -235,15 +235,15 @@ struct PlanBoard: Reducer {
         case changeHeightButtonTapped(CGFloat)
         
         /// ScheduleAreaView
-        case magnificationChangedInScheduleArea(CGFloat)
+        case magnificationChangedInSchedule(CGFloat)
         case dragGestureChangedSchedule(DragType, SelectedScheduleRange?)
-        case dragGestureEndedScheduleArea(SelectedScheduleRange?)
+        case dragGestureEndedSchedule(SelectedScheduleRange?)
         
         /// LineAreaView
         case dragGestureChanged(DragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
-        case dragExceededSchedule(ShiftedCol: Int, exceededCol: Int)
+        case dragExceededSchedule(shiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         
@@ -1520,7 +1520,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
                 // MARK: - scheduleAreaView
-            case let .magnificationChangedInScheduleArea(value):
+            case let .magnificationChangedInSchedule(value):
                 state.gridWidth = min(max(state.gridWidth * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 state.scheduleAreaGridHeight = min(max(state.scheduleAreaGridHeight * min(max(value, 0.5), 2.0), state.minGridSize), state.maxGridSize)
                 return .none
@@ -1532,8 +1532,8 @@ struct PlanBoard: Reducer {
                 state.exceededCol += exceededCol
                 return .none
                 
-            case let .dragExceededSchedule(ShiftedCol, exceededCol):
-                state.shiftedCol += ShiftedCol
+            case let .dragExceededSchedule(shiftedCol, exceededCol):
+                state.shiftedCol += shiftedCol
                 state.exceededCol += exceededCol
                 return .none
                 
@@ -1998,7 +1998,7 @@ struct PlanBoard: Reducer {
                 state.exceededRow = 0
                 return .none
                 
-            case let .dragGestureEndedScheduleArea(newRange):
+            case let .dragGestureEndedSchedule(newRange):
                 if let newRange = newRange {
                     state.selectedScheduleRanges.append(newRange)
                 }
