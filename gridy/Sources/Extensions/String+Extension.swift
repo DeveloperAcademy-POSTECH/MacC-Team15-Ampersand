@@ -40,6 +40,7 @@ extension String {
     static let startDatePickerButton = "startDatePickerButton"
     static let endDatePickerButton = "endDatePickerButton"
     static let updatePlanTypeButton = "updatePlanTypeButton"
+    static let updateScheduleButton = "updateScheduleButton"
     
     /* EtcButtonNames */
     static let galleryBackButton = "galleryBackButton"
