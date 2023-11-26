@@ -9,9 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PlanBoardView: View {
-    @State var topHovered = false
-    @State var bottomHovered = false
-    @State private var exceededDirection = [false, false, false, false]
     @FocusState var listItemFocused: Bool
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
@@ -523,10 +520,10 @@ extension PlanBoardView {
                                                 .overlay(
                                                     Image(systemName: "chevron.up")
                                                         .padding(2)
-                                                        .foregroundStyle(topHovered ? .red : .red.opacity(0.5))
+                                                        .foregroundStyle(viewStore.isCreateOnTopHovered ? .red : .red.opacity(0.5))
                                                 )
                                                 .onHover { isHovered in
-                                                    topHovered = isHovered
+                                                    viewStore.send(.createPlanButtonHovered(button: .createPlanOnTopButton, hovered: isHovered))
                                                 }
                                                 .onTapGesture {
                                                     // TODO: - Add Plan On List
@@ -537,10 +534,10 @@ extension PlanBoardView {
                                                 .overlay(
                                                     Image(systemName: "chevron.down")
                                                         .padding(2)
-                                                        .foregroundStyle(bottomHovered ? .blue : .blue.opacity(0.5))
+                                                        .foregroundStyle(viewStore.isCreateAtBottomHovered ? .blue : .blue.opacity(0.5))
                                                 )
                                                 .onHover { isHovered in
-                                                    bottomHovered = isHovered
+                                                    viewStore.send(.createPlanButtonHovered(button: .createPlanAtBottonButton, hovered: isHovered))
                                                 }
                                                 .onTapGesture {
                                                     // TODO: - Add Plan On List
@@ -1279,12 +1276,13 @@ extension PlanBoardView {
                             let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
                             let endCol = Int(dragEnd.x / viewStore.gridWidth)
                             /// 드래그 해서 화면 밖으로 나갔는지 Bool로 반환 (Left, Right, Top, Bottom)
-                            exceededDirection = [
+                            let exceededDirection = [
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width,
                                 dragEnd.y < 0,
                                 dragEnd.y > geometry.size.height
                             ]
+                            viewStore.send(.setExceededDirection(exceededDirection))
                             if !viewStore.isCommandKeyPressed {
                                 if !viewStore.isShiftKeyPressed {
                                     ///  selectedGridRanges을 초기화하고,  temporaryGridRange에 shifted된 값을 더한 값을 임시로 저장한다. 이 값은 onEnded상태에서 selectedGridRanges에 append 될 예정
@@ -1319,14 +1317,14 @@ extension PlanBoardView {
                                         var updatedRange = viewStore.selectedGridRanges[lastIndex]
                                         updatedRange.end.row = endRow + viewStore.shiftedRow + viewStore.scrolledRow
                                         updatedRange.end.col = endCol + viewStore.shiftedCol + viewStore.scrolledCol
-                                        viewStore.send(.dragGestureChanged(.pressOnlyCommand, updatedRange))
+                                        viewStore.send(.dragGestureChanged(.pressBoth, updatedRange))
                                     }
                                 }
                             }
                         }
                         .onEnded { _ in
                             viewStore.send(.dragGestureEnded)
-                            exceededDirection = [false, false, false, false]
+                            viewStore.send(.setExceededDirection([false, false, false, false]))
                         }
                 )
                 .gesture(
@@ -1355,7 +1353,7 @@ extension PlanBoardView {
     }
     
     private func onReceiveTimer(viewStore: ViewStoreOf<PlanBoard>) {
-        switch exceededDirection {
+        switch viewStore.exceededDirection {
         case [true, false, false, false]:
             viewStore.send(
                 .dragExceeded(

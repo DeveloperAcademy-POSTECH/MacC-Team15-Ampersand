@@ -168,6 +168,8 @@ struct PlanBoard: Reducer {
         var selectedEmptyColumn: Int?
         var selectedListRow: Int?
         var selectedListColumn: Int?
+        var isCreateOnTopHovered = false
+        var isCreateAtBottomHovered = false
         
         /// ListControlArea
         var selectedLayer: Int?
@@ -258,6 +260,7 @@ struct PlanBoard: Reducer {
         case dragExceededSchedule(shiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
+        case setExceededDirection([Bool])
         
         /// source, destication: layer 내의 인덱스. row값은 또 따로 받음
         case dragToMovePlanInList(targetPlanID: String, source: Int, destination: Int, row: Int, layer: Int)
@@ -279,6 +282,7 @@ struct PlanBoard: Reducer {
         case listItemDoubleClicked
         case dismissTextFieldOnList
         case keywordChanged(String)
+        case createPlanButtonHovered(button: String, hovered: Bool)
         
         /// LineIndexArea
         case lineIndexDragGestureChanged(range: [Int]?)
@@ -1699,6 +1703,10 @@ struct PlanBoard: Reducer {
                     try await apiService.updatePlans(plansToUpdate, projectID)
                 }
                 
+            case let .setExceededDirection(newDirection):
+                state.exceededDirection = newDirection
+                return .none
+                
             case let .dragToMovePlanInList(targetID, source, destination, row, layer):
                 if source == destination { return .none }
                 let projectID = state.rootProject.id
@@ -2063,6 +2071,7 @@ struct PlanBoard: Reducer {
                 return .none
                 
             case let .dragGestureChanged(dragType, updatedRange):
+                state.temporarySelectedGridRange = updatedRange
                 switch dragType {
                 case .pressNothing:
                     state.selectedGridRanges = []
@@ -2071,9 +2080,7 @@ struct PlanBoard: Reducer {
                         state.selectedGridRanges = [updatedRange]
                     }
                 case .pressOnlyCommand:
-                    if let updatedRange = updatedRange {
-                        state.temporarySelectedGridRange = updatedRange
-                    }
+                    break
                 case .pressBoth:
                     if let lastIndex = state.selectedGridRanges.indices.last,
                        let updatedRange = updatedRange {
@@ -2205,6 +2212,17 @@ struct PlanBoard: Reducer {
                 
             case let .keywordChanged(newKeyword):
                 state.keyword = newKeyword
+                return .none
+                
+            case let .createPlanButtonHovered(button, hovered):
+                    switch button {
+                    case .createPlanOnTopButton:
+                        state.isCreateOnTopHovered = hovered
+                    case .createPlanAtBottonButton:
+                        state.isCreateAtBottomHovered = hovered
+                    default:
+                        break
+                    }
                 return .none
                 
             case let .lineIndexDragGestureChanged(newRange):
