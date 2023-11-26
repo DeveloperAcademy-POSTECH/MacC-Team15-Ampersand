@@ -309,7 +309,9 @@ extension PlanBoardView {
                         }
                     }
                     .keyboardShortcut(.delete, modifiers: [])
+                    
                     Color.listArea
+                    
                     Path { path in
                         for rowIndex in 0..<viewStore.maxLineAreaRow {
                             let yLocation = CGFloat(rowIndex) * viewStore.lineAreaGridHeight
@@ -318,6 +320,7 @@ extension PlanBoardView {
                         }
                     }
                     .stroke(Color.horizontalLine, lineWidth: viewStore.rowStroke)
+                    
                     Path { path in
                         if viewStore.map.count > 1 {
                             let xLocation = geometry.size.width / 2
@@ -388,6 +391,8 @@ extension PlanBoardView {
                                 .position(x: xPosition, y: yPosition)
                         }
                     }
+                    /// map에 있는 정보
+                    listMap
                     /// double click 되었을 때
                     if let columnOffset = viewStore.selectedEmptyColumn,
                        let rowOffset = viewStore.selectedEmptyRow {
@@ -418,14 +423,13 @@ extension PlanBoardView {
                                         viewStore.send(.listItemDoubleClicked(.emptyListItem, false))
                                     }
                             )
+                        // TODO: - 높이 수정
                             .frame(width: viewStore.listGridWidth - viewStore.columnStroke / 2, height: viewStore.lineAreaGridHeight - viewStore.rowStroke * 2)
                             .position(
                                 x: CGFloat(Double(columnOffset) + 0.5) * viewStore.listGridWidth - viewStore.columnStroke / 2,
                                 y: CGFloat(Double(rowOffset) + 0.5) * viewStore.lineAreaGridHeight - viewStore.rowStroke
                             )
                     }
-                    /// map에 있는 정보
-                    listMap
                 }
                 .onContinuousHover { phase in
                     switch phase {
@@ -512,9 +516,8 @@ extension PlanBoardView {
                                 } else {
                                     Rectangle()
                                         .fill(
-                                            .red.opacity(0.8)
-//                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
-//                                            Color.itemHovered.opacity(0.5) : Color.clear
+                                            viewStore.listMapHoveredCellCol == layerIndex && viewStore.listMapHoveredCellRow == rowIndex ?
+                                            Color.itemHovered.opacity(0.5) : Color.clear
                                         )
                                         .overlay {
                                             let planID = viewStore.map[layerIndex][rowIndex]
