@@ -454,8 +454,7 @@ extension PlanBoardView {
                             let startRow = Int(dragStart.y / viewStore.lineAreaGridHeight)
                             let startCol = Int(dragStart.x / viewStore.listGridWidth)
                             let endRow = Int(dragEnd.y / viewStore.lineAreaGridHeight)
-                            let endCol = Int(dragEnd.x / viewStore.listGridWidth)
-                            
+                            let endCol = Int(min(dragEnd.x, geometry.size.width - 1) / viewStore.listGridWidth)
                             let newRange = SelectedGridRange(
                                 start: (startRow + viewStore.shiftedRow + viewStore.scrolledRow - viewStore.exceededRow,
                                         startCol + viewStore.shiftedCol + viewStore.scrolledCol - viewStore.exceededCol),
