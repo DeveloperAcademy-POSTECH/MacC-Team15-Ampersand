@@ -11,12 +11,12 @@ struct SelectedScheduleRange: Identifiable, Hashable {
     let id = UUID()
     var startCol: Int
     var endCol: Int
-
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-
+    
     static func == (lhs: SelectedScheduleRange, rhs: SelectedScheduleRange) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && lhs.startCol == rhs.startCol && lhs.endCol == rhs.endCol
     }
 }
