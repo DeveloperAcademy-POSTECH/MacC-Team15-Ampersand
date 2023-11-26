@@ -489,7 +489,7 @@ extension PlanBoardView {
                                 /// doubleClick 되었을 떄
                                 if viewStore.selectedListRow == rowIndex && viewStore.selectedListColumn == layerIndex {
                                     Rectangle()
-                                        .fill(Color.blue.opacity(0.5))
+                                        .fill(Color.clear)
                                         .overlay(
                                             TextField(
                                                 "editing",
