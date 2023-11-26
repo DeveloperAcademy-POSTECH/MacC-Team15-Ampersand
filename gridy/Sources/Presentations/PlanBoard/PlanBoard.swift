@@ -250,7 +250,7 @@ struct PlanBoard: Reducer {
         case dragGestureChanged(LineAreaDragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
-        case dragExceededSchedule(shiftedCl: Int, exceededCol: Int)
+        case dragExceededSchedule(ShiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         
@@ -1539,8 +1539,8 @@ struct PlanBoard: Reducer {
                 state.exceededCol += exceededCol
                 return .none
                 
-            case let .dragExceededSchedule(shiftedCl, exceededCol):
-                state.shiftedCol += shiftedCl
+            case let .dragExceededSchedule(ShiftedCol, exceededCol):
+                state.shiftedCol += ShiftedCol
                 state.exceededCol += exceededCol
                 return .none
                 
