@@ -698,10 +698,11 @@ struct PlanBoard: Reducer {
                 
             case .updatePlan:
                 state.updatePlanTypePresented = false
+                let currentModifyingPlanID = state.currentModifyingPlanID
+                if currentModifyingPlanID.isEmpty || state.existingPlans[currentModifyingPlanID] == nil { return .none }
                 let projectID = state.rootProject.id
                 let planTitle = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
-                let currentModifyingPlanID = state.currentModifyingPlanID
                 state.keyword = ""
                 state.selectedColorCode = Color.white
                 if let originTypeID = state.existingPlanTypes.first(where: { $0.value.title == planTitle && $0.value.colorCode == colorCode })?.key {
