@@ -170,9 +170,7 @@ struct PlanBoard: Reducer {
         /// each plan on line
         var updatePlanTypePresented = false
         var clickedPlan: Plan?
-        var clickedPlanFrame: CGSize?
-        var clickedPlanPosition: CGPoint?
-
+        var clickedPlanRow = 0
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -198,8 +196,8 @@ struct PlanBoard: Reducer {
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan
         case setCurrentModifyingPlan(_ planID: String)
-        case setCurrentModifyingPlan(_ planID: String, frame: CGSize, position: CGPoint)
-        
+        case getRowIndexFromPlanID(_ planID: String)
+
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
         case readSchedules
@@ -658,6 +656,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                     await send(.reloadMap)
+                    await send(.getRowIndexFromPlanID(newPlanOnLine.id))
                 }
                 
             case .readPlans:
@@ -688,6 +687,7 @@ struct PlanBoard: Reducer {
                 
             case .updatePlan:
                 state.updatePlanTypePresented = false
+                state.clickedPlan = nil
                 let projectID = state.rootProject.id
                 let planTitle = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
@@ -710,15 +710,20 @@ struct PlanBoard: Reducer {
                     await send(.reloadListMap)
                 }
                 
-            case let .setCurrentModifyingPlan(planID, frame, position):
+            case let .setCurrentModifyingPlan(planID):
                 state.currentModifyingPlanID = planID
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
                 state.selectedColorCode = Color(hex: currentPlanType.colorCode)
                 state.updatePlanTypePresented = true
                 state.clickedPlan = state.existingPlans[planID]!
-                state.clickedPlanFrame = frame
-                state.clickedPlanPosition = position
+                return .none
+                
+            case let .getRowIndexFromPlanID(planID):
+                for (lineIndex, plans) in state.listMap.enumerated() where plans.contains(where: { $0.id == planID }) {
+                    state.clickedPlanRow = lineIndex
+                    break
+                }
                 return .none
                 
                 // MARK: - Schedule

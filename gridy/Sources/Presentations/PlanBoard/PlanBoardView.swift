@@ -9,8 +9,9 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PlanBoardView: View {
-    @State private var exceededDirection = [false, false, false, false]
     @FocusState var listItemFocused: Bool
+    @FocusState var planItemFocused: Bool
+
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
     let store: StoreOf<PlanBoard>
@@ -794,29 +795,29 @@ extension PlanBoardView {
                                 .foregroundStyle(Color.clear)
                                 .overlay(
                                     ZStack {
-                                            HStack {
-                                                Text(planType.title)
-                                                    .foregroundStyle(Color.title)
-                                                    .padding(.leading, 4)
-                                                    .frame(height: height * 0.5)
-                                                Spacer()
-                                            }
-                                            .offset(y: -height * 0.25)
+                                        HStack {
+                                            Text(planType.title)
+                                                .foregroundStyle(Color.title)
+                                                .padding(.leading, 4)
+                                                .frame(height: height * 0.5)
+                                            Spacer()
+                                        }
+                                        .offset(y: -height * 0.25)
                                         RoundedRectangle(cornerRadius: height)
-                                            .foregroundStyle(Color(hex: planType.colorCode).opacity(0.9))
+                                            .foregroundStyle(
+                                                Color(hex: planType.colorCode)
+                                                .opacity(0.9))
                                             .frame(height: barHeight)
-//                                            .overlay(
-//                                                RoundedRectangle(cornerRadius: height)
-//                                                    .strokeBorder(Color.white, lineWidth: 2)
-//                                            )
                                             .offset(y: barHeight * 0.5)
+                                            .scaleEffect(viewStore.clickedPlan == plan ? 1.03 : 1)
                                     }
-                                    
                                 )
                                 .frame(width: width, height: height)
                                 .position(x: positionX, y: positionY)
                                 .onTapGesture(count: 2) {
-                                    viewStore.send(.setCurrentModifyingPlan(plan.id, frame: CGSize(width: width, height: height), position: CGPoint(x: positionX, y: positionY)))
+                                    viewStore.send(.setCurrentModifyingPlan(plan.id))
+                                    viewStore.send(.getRowIndexFromPlanID(plan.id))
+                                    planItemFocused = true
                                 }
                                 .contextMenu {
                                     Button("Delete") {
@@ -835,12 +836,8 @@ extension PlanBoardView {
             if let temporaryRange = viewStore.temporarySelectedGridRange {
                 let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                 let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
-                let positionX = temporaryRange.start.row <= temporaryRange.end.row ?
-                CGFloat(temporaryRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                    CGFloat(temporaryRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
-                let positionY = temporaryRange.start.col <= temporaryRange.end.col ?
-                CGFloat(temporaryRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                    CGFloat(temporaryRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                let positionX = CGFloat(min(temporaryRange.start.col, temporaryRange.end.col) - viewStore.shiftedCol - viewStore.scrolledCol) * CGFloat(viewStore.gridWidth) + CGFloat(width * 0.5)
+                let positionY = CGFloat(min(temporaryRange.start.row, temporaryRange.end.row) - viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(height * 0.5)
                 Rectangle()
                     .foregroundStyle(Color.boardSelectedBorder.opacity(0.05))
                     .frame(width: width, height: height)
@@ -855,12 +852,8 @@ extension PlanBoardView {
                 ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
                     let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                     let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.gridWidth
-                    let positionX = selectedRange.start.row <= selectedRange.end.row ?
-                    CGFloat(selectedRange.start.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2 :
-                        CGFloat(selectedRange.end.col - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
-                    let positionY = selectedRange.start.col <= selectedRange.end.col ?
-                    CGFloat(selectedRange.start.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2 :
-                        CGFloat(selectedRange.end.row - viewStore.shiftedRow - viewStore.scrolledRow) * viewStore.lineAreaGridHeight + height / 2
+                    let positionX = CGFloat(min(selectedRange.start.col, selectedRange.end.col) - viewStore.shiftedCol - viewStore.scrolledCol) * CGFloat(viewStore.gridWidth) + CGFloat(width * 0.5)
+                    let positionY = CGFloat(min(selectedRange.start.row, selectedRange.end.row) - viewStore.shiftedRow - viewStore.scrolledRow) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(height * 0.5)
                     Rectangle()
                         .foregroundStyle(Color.clear)
                         .overlay(
@@ -877,15 +870,17 @@ extension PlanBoardView {
     func planItemEdit() -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             if viewStore.updatePlanTypePresented {
-//                let plan = viewStore.clickedPlan!
-//                let planType = viewStore.existingPlanTypes[plan.planTypeID]!
-                let width = viewStore.clickedPlanFrame!.width
-                let height = viewStore.clickedPlanFrame!.height
-                let positionX = viewStore.clickedPlanPosition!.x
-                let positionY = viewStore.clickedPlanPosition!.y
+                let plan = viewStore.clickedPlan!
+                if let firstPeriod = plan.periods?.first?.value {
+                    let width = CGFloat(firstPeriod[1].integerDate - firstPeriod[0].integerDate + 1) * CGFloat(viewStore.gridWidth)
+                    let height = viewStore.lineAreaGridHeight
+                    let today = Date().filteredDate.integerDate
+                    var row = viewStore.clickedPlanRow
+                    let positionX = (CGFloat(firstPeriod[0].integerDate - today) - CGFloat(viewStore.shiftedCol) - CGFloat(viewStore.scrolledCol)) * CGFloat(viewStore.gridWidth) + CGFloat(width * 0.5)
+                    let positionY = (CGFloat(row) - CGFloat(viewStore.shiftedRow) - CGFloat(viewStore.scrolledRow)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(height * 0.5)
                     HStack {
                         TextField(
-                            "제목을 입력하세요",
+                            "Title",
                             text: viewStore.binding(
                                 get: \.keyword,
                                 send: { .keywordChanged($0) }
@@ -894,13 +889,13 @@ extension PlanBoardView {
                                 viewStore.send(.updatePlan)
                             }
                         )
+                        .focused($planItemFocused)
                         .foregroundStyle(Color.title)
                         .padding(.leading, 4)
                         .frame(height: height * 0.5)
-                        .focusable()
                         Spacer()
                         ColorPicker(
-                            "color",
+                            "",
                             selection: viewStore.binding(
                                 get: \.selectedColorCode,
                                 send: PlanBoard.Action.selectColorCode
@@ -910,54 +905,10 @@ extension PlanBoardView {
                     .frame(width: width, height: height)
                     .position(x: positionX, y: positionY)
                     .offset(y: -height * 0.25)
+                }
+            } else {
+                EmptyView()
             }
         }
     }
-    
-//    func planItemEdit() -> some View {
-//        WithViewStore(store, observe: { $0 }) { viewStore in
-//            var isUpdatePlanTypePresented: Binding<Bool> {
-//                Binding(
-//                    get: { viewStore.updatePlanTypePresented },
-//                    set: { newValue in
-//                        viewStore.send(.popoverPresent(
-//                            button: .updatePlanTypeButton,
-//                            bool: newValue
-//                        ))
-//                    }
-//                )
-//            }
-//            if isUpdatePlanTypePresented.wrappedValue {
-//                VStack {
-//                    HStack(spacing: 20) {
-//                        TextField(
-//                            "제목을 입력하세요",
-//                            text: viewStore.binding(
-//                                get: \.keyword,
-//                                send: { .keywordChanged($0) }
-//                            )
-//                        )
-//                        ColorPicker(
-//                            "color",
-//                            selection: viewStore.binding(
-//                                get: \.selectedColorCode,
-//                                send: PlanBoard.Action.selectColorCode
-//                            )
-//                        )
-//                        .padding(.trailing, 20)
-//                    }
-//                    Button {
-//                        viewStore.send(.updatePlan)
-//                    } label: {
-//                        Text("확인")
-//                    }
-//                }
-//                .frame(width: 300, height: 200)
-//                .background(
-//                    RoundedRectangle(cornerRadius: 20)
-//                        .foregroundStyle(Color.white.opacity(0.3))
-//                )
-//            }
-//        }
-//    }
 }
