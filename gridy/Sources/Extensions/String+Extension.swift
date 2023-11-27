@@ -79,7 +79,7 @@ extension String {
     
     /* ListArea */
     static let createPlanOnTopButton = "createPlanOnTopButton"
-    static let createPlanAtBottonButton = "createPlanAtBottonButton"
+    static let createPlanAtBottomButton = "createPlanAtBottomButton"
     // MARK: - PorjectItem
     static let planBoardItemButton = "planBoardItemButton"
 }
