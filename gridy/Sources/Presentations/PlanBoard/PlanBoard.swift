@@ -2202,7 +2202,8 @@ struct PlanBoard: Reducer {
                     }
                 }
                 /// clicked 위치가 listMap인지 listArea인지 판단
-                if let clickedRow = state.listAreaHoveredCellRow, let clickedLayer = state.listAreaHoveredCellCol {
+                if let clickedRow = state.listAreaHoveredCellRow, 
+                    let clickedLayer = state.listAreaHoveredCellCol {
                     let sumOfLayerCount = heightArray[clickedLayer].reduce(0, +)
                     /// listMap 넘어서 클릭된 것이면
                     if clickedRow + 1 > sumOfLayerCount {
@@ -2240,7 +2241,7 @@ struct PlanBoard: Reducer {
                     switch button {
                     case .createPlanOnTopButton:
                         state.isCreateOnTopHovered = hovered
-                    case .createPlanAtBottonButton:
+                    case .createPlanAtBottomButton:
                         state.isCreateAtBottomHovered = hovered
                     default:
                         break
