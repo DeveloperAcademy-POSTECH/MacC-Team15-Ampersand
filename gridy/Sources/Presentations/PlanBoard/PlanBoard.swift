@@ -2025,7 +2025,6 @@ struct PlanBoard: Reducer {
                     state.selectedListColumn = nil
                 default:
                     break
-                    
                 }
                 return .none
                 
