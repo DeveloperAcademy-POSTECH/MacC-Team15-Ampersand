@@ -239,9 +239,7 @@ extension PlanBoardView {
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlButton + String(layerIndex) : ""))
                                     }
-                                    .onTapGesture {
-                                        viewStore.send(.listControlAreaClicked(layer: layerIndex))
-                                    }
+                                    .onTapGesture { viewStore.send(.listControlAreaClicked(layer: layerIndex)) }
                                 
                                 Rectangle()
                                     .foregroundStyle(.clear)
