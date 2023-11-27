@@ -16,21 +16,13 @@ struct SelectedGridRange: Identifiable, Hashable {
         hasher.combine(id)
     }
     
-    func minRow() -> Int {
-        return min(start.row, end.row)
-    }
+    func minRow() -> Int { min(start.row, end.row) }
     
-    func maxRow() -> Int {
-        return max(start.row, end.row)
-    }
+    func maxRow() -> Int { max(start.row, end.row) }
     
-    func minCol() -> Int {
-        return min(start.col, end.col)
-    }
+    func minCol() -> Int { min(start.col, end.col) }
     
-    func maxCol() -> Int {
-        return max(start.col, end.col)
-    }
+    func maxCol() -> Int { max(start.col, end.col) }
 
     static func == (lhs: SelectedGridRange, rhs: SelectedGridRange) -> Bool {
         return lhs.id == rhs.id
