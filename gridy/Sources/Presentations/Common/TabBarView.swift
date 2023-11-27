@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct TabBarView: View {
     let store: StoreOf<ProjectBoard>
+    let isMaximized: Bool
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -25,7 +26,9 @@ struct TabBarView: View {
                 )
             }
             HStack(alignment: .center, spacing: 0) {
-                windowControlsButton
+                if !isMaximized {
+                    Spacer().frame(width: 75)
+                }
                 systemBorder(.vertical)
                 homeButton
                 systemBorder(.vertical)
@@ -48,23 +51,6 @@ struct TabBarView: View {
             }
             .background(Color.tabBar)
         }
-    }
-}
-
-extension TabBarView {
-    var windowControlsButton: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Circle()
-                .foregroundStyle(.red)
-                .frame(width: 12, height: 12)
-            Circle()
-                .foregroundStyle(.yellow)
-                .frame(width: 12, height: 12)
-            Circle()
-                .foregroundStyle(.green)
-                .frame(width: 12, height: 12)
-        }
-        .padding(.horizontal, 12)
     }
 }
 
@@ -183,6 +169,7 @@ struct TabItemView: View {
                         viewStore.send(.deleteShowingTab(projectID: projectID))
                     }
             }
+            
             .background(
                 viewStore.hoveredItem == projectID ||
                 viewStore.hoveredItem == .tabItemDeleteButton + projectID ||

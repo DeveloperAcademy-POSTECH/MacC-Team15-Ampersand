@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct ProjectBoardView: View {
     let store: StoreOf<ProjectBoard>
+    let windowManager: WindowManager
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -39,7 +40,8 @@ struct ProjectBoardView: View {
                 viewStore.showingProject!.id
             }
             VStack(alignment: .leading, spacing: 0) {
-                TabBarView(store: store)
+                
+                TabBarView(store: store, isMaximized: windowManager.isMaximized)
                     .frame(height: 36)
                     .zIndex(2)
                 if viewStore.tabBarFocusGroupClickedItem == .homeButton {
