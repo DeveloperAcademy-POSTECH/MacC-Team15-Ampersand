@@ -119,14 +119,16 @@ struct PlanBoard: Reducer {
         var lineAreaHoveredCellRow = 0
         var lineAreaHoveredCellCol = 0
         
+        /// ScheduleArea의 선택된 영역을 배열로 담습니다.
+        var temporarySelectedScheduleRange: SelectedScheduleRange?
+        var selectedScheduleRanges = [SelectedScheduleRange]()
+        var exceededScheduleDirection = [false, false]
+        
         /// LineArea의 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
         var temporarySelectedGridRange: SelectedGridRange?
-        var temporarySelectedScheduleRange: SelectedScheduleRange?
         var selectedGridRanges = [SelectedGridRange]()
-        var selectedScheduleRanges = [SelectedScheduleRange]()
         var selectedDateRanges = [SelectedDateRange]()
         var exceededDirection = [false, false, false, false]
-        var exceededScheduleDirection = [false, false]
         
         /// LineIndexArea의 선택된 영역을 배열로 담습니다.
         var temporarySelectedLineIndexRows: [Int]?
@@ -1985,23 +1987,42 @@ struct PlanBoard: Reducer {
                     state.temporarySelectedListGridRanges = nil
                     state.selectedLineIndexRows = []
                     state.temporarySelectedLineIndexRows = []
+                    state.selectedScheduleRanges = []
+                    state.temporarySelectedScheduleRange = nil
                     state.selectedListColumn = nil
                 case .listArea:
                     state.selectedGridRanges = []
+                    state.temporarySelectedGridRange = nil
                     state.selectedLineIndexRows = []
                     state.temporarySelectedLineIndexRows = []
+                    state.selectedScheduleRanges = []
+                    state.temporarySelectedScheduleRange = nil
                     state.selectedListColumn = nil
                 case .lineIndexArea:
                     state.selectedGridRanges = []
+                    state.temporarySelectedGridRange = nil
                     state.selectedListGridRanges = nil
                     state.temporarySelectedListGridRanges = nil
+                    state.selectedScheduleRanges = []
+                    state.temporarySelectedScheduleRange = nil
                     state.selectedListColumn = nil
                 case .listControlArea:
                     state.selectedGridRanges = []
+                    state.temporarySelectedGridRange = nil
+                    state.selectedListGridRanges = nil
+                    state.temporarySelectedListGridRanges = nil
+                    state.selectedScheduleRanges = []
+                    state.temporarySelectedScheduleRange = nil
+                    state.selectedLineIndexRows = []
+                    state.temporarySelectedLineIndexRows = []
+                case .scheduleArea:
+                    state.selectedGridRanges = []
+                    state.temporarySelectedGridRange = nil
                     state.selectedListGridRanges = nil
                     state.temporarySelectedListGridRanges = nil
                     state.selectedLineIndexRows = []
                     state.temporarySelectedLineIndexRows = []
+                    state.selectedListColumn = nil
                 default:
                     break
                     
@@ -2161,8 +2182,9 @@ struct PlanBoard: Reducer {
             case let .setExceededScheduleDirection(newDirection):
                 state.exceededScheduleDirection = newDirection
                 return .none
+                
             case .listItemDoubleClicked:
-                /// clicked 위치가 listMap인지 listArea인지 계산
+                /// 각 plan들의 높이를 계산
                 var planHeightsArray = [String: Int]()
                 var heightArray = (0..<state.map.count).map { _ in [Int]() }
                 for index in (0..<state.map.count).reversed() {
@@ -2180,9 +2202,10 @@ struct PlanBoard: Reducer {
                         heightArray[index].append(planHeightsArray[planID]!)
                     }
                 }
+                /// clicked 위치가 listMap인지 listArea인지 판단
                 if let clickedRow = state.listAreaHoveredCellRow, let clickedLayer = state.listAreaHoveredCellCol {
                     let sumOfLayerCount = heightArray[clickedLayer].reduce(0, +)
-                    
+                    /// listMap 넘어서 클릭된 것이면
                     if clickedRow + 1 > sumOfLayerCount {
                         state.keyword = ""
                         state.selectedListRow = nil
