@@ -507,12 +507,12 @@ extension ProjectBoardView {
                         radius: 4,
                         y: 4
                     )
-                    .onTapGesture {
+                    .highPriorityGesture(TapGesture(count: 1).onEnded({
                         viewStore.$isSelected.wrappedValue.toggle()
-                    }
-                    .highPriorityGesture(TapGesture(count: 2).onEnded({
-                        viewStore.$isTapped.wrappedValue.toggle()
                     }))
+                    .simultaneousGesture(TapGesture(count: 2).onEnded {
+                        viewStore.$isTapped.wrappedValue.toggle()
+                    })
                     Spacer().frame(height: 8)
                     Text(viewStore.project.title)
                         .fontWeight(.medium)

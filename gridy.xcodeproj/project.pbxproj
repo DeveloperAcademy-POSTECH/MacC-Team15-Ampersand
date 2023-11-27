@@ -61,6 +61,7 @@
 		D107212A2B0D0192006B7991 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D10721292B0D0192006B7991 /* GoogleService-Info.plist */; };
 		D17800692AF35989002984CF /* PlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17800682AF35989002984CF /* PlanBoardView.swift */; };
 		D178006B2AF36952002984CF /* TopToolBarArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = D178006A2AF36952002984CF /* TopToolBarArea.swift */; };
+		EE1C54A92B0AECEB00DA0030 /* SelectedScheduleRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1C54A82B0AECEB00DA0030 /* SelectedScheduleRange.swift */; };
 		EE780DB72B023686005E761F /* EditPlanBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE780DB62B023686005E761F /* EditPlanBoardView.swift */; };
 		EED5EC6E2AF21D2700751FAE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6D2AF21D2700751FAE /* SplashView.swift */; };
 		EED5EC702AF21D4700751FAE /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */; };
@@ -122,6 +123,7 @@
 		D10721292B0D0192006B7991 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D17800682AF35989002984CF /* PlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBoardView.swift; sourceTree = "<group>"; };
 		D178006A2AF36952002984CF /* TopToolBarArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopToolBarArea.swift; sourceTree = "<group>"; };
+		EE1C54A82B0AECEB00DA0030 /* SelectedScheduleRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedScheduleRange.swift; sourceTree = "<group>"; };
 		EE780DB62B023686005E761F /* EditPlanBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlanBoardView.swift; sourceTree = "<group>"; };
 		EED5EC6D2AF21D2700751FAE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		EED5EC6F2AF21D4700751FAE /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				AD06C4BD2AD7766200E3CC07 /* PlanType.swift */,
 				ADCBA9F52AFA9B36000BBD1C /* Notice.swift */,
 				ADCBA9F72AFA9FAA000BBD1C /* Feedback.swift */,
+				EE1C54A82B0AECEB00DA0030 /* SelectedScheduleRange.swift */,
 				8A84F13A2AD2C8150070EC72 /* SelectedGridRange.swift */,
 				8ADAEE4A2ADFC9AC008E6A2B /* SelectedDateRange.swift */,
 				9764927F2B09C081004DC9E8 /* Schedule.swift */,
@@ -506,6 +509,7 @@
 				EED5EC842AF2233400751FAE /* CreateFolderView.swift in Sources */,
 				EED5EC7A2AF21F0900751FAE /* ShareImageView.swift in Sources */,
 				AD8ECB8E2ABC7CA10040A0B8 /* GridyApp.swift in Sources */,
+				EE1C54A92B0AECEB00DA0030 /* SelectedScheduleRange.swift in Sources */,
 				AD06C4BE2AD7766200E3CC07 /* PlanType.swift in Sources */,
 				AD52FE9A2AC95F3300AA001F /* DependencyValues+Extension.swift in Sources */,
 				AD96ED3E2AD13AE4005D197B /* ProjectBoardView.swift in Sources */,
