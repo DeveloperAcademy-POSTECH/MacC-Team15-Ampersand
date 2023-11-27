@@ -500,9 +500,7 @@ extension PlanBoardView {
                                                 ))
                                                 viewStore.send(.dismissTextFieldOnList)
                                             }
-                                            .onExitCommand {
-                                                viewStore.send(.dismissTextFieldOnList)
-                                            }
+                                            .onExitCommand { viewStore.send(.dismissTextFieldOnList) }
                                         )
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {
