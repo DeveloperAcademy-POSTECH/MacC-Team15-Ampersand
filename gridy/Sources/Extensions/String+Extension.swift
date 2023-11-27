@@ -77,10 +77,9 @@ extension String {
     static let layerControlLeft = "layerControlLeft"
     static let layerControlRight = "layerControlRight"
     
-    /* ListItem */
-    static let listItem = "listItem"
-    static let emptyListItem = "emptyListItem"
-    
+    /* ListArea */
+    static let createPlanOnTopButton = "createPlanOnTopButton"
+    static let createPlanAtBottomButton = "createPlanAtBottomButton"
     // MARK: - PorjectItem
     static let planBoardItemButton = "planBoardItemButton"
 }
