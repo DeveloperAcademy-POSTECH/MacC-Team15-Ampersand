@@ -125,6 +125,8 @@ struct PlanBoard: Reducer {
         var selectedScheduleRanges: [SelectedScheduleRange] = []
         var selectedDateRanges: [SelectedDateRange] = []
         var exceededDirection = [false, false, false, false]
+        var previewGridRange: SelectedDateRange?
+        var showPreviewLeading = false
         
         /// GeometryReader proxy값의 변화에 따라 Max 그리드 갯수가 변화합니다.
         var maxCol = 0
@@ -251,6 +253,7 @@ struct PlanBoard: Reducer {
         /// LineAreaView
         case dragGestureChanged(DragType, SelectedGridRange?)
         case dragGestureEnded(SelectedGridRange?)
+        case dragToPreview(SelectedDateRange?, showLeading: Bool)
         case dragExceeded(shiftedRow: Int, shiftedCol: Int, exceededRow: Int, exceededCol: Int)
         case dragExceededSchedule(shiftedCol: Int, exceededCol: Int)
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
@@ -1804,6 +1807,7 @@ struct PlanBoard: Reducer {
                 
                 // TODO: - 다른 플랜과 기간이 겹치도록 들어온 경우?
             case let .dragToMovePlanInLine(moveRowTo, targetPlanID, originPeriod, updatedPeriod):
+                // !!!: - Origin row, period가 동일하게 들어온 경우 에러남: 현재 뷰에서 예외처리해둔 상황
                 let projectID = state.rootProject.id
                 let targetPlan = state.existingPlans[targetPlanID]!
                 var currentRowCount = -1
@@ -2116,6 +2120,14 @@ struct PlanBoard: Reducer {
                 }
                 state.exceededCol = 0
                 state.exceededRow = 0
+                return .none
+                
+            case let .dragToPreview(newRange, showLeading):
+                if let prevRange = state.previewGridRange {
+                    if prevRange == newRange { return .none }
+                }
+                state.showPreviewLeading = showLeading
+                state.previewGridRange = newRange
                 return .none
                 
             case let .dragGestureEndedSchedule(newRange):
