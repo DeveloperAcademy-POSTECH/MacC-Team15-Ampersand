@@ -73,4 +73,9 @@ extension Date {
         }
         return days
     }
+    
+    func convertToKST() -> Date {
+            let timeZoneOffset = Double(TimeZone(abbreviation: "KST")!.secondsFromGMT(for: self))
+            return self.addingTimeInterval(timeZoneOffset)
+        }
 }

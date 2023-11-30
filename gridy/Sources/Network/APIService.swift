@@ -266,7 +266,19 @@ extension APIService {
             }
         },
         readPlans: { projectID in
-            return try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
+            var plans = try await FirestoreService.getDocuments(projectID, .plans, Plan.self) as! [Plan]
+            for (index, plan) in plans.enumerated() {
+                if let periods = plan.periods {
+                    for key in periods.keys {
+                        let originPeriod = plan.periods!["\(key)"]!
+                        plans[index].periods!["\(key)"] = [
+                            originPeriod[0].convertToKST(),
+                            originPeriod[1].convertToKST()
+                        ]
+                    }
+                }
+            }
+            return plans
         },
         updatePlans: { plansToUpdate, projectID in
             for plan in plansToUpdate {
