@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct ContentView: View {
     
+    let windowManager: WindowManager
     let store = Store(initialState: Authentication.State()) {
         Authentication()
             ._printChanges()
@@ -28,7 +29,8 @@ struct ContentView: View {
                         store: store.scope(
                             state: \.optionalProjectBoard,
                             action: { .optionalProjectBoard($0) }
-                        )
+                        ),
+                        windowManager: windowManager
                     )
                 }
             }
@@ -38,6 +40,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        let windowManager = WindowManager()
+        ContentView(windowManager: windowManager)
     }
 }
