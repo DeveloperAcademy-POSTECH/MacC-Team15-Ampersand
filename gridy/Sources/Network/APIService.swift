@@ -272,8 +272,7 @@ extension APIService {
                     for key in periods.keys {
                         let originPeriod = plan.periods!["\(key)"]!
                         plans[index].periods!["\(key)"] = [
-                            originPeriod[0].convertToKST(),
-                            originPeriod[1].convertToKST()
+                            originPeriod[0], originPeriod[1]
                         ]
                     }
                 }

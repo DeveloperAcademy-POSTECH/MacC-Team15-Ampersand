@@ -1365,10 +1365,10 @@ struct PlanBoard: Reducer {
                                         let lastIndex = state.existingPlans[planID]!.periods!.count
                                         state.existingPlans[planID]!.periods![String(lastIndex)] = [endDate, end]
                                     }
-                                    // TODO: - 아래 코드 용도가 무엇인지? nil 에러 발생 @LiLy
-//                                    if updatedPlans.firstIndex(where: { $0.id == planID }) == nil {
-//                                        updatedPlans.append(state.existingPlans[planID]!)
-//                                    }
+                                    if let plan = state.existingPlans[planID],
+                                       updatedPlans.firstIndex(where: { $0.id == planID }) == nil {
+                                        updatedPlans.append(plan)
+                                    }
                                 }
                             }
                         }
@@ -1891,20 +1891,35 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 let targetPlan = state.existingPlans[targetPlanID]!
                 var currentRowCount = -1
+                var originRowCount = -1
                 var targetParentPlan = state.existingPlans[state.rootProject.rootPlanID]!
                 var destinationParentPlan: Plan?
                 var laneIndexInParent = 0
+                var movedTargetPlanID = targetPlanID
                 // MARK: - 지우려는 targetPlan의 현재 부모를 찾는다
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
                     if parentPlan.childPlanIDs.map({ $0.value }).flatMap({ $0 }).contains(targetPlanID) {
                         targetParentPlan = parentPlan
+                        let originLaneIndexInParent = Int(parentPlan.childPlanIDs.first(where: { $0.value.contains(targetPlanID)})!.key)!
+                        originRowCount = currentRowCount + originLaneIndexInParent + 1
                     }
                     if currentRowCount < moveRowTo, moveRowTo <= currentRowCount + parentPlan.childPlanIDs.count {
                         destinationParentPlan = parentPlan
                         laneIndexInParent = currentRowCount - moveRowTo + 1
                     }
                     currentRowCount += parentPlan.childPlanIDs.count
+                }
+                
+                if originRowCount == moveRowTo {
+                    /// period만 수정하면 되는 경우
+                    return .run { send in
+                        await send(.dragToChangePeriod(
+                            planID: targetPlanID,
+                            originPeriod: originPeriod,
+                            updatedPeriod: updatedPeriod)
+                        )
+                    }
                 }
                 
                 // MARK: - 움직이려는 플랜을 먼저 수정
@@ -1916,41 +1931,65 @@ struct PlanBoard: Reducer {
                         state.existingPlans[targetPlanID]!.periods!["\(currentPeriodsIndex)"] = targetPlan.periods!["\(currentPeriodsIndex + 1)"]
                     }
                     state.existingPlans[targetPlanID]!.periods!["\(targetPlan.periods!.count - 1)"] = nil
+                    if state.existingPlans[targetPlanID]!.periods!.count > 0 {
+                        /// 남은 기간이 있을 때 이 플랜이 옮겨지는 것이 아니라 새로운 플랜이 생겨야 함
+                        movedTargetPlanID = UUID().uuidString
+                        state.existingPlans[movedTargetPlanID] = Plan(
+                            id: movedTargetPlanID,
+                            planTypeID: targetPlan.planTypeID,
+                            childPlanIDs: ["0": []],
+                            periods: ["0": updatedPeriod]
+                        )
+                    }
                 } else {
                     /// targetPlan이 periods가 단 하나인 경우
                     /// 기존 parent의 child lane에서 플랜을 삭제하는데, 플랜이 이 레인이 이거 하나뿐이었더라도 레인은 삭제되지 않음
                     state.existingPlans[targetParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.remove(at: targetParentPlan.childPlanIDs["\(laneIndexInParent)"]!.firstIndex(of: targetPlanID)!)
                 }
                 
-                var planIDsToUpdate = [String]()
+                var planIDsToUpdate = Set<String>()
+                var plansToDelete = [Plan]()
                 // MARK: - 옮긴 위치에 부모가 될 플랜이 이미 존재한다면
                 if let destinationParentPlan = destinationParentPlan {
                     /// 이미 타입이 동일한 plan이 존재하고, 이에 종속시키는 경우
-                    if let originPlanID = destinationParentPlan.childPlanIDs["\(laneIndexInParent)"]!.first(where: { state.existingPlans[$0]!.planTypeID == targetPlan.planTypeID }) {
+                    if let originPlanID = destinationParentPlan.childPlanIDs["\(laneIndexInParent)"]!.first(where: { state.existingPlans[$0]!.planTypeID == state.existingPlans[movedTargetPlanID]!.planTypeID }) {
                         let originPlan = state.existingPlans[originPlanID]!
                         state.existingPlans[originPlanID]!.periods!["\(originPlan.periods!.count)"] = updatedPeriod
-                        planIDsToUpdate.append(originPlanID)
+                        if state.existingPlans[movedTargetPlanID]!.periods!.count == 1 {
+                            plansToDelete.append(state.existingPlans[movedTargetPlanID]!)
+                            state.existingPlans[movedTargetPlanID] = nil
+                        }
+                        movedTargetPlanID = originPlanID
                     } else {
-                        state.existingPlans[destinationParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.append(targetPlanID)
+                        state.existingPlans[destinationParentPlan.id]!.childPlanIDs["\(laneIndexInParent)"]!.append(movedTargetPlanID)
                     }
-                    planIDsToUpdate.append(contentsOf: [targetParentPlan.id, destinationParentPlan.id, targetPlanID])
-                    let plansToUpdate = planIDsToUpdate.map { state.existingPlans[$0]! }
+                    planIDsToUpdate.insert(targetParentPlan.id)
+                    planIDsToUpdate.insert(destinationParentPlan.id)
+                    planIDsToUpdate.insert(movedTargetPlanID)
                     
+                    let plansToUpdate = planIDsToUpdate.map { state.existingPlans[$0]! }
+                    let plansToDeleteImmutable = plansToDelete
+                    let planToCreate = state.existingPlans[movedTargetPlanID]!
                     return .run { send in
                         await send(.reloadMap)
-                        await send(.dragToChangePeriod(
-                            planID: targetPlanID,
-                            originPeriod: originPeriod,
-                            updatedPeriod: updatedPeriod)
-                        )
+                        if targetPlanID != planToCreate.id {
+                            try await apiService.createPlans([planToCreate], projectID)
+                        } else {
+                            await send(.dragToChangePeriod(
+                                planID: targetPlanID,
+                                originPeriod: originPeriod,
+                                updatedPeriod: updatedPeriod)
+                            )
+                        }
                         try await apiService.updatePlans(plansToUpdate, projectID)
+                        try await apiService.deletePlans(plansToDeleteImmutable, projectID)
                     }
                 } else {
                     /// parentPlan이 없는 곳에 위치시킨 경우
                     var plansToCreate = [Plan]()
                     var plansToUpdate = [
                         state.existingPlans[targetParentPlan.id]!,
-                        state.existingPlans[targetPlanID]!
+                        state.existingPlans[movedTargetPlanID]!
                     ]
                     var targetLaneIndex: Int?
                     /// lane을 먼저 만들어야 함
@@ -1986,7 +2025,7 @@ struct PlanBoard: Reducer {
                     if state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] == nil {
                         state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"] = []
                     }
-                    state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"]!.append(targetPlanID)
+                    state.existingPlans[parentID]!.childPlanIDs["\(targetLaneIndex!)"]!.append(movedTargetPlanID)
                     
                     /// parentPlan의 total period 업데이트
                     if let prevTotalPeriod = state.existingPlans[state.map[lastLayerIndex][moveRowTo]]?.totalPeriod {
@@ -1998,6 +2037,9 @@ struct PlanBoard: Reducer {
                     
                     plansToUpdate.append(state.existingPlans[state.rootProject.rootPlanID]!)
                     plansToUpdate.append(state.existingPlans[state.map[lastLayerIndex][moveRowTo]]!)
+                    if targetPlanID != movedTargetPlanID {
+                        plansToCreate.append(state.existingPlans[movedTargetPlanID]!)
+                    }
                     let plansToCreateImmutable = plansToCreate
                     let plansToUpdateImmutable = plansToUpdate
                     return .run { send in
@@ -2008,11 +2050,6 @@ struct PlanBoard: Reducer {
                         try await apiService.updatePlans(
                             plansToUpdateImmutable,
                             projectID
-                        )
-                        await send(.dragToChangePeriod(
-                            planID: targetPlanID,
-                            originPeriod: originPeriod,
-                            updatedPeriod: updatedPeriod)
                         )
                         await send(.reloadMap)
                         await send(.reloadListMap)
