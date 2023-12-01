@@ -2295,7 +2295,7 @@ struct PlanBoard: Reducer {
                     await send(.setClickedArea(areaName: .scheduleArea))
                 }
                 
-            case let .dragGestureEnded:
+            case .dragGestureEnded:
                 if let newRange = state.temporarySelectedGridRange {
                     state.selectedGridRanges.append(newRange)
                 }

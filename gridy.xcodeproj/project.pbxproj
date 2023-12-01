@@ -315,6 +315,13 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		ADC1CCFD2B1A69B600FB3CFD /* PlanBoardView+Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "PlanBoardView+Extensions";
+			sourceTree = "<group>";
+		};
 		EE909A3F2AC3CDBF00C9AAF0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -326,6 +333,7 @@
 		EE909A422AC3CDEC00C9AAF0 /* PlanBoard */ = {
 			isa = PBXGroup;
 			children = (
+				ADC1CCFD2B1A69B600FB3CFD /* PlanBoardView+Extensions */,
 				AD96ED6B2AD6FBBE005D197B /* PlanBoard.swift */,
 				D17800682AF35989002984CF /* PlanBoardView.swift */,
 				D178006A2AF36952002984CF /* TopToolBarArea.swift */,
