@@ -169,7 +169,6 @@ struct TabItemView: View {
                         viewStore.send(.deleteShowingTab(projectID: projectID))
                     }
             }
-            
             .background(
                 viewStore.hoveredItem == projectID ||
                 viewStore.hoveredItem == .tabItemDeleteButton + projectID ||

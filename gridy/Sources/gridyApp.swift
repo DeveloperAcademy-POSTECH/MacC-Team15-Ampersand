@@ -50,7 +50,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func updateMaximizedStatus(window: NSWindow) {
         let screenSize = window.screen?.visibleFrame.size ?? NSSize.zero
         let windowSize = window.frame.size
-        windowManager.isMaximized = (windowSize.width >= screenSize.width && windowSize.height >= screenSize.height)
+        windowManager.isMaximized = (windowSize.width > screenSize.width && windowSize.height > screenSize.height)
     }
 }
 
