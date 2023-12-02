@@ -414,6 +414,13 @@ extension PlanBoardView {
                                                                     to: selectedRange.start
                                                                 )!
                                                                 if modifiedDate > selectedRange.end { return }
+                                                                viewStore.send(.setCurrentModifyingPlan(
+                                                                    plan.id,
+                                                                    SelectedDateRange(
+                                                                        start: modifiedDate,
+                                                                        end: selectedRange.end
+                                                                    )
+                                                                ))
                                                                 viewStore.send(.dragToPreview(nil, showLeading: false))
                                                                 viewStore.send(.dragToChangePeriod(
                                                                     planID: plan.id,
@@ -453,6 +460,13 @@ extension PlanBoardView {
                                                                     to: selectedRange.end
                                                                 )!
                                                                 if modifiedDate < selectedRange.start { return }
+                                                                viewStore.send(.setCurrentModifyingPlan(
+                                                                    plan.id,
+                                                                    SelectedDateRange(
+                                                                        start: selectedRange.start,
+                                                                        end: modifiedDate
+                                                                    )
+                                                                ))
                                                                 viewStore.send(.dragToPreview(nil, showLeading: false))
                                                                 viewStore.send(.dragToChangePeriod(
                                                                     planID: plan.id,
