@@ -361,7 +361,8 @@ extension PlanBoardView {
                             let negativeShiftedRow = -viewStore.shiftedRow - viewStore.scrolledRow
                             ZStack {
                                 if let previewRange = viewStore.previewGridRange,
-                                   viewStore.currentModifyingPlanID == plan.id {
+                                   viewStore.currentModifyingPlanID == plan.id,
+                                   viewStore.currentModifyingPlanPeriod == selectedRange {
                                     let previewWidth = CGFloat(previewRange.end.integerDate - previewRange.start.integerDate + 1)
                                     let offsetValue = (viewStore.showPreviewLeading ? width - previewWidth : previewWidth - width) * CGFloat(viewStore.gridWidth) / CGFloat(2)
                                     RoundedRectangle(cornerRadius: CGFloat(viewStore.lineAreaGridHeight * 0.5))
@@ -380,7 +381,8 @@ extension PlanBoardView {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
                                                 .stroke(Color.white, lineWidth: 1)
-                                            if viewStore.currentModifyingPlanID == plan.id {
+                                            if viewStore.currentModifyingPlanID == plan.id,
+                                               viewStore.currentModifyingPlanPeriod == selectedRange {
                                                 HStack {
                                                     Circle()
                                                         .gesture(DragGesture()
@@ -474,12 +476,10 @@ extension PlanBoardView {
                                         y: 8
                                     )
                                 
-                                HStack {
-                                    Text(planType.title)
-                                        .foregroundStyle(Color.white)
-                                        .padding(.bottom, 45)
-                                    Spacer()
-                                }
+                                Text(planType.title)
+                                    .foregroundStyle(Color.white)
+                                    .padding(.bottom, 45)
+                                    .offset(x: -width * viewStore.gridWidth / 2 + viewStore.gridWidth / 2)
                             }
                             .popover(
                                 isPresented: isUpdatePlanTypePresented,
