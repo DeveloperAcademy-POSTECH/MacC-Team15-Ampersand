@@ -257,6 +257,7 @@ struct PlanBoard: Reducer {
         /// PlanBoard
         case isShiftKeyPressed(Bool)
         case isCommandKeyPressed(Bool)
+        case escapeAll
         
         /// GridSizeController
         case changeWidthButtonTapped(CGFloat)
@@ -1633,6 +1634,13 @@ struct PlanBoard: Reducer {
                 state.isCommandKeyPressed = isPressed
                 return .none
                 
+            case .escapeAll:
+                return .run { send in
+                    await send(.escapeSelectedCell)
+                    await send(.setCurrentModifyingPlan("", nil))
+                    await send(.setCurrentModifyingSchedule(""))
+                }
+                
                 // MARK: - GridSizeController
             case let .changeWidthButtonTapped(diff):
                 state.gridWidth += diff
@@ -1903,6 +1911,11 @@ struct PlanBoard: Reducer {
                 // TODO: - 다른 플랜과 기간이 겹치도록 들어온 경우?
             case let .dragToMovePlanInLine(moveRowTo, targetPlanID, originPeriod, updatedPeriod):
                 // !!!: - Origin row, period가 동일하게 들어온 경우 에러남: 현재 뷰에서 예외처리해둔 상황
+                state.currentModifyingPlanID = targetPlanID
+                state.currentModifyingPlanPeriod = SelectedDateRange(
+                    start: updatedPeriod[0],
+                    end: updatedPeriod[1]
+                )
                 let projectID = state.rootProject.id
                 let targetPlan = state.existingPlans[targetPlanID]!
                 var currentRowCount = -1
@@ -2123,26 +2136,24 @@ struct PlanBoard: Reducer {
                 
                 // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
-                /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
-                    state.selectedGridRanges = [SelectedGridRange(
+                    let startPoint = SelectedGridRange(
                         start: (lastSelected.start.row, lastSelected.start.col),
                         end: (lastSelected.start.row, lastSelected.start.col)
-                    )]
+                    )
                     /// 만약 위 영역이 화면을 벗어났다면 화면을 스크롤 시킨다.
-                    if Int(state.selectedGridRanges.last!.start.col) < state.shiftedCol ||
-                        Int(state.selectedGridRanges.last!.start.col) > state.maxCol + state.shiftedCol - 2 {
+                    if Int(startPoint.start.col) < state.shiftedCol ||
+                        Int(startPoint.start.col) > state.maxCol + state.shiftedCol - 2 {
                         state.shiftedCol = state.selectedGridRanges.last!.start.col - 2
                     }
-                    if Int(state.selectedGridRanges.last!.start.row) < state.shiftedRow ||
-                        Int(state.selectedGridRanges.last!.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
-                        state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
+                    if Int(startPoint.start.row) < state.shiftedRow ||
+                        Int(startPoint.start.row) > state.maxLineAreaRow + state.shiftedRow - 2 {
+                        state.shiftedRow = max(startPoint.start.row, 0)
                     }
+                    /// esc를 눌렀을 때 선택영역이 없어져야 함
+                    state.selectedGridRanges = []
                 }
-                return .run { send in
-                    await send(.setCurrentModifyingPlan("", nil))
-                    await send(.setCurrentModifyingSchedule(""))
-                }
+                return .none
                 
             case let .windowSizeChanged(newSize):
                 if state.isExportPresented { return .none }

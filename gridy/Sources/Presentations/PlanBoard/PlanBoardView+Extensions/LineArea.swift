@@ -114,7 +114,7 @@ extension PlanBoardView {
                         .keyboardShortcut(.rightArrow, modifiers: [.command])
                         
                         Button {
-                            viewStore.send(.escapeSelectedCell)
+                            viewStore.send(.escapeAll)
                         } label: { }
                             .keyboardShortcut(.escape, modifiers: [])
                         
@@ -293,6 +293,8 @@ extension PlanBoardView {
                             }
                         }
                         .onEnded { _ in
+                            viewStore.send(.escapeSelectedCell)
+                            viewStore.send(.setCurrentModifyingSchedule(""))
                             viewStore.send(.dragGestureEnded)
                             viewStore.send(.setExceededDirection([false, false, false, false]))
                         }
@@ -405,6 +407,8 @@ extension PlanBoardView {
                                                                 ))
                                                             })
                                                             .onEnded({ value in
+                                                                viewStore.send(.setCurrentModifyingSchedule(""))
+                                                                viewStore.send(.escapeSelectedCell)
                                                                 let currentX = value.location.x
                                                                 let prevX = value.startLocation.x
                                                                 let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
@@ -451,6 +455,8 @@ extension PlanBoardView {
                                                                 ))
                                                             })
                                                             .onEnded({ value in
+                                                                viewStore.send(.setCurrentModifyingSchedule(""))
+                                                                viewStore.send(.escapeSelectedCell)
                                                                 let currentX = value.location.x
                                                                 let prevX = value.startLocation.x
                                                                 let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
@@ -532,13 +538,19 @@ extension PlanBoardView {
                                 y: CGFloat(Int(negativeShiftedRow) + Int(lineIndex)) * CGFloat(viewStore.lineAreaGridHeight) + CGFloat(correctionValue)
                             )
                             .highPriorityGesture(TapGesture(count: 1).onEnded({
+                                viewStore.send(.setCurrentModifyingSchedule(""))
+                                viewStore.send(.escapeSelectedCell)
                                 viewStore.send(.setCurrentModifyingPlan(plan.id, selectedRange))
                             }))
                             .simultaneousGesture(TapGesture(count: 2).onEnded({
+                                viewStore.send(.setCurrentModifyingSchedule(""))
+                                viewStore.send(.escapeSelectedCell)
                                 viewStore.send(.modifyPlanType(plan.id, selectedRange))
                             }))
                             .gesture(DragGesture()
                                 .onEnded({ value in
+                                    viewStore.send(.setCurrentModifyingSchedule(""))
+                                    viewStore.send(.escapeSelectedCell)
                                     let currentX = value.location.x
                                     let prevX = value.startLocation.x
                                     let countMovedLocationX = (currentX - prevX) / viewStore.gridWidth

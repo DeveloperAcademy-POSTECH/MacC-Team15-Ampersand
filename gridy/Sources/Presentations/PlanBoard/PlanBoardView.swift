@@ -205,6 +205,8 @@ extension PlanBoardView {
                             viewStore.send(.lineIndexDragGestureChanged(range: [startRow, endRow]))
                         }
                         .onEnded { _ in
+                            viewStore.send(.setCurrentModifyingPlan("", nil))
+                            viewStore.send(.setCurrentModifyingSchedule(""))
                             viewStore.send(.lineIndexDragGestureEnded)
                         }
                 )
@@ -454,6 +456,8 @@ extension PlanBoardView {
                 }
                 .highPriorityGesture(TapGesture(count: 2).onEnded({
                     listItemFocused = true
+                    viewStore.send(.setCurrentModifyingPlan("", nil))
+                    viewStore.send(.setCurrentModifyingSchedule(""))
                     viewStore.send(.listItemDoubleClicked)
                     viewStore.send(.setHoveredLocation(.none, false, nil))
                 }))
@@ -476,6 +480,8 @@ extension PlanBoardView {
                             viewStore.send(.listDragGestureChanged(cmdPressed: viewStore.isCommandKeyPressed, range: newRange))
                         }
                         .onEnded { _ in
+                            viewStore.send(.setCurrentModifyingPlan("", nil))
+                            viewStore.send(.setCurrentModifyingSchedule(""))
                             viewStore.send(.listDragGestureEnded)
                         }
                 )
