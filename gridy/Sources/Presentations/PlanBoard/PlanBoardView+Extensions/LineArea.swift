@@ -318,7 +318,7 @@ extension PlanBoardView {
                                             HStack {
                                                 Text(planType.title)
                                                     .foregroundStyle(Color.white)
-                                                    .padding(.bottom, 50)
+                                                    .padding(.bottom, 45)
                                                 Spacer()
                                             }
                                         }

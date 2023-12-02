@@ -127,6 +127,8 @@ struct PlanBoard: Reducer {
         var temporarySelectedScheduleRange: SelectedScheduleRange?
         var selectedScheduleRanges = [SelectedScheduleRange]()
         var exceededScheduleDirection = [false, false]
+        var previewScheduleRange: SelectedDateRange?
+        var showPreviewScheduleLeading = false
         
         /// LineArea의 선택된 영역을 배열로 담습니다. selectedDateRange는 Plan생성 API가 들어오면 삭제될 변수입니다.
         var temporarySelectedGridRange: SelectedGridRange?
@@ -186,7 +188,6 @@ struct PlanBoard: Reducer {
         var selectedLayer: Int?
 
         /// ScheduleArea
-        var editingSchedule = false
         var updateSchedulePresented = false
         
         /// TopToolBarArea
@@ -233,11 +234,11 @@ struct PlanBoard: Reducer {
         case readSchedules
         case readSchedulesRespones(TaskResult<[Schedule]>)
         case updateScheduleDate(scheduleID: String, originPeriod: [Date], updatedPeriod: [Date])
-        case updateScheduleText
-        case updateScheduleColorCode
+        case updateSchedule
         case deleteSchedule(scheduleID: String)
         case setCurrentModifyingSchedule(_ scheduleID: String)
         case editSchedule(_ scheduleID: String)
+        case dragToPreviewSchedule(SelectedDateRange?, showLeading: Bool)
         
         /// ListArea
         case createLayerButtonClicked(layer: Int)
@@ -370,6 +371,8 @@ struct PlanBoard: Reducer {
                     state.startDatePickerPresented = bool
                 case .endDatePickerButton:
                     state.endDatePickerPresented = bool
+                case .updateScheduleButton:
+                    state.updateSchedulePresented = bool
                 default:
                     break
                 }
@@ -784,7 +787,7 @@ struct PlanBoard: Reducer {
                 state.existingSchedules[newScheduleID] = newSchedule
                 return .run { send in
                     await send(.reloadScheduleMap)
-                    await send(.setCurrentModifyingSchedule(newScheduleID))
+                    await send(.editSchedule(newScheduleID))
                     try await apiService.createSchedule(newSchedule, projectID)
                 }
                 
@@ -817,28 +820,17 @@ struct PlanBoard: Reducer {
                     try await apiService.updateSchedule(updatedSchedule, projectID)
                 }
                 
-            case .updateScheduleText:
+            case .updateSchedule:
                 state.updateSchedulePresented = false
                 let projectID = state.rootProject.id
                 let scheduleID = state.currentModifyingScheduleID
                 let text = state.keyword
-                if state.existingSchedules[scheduleID]!.title == text {
+                let colorCode = state.selectedColorCode.getUIntCode()
+                if state.existingSchedules[scheduleID]!.title == text,
+                   state.existingSchedules[scheduleID]!.colorCode == colorCode {
                     return .none
                 }
                 state.existingSchedules[scheduleID]!.title = text
-                let updatedSchedule = state.existingSchedules[scheduleID]!
-                return .run { _ in
-                    try await apiService.updateSchedule(updatedSchedule, projectID)
-                }
-                
-            case .updateScheduleColorCode:
-                state.updateSchedulePresented = false
-                let projectID = state.rootProject.id
-                let scheduleID = state.currentModifyingScheduleID
-                let colorCode = state.selectedColorCode.getUIntCode()
-                if state.existingSchedules[scheduleID]!.colorCode == colorCode {
-                    return .none
-                }
                 state.existingSchedules[scheduleID]!.colorCode = colorCode
                 let updatedSchedule = state.existingSchedules[scheduleID]!
                 return .run { _ in
@@ -855,6 +847,11 @@ struct PlanBoard: Reducer {
                 }
                 
             case let .setCurrentModifyingSchedule(scheduleID):
+                state.updateSchedulePresented = false
+                state.currentModifyingScheduleID = scheduleID
+                return .none
+                
+            case let .editSchedule(scheduleID):
                 state.currentModifyingScheduleID = scheduleID
                 let currentSchdule = state.existingSchedules[scheduleID]!
                 state.keyword = currentSchdule.title ?? ""
@@ -862,9 +859,13 @@ struct PlanBoard: Reducer {
                 state.updateSchedulePresented = true
                 return .none
                 
-            case let .editSchedule(scheduleID):
-                state.currentModifyingScheduleID = scheduleID
-                state.editingSchedule = true
+            case let .dragToPreviewSchedule(newRange, showLeading):
+                if let prevRange = state.previewScheduleRange,
+                   prevRange == newRange {
+                    return .none
+                }
+                state.showPreviewScheduleLeading = showLeading
+                state.previewScheduleRange = newRange
                 return .none
                 
                 // MARK: - ListArea
@@ -2108,8 +2109,6 @@ struct PlanBoard: Reducer {
                 
                 // TODO: - esc 눌렀을 때 row가 보정되지 않는 로직을 수정
             case .escapeSelectedCell:
-                state.currentModifyingPlanID = ""
-                state.currentModifyingScheduleID = ""
                 /// esc를 눌렀을 때 마지막 선택영역의 시작점이 선택된다.
                 if let lastSelected = state.selectedGridRanges.last {
                     state.selectedGridRanges = [SelectedGridRange(
@@ -2126,7 +2125,10 @@ struct PlanBoard: Reducer {
                         state.shiftedRow = max(state.selectedGridRanges.last!.start.row, 0)
                     }
                 }
-                return .none
+                return .run { send in
+                    await send(.setCurrentModifyingPlan(""))
+                    await send(.setCurrentModifyingSchedule(""))
+                }
                 
             case let .windowSizeChanged(newSize):
                 if state.isExportPresented { return .none }
@@ -2307,8 +2309,9 @@ struct PlanBoard: Reducer {
                 }
             
             case let .dragToPreview(newRange, showLeading):
-                if let prevRange = state.previewGridRange {
-                    if prevRange == newRange { return .none }
+                if let prevRange = state.previewGridRange,
+                   prevRange == newRange {
+                    return .none
                 }
                 state.showPreviewLeading = showLeading
                 state.previewGridRange = newRange
