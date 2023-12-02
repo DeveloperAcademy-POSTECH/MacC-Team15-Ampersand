@@ -15,8 +15,6 @@ struct TopToolBarView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack(alignment: .center, spacing: 0) {
-                Text(viewStore.rootProject.title)
-                    .font(.title)
                 Spacer()
                 planBoardBorder(.vertical)
                 exportImageButton
