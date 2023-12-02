@@ -248,7 +248,7 @@ struct PlanBoard: Reducer {
         case deletePlanContents(ranges: [SelectedGridRange])
         case deleteLayerContents(layer: Int)
         case deletePlanOnList(layer: Int, row: Int)
-        case deletePlanOnLineWithID(planID: String)
+        case deletePlanOnLine
         case deletePlanOnLineWithRanges
         case deleteLaneOnLine(row: Int)
         case deleteLaneContents(rows: [Int])
@@ -1251,22 +1251,45 @@ struct PlanBoard: Reducer {
                     )
                 }
                 
-            case let .deletePlanOnLineWithID(planID):
+            case .deletePlanOnLine:
                 let projectID = state.rootProject.id
+                let planID = state.currentModifyingPlanID
+                let planPeriodToDelete = state.currentModifyingPlanPeriod!
                 let planToDelete = state.existingPlans[planID]!
-                var plansToUpdate = [Plan]()
-                /// 지울 플랜의 부모 child에서도 삭제
+                
+                /// 해당하는 period만 삭제
+                let periodsIndex = planToDelete.periods!.filter { $0.value == [planPeriodToDelete.start, planPeriodToDelete.end] }[0].key
+                for currentPeriodsIndex in Int(periodsIndex)!..<planToDelete.periods!.count-1 {
+                    state.existingPlans[planID]!.periods!["\(currentPeriodsIndex)"] = planToDelete.periods!["\(currentPeriodsIndex + 1)"]
+                }
+                state.existingPlans[planID]!.periods!["\(planToDelete.periods!.count - 1)"] = nil
+                var planIDToUpdate = planID
+                
+                /// periods가 여러개였던 것임
+                if planToDelete.periods!.count > 1 {
+                    let planToUpdate = state.existingPlans[planIDToUpdate]!
+                    return .run { send in
+                        await send(.reloadListMap)
+                        try await apiService.updatePlans(
+                            [planToUpdate],
+                            projectID
+                        )
+                    }
+                }
+                
+                /// targetPlan이 periods가 단 하나인 경우 지울 플랜의 부모 child에서 바로삭제
                 for parentPlanID in state.map[state.map.count - 1] {
                     let parentPlan = state.existingPlans[parentPlanID]!
                     let childLanes = parentPlan.childPlanIDs
                     for (index, childLane) in childLanes.enumerated() where childLane.value.contains(planID) {
                         state.existingPlans[parentPlanID]!.childPlanIDs["\(index)"]!.removeAll { $0 == planID }
-                        plansToUpdate.append(state.existingPlans[parentPlanID]!)
+                        planIDToUpdate = parentPlanID
                         break
                     }
                 }
+                
                 state.existingPlans[planID] = nil
-                let plansToUpdateImmutable = plansToUpdate
+                let planToUpdate = state.existingPlans[planIDToUpdate]!
                 return .run { send in
                     await send(.reloadListMap)
                     try await apiService.deletePlans(
@@ -1274,7 +1297,7 @@ struct PlanBoard: Reducer {
                         projectID
                     )
                     try await apiService.updatePlans(
-                        plansToUpdateImmutable,
+                        [planToUpdate],
                         projectID
                     )
                 }
@@ -2153,6 +2176,7 @@ struct PlanBoard: Reducer {
                     /// esc를 눌렀을 때 선택영역이 없어져야 함
                     state.selectedGridRanges = []
                 }
+                state.selectedScheduleRanges = []
                 return .none
                 
             case let .windowSizeChanged(newSize):

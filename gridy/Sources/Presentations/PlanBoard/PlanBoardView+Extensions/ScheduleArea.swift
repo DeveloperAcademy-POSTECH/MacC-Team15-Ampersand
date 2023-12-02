@@ -63,8 +63,8 @@ extension PlanBoardView {
     func scheduleShortcutButtons() -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             HStack {
-                Button {
-                    if !viewStore.selectedScheduleRanges.isEmpty {
+                if !viewStore.selectedScheduleRanges.isEmpty {
+                    Button {
                         let today = Date().filteredDate
                         let scheduleRangeToCreate = viewStore.selectedScheduleRanges.last!
                         let start = min(scheduleRangeToCreate.startCol, scheduleRangeToCreate.endCol)
@@ -74,11 +74,11 @@ extension PlanBoardView {
                            let endDay = Calendar.current.date(byAdding: .day, value: end, to: today)?.filteredDate {
                             viewStore.send(.createSchedule(startDate: startDay, endDate: endDay))
                         }
+                    } label: {
+                        Text("create Schedule")
                     }
-                } label: {
-                    Text("create Schedule")
+                    .keyboardShortcut(.return, modifiers: [])
                 }
-                .keyboardShortcut("u", modifiers: [])
             }
         }
     }
@@ -316,6 +316,7 @@ extension PlanBoardView {
                                 } label: {
                                     Text("확인")
                                 }
+                                .keyboardShortcut(.return, modifiers: [])
                             }
                             .padding()
                             .frame(width: 250, height: 80)
@@ -326,10 +327,12 @@ extension PlanBoardView {
                             y: CGFloat(geometry.size.height - 19/2 - 3) - CGFloat(scheduleRowIndex * 23)
                         )
                         .highPriorityGesture(TapGesture(count: 1).onEnded({
+                            viewStore.send(.escapeSelectedCell)
                             viewStore.send(.setCurrentModifyingPlan("", nil))
                             viewStore.send(.setCurrentModifyingSchedule(scheduleID))
                         }))
                         .simultaneousGesture(TapGesture(count: 2).onEnded({
+                            viewStore.send(.escapeSelectedCell)
                             viewStore.send(.setCurrentModifyingPlan("", nil))
                             viewStore.send(.editSchedule(scheduleID))
                         }))

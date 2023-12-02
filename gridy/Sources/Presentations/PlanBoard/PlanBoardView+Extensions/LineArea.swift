@@ -14,8 +14,8 @@ extension PlanBoardView {
             GeometryReader { geometry in
                 ZStack {
                     HStack {
-                        Button {
-                            if !viewStore.selectedGridRanges.isEmpty {
+                        if !viewStore.selectedGridRanges.isEmpty {
+                            Button {
                                 let today = Date().filteredDate
                                 let lastRange = viewStore.selectedGridRanges.last!
                                 let startDate = min(
@@ -44,11 +44,11 @@ extension PlanBoardView {
                                 )
                                 let row = min(lastRange.start.row, lastRange.end.row)
                                 viewStore.send(.createPlanOnLine(row: row, startDate: startDate, endDate: endDate))
+                            } label: {
+                                Text("create plan")
                             }
-                        } label: {
-                            Text("create Plan")
+                            .keyboardShortcut(.return, modifiers: [])
                         }
-                        .keyboardShortcut(.return, modifiers: [])
                         
                         Button {
                             viewStore.send(.shiftToToday)
@@ -118,10 +118,12 @@ extension PlanBoardView {
                         } label: { }
                             .keyboardShortcut(.escape, modifiers: [])
                         
-                        Button {
-                            viewStore.send(.deletePlanOnLineWithRanges)
-                        } label: { }
-                            .keyboardShortcut(.delete, modifiers: [])
+                        if !viewStore.selectedGridRanges.isEmpty {
+                            Button {
+                                viewStore.send(.deletePlanOnLineWithRanges)
+                            } label: { }
+                                .keyboardShortcut(.delete, modifiers: [])
+                        }
                     }
                     Color.lineArea
                     Path { path in
@@ -385,6 +387,11 @@ extension PlanBoardView {
                                                 .stroke(Color.white, lineWidth: 1)
                                             if viewStore.currentModifyingPlanID == plan.id,
                                                viewStore.currentModifyingPlanPeriod == selectedRange {
+                                                Button {
+                                                    viewStore.send(.deletePlanOnLine)
+                                                } label: { }
+                                                .keyboardShortcut(.delete, modifiers: [])
+                                                .opacity(0)
                                                 HStack {
                                                     Circle()
                                                         .gesture(DragGesture()
@@ -528,6 +535,7 @@ extension PlanBoardView {
                                     } label: {
                                         Text("확인")
                                     }
+                                    .keyboardShortcut(.return, modifiers: [])
                                 }
                                 .padding()
                                 .frame(width: 250, height: 80)
@@ -576,11 +584,6 @@ extension PlanBoardView {
                                     )
                                 })
                             )
-                            .contextMenu {
-                                Button("Delete") {
-                                    viewStore.send(.deletePlanOnLineWithID(planID: plan.id))
-                                }
-                            }
                         }
                     }
                 }
