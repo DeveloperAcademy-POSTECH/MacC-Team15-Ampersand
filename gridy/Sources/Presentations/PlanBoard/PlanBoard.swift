@@ -54,6 +54,7 @@ struct PlanBoard: Reducer {
         var keyword = ""
         var selectedColorCode = Color.white
         var currentModifyingPlanID = Plan.mock.id
+        var currentModifyingPlanPeriod: SelectedDateRange?
         var currentModifyingScheduleID = Schedule.mock.id
         
         /// 그리드 규격에 대한 변수들입니다.
@@ -226,8 +227,8 @@ struct PlanBoard: Reducer {
         case readPlansResponse(TaskResult<[Plan]>)
         case updatePlan
         
-        case setCurrentModifyingPlan(_ planID: String)
-        case modifyPlanType(_ planID: String)
+        case setCurrentModifyingPlan(_ planID: String, _ selectedDateRange: SelectedDateRange?)
+        case modifyPlanType(_ planID: String, _ selectedDateRange: SelectedDateRange?)
         
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
@@ -697,7 +698,13 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 
                 return .run { send in
-                    await send(.modifyPlanType(newPlanOnLine.id))
+                    await send(.modifyPlanType(
+                        newPlanOnLine.id,
+                        SelectedDateRange(
+                            start: startDate,
+                            end: endDate
+                        )
+                    ))
                     try await apiService.createPlans(
                         plansToCreateImmutable,
                         projectID
@@ -739,7 +746,12 @@ struct PlanBoard: Reducer {
             case .updatePlan:
                 state.updatePlanTypePresented = false
                 let currentModifyingPlanID = state.currentModifyingPlanID
-                if currentModifyingPlanID.isEmpty || state.existingPlans[currentModifyingPlanID] == nil { return .none }
+                let currentModifyingPlanPeriod = state.currentModifyingPlanPeriod
+                if currentModifyingPlanID.isEmpty
+                    || currentModifyingPlanPeriod == nil
+                    || state.existingPlans[currentModifyingPlanID] == nil {
+                    return .none
+                }
                 let projectID = state.rootProject.id
                 let planTitle = state.keyword
                 let colorCode = state.selectedColorCode.getUIntCode()
@@ -761,13 +773,15 @@ struct PlanBoard: Reducer {
                     await send(.reloadListMap)
                 }
                 
-            case let .setCurrentModifyingPlan(planID):
+            case let .setCurrentModifyingPlan(planID, selectedDateRange):
                 state.updatePlanTypePresented = false
                 state.currentModifyingPlanID = planID
+                state.currentModifyingPlanPeriod = selectedDateRange
                 return .none
                 
-            case let .modifyPlanType(planID):
+            case let .modifyPlanType(planID, selectedDateRange):
                 state.currentModifyingPlanID = planID
+                state.currentModifyingPlanPeriod = selectedDateRange
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
                 state.selectedColorCode = Color(hex: currentPlanType.colorCode)
@@ -2126,7 +2140,7 @@ struct PlanBoard: Reducer {
                     }
                 }
                 return .run { send in
-                    await send(.setCurrentModifyingPlan(""))
+                    await send(.setCurrentModifyingPlan("", nil))
                     await send(.setCurrentModifyingSchedule(""))
                 }
                 
