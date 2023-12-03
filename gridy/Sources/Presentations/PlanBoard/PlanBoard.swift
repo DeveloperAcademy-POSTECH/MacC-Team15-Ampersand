@@ -228,7 +228,9 @@ struct PlanBoard: Reducer {
         case updatePlan
         
         case setCurrentModifyingPlan(_ planID: String, _ selectedDateRange: SelectedDateRange?)
+        // TODO: 데모용 컬러셋
         case modifyPlanType(_ planID: String, _ selectedDateRange: SelectedDateRange?)
+        case modifyPlanTypeWithRow(_ planID: String, _ selectedDateRange: SelectedDateRange?, _ row: Int)
         
         /// Schedule
         case createSchedule(startDate: Date, endDate: Date)
@@ -699,12 +701,21 @@ struct PlanBoard: Reducer {
                 let projectID = state.rootProject.id
                 
                 return .run { send in
-                    await send(.modifyPlanType(
+//                    TODO: - 데모용 컬러셋
+//                    await send(.modifyPlanType(
+//                        newPlanOnLine.id,
+//                        SelectedDateRange(
+//                            start: startDate,
+//                            end: endDate
+//                        )
+//                    ))
+                    await send(.modifyPlanTypeWithRow(
                         newPlanOnLine.id,
                         SelectedDateRange(
                             start: startDate,
                             end: endDate
-                        )
+                        ),
+                        row
                     ))
                     try await apiService.createPlans(
                         plansToCreateImmutable,
@@ -786,6 +797,18 @@ struct PlanBoard: Reducer {
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
                 state.selectedColorCode = Color(hex: currentPlanType.colorCode)
+                state.updatePlanTypePresented = true
+                return .none
+                
+                // TODO: - 데모용 컬러셋
+            case let .modifyPlanTypeWithRow(planID, selectedDateRange, row):
+                state.currentModifyingPlanID = planID
+                state.currentModifyingPlanPeriod = selectedDateRange
+                let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
+                state.keyword = currentPlanType.title
+                state.selectedColorCode = currentPlanType.id == PlanType.emptyPlanType.id ? 
+                Color.planColors[row % 5].randomElement()!
+                : Color(hex: currentPlanType.colorCode)
                 state.updatePlanTypePresented = true
                 return .none
                 
