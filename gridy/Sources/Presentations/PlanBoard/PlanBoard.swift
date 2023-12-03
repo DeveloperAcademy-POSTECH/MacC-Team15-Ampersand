@@ -1340,9 +1340,26 @@ struct PlanBoard: Reducer {
                 }
                 /// 선택된 범위의 개수만큼 순회한다.
                 for selectedRange in selectedRanges {
-                    let startRow = min(selectedRange.start.row, selectedRange.end.row)
+                    let minRow = min(selectedRange.start.row, selectedRange.end.row)
+                    let startRow = minRow < 0 ? 0 : minRow
                     let endRow = max(selectedRange.start.row, selectedRange.end.row)
                     // TODO: - 기준 날짜로 대체, UTC to KST
+                    let selectedStartDate = Calendar.current.date(
+                        byAdding: .day,
+                        value: min(
+                            selectedRange.start.col,
+                            selectedRange.end.col
+                        ),
+                        to: Date().filteredDate
+                    )!
+                    let selectedEndDate = Calendar.current.date(
+                        byAdding: .day,
+                        value: max(
+                            selectedRange.start.col,
+                            selectedRange.end.col
+                        ),
+                        to: Date().filteredDate
+                    )!
                     let startDate = Calendar.current.date(
                         byAdding: .day,
                         value: min(
@@ -1385,20 +1402,19 @@ struct PlanBoard: Reducer {
                                     let start = period.value[0]
                                     let end = period.value[1]
                                     
-                                    if end < startDate || start > endDate {
+                                    if end < selectedStartDate || start > selectedEndDate {
                                         /// period가 범위 밖에 있는 경우 > 아무것도 안 함
                                         continue
-                                    } else if (start < startDate) && (end <= endDate) {
+                                    } else if (start < selectedStartDate) && (end <= selectedEndDate) {
                                         /// period의 끝 날짜가 범위에 걸친 경우 >  끝 날짜를 startDate로 업데이트 해줌
                                         state.existingPlans[planID]!.periods![period.key] = [start, startDate]
-                                    } else if (start >= startDate) && (end > endDate) {
+                                    } else if (start >= selectedStartDate) && (end > selectedEndDate) {
                                         /// period의 시작 날짜가 범위에 걸친 경우 > 시작 날짜를 endDate로 업데이트 해줌
                                         state.existingPlans[planID]!.periods![period.key] = [endDate, end]
-                                    } else if (start >= startDate) && (end <= endDate) {
+                                    } else if (start >= selectedStartDate) && (end <= selectedEndDate) {
                                         /// period가 범위 내에 속할 경우 > period 삭제
-                                        state.existingPlans[planID]!.periods!.removeValue(forKey: String(period.key))
-                                        /// 만약 plan이 가진 periods가 없어졌으면
-                                        if state.existingPlans[planID]!.periods!.isEmpty {
+                                        /// 만약 plan이 가진 periods가 삭제할 period 하나라면 바로 플랜 삭제
+                                        if state.existingPlans[planID]!.periods!.count == 1 {
                                             /// updatedPlans에 삭제할 plan의 ID 있다면 삭제해주고
                                             if let index = updatedPlans.firstIndex(where: { $0.id == planID }) {
                                                 updatedPlans.remove(at: index)
@@ -1413,6 +1429,7 @@ struct PlanBoard: Reducer {
                                                 updatedPlans.append(state.existingPlans[targetPlanID]!)
                                             }
                                         } else {
+                                            state.existingPlans[planID]!.periods!.removeValue(forKey: String(period.key))
                                             /// period 원소들을 key값에 따라 정렬해줌
                                             let sortedPeriods = state.existingPlans[planID]!.periods!.sorted { Int($0.key)! < Int($1.key)! }
                                             var orderedPeriods = [String: [Date]]()
@@ -1421,7 +1438,7 @@ struct PlanBoard: Reducer {
                                             }
                                             state.existingPlans[planID]!.periods = orderedPeriods
                                         }
-                                    } else if (start < startDate) && (end > endDate) {
+                                    } else if (start < selectedStartDate) && (end > selectedEndDate) {
                                         /// period 내에 범위가 속할 경우 [시작날짜, startDate], [endDate, end]로 나눠줌
                                         state.existingPlans[planID]!.periods![period.key] = [start, startDate]
                                         let lastIndex = state.existingPlans[planID]!.periods!.count
