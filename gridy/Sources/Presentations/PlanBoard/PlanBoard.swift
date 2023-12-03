@@ -198,10 +198,15 @@ struct PlanBoard: Reducer {
         /// popover
         var isExportPresented = false
         var isBoardSettingPresented = false
-        var isRightToolBarPresented = true
+        var isRightToolBarPresented = false
         
         /// each plan on line
         var updatePlanTypePresented = false
+        
+        /// righttoolbar
+        var currentDate = Date()
+        let days = ["일", "월", "화", "수", "목", "금", "토"]
+        var showingColorPicker = false
     }
     
     enum Action: BindableAction, Equatable, Sendable {
@@ -323,6 +328,9 @@ struct PlanBoard: Reducer {
         case reloadMap
         case reloadListMap
         case reloadScheduleMap
+        
+        // RightToolBar
+        case changeMonth(monthIndex: Int)
     }
     
     // MARK: - Body
@@ -2429,7 +2437,7 @@ struct PlanBoard: Reducer {
                     await send(.setClickedArea(areaName: .listArea))
                 }
                 
-            case let .dragGestureEndedSchedule:
+            case .dragGestureEndedSchedule:
                 if let newRange = state.temporarySelectedScheduleRange {
                     state.selectedScheduleRanges.append(newRange)
                 }
@@ -2639,6 +2647,10 @@ struct PlanBoard: Reducer {
                 state.scheduleMap = newMap
                 return .none
                 
+            case let .changeMonth(monthIndex):
+                state.currentDate = state.currentDate.moveMonth(movedMonth: monthIndex)
+                return .none
+
             default:
                 return .none
             }

@@ -83,6 +83,10 @@ extension Color {
     static let planBoardBorder = Color("planBoardBorder")
     static let rightToolBar = Color("rightToolBar")
     static let hoveredCell = Color("hoveredCell")
+    static let rightToolBarTask = Color("rightToolBarTask")
+    static let rightToolBarText = Color("rightToolBarText")
+    static let rightToolBarArea = Color("rightToolBarArea")
+    static let rightToolBarBackground = Color("rightToolBarBackground")
     
     // TODO: - Demo용 컬러셋, 추후 삭제
     static let planColors = [

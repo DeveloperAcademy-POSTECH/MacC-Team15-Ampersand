@@ -174,17 +174,17 @@ extension ProjectBoardView {
                         VStack(alignment: .center, spacing: 4) {
                             HStack(alignment: .center, spacing: 16) {
                                 Text("\(viewStore.currentDate.formattedMonth) 월")
-                                    .foregroundStyle(Color.black)
+                                    .foregroundStyle(Color.title)
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                 Spacer()
                                 Image(systemName: "chevron.left")
                                     .font(.body)
-                                    .foregroundColor(Color.gray)
+                                    .foregroundStyle(Color.title)
                                     .onTapGesture { viewStore.send(.changeMonth(monthIndex: -1))}
                                 Image(systemName: "chevron.right")
                                     .font(.body)
-                                    .foregroundColor(Color.gray)
+                                    .foregroundStyle(Color.title)
                                     .onTapGesture { viewStore.send(.changeMonth(monthIndex: 1))}
                             }
                             .padding(.horizontal, 24)
@@ -193,7 +193,7 @@ extension ProjectBoardView {
                                     Text(day)
                                         .font(.callout)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(day == "일" ? Color.gray : .black)
+                                        .foregroundColor(day == "일" ? Color.subtitle : .title)
                                         .frame(width: 25, height: 25)
                                 }
                             }
@@ -223,11 +223,11 @@ extension ProjectBoardView {
                 let isSunday = value.date.dayOfSunday() == 1
                 Circle()
                     .frame(width: 25, height: 25)
-                    .foregroundColor(isToday ? Color.black : .clear)
+                    .foregroundColor(isToday ? Color.title : .clear)
                 Text("\(value.day)")
                     .font(.title3)
                     .bold(isToday ? true : false)
-                    .foregroundColor(isSunday ? Color.gray : isToday ? Color.white : .black)
+                    .foregroundColor(isSunday ? Color.subtitle : isToday ? Color.folder : .title)
             }
         }
     }
@@ -432,7 +432,7 @@ extension ProjectBoardView {
                             )
                             .frame(width: 125, height: 44)
                             .overlay(
-                                Text("+ Plan Board")
+                                Text("**+**  새 프로젝트")
                                     .font(.title3)
                                     .fontWeight(.medium)
                                     .foregroundStyle(Color.buttonText)

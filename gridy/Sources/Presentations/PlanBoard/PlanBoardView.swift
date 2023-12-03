@@ -26,11 +26,23 @@ struct PlanBoardView: View {
                 }
                 Spacer()
             } else {
+                var isRightToolBarPresented: Binding<Bool> {
+                    Binding(
+                        get: { viewStore.isRightToolBarPresented },
+                        set: { newValue in
+                            viewStore.send(.popoverPresent(
+                                button: .rightToolBarButton,
+                                bool: newValue
+                            ))
+                        }
+                    )
+                }
                 VStack(alignment: .leading, spacing: 0) {
                     systemBorder(.horizontal)
                         .zIndex(5)
                     TopToolBarView(store: store, selfView: self)
                         .frame(height: 48)
+                        .background(Color.topToolBar)
                         .zIndex(5)
                     planBoardBorder(.horizontal)
                         .zIndex(5)
@@ -82,9 +94,9 @@ struct PlanBoardView: View {
                                     .zIndex(-1)
                             }
                         }
-                        if viewStore.isRightToolBarPresented {
-                            RightToolBarView()
-                                .frame(width: 240)
+                        if isRightToolBarPresented.wrappedValue {
+                            RightToolBarView(store: store)
+                                .frame(width: 272)
                                 .zIndex(4)
                                 .background(
                                     Color.white
@@ -140,7 +152,7 @@ extension PlanBoardView {
                     }
                     /// drag중일 때 보이는 사각형
                     if viewStore.clickedArea == .lineIndexArea,
-                        let temporaryRange = viewStore.temporarySelectedLineIndexRows {
+                       let temporaryRange = viewStore.temporarySelectedLineIndexRows {
                         let height = CGFloat((temporaryRange.last! - temporaryRange.first!).magnitude + 1) * viewStore.lineAreaGridHeight
                         let yPosition = CGFloat(temporaryRange.min()!) * viewStore.lineAreaGridHeight
                         Rectangle()
@@ -150,7 +162,7 @@ extension PlanBoardView {
                     }
                     /// drag가 끝나고 보이는 border있는 사각형
                     if viewStore.clickedArea == .lineIndexArea,
-                        let selectedRange = viewStore.selectedLineIndexRows {
+                       let selectedRange = viewStore.selectedLineIndexRows {
                         let height = CGFloat((selectedRange.last! - selectedRange.first!).magnitude + 1) * viewStore.lineAreaGridHeight
                         let yPosition = CGFloat(selectedRange.min()!) * viewStore.lineAreaGridHeight
                         Rectangle()
@@ -262,11 +274,11 @@ extension PlanBoardView {
                                     }
                             }
                             .background {
-                                if viewStore.clickedArea == .listControlArea, 
+                                if viewStore.clickedArea == .listControlArea,
                                     let layer = viewStore.selectedLayer, layer == layerIndex {
                                     RoundedRectangle(cornerRadius: 16)
-                                                .strokeBorder(Color.blue)
-                                                .background(RoundedRectangle(cornerRadius: 16).fill(Color.itemHovered))
+                                        .strokeBorder(Color.blue)
+                                        .background(RoundedRectangle(cornerRadius: 16).fill(Color.itemHovered))
                                 } else {
                                     RoundedRectangle(cornerRadius: 16)
                                         .foregroundStyle(viewStore.hoveredItem.contains("layerControl") && viewStore.hoveredItem.contains(String(layerIndex)) ?
@@ -302,7 +314,7 @@ extension PlanBoardView {
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
                     Button("deletePlanContents") {
-                        if viewStore.clickedArea == .listArea, 
+                        if viewStore.clickedArea == .listArea,
                             let ranges = viewStore.selectedListGridRanges {
                             viewStore.send(.deletePlanContents(ranges: ranges))
                             viewStore.send(.setClickedArea(areaName: .none))
@@ -332,7 +344,7 @@ extension PlanBoardView {
                     
                     let gridWidth = (geometry.size.width - viewStore.columnStroke * CGFloat(viewStore.map.count - 1)) / CGFloat(viewStore.map.count)
                     /// layer가 선택되었을 때
-                    if viewStore.clickedArea == .listControlArea, 
+                    if viewStore.clickedArea == .listControlArea,
                         let selectedLayer = viewStore.selectedLayer {
                         Rectangle()
                             .fill(Color.itemHovered.opacity(0.5))
@@ -365,7 +377,7 @@ extension PlanBoardView {
                             .opacity(viewStore.hoveredArea == .listArea ? 1 : 0)
                     }
                     /// drag중일 때 보이는 사각형
-                    if viewStore.clickedArea == .listArea, 
+                    if viewStore.clickedArea == .listArea,
                         let temporaryRange = viewStore.temporarySelectedListGridRanges {
                         let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                         let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.listGridWidth
@@ -377,7 +389,7 @@ extension PlanBoardView {
                             .position(x: xPosition, y: yPosition)
                     }
                     /// drag가 끝나고 보이는 border있는 사각형
-                    if viewStore.clickedArea == .listArea, 
+                    if viewStore.clickedArea == .listArea,
                         let selectedRanges = viewStore.selectedListGridRanges {
                         ForEach(selectedRanges, id: \.self) { selectedRange in
                             let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -422,9 +434,9 @@ extension PlanBoardView {
                                     ))
                                     viewStore.send(.dismissTextFieldOnList)
                                 }
-                                .onExitCommand {
-                                    viewStore.send(.dismissTextFieldOnList)
-                                }
+                                    .onExitCommand {
+                                        viewStore.send(.dismissTextFieldOnList)
+                                    }
                             )
                         // TODO: - 높이 수정
                             .frame(
@@ -516,7 +528,7 @@ extension PlanBoardView {
                                                 ))
                                                 viewStore.send(.dismissTextFieldOnList)
                                             }
-                                            .onExitCommand { viewStore.send(.dismissTextFieldOnList) }
+                                                .onExitCommand { viewStore.send(.dismissTextFieldOnList) }
                                         )
                                         .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
                                 } else {

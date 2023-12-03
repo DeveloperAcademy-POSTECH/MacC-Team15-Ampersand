@@ -13,18 +13,14 @@ struct TopToolBarView: View {
     let selfView: PlanBoardView
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            HStack(alignment: .center, spacing: 0) {
-                Spacer()
-                planBoardBorder(.vertical)
-                exportImageButton
-                planBoardBorder(.vertical)
-                boardSettingButton
-                planBoardBorder(.vertical)
-                rightToolBarButton
-            }
-            .background(Color.topToolBar)
+        HStack(alignment: .center, spacing: 8) {
+            boardSettingButton
+            Spacer()
+            exportImageButton
+            Spacer().frame(width: 8)
+            rightToolBarButton
         }
+        .padding(.horizontal, 8)
     }
 }
 
@@ -42,17 +38,13 @@ extension TopToolBarView {
                     }
                 )
             }
-            Rectangle()
-                .foregroundStyle(
-                    viewStore.hoveredItem == .exportButton ||
-                    viewStore.isExportPresented ?
-                    Color.topToolItem : .clear
-                )
+            RoundedRectangle(cornerRadius: 8)
+                .foregroundStyle(Color(hex: 0x585858))
                 .overlay(
-                    Image(systemName: "photo.fill")
-                        .foregroundStyle(.black)
+                    Text("Export")
+                        .font(.system(size: 12))
                 )
-                .frame(width: 48)
+                .frame(width: 61, height: 32)
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? .exportButton : ""))
                 }
@@ -113,16 +105,13 @@ extension TopToolBarView {
 extension TopToolBarView {
     var rightToolBarButton: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Rectangle()
-                .foregroundStyle(
-                    viewStore.hoveredItem == .rightToolBarButton ?
-                    Color.topToolItem : .clear
-                )
+            RoundedRectangle(cornerRadius: 8)
+                .foregroundStyle(Color(hex: 0x585858))
                 .overlay(
-                    Image(systemName: "rectangle.portrait.and.arrow.forward")
-                        .foregroundStyle(.black)
+                    Image(systemName: "sidebar.squares.right")
+                        .foregroundStyle(Color(hex: 0x8E8E8E))
                 )
-                .frame(width: 48)
+                .frame(width: 32, height: 32)
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? .rightToolBarButton : ""))
                 }
