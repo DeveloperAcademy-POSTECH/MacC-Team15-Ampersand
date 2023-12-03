@@ -112,7 +112,7 @@ extension PlanBoardView {
     func scheduleDraggingRectangle(geometry: GeometryProxy) -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             if viewStore.clickedArea == .scheduleArea,
-                let temporaryRange = viewStore.temporarySelectedScheduleRange {
+               let temporaryRange = viewStore.temporarySelectedScheduleRange {
                 let width = CGFloat((temporaryRange.endCol - temporaryRange.startCol).magnitude + 1) * viewStore.gridWidth
                 let isStartColSmaller = temporaryRange.startCol <= temporaryRange.endCol
                 Rectangle()
@@ -189,7 +189,7 @@ extension PlanBoardView {
                                         x: offsetValue
                                     )
                             }
-                            RoundedRectangle(cornerRadius: 19 * 0.5)
+                            RoundedRectangle(cornerRadius: 4)
                                 .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.4))
                                 .frame(
                                     width: width * viewStore.gridWidth,
@@ -197,11 +197,12 @@ extension PlanBoardView {
                                 )
                                 .overlay(
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: 19 * 0.5)
+                                        RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.white, lineWidth: 1)
                                         if viewStore.currentModifyingScheduleID == scheduleID {
                                             HStack {
-                                                Circle()
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .frame(width: 6)
                                                     .gesture(DragGesture()
                                                         .onChanged({ value in
                                                             let currentX = value.location.x
@@ -221,27 +222,28 @@ extension PlanBoardView {
                                                                 showLeading: true
                                                             ))
                                                         })
-                                                        .onEnded({ value in
-                                                            viewStore.send(.setCurrentModifyingPlan("", nil))
-                                                            let currentX = value.location.x
-                                                            let prevX = value.startLocation.x
-                                                            let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                            let modifiedDate = Calendar.current.date(
-                                                                byAdding: .day,
-                                                                value: Int(countMovedLocation),
-                                                                to: schedule.startDate
-                                                            )!
-                                                            if modifiedDate > schedule.endDate { return }
-                                                            viewStore.send(.dragToPreviewSchedule(nil, showLeading: false))
-                                                            viewStore.send(.updateScheduleDate(
-                                                                scheduleID: scheduleID,
-                                                                originPeriod: [schedule.startDate, schedule.endDate],
-                                                                updatedPeriod: [modifiedDate, schedule.endDate]
-                                                            ))
-                                                        })
+                                                            .onEnded({ value in
+                                                                viewStore.send(.setCurrentModifyingPlan("", nil))
+                                                                let currentX = value.location.x
+                                                                let prevX = value.startLocation.x
+                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                let modifiedDate = Calendar.current.date(
+                                                                    byAdding: .day,
+                                                                    value: Int(countMovedLocation),
+                                                                    to: schedule.startDate
+                                                                )!
+                                                                if modifiedDate > schedule.endDate { return }
+                                                                viewStore.send(.dragToPreviewSchedule(nil, showLeading: false))
+                                                                viewStore.send(.updateScheduleDate(
+                                                                    scheduleID: scheduleID,
+                                                                    originPeriod: [schedule.startDate, schedule.endDate],
+                                                                    updatedPeriod: [modifiedDate, schedule.endDate]
+                                                                ))
+                                                            })
                                                     )
                                                 Spacer()
-                                                Circle()
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .frame(width: 6)
                                                     .gesture(DragGesture()
                                                         .onChanged({ value in
                                                             let currentX = value.location.x
@@ -261,24 +263,24 @@ extension PlanBoardView {
                                                                 showLeading: false
                                                             ))
                                                         })
-                                                        .onEnded({ value in
-                                                            viewStore.send(.setCurrentModifyingPlan("", nil))
-                                                            let currentX = value.location.x
-                                                            let prevX = value.startLocation.x
-                                                            let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                            let modifiedDate = Calendar.current.date(
-                                                                byAdding: .day,
-                                                                value: Int(countMovedLocation),
-                                                                to: schedule.endDate
-                                                            )!
-                                                            if modifiedDate < schedule.startDate { return }
-                                                            viewStore.send(.dragToPreviewSchedule(nil, showLeading: false))
-                                                            viewStore.send(.updateScheduleDate(
-                                                                scheduleID: scheduleID,
-                                                                originPeriod: [schedule.startDate, schedule.endDate],
-                                                                updatedPeriod: [schedule.startDate, modifiedDate]
-                                                            ))
-                                                        })
+                                                            .onEnded({ value in
+                                                                viewStore.send(.setCurrentModifyingPlan("", nil))
+                                                                let currentX = value.location.x
+                                                                let prevX = value.startLocation.x
+                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                let modifiedDate = Calendar.current.date(
+                                                                    byAdding: .day,
+                                                                    value: Int(countMovedLocation),
+                                                                    to: schedule.endDate
+                                                                )!
+                                                                if modifiedDate < schedule.startDate { return }
+                                                                viewStore.send(.dragToPreviewSchedule(nil, showLeading: false))
+                                                                viewStore.send(.updateScheduleDate(
+                                                                    scheduleID: scheduleID,
+                                                                    originPeriod: [schedule.startDate, schedule.endDate],
+                                                                    updatedPeriod: [schedule.startDate, modifiedDate]
+                                                                ))
+                                                            })
                                                     )
                                             }
                                         }

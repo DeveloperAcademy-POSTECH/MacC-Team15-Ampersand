@@ -177,7 +177,7 @@ extension PlanBoardView {
                         planItems(geometry: geometry)
                         
                         if viewStore.clickedArea == .lineArea,
-                            let temporaryRange = viewStore.temporarySelectedGridRange {
+                           let temporaryRange = viewStore.temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                             let width = CGFloat((temporaryRange.end.col - temporaryRange.start.col).magnitude + 1) * viewStore.gridWidth
                             let xPosition = CGFloat(temporaryRange.minCol() - viewStore.shiftedCol - viewStore.scrolledCol) * viewStore.gridWidth + width / 2
@@ -386,16 +386,22 @@ extension PlanBoardView {
                                     .overlay(
                                         ZStack {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                                .stroke(Color.white, lineWidth: 1)
+                                                .stroke(Color.white.opacity(isBeingModified ? 1 : 0.8), lineWidth: isBeingModified ? 2 : 1)
                                             if isBeingModified,
                                                viewStore.currentModifyingPlanPeriod == selectedRange {
                                                 Button {
                                                     viewStore.send(.deletePlanOnLine)
                                                 } label: { }
-                                                .keyboardShortcut(.delete, modifiers: [])
-                                                .opacity(0)
+                                                    .keyboardShortcut(.delete, modifiers: [])
+                                                    .opacity(0)
                                                 HStack {
                                                     Circle()
+                                                        .foregroundStyle(Color.white.opacity(0.01))
+                                                        .overlay(
+                                                            HalfCircleShapeLeft()
+                                                                .stroke(lineWidth: 6)
+                                                                .scaleEffect(0.6)
+                                                        )
                                                         .gesture(DragGesture()
                                                             .onChanged({ value in
                                                                 let currentX = value.location.x
@@ -415,35 +421,41 @@ extension PlanBoardView {
                                                                     showLeading: true
                                                                 ))
                                                             })
-                                                            .onEnded({ value in
-                                                                viewStore.send(.setCurrentModifyingSchedule(""))
-                                                                viewStore.send(.escapeSelectedCell)
-                                                                let currentX = value.location.x
-                                                                let prevX = value.startLocation.x
-                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                                let modifiedDate = Calendar.current.date(
-                                                                    byAdding: .day,
-                                                                    value: Int(countMovedLocation),
-                                                                    to: selectedRange.start
-                                                                )!
-                                                                if modifiedDate > selectedRange.end { return }
-                                                                viewStore.send(.setCurrentModifyingPlan(
-                                                                    plan.id,
-                                                                    SelectedDateRange(
-                                                                        start: modifiedDate,
-                                                                        end: selectedRange.end
-                                                                    )
-                                                                ))
-                                                                viewStore.send(.dragToPreview(nil, showLeading: false))
-                                                                viewStore.send(.dragToChangePeriod(
-                                                                    planID: plan.id,
-                                                                    originPeriod: [selectedRange.start, selectedRange.end],
-                                                                    updatedPeriod: [modifiedDate, selectedRange.end]
-                                                                ))
-                                                            })
+                                                                .onEnded({ value in
+                                                                    viewStore.send(.setCurrentModifyingSchedule(""))
+                                                                    viewStore.send(.escapeSelectedCell)
+                                                                    let currentX = value.location.x
+                                                                    let prevX = value.startLocation.x
+                                                                    let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                    let modifiedDate = Calendar.current.date(
+                                                                        byAdding: .day,
+                                                                        value: Int(countMovedLocation),
+                                                                        to: selectedRange.start
+                                                                    )!
+                                                                    if modifiedDate > selectedRange.end { return }
+                                                                    viewStore.send(.setCurrentModifyingPlan(
+                                                                        plan.id,
+                                                                        SelectedDateRange(
+                                                                            start: modifiedDate,
+                                                                            end: selectedRange.end
+                                                                        )
+                                                                    ))
+                                                                    viewStore.send(.dragToPreview(nil, showLeading: false))
+                                                                    viewStore.send(.dragToChangePeriod(
+                                                                        planID: plan.id,
+                                                                        originPeriod: [selectedRange.start, selectedRange.end],
+                                                                        updatedPeriod: [modifiedDate, selectedRange.end]
+                                                                    ))
+                                                                })
                                                         )
                                                     Spacer()
                                                     Circle()
+                                                        .foregroundStyle(Color.white.opacity(0.01))
+                                                        .overlay(
+                                                            HalfCircleShapeRight()
+                                                                .stroke(lineWidth: 6)
+                                                                .scaleEffect(0.6)
+                                                        )
                                                         .gesture(DragGesture()
                                                             .onChanged({ value in
                                                                 let currentX = value.location.x
@@ -463,32 +475,32 @@ extension PlanBoardView {
                                                                     showLeading: false
                                                                 ))
                                                             })
-                                                            .onEnded({ value in
-                                                                viewStore.send(.setCurrentModifyingSchedule(""))
-                                                                viewStore.send(.escapeSelectedCell)
-                                                                let currentX = value.location.x
-                                                                let prevX = value.startLocation.x
-                                                                let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                                let modifiedDate = Calendar.current.date(
-                                                                    byAdding: .day,
-                                                                    value: Int(countMovedLocation),
-                                                                    to: selectedRange.end
-                                                                )!
-                                                                if modifiedDate < selectedRange.start { return }
-                                                                viewStore.send(.setCurrentModifyingPlan(
-                                                                    plan.id,
-                                                                    SelectedDateRange(
-                                                                        start: selectedRange.start,
-                                                                        end: modifiedDate
-                                                                    )
-                                                                ))
-                                                                viewStore.send(.dragToPreview(nil, showLeading: false))
-                                                                viewStore.send(.dragToChangePeriod(
-                                                                    planID: plan.id,
-                                                                    originPeriod: [selectedRange.start, selectedRange.end],
-                                                                    updatedPeriod: [selectedRange.start, modifiedDate]
-                                                                ))
-                                                            })
+                                                                .onEnded({ value in
+                                                                    viewStore.send(.setCurrentModifyingSchedule(""))
+                                                                    viewStore.send(.escapeSelectedCell)
+                                                                    let currentX = value.location.x
+                                                                    let prevX = value.startLocation.x
+                                                                    let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
+                                                                    let modifiedDate = Calendar.current.date(
+                                                                        byAdding: .day,
+                                                                        value: Int(countMovedLocation),
+                                                                        to: selectedRange.end
+                                                                    )!
+                                                                    if modifiedDate < selectedRange.start { return }
+                                                                    viewStore.send(.setCurrentModifyingPlan(
+                                                                        plan.id,
+                                                                        SelectedDateRange(
+                                                                            start: selectedRange.start,
+                                                                            end: modifiedDate
+                                                                        )
+                                                                    ))
+                                                                    viewStore.send(.dragToPreview(nil, showLeading: false))
+                                                                    viewStore.send(.dragToChangePeriod(
+                                                                        planID: plan.id,
+                                                                        originPeriod: [selectedRange.start, selectedRange.end],
+                                                                        updatedPeriod: [selectedRange.start, modifiedDate]
+                                                                    ))
+                                                                })
                                                         )
                                                 }
                                             }
@@ -500,7 +512,7 @@ extension PlanBoardView {
                                         height: height
                                     )
                                     .shadow(
-                                        color: .white.opacity(isBeingModified ? 0.32 : 0),
+                                        color: .black.opacity(isBeingModified ? 0.8 : 0),
                                         radius: 6,
                                         x: 8,
                                         y: 8
@@ -564,35 +576,35 @@ extension PlanBoardView {
                                     if !isBeingModified { return }
                                     viewStore.send(.dragChanged(gesture.translation))
                                 })
-                                .onEnded({ value in
-                                    if !isBeingModified { return }
-                                    viewStore.send(.dragEnded)
-                                    viewStore.send(.setCurrentModifyingSchedule(""))
-                                    viewStore.send(.escapeSelectedCell)
-                                    let currentX = value.location.x
-                                    let prevX = value.startLocation.x
-                                    let countMovedLocationX = (currentX - prevX) / viewStore.gridWidth
-                                    let modifiedStartDate = Calendar.current.date(
-                                        byAdding: .day,
-                                        value: Int(countMovedLocationX),
-                                        to: selectedRange.start
-                                    )!
-                                    let modifiedEndDate = Calendar.current.date(
-                                        byAdding: .day,
-                                        value: Int(countMovedLocationX),
-                                        to: selectedRange.end
-                                    )!
-                                    let currentY = value.location.y
-                                    let prevY = value.startLocation.y
-                                    let countMovedLocationY = (currentY - prevY) / viewStore.lineAreaGridHeight
-                                    if countMovedLocationY == 0 { return }
-                                    viewStore.send(.dragToMovePlanInLine(
-                                        lineIndex + Int(countMovedLocationY),
-                                        plan.id,
-                                        [selectedRange.start, selectedRange.end],
-                                        [modifiedStartDate, modifiedEndDate])
-                                    )
-                                })
+                                    .onEnded({ value in
+                                        if !isBeingModified { return }
+                                        viewStore.send(.dragEnded)
+                                        viewStore.send(.setCurrentModifyingSchedule(""))
+                                        viewStore.send(.escapeSelectedCell)
+                                        let currentX = value.location.x
+                                        let prevX = value.startLocation.x
+                                        let countMovedLocationX = (currentX - prevX) / viewStore.gridWidth
+                                        let modifiedStartDate = Calendar.current.date(
+                                            byAdding: .day,
+                                            value: Int(countMovedLocationX),
+                                            to: selectedRange.start
+                                        )!
+                                        let modifiedEndDate = Calendar.current.date(
+                                            byAdding: .day,
+                                            value: Int(countMovedLocationX),
+                                            to: selectedRange.end
+                                        )!
+                                        let currentY = value.location.y
+                                        let prevY = value.startLocation.y
+                                        let countMovedLocationY = (currentY - prevY) / viewStore.lineAreaGridHeight
+                                        if countMovedLocationY == 0 { return }
+                                        viewStore.send(.dragToMovePlanInLine(
+                                            lineIndex + Int(countMovedLocationY),
+                                            plan.id,
+                                            [selectedRange.start, selectedRange.end],
+                                            [modifiedStartDate, modifiedEndDate])
+                                        )
+                                    })
                             )
                         }
                     }
@@ -678,5 +690,31 @@ extension PlanBoardView {
         default:
             break
         }
+    }
+}
+
+struct HalfCircleShapeLeft: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let radius = rect.height / 2.0
+        let center = CGPoint(x: rect.minX + radius, y: rect.midY)
+        
+        path.addArc(center: center, radius: radius, startAngle: Angle(degrees: 90), endAngle: Angle(degrees: -90), clockwise: false)
+        
+        return path
+    }
+}
+
+struct HalfCircleShapeRight: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let radius = rect.height / 2.0
+        let center = CGPoint(x: rect.minX + radius, y: rect.midY)
+        
+        path.addArc(center: center, radius: radius, startAngle: Angle(degrees: 90), endAngle: Angle(degrees: -90), clockwise: true)
+        
+        return path
     }
 }
