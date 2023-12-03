@@ -2530,7 +2530,7 @@ struct PlanBoard: Reducer {
                 if magnitude != 0 {
                     state.scrolledY += (-event.scrollingDeltaY / magnitude) / 4
                     state.scrolledX += (-event.scrollingDeltaX / magnitude) / 4
-                    state.scrolledRow = Int(state.scrolledY)
+                    state.scrolledRow = 0
                     state.scrolledCol = Int(state.scrolledX)
                 }
                 return .none
