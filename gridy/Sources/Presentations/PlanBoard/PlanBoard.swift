@@ -143,6 +143,11 @@ struct PlanBoard: Reducer {
         var temporarySelectedLineIndexRows: [Int]?
         var selectedLineIndexRows: [Int]?
         
+        /// drag plan to move in line area
+        var dragPosition: CGPoint = .zero
+        var isDragging = false
+        var dragOffset: CGSize = .zero
+        
         /// ListArea의 선택된 영역을 배열로 담습니디.
         var temporarySelectedListGridRanges: SelectedGridRange?
         var selectedListGridRanges: [SelectedGridRange]?
@@ -285,6 +290,8 @@ struct PlanBoard: Reducer {
         case dragToChangePeriod(planID: String, originPeriod: [Date], updatedPeriod: [Date])
         case dragToMoveLine(Int, Int)
         case setExceededDirection([Bool])
+        case dragChanged(CGSize)
+        case dragEnded
         
         /// source, destication: layer 내의 인덱스. row값은 또 따로 받음
         case dragToMovePlanInList(targetPlanID: String, source: Int, destination: Int, row: Int, layer: Int)
@@ -1838,6 +1845,16 @@ struct PlanBoard: Reducer {
                 
             case let .setExceededDirection(newDirection):
                 state.exceededDirection = newDirection
+                return .none
+
+            case let .dragChanged(offset):
+                state.isDragging = true
+                state.dragOffset = offset
+                return .none
+                
+            case .dragEnded:
+                state.isDragging = false
+                state.dragOffset = .zero
                 return .none
                 
             case let .dragToMovePlanInList(targetID, source, destination, row, layer):

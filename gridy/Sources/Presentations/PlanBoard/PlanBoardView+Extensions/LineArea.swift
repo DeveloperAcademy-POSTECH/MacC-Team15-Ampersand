@@ -354,6 +354,7 @@ extension PlanBoardView {
                                     }
                                 )
                             }
+                            let isBeingModified = viewStore.currentModifyingPlanID == plan.id
                             let planType: PlanType = viewStore.existingPlanTypes[plan.planTypeID]!
                             let height = viewStore.lineAreaGridHeight * 0.5
                             let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
@@ -365,7 +366,7 @@ extension PlanBoardView {
                             let negativeShiftedRow = -viewStore.shiftedRow - viewStore.scrolledRow
                             ZStack {
                                 if let previewRange = viewStore.previewGridRange,
-                                   viewStore.currentModifyingPlanID == plan.id,
+                                   isBeingModified,
                                    viewStore.currentModifyingPlanPeriod == selectedRange {
                                     let previewWidth = CGFloat(previewRange.end.integerDate - previewRange.start.integerDate + 1)
                                     let offsetValue = (viewStore.showPreviewLeading ? width - previewWidth : previewWidth - width) * CGFloat(viewStore.gridWidth) / CGFloat(2)
@@ -380,12 +381,13 @@ extension PlanBoardView {
                                         )
                                 }
                                 RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
-                                    .foregroundStyle(Color(hex: planType.colorCode).opacity(0.7))
+                                    .fill(Color(hex: planType.colorCode)
+                                        .opacity(viewStore.isDragging && isBeingModified ? 0.5 : 1))
                                     .overlay(
                                         ZStack {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
                                                 .stroke(Color.white, lineWidth: 1)
-                                            if viewStore.currentModifyingPlanID == plan.id,
+                                            if isBeingModified,
                                                viewStore.currentModifyingPlanPeriod == selectedRange {
                                                 Button {
                                                     viewStore.send(.deletePlanOnLine)
@@ -492,12 +494,13 @@ extension PlanBoardView {
                                             }
                                         }
                                     )
+                                    .offset(isBeingModified ? viewStore.dragOffset : CGSize.zero)
                                     .frame(
                                         width: width * CGFloat(viewStore.gridWidth),
                                         height: height
                                     )
                                     .shadow(
-                                        color: .white.opacity(viewStore.currentModifyingPlanID == plan.id ? 0.32 : 0),
+                                        color: .white.opacity(isBeingModified ? 0.32 : 0),
                                         radius: 6,
                                         x: 8,
                                         y: 8
@@ -557,7 +560,13 @@ extension PlanBoardView {
                                 viewStore.send(.modifyPlanType(plan.id, selectedRange))
                             }))
                             .gesture(DragGesture()
+                                .onChanged({ gesture in
+                                    if !isBeingModified { return }
+                                    viewStore.send(.dragChanged(gesture.translation))
+                                })
                                 .onEnded({ value in
+                                    if !isBeingModified { return }
+                                    viewStore.send(.dragEnded)
                                     viewStore.send(.setCurrentModifyingSchedule(""))
                                     viewStore.send(.escapeSelectedCell)
                                     let currentX = value.location.x
