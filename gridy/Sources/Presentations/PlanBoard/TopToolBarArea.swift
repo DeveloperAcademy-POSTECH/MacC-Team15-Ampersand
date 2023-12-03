@@ -75,17 +75,13 @@ extension TopToolBarView {
                     }
                 )
             }
-            Rectangle()
-                .foregroundStyle(
-                    viewStore.hoveredItem == .boardSettingButton ||
-                    viewStore.isBoardSettingPresented ?
-                    Color.topToolItem : .clear
-                )
+            RoundedRectangle(cornerRadius: 8)
+                .foregroundStyle(Color(hex: 0x585858))
                 .overlay(
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color(hex: 0x8E8E8E))
                 )
-                .frame(width: 48)
+                .frame(width: 32, height: 32)
                 .onHover { isHovered in
                     viewStore.send(.hoveredItem(name: isHovered ? .boardSettingButton : ""))
                 }
