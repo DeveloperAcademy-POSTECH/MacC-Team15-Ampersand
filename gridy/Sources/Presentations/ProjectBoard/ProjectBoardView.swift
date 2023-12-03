@@ -40,7 +40,6 @@ struct ProjectBoardView: View {
                 viewStore.showingProject!.id
             }
             VStack(alignment: .leading, spacing: 0) {
-                
                 TabBarView(store: store, isMaximized: windowManager.isMaximized)
                     .frame(height: 36)
                     .zIndex(2)
@@ -489,8 +488,10 @@ extension ProjectBoardView {
             WithViewStore(store, observe: { $0 }) { viewStore in
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .foregroundStyle(Color.board)
+                        Image(.gridyCover2)
+                            .resizable()
+                            .scaledToFill()
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         RoundedRectangle(cornerRadius: 16)
                             .strokeBorder(viewStore.isSelected ? Color.blue : viewStore.hoveredItem == .planBoardItemButton + "\(viewStore.id)" ? Color.boardHoveredBorder : .clear)
                             .shadow(

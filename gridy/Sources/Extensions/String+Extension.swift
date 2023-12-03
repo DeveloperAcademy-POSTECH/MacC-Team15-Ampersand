@@ -57,6 +57,9 @@ extension String {
     static let shareButton = "shareButton"
     static let saveButton = "saveButton"
     
+    static let gridyCover = "gridyCover"
+    static let gridyCover2 = "gridyCover2"
+    
     // MARK: - PlanBoard
     /* FocusGroups */
     static let topToolBarFocusGroup = "topToolBarFocusGroup"
