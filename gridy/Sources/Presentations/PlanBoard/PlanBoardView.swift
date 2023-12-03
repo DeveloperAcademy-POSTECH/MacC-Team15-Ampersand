@@ -162,14 +162,6 @@ extension PlanBoardView {
                             .frame(width: geometry.size.width, height: height)
                             .position(x: geometry.size.width / 2, y: yPosition + height / 2)
                             .contextMenu {
-                                //<<<<<<< HEAD
-                                //                                Button("Clear this lane") {
-                                //                                    if viewStore.selectedLineIndexRow! < viewStore.map.last!.count {
-                                //                                        viewStore.send(.deleteLaneContents(
-                                //                                            rows: [viewStore.selectedLineIndexRow!, viewStore.selectedLineIndexRow!]
-                                //                                        ))
-                                //                                        viewStore.send(.lineIndexAreaClicked(false))
-                                //=======
                                 if let rows = viewStore.selectedLineIndexRows {
                                     Button("Clear lanes") {
                                         viewStore.send(.deleteLaneContents(rows: rows))
@@ -180,7 +172,6 @@ extension PlanBoardView {
                                     }
                                     Button("Add a lane below") {
                                         // TODO: - create a lane on lineIndex
-                                        //>>>>>>> 4c748c78d38120c6f388a3d354bf4a022542efc8
                                     }
                                 }
                             }
