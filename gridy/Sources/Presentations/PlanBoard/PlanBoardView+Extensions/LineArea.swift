@@ -116,8 +116,15 @@ extension PlanBoardView {
                         Button {
                             viewStore.send(.escapeAll)
                         } label: { }
-                            .keyboardShortcut(.escape, modifiers: [])
-                        
+                        .keyboardShortcut(.escape, modifiers: [])
+                        Button {
+                            viewStore.send(.magnificationChangedInListArea(1.05, geometry.size))
+                        } label: { }
+                            .keyboardShortcut("+", modifiers: [.command])
+                        Button {
+                            viewStore.send(.magnificationChangedInListArea(0.95, geometry.size))
+                        } label: { }
+                            .keyboardShortcut("-", modifiers: [.command])
                         if !viewStore.selectedGridRanges.isEmpty {
                             Button {
                                 viewStore.send(.deletePlanOnLineWithRanges)

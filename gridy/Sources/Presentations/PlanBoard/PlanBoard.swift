@@ -305,6 +305,7 @@ struct PlanBoard: Reducer {
         case setHoveredLocation(PlanBoardAreaName, Bool, CGPoint?)
         case setHoveredListItem(areaName: PlanBoardAreaName, row: Int?, column: Int?)
         case magnificationChangedInListArea(CGFloat, CGSize)
+        case magnificationChangedInLineArea(CGFloat, CGSize)
         case scrollGesture(NSEvent)
         
         /// ListArea
