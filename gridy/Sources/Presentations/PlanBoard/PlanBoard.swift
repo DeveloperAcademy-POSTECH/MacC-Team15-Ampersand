@@ -822,7 +822,7 @@ struct PlanBoard: Reducer {
                 let currentPlanType = state.existingPlanTypes[state.existingPlans[planID]!.planTypeID]!
                 state.keyword = currentPlanType.title
                 state.selectedColorCode = currentPlanType.id == PlanType.emptyPlanType.id ? 
-                Color.planColors[row % 5].randomElement()!
+                Color.planColors[row % Color.planColors.count].randomElement()!
                 : Color(hex: currentPlanType.colorCode)
                 state.updatePlanTypePresented = true
                 return .none
