@@ -313,14 +313,14 @@ extension PlanBoardView {
         WithViewStore(store, observe: { $0 }) { viewStore in
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
-                    Button("deletePlanContents") {
-                        if viewStore.clickedArea == .listArea,
-                            let ranges = viewStore.selectedListGridRanges {
-                            viewStore.send(.deletePlanContents(ranges: ranges))
-                            viewStore.send(.setClickedArea(areaName: .none))
-                        }
-                    }
-                    .keyboardShortcut(.delete, modifiers: [])
+//                    Button("deletePlanContents") {
+//                        if viewStore.clickedArea == .listArea,
+//                            let ranges = viewStore.selectedListGridRanges {
+//                            viewStore.send(.deletePlanContents(ranges: ranges))
+//                            viewStore.send(.setClickedArea(areaName: .none))
+//                        }
+//                    }
+//                    .keyboardShortcut(.delete, modifiers: [])
                     
                     Color.listArea
                     
@@ -594,8 +594,8 @@ extension PlanBoardView {
                                     }
                                     .contextMenu {
                                         Button("Delete this Plan") {
-                                            viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
-                                            viewStore.send(.setClickedArea(areaName: .none))
+//                                            viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
+//                                            viewStore.send(.setClickedArea(areaName: .none))
                                         }
                                     }
                                     .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)

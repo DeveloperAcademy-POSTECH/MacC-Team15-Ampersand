@@ -361,7 +361,7 @@ extension PlanBoardView {
                                     }
                                 )
                             }
-                            let isBeingModified = viewStore.currentModifyingPlanID == plan.id
+                            let isBeingModified = viewStore.currentModifyingPlanID == plan.id && viewStore.currentModifyingPlanPeriod == selectedRange
                             let planType: PlanType = viewStore.existingPlanTypes[plan.planTypeID]!
                             let height = viewStore.lineAreaGridHeight * 0.5
                             let dayDifference = CGFloat(selectedRange.end.integerDate - selectedRange.start.integerDate)
