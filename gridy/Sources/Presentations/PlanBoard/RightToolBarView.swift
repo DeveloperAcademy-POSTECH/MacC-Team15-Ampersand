@@ -140,26 +140,26 @@ extension RightToolBarView {
                                     .frame(width: 93, height: 22)
                                     .foregroundColor(Color.rightToolBarArea)
                                 Spacer()
-                                RoundedRectangle(cornerRadius: 8)
-                                    .overlay {
-                                        Image(systemName: "trash")
-                                            .resizable()
-                                            .foregroundColor(Color.rightToolBarText)
-                                            .frame(width: 14, height: 14)
-                                    }
-                                    .frame(width: 24, height: 24)
-                                    .foregroundColor(Color.rightToolBarArea)
-                                    .padding(.trailing, 12)
+//                                RoundedRectangle(cornerRadius: 8)
+//                                    .overlay {
+//                                        Image(systemName: "trash")
+//                                            .resizable()
+//                                            .foregroundColor(Color.rightToolBarText)
+//                                            .frame(width: 14, height: 14)
+//                                    }
+//                                    .frame(width: 24, height: 24)
+//                                    .foregroundColor(Color.rightToolBarArea)
+//                                    .padding(.trailing, 12)
                             }
                             .padding(.leading, 12)
                             HStack {
                                 Text(selectedPlanType.title)
                                     .font(.system(size: 16))
                                     .foregroundColor(Color.title)
-                                Image(systemName: "pencil")
-                                    .resizable()
-                                    .frame(width: 15, height: 16)
-                                    .foregroundColor(Color.subtitle)
+//                                Image(systemName: "pencil")
+//                                    .resizable()
+//                                    .frame(width: 15, height: 16)
+//                                    .foregroundColor(Color.subtitle)
                             }
                             .padding(.leading, 16)
                             

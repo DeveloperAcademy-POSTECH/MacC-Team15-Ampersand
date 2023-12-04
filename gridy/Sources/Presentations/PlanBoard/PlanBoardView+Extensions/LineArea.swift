@@ -523,6 +523,15 @@ extension PlanBoardView {
                                     .padding(.bottom, 45)
                                     .offset(x: -width * viewStore.gridWidth / 2 + viewStore.gridWidth / 2)
                             }
+                            .contextMenu {
+                                Button {
+                                    viewStore.send(.deletePlanOnLine)
+                                } label: {
+                                    Text("Delete")
+                                }
+                                .keyboardShortcut(.delete, modifiers: [])
+                                .opacity(0)
+                            }
                             .popover(
                                 isPresented: isUpdatePlanTypePresented,
                                 attachmentAnchor: .point(.trailing),
