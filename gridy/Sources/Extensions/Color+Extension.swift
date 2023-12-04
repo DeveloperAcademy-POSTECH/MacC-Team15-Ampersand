@@ -96,14 +96,14 @@ extension Color {
         [Color(hex: 0xB0D06D)],
         [Color(hex: 0x7BD06D)],
         [Color(hex: 0x50C03E)],
-        [Color(hex: 0x83BCFF)], 
-        [Color(hex: 0x146CD2)],
-        [Color(hex: 0x004798)],
+        [Color(hex: 0xFF8E8E)],
+        [Color(hex: 0xE63C3C)],
+        [Color(hex: 0xA00000)],
         [Color(hex: 0xE8A4FF)],
         [Color(hex: 0xBF00FF)],
         [Color(hex: 0x8C0AB8)],
-        [Color(hex: 0xFF8E8E)],
-        [Color(hex: 0xE63C3C)],
-        [Color(hex: 0xA00000)]
+        [Color(hex: 0x83BCFF)],
+        [Color(hex: 0x146CD2)],
+        [Color(hex: 0x004798)]
     ]
 }
