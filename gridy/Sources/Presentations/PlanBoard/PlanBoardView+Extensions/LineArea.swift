@@ -382,7 +382,7 @@ extension PlanBoardView {
                                 }
                                 RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
                                     .fill(Color(hex: planType.colorCode)
-                                        .opacity(viewStore.isDragging && isBeingModified ? 0.5 : 1))
+                                    .opacity(viewStore.isDragging && isBeingModified ? 0.5 : 0.7))
                                     .overlay(
                                         ZStack {
                                             RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
