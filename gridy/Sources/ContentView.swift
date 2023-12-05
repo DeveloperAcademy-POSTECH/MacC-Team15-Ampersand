@@ -13,7 +13,6 @@ struct ContentView: View {
     let windowManager: WindowManager
     let store = Store(initialState: Authentication.State()) {
         Authentication()
-            ._printChanges()
     }
     
     var body: some View {

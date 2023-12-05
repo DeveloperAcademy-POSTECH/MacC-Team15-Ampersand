@@ -595,7 +595,7 @@ extension PlanBoardView {
                                     .contextMenu {
                                         Button("Delete this Plan") {
 //                                            viewStore.send(.deletePlanOnList(layer: layerIndex, row: rowIndex))
-//                                            viewStore.send(.setClickedArea(areaName: .none))
+                                            viewStore.send(.setClickedArea(areaName: .none))
                                         }
                                     }
                                     .frame(height: viewStore.lineAreaGridHeight * CGFloat(plan.childPlanIDs.count) - viewStore.rowStroke)
