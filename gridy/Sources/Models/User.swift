@@ -7,17 +7,27 @@
 
 import Foundation
 
-struct User: Decodable {
+struct User: Decodable, Equatable {
     var uid: String
     var email: String
     var firstName: String
     var lastName: String
-
+    
     var job: String?
     var profileImageURL: String?
+}
 
-    var username: String {
-        "\(firstName) \(lastName)"
+extension User: Identifiable {
+    var id: String { uid }
+}
+
+extension User {
+    var fullName: String {
+        let personNameFormatter = PersonNameComponentsFormatter()
+        var components = PersonNameComponents()
+        components.givenName = firstName
+        components.familyName = lastName
+        return personNameFormatter.string(from: components)
     }
     
     static let mock = User(
@@ -28,9 +38,3 @@ struct User: Decodable {
         job: "Developer"
     )
 }
-
-extension User: Identifiable {
-    var id: String { uid }
-}
-
-extension User: Equatable { }

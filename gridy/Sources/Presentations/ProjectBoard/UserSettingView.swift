@@ -30,7 +30,7 @@ extension UserSettingView {
             VStack(alignment: .center, spacing: 16) {
                 Circle()
                     .frame(width: 48, height: 48)
-                Text(viewStore.user.username)
+                Text(viewStore.user.fullName)
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.title)

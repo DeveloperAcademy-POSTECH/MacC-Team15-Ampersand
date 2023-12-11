@@ -126,7 +126,7 @@ extension ProjectBoardView {
                 Circle()
                     .foregroundStyle(Color.blackWhite)
                     .frame(width: 24, height: 24)
-                Text(viewStore.user.username)
+                Text(viewStore.user.fullName)
                     .foregroundStyle(Color.title)
                     .fontWeight(.medium)
                 Image(systemName: "chevron.down")
