@@ -2399,6 +2399,7 @@ struct PlanBoard: Reducer {
                     }
                 case .pressOnlyCommand:
                     break
+                    
                 case .pressBoth:
                     if let lastIndex = state.selectedScheduleRanges.indices.last,
                        let updatedScheduleRange = updatedScheduleRange {
@@ -2414,7 +2415,14 @@ struct PlanBoard: Reducer {
                 
             case .dragGestureEnded:
                 if let newRange = state.temporarySelectedGridRange {
-                    state.selectedGridRanges.append(newRange)
+                    var rangeToAppend = newRange
+                    if newRange.start.row < 0 {
+                        rangeToAppend.start.row = 0
+                    }
+                    if newRange.end.row < 0 {
+                        rangeToAppend.end.row = 0
+                    }
+                    state.selectedGridRanges.append(rangeToAppend)
                 }
                 state.temporarySelectedGridRange = nil
                 state.exceededCol = 0

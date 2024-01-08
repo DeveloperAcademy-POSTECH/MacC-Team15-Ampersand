@@ -181,8 +181,6 @@ extension PlanBoardView {
                                 .opacity(viewStore.hoveredArea == .lineIndexArea ? 1 : 0)
                         }
                         
-                        planItems(geometry: geometry)
-                        
                         if viewStore.clickedArea == .lineArea,
                            let temporaryRange = viewStore.temporarySelectedGridRange {
                             let height = CGFloat((temporaryRange.end.row - temporaryRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
@@ -200,7 +198,8 @@ extension PlanBoardView {
                                     y: yPosition
                                 )
                         }
-                        if viewStore.clickedArea == .lineArea && !viewStore.selectedGridRanges.isEmpty {
+                        if viewStore.clickedArea == .lineArea,
+                           !viewStore.selectedGridRanges.isEmpty {
                             ForEach(viewStore.selectedGridRanges, id: \.self) { selectedRange in
                                 let height = CGFloat((selectedRange.end.row - selectedRange.start.row).magnitude + 1) * viewStore.lineAreaGridHeight
                                 let width = CGFloat((selectedRange.end.col - selectedRange.start.col).magnitude + 1) * viewStore.gridWidth
@@ -219,6 +218,8 @@ extension PlanBoardView {
                                     .position(x: xPosition, y: yPosition)
                             }
                         }
+                        
+                        planItems(geometry: geometry)
                     }
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
@@ -257,8 +258,10 @@ extension PlanBoardView {
                             let exceededDirection = [
                                 dragEnd.x < 0,
                                 dragEnd.x > geometry.size.width,
-                                dragEnd.y < 0,
-                                dragEnd.y > geometry.size.height
+//                                dragEnd.y < 0,
+//                                dragEnd.y > geometry.size.height
+                                false,
+                                false
                             ]
                             viewStore.send(.setExceededDirection(exceededDirection))
                             if !viewStore.isCommandKeyPressed {
@@ -405,7 +408,7 @@ extension PlanBoardView {
                                                     Circle()
                                                         .foregroundStyle(Color.white.opacity(0.01))
                                                         .overlay(
-                                                            HalfCircleShapeLeft()
+                                                            HalfCircleShape(isClockwise: false)
                                                                 .stroke(lineWidth: 6)
                                                                 .scaleEffect(0.6)
                                                         )
@@ -459,7 +462,7 @@ extension PlanBoardView {
                                                     Circle()
                                                         .foregroundStyle(Color.white.opacity(0.01))
                                                         .overlay(
-                                                            HalfCircleShapeRight()
+                                                            HalfCircleShape(isClockwise: true)
                                                                 .stroke(lineWidth: 6)
                                                                 .scaleEffect(0.6)
                                                         )
@@ -709,28 +712,13 @@ extension PlanBoardView {
     }
 }
 
-struct HalfCircleShapeLeft: Shape {
+struct HalfCircleShape: Shape {
+    let isClockwise: Bool
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
         let radius = rect.height / 2.0
         let center = CGPoint(x: rect.minX + radius, y: rect.midY)
-        
-        path.addArc(center: center, radius: radius, startAngle: Angle(degrees: 90), endAngle: Angle(degrees: -90), clockwise: false)
-        
-        return path
-    }
-}
-
-struct HalfCircleShapeRight: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        let radius = rect.height / 2.0
-        let center = CGPoint(x: rect.minX + radius, y: rect.midY)
-        
-        path.addArc(center: center, radius: radius, startAngle: Angle(degrees: 90), endAngle: Angle(degrees: -90), clockwise: true)
-        
+        path.addArc(center: center, radius: radius, startAngle: Angle(degrees: 90), endAngle: Angle(degrees: -90), clockwise: isClockwise)
         return path
     }
 }
