@@ -391,8 +391,7 @@ extension PlanBoardView {
                                         )
                                 }
                                 RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(hex: planType.colorCode)
-                                    .opacity(viewStore.isDragging && isBeingModified ? 0.5 : 0.7))
+                                    .fill(Color(hex: planType.colorCode).opacity(isBeingModified || (isBeingModified && viewStore.isDragging) ? 0.2 : 0.7))
                                     .overlay(
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 4)
@@ -437,12 +436,14 @@ extension PlanBoardView {
                                                                     let currentX = value.location.x
                                                                     let prevX = value.startLocation.x
                                                                     let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                                    let modifiedDate = Calendar.current.date(
+                                                                    var modifiedDate = Calendar.current.date(
                                                                         byAdding: .day,
                                                                         value: Int(countMovedLocation),
                                                                         to: selectedRange.start
                                                                     )!
-                                                                    if modifiedDate > selectedRange.end { return }
+                                                                    if modifiedDate > selectedRange.end {
+                                                                        modifiedDate = selectedRange.end
+                                                                    }
                                                                     viewStore.send(.setCurrentModifyingPlan(
                                                                         plan.id,
                                                                         SelectedDateRange(
@@ -491,12 +492,14 @@ extension PlanBoardView {
                                                                     let currentX = value.location.x
                                                                     let prevX = value.startLocation.x
                                                                     let countMovedLocation = (currentX - prevX) / viewStore.gridWidth
-                                                                    let modifiedDate = Calendar.current.date(
+                                                                    var modifiedDate = Calendar.current.date(
                                                                         byAdding: .day,
                                                                         value: Int(countMovedLocation),
                                                                         to: selectedRange.end
                                                                     )!
-                                                                    if modifiedDate < selectedRange.start { return }
+                                                                    if modifiedDate < selectedRange.start {
+                                                                        modifiedDate = selectedRange.start
+                                                                    }
                                                                     viewStore.send(.setCurrentModifyingPlan(
                                                                         plan.id,
                                                                         SelectedDateRange(
