@@ -333,7 +333,7 @@ extension PlanBoardView {
         }
     }
     
-    func planItems(geometry: GeometryProxy) -> some View {
+    private func planItems(geometry: GeometryProxy) -> some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             let today = Date().filteredDate.integerDate
             ForEach(viewStore.listMap.indices, id: \.self) { lineIndex in
@@ -377,7 +377,7 @@ extension PlanBoardView {
                                    viewStore.currentModifyingPlanPeriod == selectedRange {
                                     let previewWidth = CGFloat(previewRange.end.integerDate - previewRange.start.integerDate + 1)
                                     let offsetValue = (viewStore.showPreviewLeading ? width - previewWidth : previewWidth - width) * CGFloat(viewStore.gridWidth) / CGFloat(2)
-                                    RoundedRectangle(cornerRadius: CGFloat(viewStore.lineAreaGridHeight * 0.5))
+                                    RoundedRectangle(cornerRadius: 4)
                                         .foregroundStyle(Color(hex: planType.colorCode).opacity(0.3))
                                         .frame(
                                             width: previewWidth * CGFloat(viewStore.gridWidth),
@@ -387,12 +387,12 @@ extension PlanBoardView {
                                             x: offsetValue
                                         )
                                 }
-                                RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                RoundedRectangle(cornerRadius: 4)
                                     .fill(Color(hex: planType.colorCode)
                                     .opacity(viewStore.isDragging && isBeingModified ? 0.5 : 0.7))
                                     .overlay(
                                         ZStack {
-                                            RoundedRectangle(cornerRadius: viewStore.lineAreaGridHeight * 0.5)
+                                            RoundedRectangle(cornerRadius: 4)
                                                 .stroke(Color.white.opacity(isBeingModified ? 1 : 0.8), lineWidth: isBeingModified ? 2 : 1)
                                             if isBeingModified,
                                                viewStore.currentModifyingPlanPeriod == selectedRange {

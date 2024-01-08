@@ -90,15 +90,15 @@ extension Color {
     
     // TODO: - Demo용 컬러셋, 추후 삭제
     static let planColors = [
+        [Color(hex: 0xFF8E8E)],
+        [Color(hex: 0xE63C3C)],
+        [Color(hex: 0xA00000)],
         [Color(hex: 0xF9D864)],
         [Color(hex: 0xF9B464)],
         [Color(hex: 0xFF5C00)],
         [Color(hex: 0xB0D06D)],
         [Color(hex: 0x7BD06D)],
         [Color(hex: 0x50C03E)],
-        [Color(hex: 0xFF8E8E)],
-        [Color(hex: 0xE63C3C)],
-        [Color(hex: 0xA00000)],
         [Color(hex: 0xE8A4FF)],
         [Color(hex: 0xBF00FF)],
         [Color(hex: 0x8C0AB8)],

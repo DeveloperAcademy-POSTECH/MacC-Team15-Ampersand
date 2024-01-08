@@ -179,7 +179,7 @@ extension PlanBoardView {
                                viewStore.currentModifyingScheduleID == scheduleID {
                                 let previewWidth = CGFloat(previewRange.end.integerDate - previewRange.start.integerDate + 1)
                                 let offsetValue = (viewStore.showPreviewScheduleLeading ? width - previewWidth : previewWidth - width) * CGFloat(viewStore.gridWidth) / CGFloat(2)
-                                RoundedRectangle(cornerRadius: CGFloat(viewStore.lineAreaGridHeight * 0.5))
+                                RoundedRectangle(cornerRadius: 4)
                                     .foregroundStyle(Color(hex: schedule.colorCode).opacity(0.2))
                                     .frame(
                                         width: previewWidth * CGFloat(viewStore.gridWidth),
