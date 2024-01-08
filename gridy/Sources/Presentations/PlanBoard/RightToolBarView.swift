@@ -79,8 +79,7 @@ extension RightToolBarView {
                             )
                             LazyVGrid(
                                 columns: columns,
-                                spacing: viewStore.currentDate.extractDate().count > 35 ? 0 : 6)
-                            {
+                                spacing: viewStore.currentDate.extractDate().count > 35 ? 0 : 6) {
                                 ForEach(viewStore.currentDate.extractDate()) { value in
                                     cardView(value: value)
                                 }
@@ -109,7 +108,7 @@ extension RightToolBarView {
                 Text("\(value.day)")
                     .font(.title3)
                     .bold(isToday ? true : false)
-                    .foregroundColor(isSunday ? Color.subtitle : isToday ? Color.white : .title)
+                    .foregroundColor(isSunday ? Color.subtitle : isToday ? Color.black : .title)
             }
         }
     }
