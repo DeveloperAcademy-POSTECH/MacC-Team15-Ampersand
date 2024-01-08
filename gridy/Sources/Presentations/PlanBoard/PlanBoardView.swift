@@ -246,9 +246,9 @@ extension PlanBoardView {
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlLeft + String(layerIndex) : ""))
                                     }
-                                    .onTapGesture {
-                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex))
-                                    }
+//                                    .onTapGesture {
+//                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex))
+//                                    }
                                 
                                 Rectangle()
                                     .foregroundStyle(.clear)
@@ -269,9 +269,9 @@ extension PlanBoardView {
                                     .onHover { isHovered in
                                         viewStore.send(.hoveredItem(name: isHovered ? .layerControlRight + String(layerIndex) : ""))
                                     }
-                                    .onTapGesture {
-                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex + 1))
-                                    }
+//                                    .onTapGesture {
+//                                        viewStore.send(.createLayerButtonClicked(layer: layerIndex + 1))
+//                                    }
                             }
                             .background {
                                 if viewStore.clickedArea == .listControlArea,
@@ -291,12 +291,14 @@ extension PlanBoardView {
                                     viewStore.send(.deleteLayerContents(layer: layerIndex))
                                     viewStore.send(.setClickedArea(areaName: .none))
                                 }
+                                .disabled(true)
                                 
                                 Button("Delete Layer") {
                                     viewStore.send(.deleteLayer(layer: layerIndex))
                                     viewStore.send(.setClickedArea(areaName: .none))
                                 }
-                                .disabled(viewStore.map.count == 1)
+//                                .disabled(viewStore.map.count == 1)
+                                .disabled(true)
                             }
                             .frame(height: 20)
                         }
