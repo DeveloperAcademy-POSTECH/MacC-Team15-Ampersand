@@ -583,7 +583,6 @@ extension PlanBoardView {
                                 viewStore.send(.setCurrentModifyingSchedule(""))
                                 viewStore.send(.escapeSelectedCell)
                                 viewStore.send(.setCurrentModifyingPlan(plan.id, selectedRange))
-                                viewStore.send(.popoverPresent(button: .rightToolBarButton, bool: true))
                             }))
                             .simultaneousGesture(TapGesture(count: 2).onEnded({
                                 viewStore.send(.setCurrentModifyingSchedule(""))
